@@ -49,13 +49,56 @@ const C = {
   warnLine: 'rgba(240,180,106,0.36)',
 }
 
-const HEADING_FONT = "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+const HEADING_FONT = "'Instrument Serif', Georgia, serif"
 
 const PORTAL_CSS = `
-.cp-root .cp-btn-primary{background:${C.crimson};color:#ffffff;border:1px solid ${C.crimsonLine}}
-.cp-root .cp-btn-primary:hover:not(:disabled){background:${C.crimsonHover}}
-.cp-root .cp-btn-quiet{background:${C.raised};color:${C.body};border:1px solid ${C.lineStrong}}
-.cp-root .cp-btn-quiet:hover:not(:disabled){color:${C.text};border-color:rgba(255,255,255,0.28)}
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+.cp-root {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.cp-root .serif {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+.cp-root .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+.cp-root .cp-btn-primary {
+  background: ${C.crimson};
+  color: #ffffff;
+  border: 1px solid ${C.crimsonLine};
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 10px rgba(200, 30, 60, 0.25);
+}
+.cp-root .cp-btn-primary:hover:not(:disabled) {
+  background: ${C.crimsonHover};
+  box-shadow: 0 4px 20px rgba(200, 30, 60, 0.4);
+  transform: translateY(-1px);
+}
+.cp-root .cp-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+.cp-root .cp-btn-quiet {
+  background: ${C.raised};
+  color: ${C.body};
+  border: 1px solid ${C.lineStrong};
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cp-root .cp-btn-quiet:hover:not(:disabled) {
+  color: ${C.text};
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+.cp-root .cp-btn-quiet:active:not(:disabled) {
+  transform: translateY(0);
+}
 `
 
 export default function CreatorPortal({ portalId, slug }) {
@@ -786,10 +829,10 @@ export default function CreatorPortal({ portalId, slug }) {
             </div>
 
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5 min-w-0">
+              <div className="flex items-center gap-2 min-w-0">
                 <span
-                  className="font-bold tracking-tight text-xs sm:text-sm truncate max-w-[110px] sm:max-w-[200px] md:max-w-[260px]"
-                  style={{ color: C.text, fontFamily: HEADING_FONT }}
+                  className="serif text-base sm:text-lg font-normal tracking-tight truncate max-w-[120px] sm:max-w-[220px] md:max-w-[280px]"
+                  style={{ color: C.text }}
                 >
                   {productName}
                 </span>
@@ -1095,7 +1138,7 @@ export default function CreatorPortal({ portalId, slug }) {
               </div>
               <div className="flex items-center gap-2 min-w-0">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: C.faint }}>Roadmap:</span>
-                <span className="text-xs font-bold truncate" style={{ color: C.text }}>
+                <span className="serif text-base sm:text-lg font-normal truncate" style={{ color: C.text }}>
                   Phase {currentPhase} of 3 — {currentPhase === 1 ? 'Market Validation' : currentPhase === 2 ? 'AI MVP Build' : 'Live Launch'}
                 </span>
               </div>
@@ -1309,38 +1352,59 @@ export default function CreatorPortal({ portalId, slug }) {
           <div className="space-y-6">
             {/* Header Hero Card */}
             <div
-              className="rounded-2xl p-6 sm:p-7 relative flex flex-col md:flex-row md:items-center justify-between gap-6"
-              style={{ background: C.sheet, border: `1px solid ${C.line}` }}
+              className="rounded-3xl p-6 sm:p-8 relative flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden"
+              style={{
+                background: 'linear-gradient(180deg, rgba(23, 27, 36, 0.7) 0%, rgba(16, 19, 26, 0.98) 100%)',
+                border: `1px solid ${C.lineStrong}`,
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.45)'
+              }}
             >
-              <div className="space-y-2.5">
-                <div
-                  className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[11px] font-mono font-bold uppercase"
-                  style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.crimsonText }}
-                >
-                  <span>VENTURE ID: {ventureSlug.toUpperCase()}</span>
-                  <span>•</span>
-                  <span>Signed Partner: {creatorName}</span>
+              <div className="space-y-3.5 max-w-3xl">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wider"
+                    style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.crimsonText }}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.crimson }} />
+                    <span>VENTURE ID: {ventureSlug.toUpperCase()}</span>
+                  </span>
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-medium"
+                    style={{ background: C.row, border: `1px solid ${C.line}`, color: C.muted }}
+                  >
+                    <span>Signed Partner:</span>
+                    <strong className="font-semibold" style={{ color: C.text }}>{creatorName}</strong>
+                  </span>
                 </div>
+
                 <h1
-                  className="text-2xl sm:text-3xl font-bold tracking-tight"
-                  style={{ color: C.text, fontFamily: HEADING_FONT }}
+                  className="serif text-3xl sm:text-4xl lg:text-[2.65rem] leading-[1.1] font-normal tracking-tight"
+                  style={{ color: C.text }}
                 >
                   Select Your Co-Launch Participation Track
                 </h1>
-                <p className="text-xs sm:text-sm max-w-2xl leading-relaxed" style={{ color: C.body }}>
-                  Every venture is structured under our verified <strong style={{ color: C.text }}>50/50 Co-Founder Equity Partnership</strong>. Choose whether you want active hands-on workbench access with the interactive toolset, or delegate sprint execution directly to our dedicated studio engineering group.
+
+                <p className="text-xs sm:text-sm leading-relaxed max-w-2xl" style={{ color: C.body }}>
+                  Every venture is structured under our verified <strong className="font-semibold" style={{ color: C.text }}>50/50 Co-Founder Equity Partnership</strong>. Choose whether you want active hands-on workbench access with the interactive toolset, or delegate sprint execution directly to our dedicated studio engineering group.
                 </p>
               </div>
 
               <div
-                className="p-4 rounded-xl text-center space-y-1 shrink-0 self-start md:self-auto"
-                style={{ background: C.row, border: `1px solid ${C.okLine}` }}
+                className="p-4 sm:p-5 rounded-2xl text-center space-y-1.5 shrink-0 self-start md:self-auto relative overflow-hidden"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(111, 207, 155, 0.10) 0%, rgba(12, 14, 19, 0.95) 100%)',
+                  border: `1px solid ${C.okLine}`,
+                  boxShadow: '0 4px 20px rgba(111, 207, 155, 0.08)'
+                }}
               >
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider block" style={{ color: C.muted }}>
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest block" style={{ color: C.ok }}>
                   DEFAULT MODEL
                 </span>
-                <span className="text-sm font-extrabold block font-sans" style={{ color: C.ok }}>
+                <span className="serif text-xl sm:text-2xl font-normal block leading-tight text-white">
                   Equal 50/50 Revenue Split
+                </span>
+                <span className="text-[11px] block font-mono" style={{ color: C.muted }}>
+                  Verified by Smart Charter
                 </span>
               </div>
             </div>
@@ -1355,62 +1419,77 @@ export default function CreatorPortal({ portalId, slug }) {
                   <div
                     id="tour-portal-track-card"
                     onClick={() => setSelectedTrack('interactive')}
-                    className="rounded-2xl p-6 relative flex flex-col justify-between transition-all cursor-pointer"
+                    className="rounded-3xl p-6 sm:p-7 relative flex flex-col justify-between transition-all duration-200 cursor-pointer group"
                     style={{
-                      background: C.sheet,
-                      border: selectedTrack === 'interactive' ? `2px solid ${C.crimson}` : `1px solid ${C.line}`,
-                      boxShadow: selectedTrack === 'interactive' ? `0 0 0 1px ${C.crimsonLine}` : 'none'
+                      background: selectedTrack === 'interactive'
+                        ? 'linear-gradient(180deg, rgba(200, 30, 60, 0.12) 0%, rgba(16, 19, 26, 0.98) 100%)'
+                        : 'linear-gradient(180deg, rgba(23, 27, 36, 0.5) 0%, rgba(12, 14, 19, 0.95) 100%)',
+                      border: selectedTrack === 'interactive' ? `1px solid ${C.crimsonLine}` : `1px solid ${C.line}`,
+                      borderTop: `3px solid ${C.crimson}`,
+                      boxShadow: selectedTrack === 'interactive' ? '0 12px 36px rgba(200, 30, 60, 0.18)' : '0 4px 20px rgba(0,0,0,0.25)',
+                      transform: selectedTrack === 'interactive' ? 'scale-[1.01]' : 'scale-1'
                     }}
                   >
                     {/* Ribbon */}
                     <div
-                      className="absolute -top-3 left-4 px-3 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1"
+                      className="absolute -top-3 left-6 px-3.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md"
                       style={{ background: C.ok, color: '#08090c' }}
                     >
-                      <Check className="w-3 h-3 stroke-[3]" />
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
                       <span>RECOMMENDED • ACTIVE SELECTION</span>
                     </div>
 
-                    <div className="space-y-4 pt-1">
-                      <div className="flex items-center justify-between">
+                    <div className="space-y-5 pt-2">
+                      <div className="flex items-start justify-between gap-3">
                         <span
-                          className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider"
+                          className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
                           style={{ background: C.crimsonSoft, color: C.crimsonText, border: `1px solid ${C.crimsonLine}` }}
                         >
                           HANDS-ON PARTICIPATION
                         </span>
                         <div className="text-right">
-                          <div className="text-2xl font-black font-mono" style={{ color: C.text }}>
-                            ${cobuilderPrice} <span className="text-xs font-normal font-sans" style={{ color: C.muted }}>USD</span>
+                          <div className="flex items-baseline justify-end gap-1.5">
+                            <span className="serif text-3xl sm:text-4xl font-normal leading-none" style={{ color: C.text }}>
+                              ${cobuilderPrice}
+                            </span>
+                            <span className="text-xs font-mono font-semibold" style={{ color: C.muted }}>USD</span>
                           </div>
-                          <span className="text-[10px] block font-mono" style={{ color: C.muted }}>One-time toolset pass</span>
+                          <span className="text-[11px] block font-mono mt-0.5" style={{ color: C.muted }}>One-time toolset pass</span>
                         </div>
                       </div>
 
                       <div>
-                        <h3 className="text-base font-bold" style={{ color: C.text, fontFamily: HEADING_FONT }}>
+                        <h3 className="serif text-2xl sm:text-3xl font-normal leading-snug" style={{ color: C.text }}>
                           Track 1: Interactive Co-Builder Pass
                         </h3>
-                        <p className="text-xs leading-relaxed mt-1" style={{ color: C.muted }}>
+                        <p className="text-xs sm:text-sm leading-relaxed mt-1.5" style={{ color: C.muted }}>
                           Participate actively instead of passive tracking. Get full command control access to ideate, execute MVP generation, trigger validation tests, and build alongside our core platform.
                         </p>
                       </div>
 
-                      <div className="space-y-2.5 text-xs pt-1">
-                        <div className="flex items-center gap-2.5" style={{ color: C.body }}>
-                          <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: C.ok }} />
-                          <span><strong style={{ color: C.text }}>50/50 Co-Founder Equity Split</strong> locked in charter</span>
+                      <div className="space-y-3 text-xs pt-1">
+                        <div className="flex items-center gap-3" style={{ color: C.body }}>
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}>
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
+                          <span><strong className="font-semibold" style={{ color: C.text }}>50/50 Co-Founder Equity Split</strong> locked in charter</span>
                         </div>
-                        <div className="flex items-center gap-2.5" style={{ color: C.body }}>
-                          <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: C.ok }} />
+                        <div className="flex items-center gap-3" style={{ color: C.body }}>
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}>
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
                           <span>Interactive Phase 1, Phase 2, & Phase 3 direct execution</span>
                         </div>
-                        <div className="flex items-center gap-2.5" style={{ color: C.body }}>
-                          <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: C.ok }} />
+                        <div className="flex items-center gap-3" style={{ color: C.body }}>
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}>
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
                           <span>Run rapid MVP architecture sprints & feature modules</span>
                         </div>
-                        <div className="flex items-center gap-2.5" style={{ color: C.body }}>
-                          <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: C.ok }} />
+                        <div className="flex items-center gap-3" style={{ color: C.body }}>
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}>
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
                           <span>Dedicated Workspace Subdomain & GitHub integration pass</span>
                         </div>
                       </div>
@@ -1437,12 +1516,12 @@ export default function CreatorPortal({ portalId, slug }) {
                             setShowDiyModal(true)
                           }
                         }}
-                        className="cp-btn-primary group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-tight transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                        className="cp-btn-primary group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <span>{isDiyActive ? 'Open Co-Builder Workspace →' : `Unlock Interactive Co-Builder Pass ($${cobuilderPrice} USD)`}</span>
                         <ArrowRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-1 transition-transform" />
                       </button>
-                      <p className="text-[10px] text-center font-mono" style={{ color: C.faint }}>
+                      <p className="text-[11px] text-center font-mono" style={{ color: C.faint }}>
                         {isDiyActive ? 'Pass active • Workspace ready' : 'Stripe & PayPal verified • Instant workspace provision'}
                       </p>
                     </div>
@@ -1451,53 +1530,68 @@ export default function CreatorPortal({ portalId, slug }) {
                   {/* Track 2: Studio-Managed Track */}
                   <div
                     onClick={() => setSelectedTrack('managed')}
-                    className="rounded-2xl p-6 relative flex flex-col justify-between transition-all cursor-pointer"
+                    className="rounded-3xl p-6 sm:p-7 relative flex flex-col justify-between transition-all duration-200 cursor-pointer group"
                     style={{
-                      background: C.sheet,
-                      border: selectedTrack === 'managed' ? `2px solid ${C.sky}` : `1px solid ${C.line}`,
-                      boxShadow: selectedTrack === 'managed' ? `0 0 0 1px ${C.skyLine}` : 'none'
+                      background: selectedTrack === 'managed'
+                        ? 'linear-gradient(180deg, rgba(56, 189, 248, 0.10) 0%, rgba(16, 19, 26, 0.98) 100%)'
+                        : 'linear-gradient(180deg, rgba(23, 27, 36, 0.5) 0%, rgba(12, 14, 19, 0.95) 100%)',
+                      border: selectedTrack === 'managed' ? `1px solid ${C.skyLine}` : `1px solid ${C.line}`,
+                      borderTop: `3px solid ${C.sky}`,
+                      boxShadow: selectedTrack === 'managed' ? '0 12px 36px rgba(56, 189, 248, 0.16)' : '0 4px 20px rgba(0,0,0,0.25)',
+                      transform: selectedTrack === 'managed' ? 'scale-[1.01]' : 'scale-1'
                     }}
                   >
-                    <div className="space-y-4 pt-1">
-                      <div className="flex items-center justify-between">
+                    <div className="space-y-5 pt-2">
+                      <div className="flex items-start justify-between gap-3">
                         <span
-                          className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider"
+                          className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
                           style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
                         >
                           STUDIO COMPLETED
                         </span>
                         <div className="text-right">
-                          <div className="text-2xl font-black font-mono" style={{ color: C.text }}>
-                            $0 <span className="text-xs font-normal font-sans" style={{ color: C.muted }}>Upfront</span>
+                          <div className="flex items-baseline justify-end gap-1.5">
+                            <span className="serif text-3xl sm:text-4xl font-normal leading-none" style={{ color: C.text }}>
+                              $0
+                            </span>
+                            <span className="text-xs font-mono font-semibold" style={{ color: C.muted }}>Upfront</span>
                           </div>
-                          <span className="text-[10px] block font-mono" style={{ color: C.muted }}>50/50 Equity Split</span>
+                          <span className="text-[11px] block font-mono mt-0.5" style={{ color: C.muted }}>50/50 Equity Split</span>
                         </div>
                       </div>
 
                       <div>
-                        <h3 className="text-base font-bold" style={{ color: C.text, fontFamily: HEADING_FONT }}>
+                        <h3 className="serif text-2xl sm:text-3xl font-normal leading-snug" style={{ color: C.text }}>
                           Track 2: Studio-Managed Track
                         </h3>
-                        <p className="text-xs leading-relaxed mt-1" style={{ color: C.muted }}>
+                        <p className="text-xs sm:text-sm leading-relaxed mt-1.5" style={{ color: C.muted }}>
                           Studio engineers complete all technical build sprints, backend architecture, and infrastructure while you monitor milestones in real-time and coordinate the launch with your audience.
                         </p>
                       </div>
 
-                      <div className="space-y-2.5 text-xs pt-1">
-                        <div className="flex items-center gap-2.5" style={{ color: C.body }}>
-                          <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: C.sky }} />
-                          <span><strong style={{ color: C.text }}>50/50 Co-Founder Equity Split</strong> locked in charter</span>
+                      <div className="space-y-3 text-xs pt-1">
+                        <div className="flex items-center gap-3" style={{ color: C.body }}>
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}>
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
+                          <span><strong className="font-semibold" style={{ color: C.text }}>50/50 Co-Founder Equity Split</strong> locked in charter</span>
                         </div>
-                        <div className="flex items-center gap-2.5" style={{ color: C.body }}>
-                          <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: C.sky }} />
+                        <div className="flex items-center gap-3" style={{ color: C.body }}>
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}>
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
                           <span>Studio team conducts end-to-end development phases</span>
                         </div>
-                        <div className="flex items-center gap-2.5" style={{ color: C.body }}>
-                          <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: C.sky }} />
+                        <div className="flex items-center gap-3" style={{ color: C.body }}>
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}>
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
                           <span>Real-Time Milestone Tracking & Review Portal</span>
                         </div>
-                        <div className="flex items-center gap-2.5" style={{ color: C.body }}>
-                          <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: C.sky }} />
+                        <div className="flex items-center gap-3" style={{ color: C.body }}>
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}>
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
                           <span>Zero local software configuration required on your side</span>
                         </div>
                       </div>
@@ -1511,12 +1605,12 @@ export default function CreatorPortal({ portalId, slug }) {
                           setSelectedTrack('managed')
                           handleDeclineDiyOffer()
                         }}
-                        className="cp-btn-quiet group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-tight transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                        className="cp-btn-quiet group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <span>Select Studio-Managed Track (50/50)</span>
                         <ArrowRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-1 transition-transform" />
                       </button>
-                      <p className="text-[10px] text-center font-mono" style={{ color: C.faint }}>
+                      <p className="text-[11px] text-center font-mono" style={{ color: C.faint }}>
                         Standard tracking portal activated immediately
                       </p>
                     </div>
@@ -1525,24 +1619,33 @@ export default function CreatorPortal({ portalId, slug }) {
                 </div>
 
                 {/* Comparative Technical Matrix (Protocol v2.4) */}
-                <div className="rounded-2xl p-6 space-y-4" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
-                  <div className="flex items-center justify-between pb-3" style={{ borderBottom: `1px solid ${C.line}` }}>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full" style={{ background: C.sky }} />
-                      <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: C.text }}>
-                        COMPARATIVE TECHNICAL MATRIX
+                <div
+                  className="rounded-3xl p-6 sm:p-7 space-y-5"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(23, 27, 36, 0.4) 0%, rgba(16, 19, 26, 0.95) 100%)',
+                    border: `1px solid ${C.line}`,
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  <div className="flex items-center justify-between pb-3.5" style={{ borderBottom: `1px solid ${C.line}` }}>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: C.sky }} />
+                      <span className="serif text-lg font-normal text-white">
+                        Comparative Technical Matrix
                       </span>
                     </div>
-                    <span className="text-[10px] font-mono" style={{ color: C.faint }}>Protocol v2.4</span>
+                    <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full" style={{ background: C.row, border: `1px solid ${C.line}`, color: C.faint }}>
+                      Protocol v2.4
+                    </span>
                   </div>
 
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs font-sans">
                       <thead>
                         <tr className="text-[10px] font-mono uppercase tracking-wider" style={{ borderBottom: `1px solid ${C.line}`, color: C.muted }}>
-                          <th className="py-2 pr-4 font-bold">CAPABILITY / DELIVERABLE</th>
-                          <th className="py-2 px-4 font-bold" style={{ color: C.crimsonText }}>TRACK 1: INTERACTIVE PASS</th>
-                          <th className="py-2 pl-4 font-bold" style={{ color: C.sky }}>TRACK 2: STUDIO MANAGED</th>
+                          <th className="py-2.5 pr-4 font-bold">CAPABILITY / DELIVERABLE</th>
+                          <th className="py-2.5 px-4 font-bold" style={{ color: C.crimsonText }}>TRACK 1: INTERACTIVE PASS</th>
+                          <th className="py-2.5 pl-4 font-bold" style={{ color: C.sky }}>TRACK 2: STUDIO MANAGED</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1553,7 +1656,7 @@ export default function CreatorPortal({ portalId, slug }) {
                           { label: 'Validation Test Pipeline', t1: 'Full Real-Time Test Suite', t1Color: C.text, t2: 'Milestone Summary Reports', t2Color: C.body },
                           { label: 'Upfront Capital Commitment', t1: `$${cobuilderPrice} One-Time Pass`, t1Color: C.warn, t2: '$0.00 Upfront', t2Color: C.ok, last: true },
                         ].map((row) => (
-                          <tr key={row.label} style={{ borderBottom: row.last ? 'none' : `1px solid ${C.line}` }}>
+                          <tr key={row.label} className="transition-colors hover:bg-white/[0.02]" style={{ borderBottom: row.last ? 'none' : `1px solid ${C.line}` }}>
                             <td className="py-3 pr-4 font-medium" style={{ color: C.body }}>{row.label}</td>
                             <td className="py-3 px-4 font-mono font-bold" style={{ color: row.t1Color }}>{row.t1}</td>
                             <td className="py-3 pl-4 font-mono" style={{ color: row.t2Color }}>{row.t2}</td>
@@ -1566,23 +1669,28 @@ export default function CreatorPortal({ portalId, slug }) {
               </div>
 
               {/* Right Column: PREVIEW DECK - VENTURE SUMMARY (4 of 12 cols) */}
-              <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
+              <div className="lg:col-span-4 lg:sticky lg:top-20 space-y-4">
                 <div
                   id="tour-portal-blueprint"
-                  className="rounded-2xl p-6 space-y-6"
-                  style={{ background: C.sheet, border: `1px solid ${C.lineStrong}` }}
+                  className="rounded-3xl p-6 sm:p-7 space-y-6"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(23, 27, 36, 0.7) 0%, rgba(12, 14, 19, 0.98) 100%)',
+                    border: `1px solid ${C.lineStrong}`,
+                    borderTop: `3px solid rgba(255, 255, 255, 0.3)`,
+                    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.45)'
+                  }}
                 >
-                  <div className="flex items-center justify-between pb-3" style={{ borderBottom: `1px solid ${C.line}` }}>
+                  <div className="flex items-center justify-between pb-3.5" style={{ borderBottom: `1px solid ${C.line}` }}>
                     <div>
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider block" style={{ color: C.faint }}>
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest block" style={{ color: C.faint }}>
                         PREVIEW DECK
                       </span>
-                      <h3 className="text-sm font-bold tracking-tight" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                        VENTURE SUMMARY
+                      <h3 className="serif text-xl sm:text-2xl font-normal tracking-tight" style={{ color: C.text }}>
+                        Venture Summary
                       </h3>
                     </div>
                     <span
-                      className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold flex items-center gap-1"
+                      className="px-3 py-1 rounded-full text-[10px] font-mono font-bold flex items-center gap-1.5"
                       style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
                     >
                       <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.ok }} />
@@ -1591,10 +1699,10 @@ export default function CreatorPortal({ portalId, slug }) {
                   </div>
 
                   {/* Spec Sheet Table */}
-                  <div className="space-y-3 text-xs">
+                  <div className="space-y-3.5 text-xs">
                     <div className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
                       <span style={{ color: C.muted }}>Venture Title</span>
-                      <span className="font-bold" style={{ color: C.text }}>{productName}</span>
+                      <span className="serif text-base font-normal" style={{ color: C.text }}>{productName}</span>
                     </div>
                     <div className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
                       <span style={{ color: C.muted }}>Selected Path</span>
@@ -1609,7 +1717,7 @@ export default function CreatorPortal({ portalId, slug }) {
                     <div className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
                       <span style={{ color: C.muted }}>Access Tier</span>
                       <span
-                        className="px-2 py-0.5 rounded font-mono text-[11px] font-bold"
+                        className="px-2.5 py-0.5 rounded-md font-mono text-[11px] font-bold"
                         style={{ background: C.raised, color: C.body, border: `1px solid ${C.line}` }}
                       >
                         {selectedTrack === 'interactive' ? 'Full Interactive OS' : 'Studio-Managed'}
@@ -1617,7 +1725,7 @@ export default function CreatorPortal({ portalId, slug }) {
                     </div>
                     <div className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
                       <span style={{ color: C.muted }}>Upfront Investment</span>
-                      <span className="font-mono font-extrabold" style={{ color: C.text }}>
+                      <span className="serif text-lg font-normal" style={{ color: C.text }}>
                         {selectedTrack === 'interactive' ? `$${cobuilderPrice.toFixed(2)} USD` : '$0.00 Upfront'}
                       </span>
                     </div>
@@ -1632,7 +1740,7 @@ export default function CreatorPortal({ portalId, slug }) {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="space-y-2 pt-2">
+                  <div className="space-y-2.5 pt-2">
                     {selectedTrack === 'interactive' ? (
                       <button
                         type="button"
@@ -1651,7 +1759,7 @@ export default function CreatorPortal({ portalId, slug }) {
                             setShowDiyModal(true)
                           }
                         }}
-                        className="cp-btn-primary group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-tight transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                        className="cp-btn-primary group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <span>{isDiyActive ? 'Access Co-Builder Workspace →' : `Continue with Interactive Pass ($${cobuilderPrice})`}</span>
                         <ArrowRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-1 transition-transform" />
@@ -1660,7 +1768,7 @@ export default function CreatorPortal({ portalId, slug }) {
                       <button
                         type="button"
                         onClick={handleDeclineDiyOffer}
-                        className="cp-btn-primary group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-tight transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                        className="cp-btn-primary group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <span>Continue with Studio-Managed Track</span>
                         <ArrowRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-1 transition-transform" />
@@ -1670,14 +1778,14 @@ export default function CreatorPortal({ portalId, slug }) {
                     <button
                       type="button"
                       onClick={() => setSelectedTrack(prev => prev === 'interactive' ? 'managed' : 'interactive')}
-                      className="cp-btn-quiet w-full py-2.5 px-3 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                      className="cp-btn-quiet w-full py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5" style={{ color: C.muted }} />
                       <span>Reset Selection</span>
                     </button>
                   </div>
 
-                  <p className="text-[10px] text-center leading-relaxed" style={{ color: C.faint }}>
+                  <p className="text-[11px] text-center leading-relaxed" style={{ color: C.faint }}>
                     Authorizes co-builder credentials and generates the live operational environment according to your tier.
                   </p>
 
@@ -1695,13 +1803,13 @@ export default function CreatorPortal({ portalId, slug }) {
                   </div>
 
                   {/* Security Banner */}
-                  <div className="p-3.5 rounded-xl text-[11px] space-y-1" style={{ background: C.row, border: `1px solid ${C.line}`, color: C.body }}>
-                    <div className="flex items-center gap-1.5 font-bold" style={{ color: C.text }}>
+                  <div className="p-3.5 rounded-2xl text-[11px] space-y-1.5" style={{ background: C.row, border: `1px solid ${C.line}`, color: C.body }}>
+                    <div className="flex items-center gap-2 font-bold" style={{ color: C.text }}>
                       <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: C.ok }} />
-                      <span>Legal 50/50 Partnership Bound</span>
+                      <span>Legal Partnership Protection</span>
                     </div>
-                    <p className="leading-relaxed text-[10.5px]" style={{ color: C.muted }}>
-                      Both tracks guarantee the exact same commercial payout structure. The ${cobuilderPrice} pass covers compute infrastructure and tooling licenses for self-execution.
+                    <p className="text-[10px] leading-relaxed" style={{ color: C.muted }}>
+                      Every venture is co-owned 50% by the creator with verified IP ownership assignment.
                     </p>
                   </div>
                 </div>
