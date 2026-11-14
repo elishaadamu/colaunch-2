@@ -3,7 +3,6 @@ import {
   X,
   CheckCircle2,
   Lock,
-  Sparkles,
   Rocket,
   ShieldCheck,
   CreditCard,
@@ -268,7 +267,7 @@ export default function DIYSubscriptionModal({
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase"
               style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.crimsonText }}
             >
-              <Sparkles className="w-3.5 h-3.5" style={{ color: C.crimsonText }} />
+              <Zap className="w-3.5 h-3.5 fill-current" style={{ color: C.crimsonText }} />
               <span>Interactive Co-Builder Pass</span>
             </div>
             <span className="hidden sm:inline" style={{ color: C.faint }}>•</span>
