@@ -1,9 +1,16 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'url'
+import path from 'path'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  const backendTarget = env.VITE_BACKEND_URL || env.VITE_API_URL || 'http://localhost:8000'
+  const env = {
+    ...loadEnv(mode, __dirname, ''),
+    ...loadEnv(mode, process.cwd(), ''),
+  }
+  const backendTarget = env.VITE_BACKEND_URL || env.VITE_API_URL || 'https://creator-forge-backend-jj1y.onrender.com'
 
   return {
     plugins: [react()],
@@ -37,10 +44,11 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api\/together/, ''),
         },
-        // FastAPI backend — CoLaunch ops pipeline
+        // FastAPI backend — CoLaunch ops pipeline (points to Render backend in .env)
         '/api': {
           target: backendTarget,
           changeOrigin: true,
+          secure: false,
           timeout: 300000,
           proxyTimeout: 300000,
           configure: (proxy) => {
@@ -53,6 +61,7 @@ export default defineConfig(({ mode }) => {
         '/static': {
           target: backendTarget,
           changeOrigin: true,
+          secure: false,
         },
       },
     },
