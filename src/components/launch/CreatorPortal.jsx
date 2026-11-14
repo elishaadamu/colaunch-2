@@ -4,7 +4,7 @@ import {
   Users, ExternalLink, Globe, Sparkles, AlertCircle, ShieldCheck, ArrowRight,
   TrendingUp, Award, Calendar, CheckSquare, Eye, Smartphone, Send, FileText,
   CheckCheck, Loader2, MessageCircle, Zap, Lock, Layers, Cpu, Laptop, CreditCard,
-  Plus, RotateCcw, Share2, HelpCircle, Menu, X
+  Plus, RotateCcw, Share2, HelpCircle, Menu, X, Star
 } from 'lucide-react'
 import { getFrontendUrl, updateCoLaunchProject, getCoLaunchProject, getThreads, getWorkflowState } from '../../services/opsApi'
 import { updatePageSEO } from '../../utils/seo'
@@ -1394,7 +1394,7 @@ export default function CreatorPortal({ portalId, slug }) {
                     boxShadow: '0 4px 14px rgba(200, 30, 60, 0.45)'
                   }}
                 >
-                  <Sparkles className="w-3 h-3 text-white" />
+                  <Star className="w-3 h-3 fill-current text-white" />
                   <span className="text-white">RECOMMENDED</span>
                 </div>
 
