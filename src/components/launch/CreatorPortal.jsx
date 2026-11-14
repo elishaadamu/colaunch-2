@@ -1386,11 +1386,16 @@ export default function CreatorPortal({ portalId, slug }) {
               >
                 {/* Recommended Badge */}
                 <div
-                  className="absolute -top-3 left-6 px-3.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md"
-                  style={{ background: C.ok, color: '#08090c' }}
+                  className="absolute -top-3 left-6 px-3.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5"
+                  style={{
+                    background: C.crimson,
+                    color: '#ffffff',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                    boxShadow: '0 4px 14px rgba(200, 30, 60, 0.45)'
+                  }}
                 >
-                  <Check className="w-3 h-3 stroke-[3]" />
-                  <span>RECOMMENDED</span>
+                  <Sparkles className="w-3 h-3 text-white" />
+                  <span className="text-white">RECOMMENDED</span>
                 </div>
 
                 <div className="space-y-5 pt-1">
