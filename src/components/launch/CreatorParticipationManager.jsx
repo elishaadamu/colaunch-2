@@ -175,24 +175,29 @@ export default function CreatorParticipationManager() {
     if (proj.diySubscription?.amount && !isNaN(Number(proj.diySubscription.amount))) {
       return Number(proj.diySubscription.amount)
     }
+
+    const projectSpecificFee = Number(
+      proj.diyFee ??
+      proj.diyPassPrice ??
+      proj.metadataInfo?.diy_fee ??
+      proj.metadataInfo?.diyFee ??
+      proj.metadataInfo?.diyPassPrice ??
+      proj.metadata_info?.diy_fee ??
+      proj.metadata_info?.diyFee
+    )
+
     const hasCustom = Boolean(
       proj.hasCustomFee ||
       proj.metadataInfo?.hasCustomFee ||
-      proj.metadata_info?.hasCustomFee
+      proj.metadata_info?.hasCustomFee ||
+      (!isNaN(projectSpecificFee) && projectSpecificFee > 0 && defaultPassPrice > 0 && projectSpecificFee !== defaultPassPrice)
     )
-    if (hasCustom) {
-      if (proj.diyFee !== undefined && proj.diyFee !== null && !isNaN(Number(proj.diyFee))) {
-        return Number(proj.diyFee)
-      }
-      if (proj.diyPassPrice !== undefined && proj.diyPassPrice !== null && !isNaN(Number(proj.diyPassPrice))) {
-        return Number(proj.diyPassPrice)
-      }
-      const metaFee = proj.metadataInfo?.diy_fee ?? proj.metadataInfo?.diyFee ?? proj.metadata_info?.diy_fee ?? proj.metadata_info?.diyFee
-      if (metaFee !== undefined && metaFee !== null && !isNaN(Number(metaFee))) {
-        return Number(metaFee)
-      }
+
+    if (hasCustom && !isNaN(projectSpecificFee) && projectSpecificFee > 0) {
+      return projectSpecificFee
     }
-    return defaultPassPrice || 0
+
+    return defaultPassPrice || (!isNaN(projectSpecificFee) && projectSpecificFee > 0 ? projectSpecificFee : 0)
   }, [defaultPassPrice])
 
   // Open custom price modal for a project
@@ -210,8 +215,8 @@ export default function CreatorParticipationManager() {
 
     try {
       const payload = isReset
-        ? { diyFee: null, diyPassPrice: null, resetToDefault: true, hasCustomFee: false }
-        : { diyFee: numericFee, diyPassPrice: numericFee, hasCustomFee: true }
+        ? { diyFee: null, diyPassPrice: null, resetToDefault: true, hasCustomFee: false, metadataInfo: { hasCustomFee: false } }
+        : { diyFee: numericFee, diyPassPrice: numericFee, hasCustomFee: true, metadataInfo: { hasCustomFee: true, diy_fee: numericFee, diyFee: numericFee, diyPassPrice: numericFee } }
 
       await updateCoLaunchProject(customPriceModalProject.id, payload)
 
@@ -225,6 +230,7 @@ export default function CreatorParticipationManager() {
               hasCustomFee: !isReset,
               metadataInfo: {
                 ...(p.metadataInfo || {}),
+                hasCustomFee: !isReset,
                 diy_fee: isReset ? undefined : numericFee,
                 diyFee: isReset ? undefined : numericFee,
                 diyPassPrice: isReset ? undefined : numericFee
@@ -271,8 +277,10 @@ export default function CreatorParticipationManager() {
       setDefaultPassPrice(numericFee)
 
       if (updatePendingWithGlobal) {
+        // ONLY update pending projects that do NOT have an explicit custom fee override!
         const pendingProjects = projects.filter(
-          (p) => !(p.isDIY || p.diySubscription?.active || p.diyOfferStatus === 'paid' || p.diyOfferStatus === 'accepted')
+          (p) => !(p.isDIY || p.diySubscription?.active || p.diyOfferStatus === 'paid' || p.diyOfferStatus === 'accepted') &&
+                 !p.hasCustomFee && !p.metadataInfo?.hasCustomFee
         )
 
         await Promise.allSettled(
@@ -284,12 +292,57 @@ export default function CreatorParticipationManager() {
         setProjects((prev) =>
           prev.map((p) => {
             const isPaid = p.isDIY || p.diySubscription?.active || p.diyOfferStatus === 'paid' || p.diyOfferStatus === 'accepted'
-            if (!isPaid) {
+            const isCustom = Boolean(p.hasCustomFee || p.metadataInfo?.hasCustomFee)
+            if (!isPaid && !isCustom) {
               return {
                 ...p,
                 diyFee: numericFee,
                 diyPassPrice: numericFee,
-                metadataInfo: { ...(p.metadataInfo || {}), diy_fee: numericFee, diyFee: numericFee, diyPassPrice: numericFee }
+                hasCustomFee: false,
+                metadataInfo: { ...(p.metadataInfo || {}), hasCustomFee: false, diy_fee: numericFee, diyFee: numericFee, diyPassPrice: numericFee }
+              }
+            }
+            return p
+          })
+        )
+      } else {
+        // When updatePendingWithGlobal is UNCHECKED:
+        // Do NOT change any existing pending creator fees!
+        // Lock in each pending creator's current fee with hasCustomFee: true
+        // so that changing the global fee leaves all existing creators 100% untouched.
+        const pendingToLock = projects.filter(
+          (p) => !(p.isDIY || p.diySubscription?.active || p.diyOfferStatus === 'paid' || p.diyOfferStatus === 'accepted')
+        )
+
+        await Promise.allSettled(
+          pendingToLock.map((p) => {
+            const currentFee = getProjectPassPrice(p)
+            return updateCoLaunchProject(p.id, {
+              diyFee: currentFee,
+              diyPassPrice: currentFee,
+              hasCustomFee: true,
+              metadataInfo: { hasCustomFee: true, diy_fee: currentFee, diyFee: currentFee, diyPassPrice: currentFee }
+            })
+          })
+        )
+
+        setProjects((prev) =>
+          prev.map((p) => {
+            const isPaid = p.isDIY || p.diySubscription?.active || p.diyOfferStatus === 'paid' || p.diyOfferStatus === 'accepted'
+            if (!isPaid) {
+              const currentFee = getProjectPassPrice(p)
+              return {
+                ...p,
+                diyFee: currentFee,
+                diyPassPrice: currentFee,
+                hasCustomFee: true,
+                metadataInfo: {
+                  ...(p.metadataInfo || {}),
+                  hasCustomFee: true,
+                  diy_fee: currentFee,
+                  diyFee: currentFee,
+                  diyPassPrice: currentFee
+                }
               }
             }
             return p
@@ -300,7 +353,7 @@ export default function CreatorParticipationManager() {
       showToast(
         'success',
         'Global Fee Updated',
-        `Standard Co-Builder Pass fee updated to $${numericFee} USD${updatePendingWithGlobal ? ' & synced to pending ventures' : ''}.`
+        `Standard Co-Builder Pass fee updated to $${numericFee} USD${updatePendingWithGlobal ? ' & synced to non-custom pending ventures' : ' (existing ventures kept at current amounts)'}.`
       )
       setShowGlobalPriceModal(false)
     } catch (err) {

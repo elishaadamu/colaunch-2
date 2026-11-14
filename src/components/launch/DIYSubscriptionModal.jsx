@@ -26,6 +26,7 @@ export default function DIYSubscriptionModal({
   isOpen,
   onClose,
   project,
+  passPrice: propPassPrice,
   onUnlockSuccess
 }) {
   const [paymentMethod, setPaymentMethod] = useState('stripe') // 'stripe' | 'paypal'
@@ -88,15 +89,28 @@ export default function DIYSubscriptionModal({
 
   if (!isOpen) return null
 
-  const amountToCharge = Number(
+  const projectSpecificFee = Number(
     project?.diyFee ??
     project?.diyPassPrice ??
     project?.metadataInfo?.diy_fee ??
     project?.metadataInfo?.diyFee ??
     project?.metadata_info?.diy_fee ??
-    project?.diySubscription?.amount ??
-    dbPassPrice ??
-    50
+    project?.diySubscription?.amount
+  )
+
+  const hasCustomFee = Boolean(
+    project?.hasCustomFee ||
+    project?.metadataInfo?.hasCustomFee ||
+    project?.metadata_info?.hasCustomFee ||
+    (!isNaN(projectSpecificFee) && projectSpecificFee > 0 && dbPassPrice > 0 && projectSpecificFee !== dbPassPrice)
+  )
+
+  const amountToCharge = Number(
+    (propPassPrice !== undefined && propPassPrice !== null && !isNaN(Number(propPassPrice)))
+      ? Number(propPassPrice)
+      : (!isNaN(projectSpecificFee) && projectSpecificFee > 0 && (hasCustomFee || !dbPassPrice))
+        ? projectSpecificFee
+        : (dbPassPrice || (!isNaN(projectSpecificFee) && projectSpecificFee > 0 ? projectSpecificFee : 50))
   )
   const productName = project?.productName || 'Your Custom SaaS App'
 

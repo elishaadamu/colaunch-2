@@ -279,30 +279,27 @@ export default function CreatorPortal({ portalId, slug }) {
     }
   }, [])
 
+  const projectSpecificFee = Number(
+    project?.diyFee ??
+    project?.diyPassPrice ??
+    project?.metadataInfo?.diy_fee ??
+    project?.metadataInfo?.diyFee ??
+    project?.metadataInfo?.diyPassPrice ??
+    project?.metadata_info?.diy_fee ??
+    project?.diySubscription?.amount
+  )
+
   const hasCustomFee = Boolean(
     project?.hasCustomFee ||
     project?.metadataInfo?.hasCustomFee ||
-    project?.metadata_info?.hasCustomFee
+    project?.metadata_info?.hasCustomFee ||
+    (!isNaN(projectSpecificFee) && projectSpecificFee > 0 && defaultPassPrice > 0 && projectSpecificFee !== defaultPassPrice)
   )
 
   const cobuilderPrice = Number(
-    hasCustomFee
-      ? (project?.diyFee ??
-         project?.diyPassPrice ??
-         project?.metadataInfo?.diy_fee ??
-         project?.metadataInfo?.diyFee ??
-         project?.metadataInfo?.diyPassPrice ??
-         project?.metadata_info?.diy_fee ??
-         project?.diySubscription?.amount ??
-         defaultPassPrice ??
-         50)
-      : (defaultPassPrice ??
-         project?.diyFee ??
-         project?.diyPassPrice ??
-         project?.metadataInfo?.diy_fee ??
-         project?.metadataInfo?.diyFee ??
-         project?.metadataInfo?.diyPassPrice ??
-         50)
+    !isNaN(projectSpecificFee) && projectSpecificFee > 0 && (hasCustomFee || !defaultPassPrice)
+      ? projectSpecificFee
+      : (defaultPassPrice || (!isNaN(projectSpecificFee) && projectSpecificFee > 0 ? projectSpecificFee : 50))
   )
 
   // When creator has paid, projectOS is the default view (unless explicitly overridden by URL)
@@ -2791,11 +2788,12 @@ export default function CreatorPortal({ portalId, slug }) {
         </div>
       )}
 
-      {/* ── DIY SUBSCRIPTION MODAL ($50 USD PASS UNLOCK) ────────────────────────── */}
+      {/* ── DIY SUBSCRIPTION MODAL ── */}
       <DIYSubscriptionModal
         isOpen={showDiyModal}
         onClose={() => setShowDiyModal(false)}
         project={project}
+        passPrice={cobuilderPrice}
         onUnlockSuccess={handleUnlockDiySuccess}
       />
     </div>
