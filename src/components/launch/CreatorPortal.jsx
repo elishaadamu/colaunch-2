@@ -1123,138 +1123,133 @@ export default function CreatorPortal({ portalId, slug }) {
       <div className="flex-1 w-full max-w-full 2xl:max-w-[1720px] mx-auto px-2.5 sm:px-4 lg:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5 overflow-x-hidden">
 
         {/* ── STEP / PHASE PROGRESS BAR ────────────────────────────────────────── */}
-        <div
-          className="rounded-2xl p-3.5 sm:p-5 space-y-3 w-full max-w-full overflow-hidden"
-          style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-        >
-          {/* LEVEL 1: PROJECT ROADMAP & THE 3 PHASES */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 w-full" style={{ borderBottom: `1px solid ${C.line}` }}>
-            <div className="flex items-center gap-2 shrink-0">
-              <div
-                className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.crimsonText }}
-              >
-                <Layers className="w-3.5 h-3.5" />
-              </div>
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: C.faint }}>Roadmap:</span>
-                <span className="serif text-base sm:text-lg font-normal truncate" style={{ color: C.text }}>
-                  Phase {currentPhase} of 3 — {currentPhase === 1 ? 'Market Validation' : currentPhase === 2 ? 'AI MVP Build' : 'Live Launch'}
-                </span>
-              </div>
-            </div>
-
-            {/* The 3 Phases Macro Stepper */}
-            <div className="w-full sm:w-auto overflow-x-auto no-scrollbar scroll-smooth py-0.5">
-              <div className="flex items-center gap-1.5 min-w-max">
-                {/* Phase 1 */}
-                <div
-                  className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0"
-                  style={
-                    currentPhase === 1
-                      ? { background: C.crimson, color: '#ffffff' }
-                      : currentPhase > 1
-                      ? { background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }
-                      : { background: C.row, color: C.muted, border: `1px solid ${C.line}` }
-                  }
-                >
-                  {currentPhase > 1 ? (
-                    <Check className="w-3 h-3 stroke-[3]" style={{ color: C.ok }} />
-                  ) : currentPhase === 1 ? (
-                    <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: C.ok }} />
-                  ) : null}
-                  <span>Phase 1: Validation</span>
-                </div>
-
-                <div className="w-2.5 h-[1px] shrink-0" style={{ background: C.lineStrong }} />
-
-                {/* Phase 2 */}
-                <div
-                  className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0"
-                  style={
-                    currentPhase === 2
-                      ? { background: C.crimson, color: '#ffffff' }
-                      : currentPhase > 2
-                      ? { background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }
-                      : { background: C.row, color: C.muted, border: `1px solid ${C.line}` }
-                  }
-                >
-                  {currentPhase > 2 ? (
-                    <Check className="w-3 h-3 stroke-[3]" style={{ color: C.ok }} />
-                  ) : currentPhase === 2 ? (
-                    <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: C.ok }} />
-                  ) : null}
-                  <span>Phase 2: Build MVP</span>
-                </div>
-
-                <div className="w-2.5 h-[1px] shrink-0" style={{ background: C.lineStrong }} />
-
-                {/* Phase 3 */}
-                <div
-                  className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0"
-                  style={
-                    currentPhase === 3
-                      ? { background: C.crimson, color: '#ffffff' }
-                      : { background: C.row, color: C.muted, border: `1px solid ${C.line}` }
-                  }
-                >
-                  {currentPhase === 3 ? (
-                    <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: C.ok }} />
-                  ) : null}
-                  <span>Phase 3: Live Launch</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* LEVEL 2: DISTINCT EXECUTION STEPS */}
-          <div className="space-y-1.5 w-full">
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider" style={{ color: C.faint }}>
-                  Execution Progress
-                </span>
-                <span
-                  className="text-[10px] font-mono font-bold px-2 py-0.5 rounded"
-                  style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                >
-                  {isTrackChoicePending ? '1 of 5' : `${activePhaseSteps.filter(s => s.isDone).length} of ${activePhaseSteps.length}`} Done
-                </span>
-              </div>
-              <span className="text-[10px] font-mono hidden sm:inline" style={{ color: C.muted }}>
-                {isTrackChoicePending ? 'Step 01 Active' : `Active: Step ${activePhaseSteps[resolvedActiveStepIndex]?.num || '01'}`}
+        {isTrackChoicePending ? (
+          <div
+            className="rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs w-full"
+            style={{ background: C.sheet, border: `1px solid ${C.line}` }}
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: C.crimson }} />
+              <span className="font-mono text-[11px] font-bold uppercase tracking-wider" style={{ color: C.crimsonText }}>
+                Step 01 of 05
+              </span>
+              <span className="text-neutral-600">•</span>
+              <span className="font-medium" style={{ color: C.text }}>
+                Co-Launch Participation Track Choice
               </span>
             </div>
+            <div className="flex items-center gap-2 text-[11px] font-mono" style={{ color: C.muted }}>
+              <span>Phase 1: Validation</span>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="rounded-2xl p-3.5 sm:p-5 space-y-3 w-full max-w-full overflow-hidden"
+            style={{ background: C.sheet, border: `1px solid ${C.line}` }}
+          >
+            {/* LEVEL 1: PROJECT ROADMAP & THE 3 PHASES */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 w-full" style={{ borderBottom: `1px solid ${C.line}` }}>
+              <div className="flex items-center gap-2 shrink-0">
+                <div
+                  className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
+                  style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.crimsonText }}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: C.faint }}>Roadmap:</span>
+                  <span className="serif text-base sm:text-lg font-normal truncate" style={{ color: C.text }}>
+                    Phase {currentPhase} of 3 — {currentPhase === 1 ? 'Market Validation' : currentPhase === 2 ? 'AI MVP Build' : 'Live Launch'}
+                  </span>
+                </div>
+              </div>
 
-            {/* Steps Container */}
-            <div className="w-full overflow-x-auto no-scrollbar scroll-smooth py-1">
-              <div className="flex items-center gap-2 min-w-max">
-                {isTrackChoicePending ? (
-                  <>
-                    <div
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-mono font-bold shrink-0"
-                      style={{ background: C.crimsonSoft, color: C.text, border: `1px solid ${C.crimsonLine}`, borderLeft: `3px solid ${C.crimson}` }}
-                    >
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold" style={{ background: C.crimson, color: '#ffffff' }}>01</span>
-                      <span style={{ color: C.crimsonText }}>STEP 01 • ACTIVE</span>
-                      <span className="font-sans font-bold ml-0.5" style={{ color: C.text }}>Co-Launch Track Choice</span>
-                      <span className="w-2 h-2 rounded-full animate-pulse ml-1" style={{ background: C.ok }} />
-                    </div>
-                    {['Venture Architecture', 'Sprint 1 Execution', 'Audience Validation', 'Commercial Launch'].map((stepName, idx) => (
-                      <div key={stepName} className="flex items-center gap-2 shrink-0">
-                        <div className="w-4 h-[2px] shrink-0" style={{ background: C.line }} />
-                        <div
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono shrink-0"
-                          style={{ background: C.row, color: C.muted, border: `1px solid ${C.line}` }}
-                        >
-                          <span className="font-bold" style={{ color: C.faint }}>{`0${idx + 2}`}</span>
-                          <span className="font-sans" style={{ color: C.body }}>{stepName}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </>
-                ) : (
-                  activePhaseSteps.map((step, idx) => {
+              {/* The 3 Phases Macro Stepper */}
+              <div className="w-full sm:w-auto overflow-x-auto no-scrollbar scroll-smooth py-0.5">
+                <div className="flex items-center gap-1.5 min-w-max">
+                  {/* Phase 1 */}
+                  <div
+                    className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0"
+                    style={
+                      currentPhase === 1
+                        ? { background: C.crimson, color: '#ffffff' }
+                        : currentPhase > 1
+                        ? { background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }
+                        : { background: C.row, color: C.muted, border: `1px solid ${C.line}` }
+                    }
+                  >
+                    {currentPhase > 1 ? (
+                      <Check className="w-3 h-3 stroke-[3]" style={{ color: C.ok }} />
+                    ) : currentPhase === 1 ? (
+                      <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: C.ok }} />
+                    ) : null}
+                    <span>Phase 1: Validation</span>
+                  </div>
+
+                  <div className="w-2.5 h-[1px] shrink-0" style={{ background: C.lineStrong }} />
+
+                  {/* Phase 2 */}
+                  <div
+                    className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0"
+                    style={
+                      currentPhase === 2
+                        ? { background: C.crimson, color: '#ffffff' }
+                        : currentPhase > 2
+                        ? { background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }
+                        : { background: C.row, color: C.muted, border: `1px solid ${C.line}` }
+                    }
+                  >
+                    {currentPhase > 2 ? (
+                      <Check className="w-3 h-3 stroke-[3]" style={{ color: C.ok }} />
+                    ) : currentPhase === 2 ? (
+                      <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: C.ok }} />
+                    ) : null}
+                    <span>Phase 2: Build MVP</span>
+                  </div>
+
+                  <div className="w-2.5 h-[1px] shrink-0" style={{ background: C.lineStrong }} />
+
+                  {/* Phase 3 */}
+                  <div
+                    className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0"
+                    style={
+                      currentPhase === 3
+                        ? { background: C.crimson, color: '#ffffff' }
+                        : { background: C.row, color: C.muted, border: `1px solid ${C.line}` }
+                    }
+                  >
+                    {currentPhase === 3 ? (
+                      <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: C.ok }} />
+                    ) : null}
+                    <span>Phase 3: Live Launch</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* LEVEL 2: DISTINCT EXECUTION STEPS */}
+            <div className="space-y-1.5 w-full">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider" style={{ color: C.faint }}>
+                    Execution Progress
+                  </span>
+                  <span
+                    className="text-[10px] font-mono font-bold px-2 py-0.5 rounded"
+                    style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
+                  >
+                    {activePhaseSteps.filter(s => s.isDone).length} of {activePhaseSteps.length} Done
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono hidden sm:inline" style={{ color: C.muted }}>
+                  Active: Step {activePhaseSteps[resolvedActiveStepIndex]?.num || '01'}
+                </span>
+              </div>
+
+              {/* Steps Container */}
+              <div className="w-full overflow-x-auto no-scrollbar scroll-smooth py-1">
+                <div className="flex items-center gap-2 min-w-max">
+                  {activePhaseSteps.map((step, idx) => {
                     const isActive = idx === resolvedActiveStepIndex
                     const isDone = Boolean(step.isDone)
                     return (
@@ -1297,12 +1292,12 @@ export default function CreatorPortal({ portalId, slug }) {
                         )}
                       </div>
                     )
-                  })
-                )}
+                  })}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* ── INTERACTIVE CO-BUILDER PASS UPGRADE BANNER ──────────────── */}
         {!isDiyActive && !isTrackChoicePending && (
@@ -1349,471 +1344,309 @@ export default function CreatorPortal({ portalId, slug }) {
 
         {/* ── STATE 1: CO-LAUNCH PARTICIPATION TRACK CHOICE ───────────── */}
         {isTrackChoicePending ? (
-          <div className="space-y-6">
-            {/* Header Hero Card */}
-            <div
-              className="rounded-3xl p-6 sm:p-8 relative flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden"
-              style={{
-                background: 'linear-gradient(180deg, rgba(23, 27, 36, 0.7) 0%, rgba(16, 19, 26, 0.98) 100%)',
-                border: `1px solid ${C.lineStrong}`,
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.45)'
-              }}
-            >
-              <div className="space-y-3.5 max-w-3xl">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wider"
-                    style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.crimsonText }}
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.crimson }} />
-                    <span>VENTURE ID: {ventureSlug.toUpperCase()}</span>
-                  </span>
-                  <span
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-medium"
-                    style={{ background: C.row, border: `1px solid ${C.line}`, color: C.muted }}
-                  >
-                    <span>Signed Partner:</span>
-                    <strong className="font-semibold" style={{ color: C.text }}>{creatorName}</strong>
-                  </span>
-                </div>
-
-                <h1
-                  className="serif text-3xl sm:text-4xl lg:text-[2.65rem] leading-[1.1] font-normal tracking-tight"
-                  style={{ color: C.text }}
-                >
-                  Select Your Co-Launch Participation Track
-                </h1>
-
-                <p className="text-xs sm:text-sm leading-relaxed max-w-2xl" style={{ color: C.body }}>
-                  Every venture is structured under our verified <strong className="font-semibold" style={{ color: C.text }}>50/50 Co-Founder Equity Partnership</strong>. Choose whether you want active hands-on workbench access with the interactive toolset, or delegate sprint execution directly to our dedicated studio engineering group.
-                </p>
-              </div>
-
+          <div className="max-w-5xl mx-auto space-y-8 py-2 sm:py-6">
+            {/* Clean Hero Header — Centered, Editorial & Legible */}
+            <div className="text-center space-y-3.5 max-w-2xl mx-auto px-2">
               <div
-                className="p-4 sm:p-5 rounded-2xl text-center space-y-1.5 shrink-0 self-start md:self-auto relative overflow-hidden"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(111, 207, 155, 0.10) 0%, rgba(12, 14, 19, 0.95) 100%)',
-                  border: `1px solid ${C.okLine}`,
-                  boxShadow: '0 4px 20px rgba(111, 207, 155, 0.08)'
-                }}
+                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-mono font-medium"
+                style={{ background: C.raised, border: `1px solid ${C.lineStrong}`, color: C.muted }}
               >
-                <span className="text-[10px] font-mono font-bold uppercase tracking-widest block" style={{ color: C.ok }}>
-                  DEFAULT MODEL
-                </span>
-                <span className="serif text-xl sm:text-2xl font-normal block leading-tight text-white">
-                  Equal 50/50 Revenue Split
-                </span>
-                <span className="text-[11px] block font-mono" style={{ color: C.muted }}>
-                  Verified by Smart Charter
-                </span>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.crimson }} />
+                <span>Venture Activation • <strong style={{ color: C.text }}>{creatorName}</strong></span>
               </div>
+
+              <h1
+                className="serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-white leading-tight"
+              >
+                Select Your Participation Track
+              </h1>
+
+              <p className="text-xs sm:text-sm leading-relaxed" style={{ color: C.body }}>
+                Every venture operates on our verified <strong className="font-semibold text-white">50/50 Co-Founder Equity Partnership</strong>. Choose whether you want hands-on building tools or full delegation to our studio engineering group.
+              </p>
             </div>
 
-            {/* 2-Column Split: Tracks on Left, Spec Preview Deck on Right */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Left Column: Track Cards + Comparison Matrix (8 of 12 cols) */}
-              <div className="lg:col-span-8 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* The 2 Main Choice Cards — Side-by-Side with Generous Spacing */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch">
 
-                  {/* Track 1: Interactive Co-Builder Pass */}
-                  <div
-                    id="tour-portal-track-card"
-                    onClick={() => setSelectedTrack('interactive')}
-                    className="rounded-3xl p-6 sm:p-7 relative flex flex-col justify-between transition-all duration-200 cursor-pointer group"
-                    style={{
-                      background: selectedTrack === 'interactive'
-                        ? 'linear-gradient(180deg, rgba(200, 30, 60, 0.12) 0%, rgba(16, 19, 26, 0.98) 100%)'
-                        : 'linear-gradient(180deg, rgba(23, 27, 36, 0.5) 0%, rgba(12, 14, 19, 0.95) 100%)',
-                      border: selectedTrack === 'interactive' ? `1px solid ${C.crimsonLine}` : `1px solid ${C.line}`,
-                      borderTop: `3px solid ${C.crimson}`,
-                      boxShadow: selectedTrack === 'interactive' ? '0 12px 36px rgba(200, 30, 60, 0.18)' : '0 4px 20px rgba(0,0,0,0.25)',
-                      transform: selectedTrack === 'interactive' ? 'scale-[1.01]' : 'scale-1'
-                    }}
-                  >
-                    {/* Ribbon */}
-                    <div
-                      className="absolute -top-3 left-6 px-3.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md"
-                      style={{ background: C.ok, color: '#08090c' }}
-                    >
-                      <Check className="w-3.5 h-3.5 stroke-[3]" />
-                      <span>RECOMMENDED • ACTIVE SELECTION</span>
-                    </div>
-
-                    <div className="space-y-5 pt-2">
-                      <div className="flex items-start justify-between gap-3">
-                        <span
-                          className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
-                          style={{ background: C.crimsonSoft, color: C.crimsonText, border: `1px solid ${C.crimsonLine}` }}
-                        >
-                          HANDS-ON PARTICIPATION
-                        </span>
-                        <div className="text-right">
-                          <div className="flex items-baseline justify-end gap-1.5">
-                            <span className="serif text-3xl sm:text-4xl font-normal leading-none" style={{ color: C.text }}>
-                              ${cobuilderPrice}
-                            </span>
-                            <span className="text-xs font-mono font-semibold" style={{ color: C.muted }}>USD</span>
-                          </div>
-                          <span className="text-[11px] block font-mono mt-0.5" style={{ color: C.muted }}>One-time toolset pass</span>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h3 className="serif text-2xl sm:text-3xl font-normal leading-snug" style={{ color: C.text }}>
-                          Track 1: Interactive Co-Builder Pass
-                        </h3>
-                        <p className="text-xs sm:text-sm leading-relaxed mt-1.5" style={{ color: C.muted }}>
-                          Participate actively instead of passive tracking. Get full command control access to ideate, execute MVP generation, trigger validation tests, and build alongside our core platform.
-                        </p>
-                      </div>
-
-                      <div className="space-y-3 text-xs pt-1">
-                        <div className="flex items-center gap-3" style={{ color: C.body }}>
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}>
-                            <Check className="w-3 h-3 stroke-[3]" />
-                          </div>
-                          <span><strong className="font-semibold" style={{ color: C.text }}>50/50 Co-Founder Equity Split</strong> locked in charter</span>
-                        </div>
-                        <div className="flex items-center gap-3" style={{ color: C.body }}>
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}>
-                            <Check className="w-3 h-3 stroke-[3]" />
-                          </div>
-                          <span>Interactive Phase 1, Phase 2, & Phase 3 direct execution</span>
-                        </div>
-                        <div className="flex items-center gap-3" style={{ color: C.body }}>
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}>
-                            <Check className="w-3 h-3 stroke-[3]" />
-                          </div>
-                          <span>Run rapid MVP architecture sprints & feature modules</span>
-                        </div>
-                        <div className="flex items-center gap-3" style={{ color: C.body }}>
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}>
-                            <Check className="w-3 h-3 stroke-[3]" />
-                          </div>
-                          <span>Dedicated Workspace Subdomain & GitHub integration pass</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="pt-6 space-y-2">
-                      <button
-                        id="tour-portal-unlock-btn"
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (isDiyActive) {
-                            setTrackChoiceDismissed(true)
-                            setActiveMainView('projectos')
-                            if (typeof window !== 'undefined') {
-                              const searchParams = new URLSearchParams(window.location.search)
-                              searchParams.delete('offer')
-                              searchParams.delete('track')
-                              const newSearch = searchParams.toString()
-                              window.history.replaceState({}, '', window.location.pathname + (newSearch ? `?${newSearch}` : '') + window.location.hash)
-                            }
-                          } else {
-                            setSelectedTrack('interactive')
-                            setShowDiyModal(true)
-                          }
-                        }}
-                        className="cp-btn-primary group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <span>{isDiyActive ? 'Open Co-Builder Workspace →' : `Unlock Interactive Co-Builder Pass ($${cobuilderPrice} USD)`}</span>
-                        <ArrowRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-1 transition-transform" />
-                      </button>
-                      <p className="text-[11px] text-center font-mono" style={{ color: C.faint }}>
-                        {isDiyActive ? 'Pass active • Workspace ready' : 'Stripe & PayPal verified • Instant workspace provision'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Track 2: Studio-Managed Track */}
-                  <div
-                    onClick={() => setSelectedTrack('managed')}
-                    className="rounded-3xl p-6 sm:p-7 relative flex flex-col justify-between transition-all duration-200 cursor-pointer group"
-                    style={{
-                      background: selectedTrack === 'managed'
-                        ? 'linear-gradient(180deg, rgba(56, 189, 248, 0.10) 0%, rgba(16, 19, 26, 0.98) 100%)'
-                        : 'linear-gradient(180deg, rgba(23, 27, 36, 0.5) 0%, rgba(12, 14, 19, 0.95) 100%)',
-                      border: selectedTrack === 'managed' ? `1px solid ${C.skyLine}` : `1px solid ${C.line}`,
-                      borderTop: `3px solid ${C.sky}`,
-                      boxShadow: selectedTrack === 'managed' ? '0 12px 36px rgba(56, 189, 248, 0.16)' : '0 4px 20px rgba(0,0,0,0.25)',
-                      transform: selectedTrack === 'managed' ? 'scale-[1.01]' : 'scale-1'
-                    }}
-                  >
-                    <div className="space-y-5 pt-2">
-                      <div className="flex items-start justify-between gap-3">
-                        <span
-                          className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
-                          style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
-                        >
-                          STUDIO COMPLETED
-                        </span>
-                        <div className="text-right">
-                          <div className="flex items-baseline justify-end gap-1.5">
-                            <span className="serif text-3xl sm:text-4xl font-normal leading-none" style={{ color: C.text }}>
-                              $0
-                            </span>
-                            <span className="text-xs font-mono font-semibold" style={{ color: C.muted }}>Upfront</span>
-                          </div>
-                          <span className="text-[11px] block font-mono mt-0.5" style={{ color: C.muted }}>50/50 Equity Split</span>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h3 className="serif text-2xl sm:text-3xl font-normal leading-snug" style={{ color: C.text }}>
-                          Track 2: Studio-Managed Track
-                        </h3>
-                        <p className="text-xs sm:text-sm leading-relaxed mt-1.5" style={{ color: C.muted }}>
-                          Studio engineers complete all technical build sprints, backend architecture, and infrastructure while you monitor milestones in real-time and coordinate the launch with your audience.
-                        </p>
-                      </div>
-
-                      <div className="space-y-3 text-xs pt-1">
-                        <div className="flex items-center gap-3" style={{ color: C.body }}>
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}>
-                            <Check className="w-3 h-3 stroke-[3]" />
-                          </div>
-                          <span><strong className="font-semibold" style={{ color: C.text }}>50/50 Co-Founder Equity Split</strong> locked in charter</span>
-                        </div>
-                        <div className="flex items-center gap-3" style={{ color: C.body }}>
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}>
-                            <Check className="w-3 h-3 stroke-[3]" />
-                          </div>
-                          <span>Studio team conducts end-to-end development phases</span>
-                        </div>
-                        <div className="flex items-center gap-3" style={{ color: C.body }}>
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}>
-                            <Check className="w-3 h-3 stroke-[3]" />
-                          </div>
-                          <span>Real-Time Milestone Tracking & Review Portal</span>
-                        </div>
-                        <div className="flex items-center gap-3" style={{ color: C.body }}>
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}>
-                            <Check className="w-3 h-3 stroke-[3]" />
-                          </div>
-                          <span>Zero local software configuration required on your side</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="pt-6 space-y-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedTrack('managed')
-                          handleDeclineDiyOffer()
-                        }}
-                        className="cp-btn-quiet group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <span>Select Studio-Managed Track (50/50)</span>
-                        <ArrowRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-1 transition-transform" />
-                      </button>
-                      <p className="text-[11px] text-center font-mono" style={{ color: C.faint }}>
-                        Standard tracking portal activated immediately
-                      </p>
-                    </div>
-                  </div>
-
+              {/* TRACK 1: INTERACTIVE CO-BUILDER PASS */}
+              <div
+                id="tour-portal-track-card"
+                onClick={() => setSelectedTrack('interactive')}
+                className="rounded-3xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-200 cursor-pointer relative"
+                style={{
+                  background: selectedTrack === 'interactive'
+                    ? 'linear-gradient(180deg, rgba(200, 30, 60, 0.14) 0%, rgba(16, 19, 26, 0.98) 100%)'
+                    : 'linear-gradient(180deg, rgba(23, 27, 36, 0.5) 0%, rgba(12, 14, 19, 0.96) 100%)',
+                  border: selectedTrack === 'interactive' ? `1px solid ${C.crimsonLine}` : `1px solid ${C.line}`,
+                  borderTop: `3px solid ${C.crimson}`,
+                  boxShadow: selectedTrack === 'interactive' ? '0 16px 40px rgba(200, 30, 60, 0.20)' : '0 4px 20px rgba(0,0,0,0.3)',
+                  transform: selectedTrack === 'interactive' ? 'translateY(-2px)' : 'none'
+                }}
+              >
+                {/* Recommended Badge */}
+                <div
+                  className="absolute -top-3 left-6 px-3.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md"
+                  style={{ background: C.ok, color: '#08090c' }}
+                >
+                  <Check className="w-3 h-3 stroke-[3]" />
+                  <span>RECOMMENDED</span>
                 </div>
 
-                {/* Comparative Technical Matrix (Protocol v2.4) */}
-                <div
-                  className="rounded-3xl p-6 sm:p-7 space-y-5"
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(23, 27, 36, 0.4) 0%, rgba(16, 19, 26, 0.95) 100%)',
-                    border: `1px solid ${C.line}`,
-                    boxShadow: '0 4px 24px rgba(0,0,0,0.2)'
-                  }}
-                >
-                  <div className="flex items-center justify-between pb-3.5" style={{ borderBottom: `1px solid ${C.line}` }}>
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: C.sky }} />
-                      <span className="serif text-lg font-normal text-white">
-                        Comparative Technical Matrix
-                      </span>
-                    </div>
-                    <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full" style={{ background: C.row, border: `1px solid ${C.line}`, color: C.faint }}>
-                      Protocol v2.4
-                    </span>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs font-sans">
-                      <thead>
-                        <tr className="text-[10px] font-mono uppercase tracking-wider" style={{ borderBottom: `1px solid ${C.line}`, color: C.muted }}>
-                          <th className="py-2.5 pr-4 font-bold">CAPABILITY / DELIVERABLE</th>
-                          <th className="py-2.5 px-4 font-bold" style={{ color: C.crimsonText }}>TRACK 1: INTERACTIVE PASS</th>
-                          <th className="py-2.5 pl-4 font-bold" style={{ color: C.sky }}>TRACK 2: STUDIO MANAGED</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          { label: 'Co-Founder Equity Division', t1: '50% / 50%', t1Color: C.ok, t2: '50% / 50%', t2Color: C.ok },
-                          { label: 'Sprint & Code Execution', t1: 'Co-Pilot / Hands-On Access', t1Color: C.text, t2: 'Engineered by Studio Devs', t2Color: C.body },
-                          { label: 'Workspace Terminal & Repos', t1: 'Instant Direct Provisioning', t1Color: C.ok, t2: 'Restricted to Studio Staff', t2Color: C.muted },
-                          { label: 'Validation Test Pipeline', t1: 'Full Real-Time Test Suite', t1Color: C.text, t2: 'Milestone Summary Reports', t2Color: C.body },
-                          { label: 'Upfront Capital Commitment', t1: `$${cobuilderPrice} One-Time Pass`, t1Color: C.warn, t2: '$0.00 Upfront', t2Color: C.ok, last: true },
-                        ].map((row) => (
-                          <tr key={row.label} className="transition-colors hover:bg-white/[0.02]" style={{ borderBottom: row.last ? 'none' : `1px solid ${C.line}` }}>
-                            <td className="py-3 pr-4 font-medium" style={{ color: C.body }}>{row.label}</td>
-                            <td className="py-3 px-4 font-mono font-bold" style={{ color: row.t1Color }}>{row.t1}</td>
-                            <td className="py-3 pl-4 font-mono" style={{ color: row.t2Color }}>{row.t2}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column: PREVIEW DECK - VENTURE SUMMARY (4 of 12 cols) */}
-              <div className="lg:col-span-4 lg:sticky lg:top-20 space-y-4">
-                <div
-                  id="tour-portal-blueprint"
-                  className="rounded-3xl p-6 sm:p-7 space-y-6"
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(23, 27, 36, 0.7) 0%, rgba(12, 14, 19, 0.98) 100%)',
-                    border: `1px solid ${C.lineStrong}`,
-                    borderTop: `3px solid rgba(255, 255, 255, 0.3)`,
-                    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.45)'
-                  }}
-                >
-                  <div className="flex items-center justify-between pb-3.5" style={{ borderBottom: `1px solid ${C.line}` }}>
+                <div className="space-y-5 pt-1">
+                  {/* Card Header & Price */}
+                  <div className="flex items-start justify-between gap-4">
                     <div>
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest block" style={{ color: C.faint }}>
-                        PREVIEW DECK
-                      </span>
-                      <h3 className="serif text-xl sm:text-2xl font-normal tracking-tight" style={{ color: C.text }}>
-                        Venture Summary
-                      </h3>
-                    </div>
-                    <span
-                      className="px-3 py-1 rounded-full text-[10px] font-mono font-bold flex items-center gap-1.5"
-                      style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.ok }} />
-                      <span>Live Spec</span>
-                    </span>
-                  </div>
-
-                  {/* Spec Sheet Table */}
-                  <div className="space-y-3.5 text-xs">
-                    <div className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Venture Title</span>
-                      <span className="serif text-base font-normal" style={{ color: C.text }}>{productName}</span>
-                    </div>
-                    <div className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Selected Path</span>
-                      <span className="font-mono font-bold" style={{ color: selectedTrack === 'interactive' ? C.crimsonText : C.sky }}>
-                        {selectedTrack === 'interactive' ? 'Track 1: Interactive Pass' : 'Track 2: Studio-Managed'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Equity Ratio</span>
-                      <span className="font-mono font-bold" style={{ color: C.ok }}>50 / 50 Irrevocable</span>
-                    </div>
-                    <div className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Access Tier</span>
                       <span
-                        className="px-2.5 py-0.5 rounded-md font-mono text-[11px] font-bold"
-                        style={{ background: C.raised, color: C.body, border: `1px solid ${C.line}` }}
+                        className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider inline-block mb-1.5"
+                        style={{ background: C.crimsonSoft, color: C.crimsonText, border: `1px solid ${C.crimsonLine}` }}
                       >
-                        {selectedTrack === 'interactive' ? 'Full Interactive OS' : 'Studio-Managed'}
+                        Track 1 • Interactive
                       </span>
+                      <h2 className="serif text-2xl sm:text-3xl font-normal text-white">
+                        Co-Builder Pass
+                      </h2>
                     </div>
-                    <div className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Upfront Investment</span>
-                      <span className="serif text-lg font-normal" style={{ color: C.text }}>
-                        {selectedTrack === 'interactive' ? `$${cobuilderPrice.toFixed(2)} USD` : '$0.00 Upfront'}
+
+                    <div className="text-right shrink-0">
+                      <div className="serif text-3xl sm:text-4xl text-white font-normal leading-none">
+                        ${cobuilderPrice}
+                      </div>
+                      <span className="text-[11px] font-mono block mt-1" style={{ color: C.muted }}>
+                        one-time pass
                       </span>
-                    </div>
-                    <div className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Response / Deployment</span>
-                      <span className="font-mono font-semibold" style={{ color: C.ok }}>Immediate Provisioning</span>
-                    </div>
-                    <div className="flex items-center justify-between py-1.5">
-                      <span style={{ color: C.muted }}>Expected Build Cadence</span>
-                      <span className="font-bold" style={{ color: C.text }}>3 Structured Phases</span>
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="space-y-2.5 pt-2">
-                    {selectedTrack === 'interactive' ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (isDiyActive) {
-                            setTrackChoiceDismissed(true)
-                            setActiveMainView('projectos')
-                            if (typeof window !== 'undefined') {
-                              const searchParams = new URLSearchParams(window.location.search)
-                              searchParams.delete('offer')
-                              searchParams.delete('track')
-                              const newSearch = searchParams.toString()
-                              window.history.replaceState({}, '', window.location.pathname + (newSearch ? `?${newSearch}` : '') + window.location.hash)
-                            }
-                          } else {
-                            setShowDiyModal(true)
-                          }
-                        }}
-                        className="cp-btn-primary group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <span>{isDiyActive ? 'Access Co-Builder Workspace →' : `Continue with Interactive Pass ($${cobuilderPrice})`}</span>
-                        <ArrowRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-1 transition-transform" />
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleDeclineDiyOffer}
-                        className="cp-btn-primary group w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <span>Continue with Studio-Managed Track</span>
-                        <ArrowRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-1 transition-transform" />
-                      </button>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => setSelectedTrack(prev => prev === 'interactive' ? 'managed' : 'interactive')}
-                      className="cp-btn-quiet w-full py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" style={{ color: C.muted }} />
-                      <span>Reset Selection</span>
-                    </button>
-                  </div>
-
-                  <p className="text-[11px] text-center leading-relaxed" style={{ color: C.faint }}>
-                    Authorizes co-builder credentials and generates the live operational environment according to your tier.
+                  <p className="text-xs sm:text-sm leading-relaxed" style={{ color: C.body }}>
+                    Take active command control to prompt AI feature sprints, review architecture blueprints, and build directly alongside our platform engine.
                   </p>
 
-                  <div className="pt-2 flex items-center justify-between text-[11px] font-mono" style={{ borderTop: `1px solid ${C.line}`, color: C.muted }}>
-                    <span>Venture Spec:</span>
-                    <button
-                      type="button"
-                      onClick={() => setShowAgreementModal(true)}
-                      className="font-bold flex items-center gap-1 cursor-pointer hover:underline transition-colors"
-                      style={{ color: C.sky }}
-                    >
-                      <FileText className="w-3 h-3" />
-                      <span>CF-5050 Agreement (50/50)</span>
-                    </button>
-                  </div>
-
-                  {/* Security Banner */}
-                  <div className="p-3.5 rounded-2xl text-[11px] space-y-1.5" style={{ background: C.row, border: `1px solid ${C.line}`, color: C.body }}>
-                    <div className="flex items-center gap-2 font-bold" style={{ color: C.text }}>
-                      <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: C.ok }} />
-                      <span>Legal Partnership Protection</span>
+                  {/* Key Deliverables */}
+                  <div className="space-y-3 text-xs sm:text-sm pt-2" style={{ borderTop: `1px solid ${C.line}` }}>
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
+                      >
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                      <span style={{ color: C.body }}>
+                        <strong className="font-semibold text-white">50/50 Founder Equity</strong> locked in charter
+                      </span>
                     </div>
-                    <p className="text-[10px] leading-relaxed" style={{ color: C.muted }}>
-                      Every venture is co-owned 50% by the creator with verified IP ownership assignment.
-                    </p>
+
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
+                      >
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                      <span style={{ color: C.body }}>
+                        <strong className="font-semibold text-white">Hands-on Workbench</strong> for all 3 phases
+                      </span>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
+                      >
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                      <span style={{ color: C.body }}>
+                        <strong className="font-semibold text-white">Rapid AI Sprints</strong> to trigger MVP feature modules
+                      </span>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
+                      >
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                      <span style={{ color: C.body }}>
+                        <strong className="font-semibold text-white">Dedicated Subdomain</strong> & GitHub repo access
+                      </span>
+                    </div>
                   </div>
                 </div>
+
+                {/* CTA Button */}
+                <div className="pt-8 space-y-2">
+                  <button
+                    id="tour-portal-unlock-btn"
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (isDiyActive) {
+                        setTrackChoiceDismissed(true)
+                        setActiveMainView('projectos')
+                      } else {
+                        setSelectedTrack('interactive')
+                        setShowDiyModal(true)
+                      }
+                    }}
+                    className="cp-btn-primary w-full py-4 px-6 rounded-2xl font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>{isDiyActive ? 'Open Co-Builder Workspace →' : `Choose Interactive Pass ($${cobuilderPrice})`}</span>
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                  </button>
+                  <p className="text-[11px] text-center font-mono" style={{ color: C.faint }}>
+                    Instant setup • Stripe & PayPal protected
+                  </p>
+                </div>
               </div>
+
+              {/* TRACK 2: STUDIO-MANAGED TRACK */}
+              <div
+                onClick={() => setSelectedTrack('managed')}
+                className="rounded-3xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-200 cursor-pointer relative"
+                style={{
+                  background: selectedTrack === 'managed'
+                    ? 'linear-gradient(180deg, rgba(56, 189, 248, 0.12) 0%, rgba(16, 19, 26, 0.98) 100%)'
+                    : 'linear-gradient(180deg, rgba(23, 27, 36, 0.5) 0%, rgba(12, 14, 19, 0.96) 100%)',
+                  border: selectedTrack === 'managed' ? `1px solid ${C.skyLine}` : `1px solid ${C.line}`,
+                  borderTop: `3px solid ${C.sky}`,
+                  boxShadow: selectedTrack === 'managed' ? '0 16px 40px rgba(56, 189, 248, 0.18)' : '0 4px 20px rgba(0,0,0,0.3)',
+                  transform: selectedTrack === 'managed' ? 'translateY(-2px)' : 'none'
+                }}
+              >
+                <div className="space-y-5 pt-1">
+                  {/* Card Header & Price */}
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <span
+                        className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider inline-block mb-1.5"
+                        style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
+                      >
+                        Track 2 • Delegated
+                      </span>
+                      <h2 className="serif text-2xl sm:text-3xl font-normal text-white">
+                        Studio-Managed Track
+                      </h2>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <div className="serif text-3xl sm:text-4xl text-white font-normal leading-none">
+                        $0
+                      </div>
+                      <span className="text-[11px] font-mono block mt-1" style={{ color: C.muted }}>
+                        upfront fee
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs sm:text-sm leading-relaxed" style={{ color: C.body }}>
+                    Studio engineers handle all development, architecture, and deployment while you monitor progress in real-time and coordinate your audience.
+                  </p>
+
+                  {/* Key Deliverables */}
+                  <div className="space-y-3 text-xs sm:text-sm pt-2" style={{ borderTop: `1px solid ${C.line}` }}>
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
+                      >
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                      <span style={{ color: C.body }}>
+                        <strong className="font-semibold text-white">50/50 Founder Equity</strong> locked in charter
+                      </span>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
+                      >
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                      <span style={{ color: C.body }}>
+                        <strong className="font-semibold text-white">Done-For-You Sprints</strong> executed by studio engineers
+                      </span>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
+                      >
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                      <span style={{ color: C.body }}>
+                        <strong className="font-semibold text-white">Milestone Review Portal</strong> with live telemetry
+                      </span>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
+                      >
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                      <span style={{ color: C.body }}>
+                        <strong className="font-semibold text-white">Zero Technical Setup</strong> required on your end
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CTA Button */}
+                <div className="pt-8 space-y-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedTrack('managed')
+                      handleDeclineDiyOffer()
+                    }}
+                    className="cp-btn-quiet w-full py-4 px-6 rounded-2xl font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>Choose Studio-Managed (50/50) →</span>
+                  </button>
+                  <p className="text-[11px] text-center font-mono" style={{ color: C.faint }}>
+                    Standard tracking portal activated immediately
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Partnership Guarantee Footer Bar — Clean, Legible, Authoritative */}
+            <div
+              className="rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4"
+              style={{ background: C.sheet, border: `1px solid ${C.line}` }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
+                >
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-white block">
+                    Guaranteed 50/50 Co-Founder Partnership
+                  </span>
+                  <p className="text-[11px]" style={{ color: C.muted }}>
+                    Both tracks share equal commercial profit distributions and verified IP assignment under the venture charter.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowAgreementModal(true)}
+                className="text-xs font-mono font-medium flex items-center gap-1.5 cursor-pointer underline underline-offset-4 hover:opacity-80 transition-opacity shrink-0"
+                style={{ color: C.sky }}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>View Charter Agreement</span>
+              </button>
             </div>
           </div>
         ) : activeMainView === 'projectos' ? (
