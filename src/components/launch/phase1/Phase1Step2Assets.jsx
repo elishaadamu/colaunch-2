@@ -11,7 +11,68 @@ import {
 } from '../../../services/opsApi'
 import ProductMockupCanvas from '../ProductMockupCanvas'
 import ProductMockupDisplay from '../ProductMockupDisplay'
-import { C, HEADING_FONT, PILL_TONES } from './phase1Constants'
+import { C, PILL_TONES } from './phase1Constants'
+
+const ASSETS_CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap');
+.p1assets .serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:-0.01em}
+.p1assets .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;white-space:nowrap;font-size:.8125rem;font-weight:600;border-radius:.625rem;cursor:pointer;border:1px solid transparent;text-decoration:none;transition:background-color .15s,border-color .15s,color .15s}
+.p1assets .btn:disabled{opacity:.45;cursor:not-allowed}
+.p1assets .btn-primary{background:${C.crimson};color:#fff}
+.p1assets .btn-primary:hover:not(:disabled){background:${C.crimsonHover}}
+.p1assets .btn-quiet{background:${C.raised};color:${C.body};border-color:${C.line}}
+.p1assets .btn-quiet:hover:not(:disabled){border-color:${C.lineStrong};color:${C.text}}
+.p1assets .btn-ok{background:${C.okSoft};color:${C.ok};border-color:${C.okLine}}
+.p1assets .btn-danger{background:transparent;color:${C.crimsonText};border-color:${C.crimsonLine}}
+.p1assets .btn-danger:hover:not(:disabled){background:${C.crimsonSoft}}
+.p1assets .btn:focus-visible,.p1assets .tab:focus-visible,.p1assets input:focus-visible,.p1assets textarea:focus-visible,.p1assets select:focus-visible{outline:2px solid ${C.crimson};outline-offset:2px}
+.p1assets .tab{display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;padding:.5rem .875rem;border-radius:.625rem;font-size:.8125rem;font-weight:500;cursor:pointer;color:${C.muted};border:1px solid transparent;background:transparent;transition:color .15s,background-color .15s}
+.p1assets .tab:hover{color:${C.text}}
+.p1assets .tab[aria-selected="true"]{background:${C.raised};color:${C.text};border-color:${C.line}}
+.p1assets .in{width:100%;background:${C.row};border:1px solid ${C.line};color:${C.text};border-radius:.625rem;padding:.55rem .8rem;font-size:.875rem;transition:border-color .15s}
+.p1assets .in:hover{border-color:${C.lineStrong}}
+.p1assets .in:focus{border-color:${C.crimsonLine};outline:none}
+.p1assets .in::placeholder{color:${C.faint}}
+.p1assets textarea.in{resize:vertical;line-height:1.5}
+@media (min-width:640px){.p1assets .in.sel{width:11rem;flex:none}.p1assets .in.grow{flex:1;width:auto;min-width:0}}
+.p1assets .card{background:${C.row};border:1px solid ${C.line};border-radius:1rem}
+.p1assets .lbl{display:block;font-size:.75rem;font-weight:600;color:${C.body};margin-bottom:.375rem}
+@media (prefers-reduced-motion:reduce){.p1assets *{transition:none!important;animation:none!important}}
+`
+
+const Field = ({ label, children }) => (
+  <label className="block">
+    <span className="lbl">{label}</span>
+    {children}
+  </label>
+)
+
+function UrlBar({ url, copyLabel, onCopy, openLabel }) {
+  return (
+    <div className="card p-3 flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg min-w-0 flex-1" style={{ background: C.sheet, border: `1px solid ${C.line}`, color: C.body }}>
+        <Globe className="w-3.5 h-3.5 shrink-0" style={{ color: C.muted }} aria-hidden="true" />
+        <span className="truncate text-xs" title={url}>{url}</span>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <button type="button" onClick={onCopy} className="btn btn-quiet h-9 px-3.5">
+          <Copy className="w-3.5 h-3.5" aria-hidden="true" />
+          <span>{copyLabel}</span>
+        </button>
+        <a href={url} target="_blank" rel="noopener noreferrer" className="btn btn-primary h-9 px-3.5">
+          <span>{openLabel}</span>
+          <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+  )
+}
+
+const TABS = [
+  { id: 'product_assets', label: 'Identity and mockup', icon: Palette },
+  { id: 'infrastructure', label: 'Landing page and checkout', icon: Globe },
+  { id: 'research', label: 'Customer survey', icon: HelpCircle },
+]
 
 export default function Phase1Step2Assets({
   project,
@@ -56,251 +117,222 @@ export default function Phase1Step2Assets({
   showNotification,
   setActiveStep,
   onSelectStep,
-  onUpdateProject
+  onUpdateProject,
 }) {
+  const tab =
+    assetSubTab === 'page' ? 'infrastructure'
+    : assetSubTab === 'survey' ? 'research'
+    : assetSubTab === 'branding' || !assetSubTab ? 'product_assets'
+    : assetSubTab
+
+  const pageUrl = `${origin}/preorder/${productSlug}`
+  const surveyUrl = `${origin}/survey/${productSlug}`
+  const refTag = (project?.creatorHandle || 'creator').replace('@', '')
+  const hasVariant = Boolean(campaignKit?.landingPageCopy?.activeExperimentTitle || campaignKit?.pricingConfig?.activeExperimentTitle)
+
+  const approveAssets = () => {
+    const step2Assets = project?.validationCampaign?.productAssets || project?.validationCampaign?.product_assets || {
+      productName: project?.productName,
+      productTagline: project?.productTagline,
+      pricingConfig: sanitizedPricingConfig,
+    }
+
+    setIsStep2Approved(true)
+
+    const updated = {
+      ...(project || {}),
+      planLocked: true,
+      assetsApproved: true,
+      landingPageApproved: true,
+      validationCampaign: {
+        ...(project?.validationCampaign || {}),
+        product_assets: step2Assets,
+        productAssets: step2Assets,
+        campaign_kit: campaignKit,
+        campaignKit: campaignKit,
+        creator_tasks: campaignKit?.postingSchedule || [],
+        infrastructure: {
+          landingPageUrl: `/p/${productSlug}`,
+          checkoutUrl: `/p/${productSlug}/checkout`,
+          waitlistCount: 240,
+          attributionTracking: true,
+        },
+        research_survey: surveyData,
+        review_status: 'approved',
+        reviewStatus: 'approved',
+      },
+    }
+
+    if (onUpdateProject) {
+      onUpdateProject((prev) => ({ ...(prev || {}), ...updated }))
+    }
+
+    if (project?.id) {
+      updateValidationCampaign(project.id, {
+        product_assets: step2Assets,
+        campaign_kit: campaignKit,
+        campaignKit: campaignKit,
+        creator_tasks: campaignKit?.postingSchedule || [],
+        infrastructure: {
+          landingPageUrl: `/p/${productSlug}`,
+          checkoutUrl: `/p/${productSlug}/checkout`,
+          waitlistCount: 240,
+          attributionTracking: true,
+        },
+        research_survey: surveyData,
+        review_status: 'approved',
+      }).catch((e) => console.warn('[Phase1] DB campaign approval warning:', e))
+
+      updateCoLaunchProject(project.id, {
+        assetsApproved: true,
+        landingPageApproved: true,
+        campaignKit: campaignKit,
+        campaign_kit: campaignKit,
+      }).catch((e) => console.warn('[Phase1] DB project approval warning:', e))
+
+      logProjectActivity(project.id, {
+        action: 'Validation Assets & Campaign Approved',
+        details: 'Step 2 assets, copy, and research survey approved. Advancing to Creator Campaign.',
+        step: 'assets',
+        phase: 1,
+      }).catch((e) => console.warn('[Phase1] Activity logging warning:', e))
+    }
+
+    showNotification('Validation assets approved & locked in database! Advancing to Creator Campaign.')
+    setActiveStep('campaign')
+    onSelectStep?.('campaign')
+  }
+
+  const analysisScores = [
+    { label: 'Overall score', value: surveyAnalysis?.overallScore !== undefined ? `${surveyAnalysis.overallScore}/100` : null, note: surveyAnalysis?.recommendation === 'PROCEED' ? 'Proceed to build' : surveyAnalysis ? 'Iterate on pricing' : 'Run the analysis', color: C.text, noteColor: surveyAnalysis?.recommendation === 'PROCEED' ? C.ok : surveyAnalysis ? C.warn : C.faint },
+    { label: 'Market demand', value: surveyAnalysis?.marketDemandScore !== undefined ? `${surveyAnalysis.marketDemandScore}%` : null, note: 'How urgent the problem feels', color: C.ok, noteColor: C.faint },
+    { label: `Pricing fit at $${activeFoundingPrice}`, value: surveyAnalysis?.pricingViabilityScore !== undefined ? `${surveyAnalysis.pricingViabilityScore}%` : null, note: 'Willingness to pay', color: C.skyText, noteColor: C.faint },
+  ]
+
   return (
-    <div
-      className="p-5 sm:p-6 rounded-2xl space-y-5"
-      style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-    >
-      {/* Top Header */}
-      <div
-        className="pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-        style={{ borderBottom: `1px solid ${C.line}` }}
-      >
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3
-              className="text-base font-bold flex items-center gap-2"
-              style={{ ...HEADING_FONT, color: C.text }}
-            >
-              <span>2. Build Validation Assets & Infrastructure</span>
-            </h3>
-            <span
-              className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border"
-              style={PILL_TONES.sky}
-            >
-              Stage 2 • Infrastructure & Copy
-            </span>
-          </div>
-          <p className="text-xs mt-1 leading-relaxed" style={{ color: C.muted }}>
-            Product assets, branding, positioning, copy, landing page, checkout, waitlist, analytics & customer discovery surveys.
+    <div className="p1assets p-5 sm:p-8 rounded-2xl space-y-6" style={{ background: C.sheet, border: `1px solid ${C.line}`, color: C.text }}>
+      <style>{ASSETS_CSS}</style>
+
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="min-w-0">
+          <h3 className="serif m-0 text-4xl leading-none">Validation assets</h3>
+          <p className="m-0 mt-2.5 text-sm leading-relaxed max-w-2xl" style={{ color: C.muted }}>
+            Everything buyers see before the product exists: the name, the pitch, the pre-order page and a short survey.
           </p>
         </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={saveAll}
-            className="px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-            style={{ background: C.okSoft, borderColor: C.okLine, color: C.ok }}
-          >
-            <Save className="w-3.5 h-3.5" style={{ color: C.ok }} />
-            <span>Save Assets</span>
-          </button>
-        </div>
+        <button type="button" onClick={saveAll} className="btn btn-ok h-9 px-4 shrink-0">
+          <Save className="w-3.5 h-3.5" aria-hidden="true" />
+          <span>Save assets</span>
+        </button>
       </div>
 
-      {/* Sub-Navigation Tabs */}
-      <div className="flex items-center gap-1.5 pb-2 overflow-x-auto" style={{ borderBottom: `1px solid ${C.line}` }}>
-        {[
-          { id: 'product_assets', label: '1. Product Identity & Mockup', icon: Palette },
-          { id: 'infrastructure', label: '2. Landing Page & Checkout', icon: Globe },
-          { id: 'research', label: '3. Customer Discovery Survey', icon: HelpCircle },
-        ].map((tab) => {
-          const Icon = tab.icon
-          const isActive = assetSubTab === tab.id || (tab.id === 'product_assets' && (!assetSubTab || assetSubTab === 'branding'))
+      {/* Tabs */}
+      <div role="tablist" aria-label="Asset sections" className="flex items-center gap-1 overflow-x-auto pb-3" style={{ borderBottom: `1px solid ${C.line}` }}>
+        {TABS.map((t) => {
+          const Icon = t.icon
           return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setAssetSubTab(tab.id)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer border"
-              style={
-                isActive
-                  ? { background: C.raised, borderColor: C.lineStrong, color: C.text }
-                  : { background: 'transparent', borderColor: 'transparent', color: C.muted }
-              }
-            >
-              <Icon className="w-3.5 h-3.5" style={{ color: isActive ? C.crimsonText : C.faint }} />
-              <span>{tab.label}</span>
+            <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} className="tab" onClick={() => setAssetSubTab(t.id)}>
+              <Icon className="w-3.5 h-3.5" style={{ color: tab === t.id ? C.crimsonText : C.faint }} aria-hidden="true" />
+              <span>{t.label}</span>
             </button>
           )
         })}
       </div>
 
-      {/* 1. PRODUCT ASSETS */}
-      {(assetSubTab === 'branding' || assetSubTab === 'product_assets') && (
-        <div className="space-y-5 text-xs">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Identity & Positioning Card */}
-            <div
-              className="p-4 sm:p-5 rounded-xl space-y-3.5"
-              style={{ background: C.row, border: `1px solid ${C.line}` }}
-            >
-              <span className="text-[11px] font-bold uppercase tracking-wider block font-mono" style={{ color: C.text }}>
-                Product Identity, Branding & Positioning
-              </span>
-
-              <div>
-                <label className="text-[10px] block font-bold" style={{ color: C.muted }}>Product Name</label>
+      {/* IDENTITY */}
+      {tab === 'product_assets' && (
+        <div className="space-y-8">
+          <div className="grid lg:grid-cols-2 gap-5">
+            <section className="card p-5 sm:p-6 space-y-4" aria-labelledby="p1a-identity">
+              <h4 id="p1a-identity" className="serif m-0 text-2xl">Name and positioning</h4>
+              <Field label="Product name">
                 <input
                   type="text"
+                  className="in"
                   value={assetName}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setAssetName(val)
-                    updateAssetField('productName', val)
-                  }}
-                  placeholder="e.g. RetroVault OS"
-                  className="w-full mt-1 px-3 py-2 rounded-lg font-bold outline-none border transition-colors text-xs"
-                  style={{ background: C.sheet, borderColor: C.line, color: C.text }}
+                  onChange={(e) => { const val = e.target.value; setAssetName(val); updateAssetField('productName', val) }}
+                  placeholder="RetroVault OS"
                 />
-              </div>
-
-              <div>
-                <label className="text-[10px] block font-bold" style={{ color: C.muted }}>Positioning Statement / Tagline</label>
+              </Field>
+              <Field label="Tagline">
                 <textarea
                   rows={2}
+                  className="in"
                   value={assetTagline}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setAssetTagline(val)
-                    updateAssetField('productTagline', val)
-                  }}
-                  placeholder="e.g. Cloud-save synchronizer and CRT shader engine for retro handhelds."
-                  className="w-full mt-1 p-2.5 rounded-lg outline-none resize-none border transition-colors text-xs"
-                  style={{ background: C.sheet, borderColor: C.line, color: C.body }}
+                  onChange={(e) => { const val = e.target.value; setAssetTagline(val); updateAssetField('productTagline', val) }}
+                  placeholder="Cloud-save sync and CRT shaders for retro handhelds."
                 />
+              </Field>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Field label="Brand tone">
+                  <input type="text" className="in" value={assetTone} onChange={(e) => { const val = e.target.value; setAssetTone(val); updateAssetField('brandTone', val) }} />
+                </Field>
+                <Field label="Target audience">
+                  <input type="text" className="in" value={assetAudience} onChange={(e) => { const val = e.target.value; setAssetAudience(val); updateAssetField('targetAudience', val) }} />
+                </Field>
               </div>
+            </section>
 
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <div>
-                  <label className="text-[10px] block font-bold" style={{ color: C.muted }}>Brand Tone</label>
-                  <input
-                    type="text"
-                    value={assetTone}
-                    onChange={(e) => {
-                      const val = e.target.value
-                      setAssetTone(val)
-                      updateAssetField('brandTone', val)
-                    }}
-                    className="w-full mt-1 px-3 py-2 rounded-lg border text-xs outline-none"
-                    style={{ background: C.sheet, borderColor: C.line, color: C.body }}
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] block font-bold" style={{ color: C.muted }}>Target Audience</label>
-                  <input
-                    type="text"
-                    value={assetAudience}
-                    onChange={(e) => {
-                      const val = e.target.value
-                      setAssetAudience(val)
-                      updateAssetField('targetAudience', val)
-                    }}
-                    className="w-full mt-1 px-3 py-2 rounded-lg border text-xs outline-none"
-                    style={{ background: C.sheet, borderColor: C.line, color: C.body }}
-                  />
-                </div>
+            <section className="card p-5 sm:p-6 space-y-4" aria-labelledby="p1a-offer">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <h4 id="p1a-offer" className="serif m-0 text-2xl">Headline and pricing</h4>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border" style={PILL_TONES.ok}>Shown on /preorder</span>
               </div>
-            </div>
-
-            {/* Copy & Pricing Card */}
-            <div
-              className="p-4 sm:p-5 rounded-xl space-y-3.5"
-              style={{ background: C.row, border: `1px solid ${C.line}` }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider block font-mono" style={{ color: C.ok }}>
-                  Product Copy & Pricing Structure
-                </span>
-                <span
-                  className="text-[10px] font-mono font-bold px-2 py-0.5 rounded border"
-                  style={PILL_TONES.ok}
-                >
-                  Live on /preorder
-                </span>
-              </div>
-
-              <div>
-                <label className="text-[10px] block font-bold" style={{ color: C.muted }}>Hero Headline Copy</label>
+              <Field label="Headline">
                 <input
                   type="text"
+                  className="in"
                   value={campaignKit?.landingPageCopy?.headline ?? `The ${project?.productName || 'Software'} Workspace Built with ${project?.creatorName || 'Founding Creator'}`}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    updateCampaignKit('landingPageCopy', { ...(campaignKit?.landingPageCopy || {}), headline: val })
-                  }}
-                  placeholder="e.g. Never lose a retro game save again — instant cloud sync across handhelds."
-                  className="w-full mt-1 px-3 py-2 rounded-lg font-bold outline-none border transition-colors text-xs"
-                  style={{ background: C.sheet, borderColor: C.line, color: C.text }}
+                  onChange={(e) => updateCampaignKit('landingPageCopy', { ...(campaignKit?.landingPageCopy || {}), headline: e.target.value })}
+                  placeholder="Never lose a retro game save again."
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[10px] block font-bold" style={{ color: C.muted }}>Founding Annual Price</label>
-                  <div
-                    className="flex items-center gap-1 mt-1 px-3 py-2 rounded-lg border"
-                    style={{ background: C.sheet, borderColor: C.line }}
-                  >
-                    <span className="font-bold" style={{ color: C.muted }}>$</span>
+              </Field>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Field label="Founding annual price">
+                  <div className="in flex items-center gap-1.5">
+                    <span style={{ color: C.muted }}>$</span>
                     <input
                       type="number"
+                      aria-label="Founding annual price"
                       value={activeFoundingPrice}
-                      onChange={(e) => {
-                        const val = Number(e.target.value) || 0
-                        updateCampaignKit('pricingConfig', { ...(campaignKit?.pricingConfig || {}), foundingPrice: val })
-                      }}
-                      className="bg-transparent font-bold text-xs outline-none w-full"
+                      onChange={(e) => updateCampaignKit('pricingConfig', { ...(campaignKit?.pricingConfig || {}), foundingPrice: Number(e.target.value) || 0 })}
+                      className="w-full bg-transparent outline-none"
                       style={{ color: C.text }}
                     />
                   </div>
-                </div>
-                <div>
-                  <label className="text-[10px] block font-bold" style={{ color: C.muted }}>Refundable Deposit</label>
-                  <div
-                    className="flex items-center gap-1 mt-1 px-3 py-2 rounded-lg border"
-                    style={{ background: C.sheet, borderColor: C.line }}
-                  >
-                    <span className="font-bold" style={{ color: C.muted }}>$</span>
+                </Field>
+                <Field label="Refundable deposit">
+                  <div className="in flex items-center gap-1.5">
+                    <span style={{ color: C.muted }}>$</span>
                     <input
                       type="number"
+                      aria-label="Refundable deposit"
                       value={activeDepositPrice}
-                      onChange={(e) => {
-                        const val = Number(e.target.value) || 0
-                        updateCampaignKit('pricingConfig', { ...(campaignKit?.pricingConfig || {}), depositPrice: val })
-                      }}
-                      className="bg-transparent font-bold text-xs outline-none w-full"
+                      onChange={(e) => updateCampaignKit('pricingConfig', { ...(campaignKit?.pricingConfig || {}), depositPrice: Number(e.target.value) || 0 })}
+                      className="w-full bg-transparent outline-none"
                       style={{ color: C.text }}
                     />
                   </div>
-                </div>
+                </Field>
               </div>
-
-              <div>
-                <label className="text-[10px] block font-bold" style={{ color: C.muted }}>Offer Perks & Guarantee</label>
+              <Field label="Perks and guarantee">
                 <input
                   type="text"
+                  className="in"
                   value={campaignKit?.pricingConfig?.perks ?? `50% Lifetime Discount + 1-on-1 Alpha Onboarding for ${project?.creatorName || 'Founding'} VIPs`}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    updateCampaignKit('pricingConfig', { ...(campaignKit?.pricingConfig || {}), perks: val })
-                  }}
-                  placeholder="e.g. 50% Lifetime Discount + Beta Steam Deck & Miyoo Plugin"
-                  className="w-full mt-1 px-3 py-2 rounded-lg border text-xs outline-none"
-                  style={{ background: C.sheet, borderColor: C.line, color: C.body }}
+                  onChange={(e) => updateCampaignKit('pricingConfig', { ...(campaignKit?.pricingConfig || {}), perks: e.target.value })}
+                  placeholder="50% lifetime discount and early beta access"
                 />
-              </div>
-            </div>
+              </Field>
+            </section>
           </div>
 
-          {/* Product Mockup Studio & Visual Asset */}
-          <div className="space-y-2.5 pt-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider block font-mono px-1" style={{ color: C.text }}>
-              Product Mockup Studio & Visual Asset
-            </span>
+          <section aria-labelledby="p1a-mockup" className="space-y-3">
+            <div>
+              <h4 id="p1a-mockup" className="serif m-0 text-2xl">Product mockup</h4>
+              <p className="m-0 mt-1 text-xs" style={{ color: C.muted }}>The picture of the product used on the pre-order page and in the campaign.</p>
+            </div>
             <ProductMockupCanvas
               project={{ ...(project || {}), currentPresales: presalesRevenue, reservations, mockupImage }}
               onSaveMockupImage={(imgUrl) => {
@@ -312,589 +344,253 @@ export default function Phase1Step2Assets({
               }}
               onShowNotification={showNotification}
             />
-          </div>
+          </section>
         </div>
       )}
 
-      {/* 2. INFRASTRUCTURE */}
-      {(assetSubTab === 'page' || assetSubTab === 'infrastructure') && (
-        <div className="space-y-4 text-xs">
-          {/* Top Browser Bar */}
-          <div
-            className="p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3 border"
-            style={{ background: C.row, borderColor: C.line }}
-          >
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
-              </div>
-              <div
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-mono text-[11px] truncate flex-1 max-w-lg"
-                style={{ background: C.sheet, borderColor: C.line, color: C.body }}
-              >
-                <Globe className="w-3.5 h-3.5 shrink-0" style={{ color: C.muted }} />
-                <span className="truncate">{`${origin}/preorder/${productSlug}`}</span>
-              </div>
-            </div>
+      {/* LANDING PAGE */}
+      {tab === 'infrastructure' && (
+        <div className="space-y-5">
+          <UrlBar
+            url={pageUrl}
+            copyLabel="Copy link"
+            openLabel="Open live page"
+            onCopy={() => { navigator.clipboard?.writeText(pageUrl); showNotification('Pre-order link copied!') }}
+          />
 
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  const url = `${origin}/preorder/${productSlug}`
-                  if (url) {
-                    navigator.clipboard?.writeText(url)
-                    showNotification('Pre-order link copied!')
-                  }
-                }}
-                className="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-                style={{ background: C.raised, borderColor: C.lineStrong, color: C.text }}
-              >
-                <Copy className="w-3 h-3" style={{ color: C.muted }} />
-                <span>Copy Link</span>
-              </button>
-
-              <a
-                href={`${origin}/preorder/${productSlug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
-                style={{ background: C.crimson }}
-              >
-                <span>Open Live Page</span>
-                <ExternalLink className="w-3 h-3 text-white" />
-              </a>
-            </div>
-          </div>
-
-          {/* Interactive Landing Page Frame */}
-          <div
-            className="rounded-3xl border overflow-hidden p-6 sm:p-8 space-y-6"
-            style={{ background: C.row, borderColor: C.line }}
-          >
-            <div className="text-center space-y-3 max-w-2xl mx-auto">
+          <div className="card overflow-hidden">
+            <div className="px-6 sm:px-10 pt-10 pb-8 text-center space-y-4 max-w-3xl mx-auto">
               <div className="flex items-center justify-center gap-2 flex-wrap">
-                <span
-                  className="inline-block px-3.5 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider border"
-                  style={PILL_TONES.ok}
-                >
-                  🔥 Founding Member Pre-Sale
-                </span>
-                {(campaignKit?.landingPageCopy?.activeExperimentTitle || campaignKit?.pricingConfig?.activeExperimentTitle) && (
-                  <span
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border"
-                    style={PILL_TONES.violet}
-                  >
-                    <Sparkles className="w-3.5 h-3.5" style={{ color: C.violet }} />
-                    <span>AI Optimization Variant Live</span>
+                <span className="px-3 py-1 rounded-full text-xs font-medium border" style={PILL_TONES.ok}>Founding member pre-sale</span>
+                {hasVariant && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border" style={PILL_TONES.violet}>
+                    <Sparkles className="w-3 h-3" aria-hidden="true" />
+                    AI variant is live
                   </span>
                 )}
               </div>
-              <h2
-                className="text-2xl sm:text-4xl font-black tracking-tight leading-tight"
-                style={{ ...HEADING_FONT, color: C.text }}
-              >
+              <h2 className="serif m-0 text-4xl sm:text-5xl leading-[1.05]">
                 {campaignKit?.landingPageCopy?.headline || `The ${project?.productName || 'Product'} System`}
               </h2>
-              <p className="text-xs sm:text-sm leading-relaxed max-w-xl mx-auto" style={{ color: C.muted }}>
+              <p className="m-0 text-sm sm:text-base leading-relaxed max-w-xl mx-auto" style={{ color: C.muted }}>
                 {campaignKit?.landingPageCopy?.subheadline || project?.productTagline || 'Reserve early founding access and lock in lifetime benefits.'}
               </p>
-
-              {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                <a
-                  href={`${origin}/preorder/${productSlug}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-6 py-3 rounded-2xl text-white font-black text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-md"
-                  style={{ background: C.crimson }}
-                >
-                  <CreditCard className="w-4 h-4" />
-                  <span>Live Checkout: Claim Access (${activeFoundingPrice})</span>
-                  <ExternalLink className="w-3.5 h-3.5 ml-0.5 opacity-80" />
+                <a href={pageUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full sm:w-auto h-11 px-6">
+                  <CreditCard className="w-4 h-4" aria-hidden="true" />
+                  <span>Claim access for ${activeFoundingPrice}</span>
                 </a>
-
-                <a
-                  href={`${origin}/preorder/${productSlug}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-5 py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all border"
-                  style={{ background: C.raised, borderColor: C.lineStrong, color: C.text }}
-                >
-                  <ShieldCheck className="w-4 h-4" style={{ color: C.ok }} />
-                  <span>Reserve with ${activeDepositPrice} Deposit</span>
-                  <ExternalLink className="w-3.5 h-3.5 ml-0.5 opacity-80" />
+                <a href={pageUrl} target="_blank" rel="noopener noreferrer" className="btn btn-quiet w-full sm:w-auto h-11 px-5">
+                  <ShieldCheck className="w-4 h-4" style={{ color: C.ok }} aria-hidden="true" />
+                  <span>Reserve with ${activeDepositPrice} deposit</span>
                 </a>
               </div>
             </div>
-
-            {/* Visual Designed Mockup Showcase */}
-            <div className="pt-4 max-w-4xl mx-auto">
+            <div className="px-5 sm:px-10 pb-10 max-w-4xl mx-auto">
               <ProductMockupDisplay project={project} theme="crimson" brandColor="#c81e3c" />
             </div>
           </div>
 
-          {/* Infrastructure Hub */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-            <div className="p-4 rounded-2xl border space-y-2.5" style={{ background: C.row, borderColor: C.line }}>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider font-mono" style={{ color: C.ok }}>
-                  Stripe Checkout
-                </span>
-                <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: C.ok }} />
-              </div>
-              <div className="text-xl font-extrabold font-display" style={{ color: C.text }}>
-                ${presalesRevenue.toLocaleString()} <span className="text-xs font-normal" style={{ color: C.muted }}>Collected</span>
-              </div>
-              <p className="text-xs leading-relaxed" style={{ color: C.muted }}>
-                Stripe pre-orders active. Live payment simulation updates revenue in real-time.
-              </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="card p-5 space-y-1.5">
+              <p className="m-0 text-xs" style={{ color: C.muted }}>Collected through Stripe</p>
+              <p className="serif m-0 text-4xl leading-none">${(presalesRevenue || 0).toLocaleString()}</p>
+              <p className="m-0 pt-1 text-xs leading-relaxed" style={{ color: C.faint }}>Pre-orders update here as payments come in.</p>
             </div>
-
-            <div className="p-4 rounded-2xl border space-y-2.5" style={{ background: C.row, borderColor: C.line }}>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider font-mono" style={{ color: C.skyText }}>
-                  Attribution Tracker
-                </span>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded border" style={PILL_TONES.sky}>
-                  ?ref={(project?.creatorHandle || 'creator').replace('@', '')}
-                </span>
-              </div>
-              <div className="text-xl font-extrabold font-display" style={{ color: C.text }}>
-                100% <span className="text-xs font-normal" style={{ color: C.muted }}>Channel Attribution</span>
-              </div>
-              <p className="text-xs leading-relaxed" style={{ color: C.muted }}>
-                Tracks creator audience conversions, social link clicks, and presale attribution.
-              </p>
+            <div className="card p-5 space-y-1.5">
+              <p className="m-0 text-xs" style={{ color: C.muted }}>Creator attribution tag</p>
+              <p className="m-0 text-2xl leading-none pt-1.5" style={{ color: C.skyText }}>?ref={refTag}</p>
+              <p className="m-0 pt-2 text-xs leading-relaxed" style={{ color: C.faint }}>Add this to the link so sales from the creator's audience are credited to them.</p>
             </div>
-
-            <div className="p-4 rounded-2xl border space-y-2.5" style={{ background: C.row, borderColor: C.line }}>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider font-mono" style={{ color: C.violetText }}>
-                  Waitlist System
-                </span>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded border" style={PILL_TONES.violet}>
-                  {reservations.length} Leads
-                </span>
-              </div>
-              <div className="text-xl font-extrabold font-display" style={{ color: C.text }}>
-                ${activeDepositPrice} <span className="text-xs font-normal" style={{ color: C.muted }}>Deposit Model</span>
-              </div>
-              <p className="text-xs leading-relaxed" style={{ color: C.muted }}>
-                Captures high-intent buyers with refundable reservation pass before full MVP build.
-              </p>
+            <div className="card p-5 space-y-1.5">
+              <p className="m-0 text-xs" style={{ color: C.muted }}>Waitlist</p>
+              <p className="serif m-0 text-4xl leading-none">{(reservations || []).length} <span className="text-base" style={{ color: C.muted }}>{(reservations || []).length === 1 ? 'lead' : 'leads'}</span></p>
+              <p className="m-0 pt-1 text-xs leading-relaxed" style={{ color: C.faint }}>Buyers hold a spot with a ${activeDepositPrice} refundable deposit before the product is built.</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* 3. RESEARCH */}
-      {(assetSubTab === 'survey' || assetSubTab === 'research') && (
-        <div className="space-y-4 text-xs">
-          {/* Public Survey Bar */}
-          <div
-            className="p-3.5 rounded-2xl border flex flex-wrap items-center justify-between gap-3"
-            style={{ background: C.row, borderColor: C.line }}
-          >
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full bg-rose-400" />
-                <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+      {/* SURVEY */}
+      {tab === 'research' && (
+        <div className="space-y-6">
+          <UrlBar
+            url={surveyUrl}
+            copyLabel="Copy link"
+            openLabel="Open live survey"
+            onCopy={() => { navigator.clipboard?.writeText(surveyUrl); showNotification('Shareable survey link copied!') }}
+          />
+
+          {/* Score */}
+          <section className="card p-5 sm:p-6 space-y-5" aria-labelledby="p1a-score">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="m-0 text-xs" style={{ color: C.muted }}>{surveyResponses.length} {surveyResponses.length === 1 ? 'response' : 'responses'} collected</p>
+                <h4 id="p1a-score" className="serif m-0 mt-0.5 text-3xl leading-tight">
+                  {surveyAnalysis?.scoreVerdict || (surveyResponses.length > 0 ? 'Responses are ready to analyse' : 'Waiting for responses')}
+                </h4>
               </div>
-              <div
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl border font-mono text-[11px] truncate flex-1 max-w-lg"
-                style={{ background: C.sheet, borderColor: C.line, color: C.body }}
-              >
-                <Globe className="w-3.5 h-3.5 shrink-0" style={{ color: C.muted }} />
-                <span className="truncate font-semibold">{`${origin}/survey/${productSlug}`}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  const url = `${origin}/survey/${productSlug}`
-                  if (url) {
-                    navigator.clipboard?.writeText(url)
-                    showNotification('Shareable survey link copied!')
-                  }
-                }}
-                className="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-                style={{ background: C.raised, borderColor: C.lineStrong, color: C.text }}
-              >
-                <Copy className="w-3.5 h-3.5" style={{ color: C.muted }} />
-                <span>Copy Link</span>
-              </button>
-
-              <a
-                href={`${origin}/survey/${productSlug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3.5 py-1.5 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
-                style={{ background: C.crimson }}
-              >
-                <span>Open Live Survey</span>
-                <ExternalLink className="w-3.5 h-3.5 text-white" />
-              </a>
-            </div>
-          </div>
-
-          {/* AI Research & Validation Scorecard */}
-          <div
-            className="p-5 rounded-2xl border space-y-4"
-            style={{ background: C.row, borderColor: C.line }}
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3" style={{ borderColor: C.line }}>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider font-mono" style={{ color: C.violetText }}>
-                    AI Validation & Demand Score
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold border" style={PILL_TONES.neutral}>
-                    {surveyResponses.length} Responses Collected
-                  </span>
-                </div>
-                <h3 className="text-lg font-black mt-0.5" style={{ ...HEADING_FONT, color: C.text }}>
-                  {surveyAnalysis?.scoreVerdict || (surveyResponses.length > 0 ? 'Validation Data Ready for Analysis' : 'Awaiting Audience Responses')}
-                </h3>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleAnalyzeResponses}
-                disabled={isAnalyzingResponses || surveyResponses.length === 0}
-                className="px-4 py-2 rounded-xl text-white font-bold text-xs flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                style={{ background: C.crimson }}
-              >
+              <button type="button" onClick={handleAnalyzeResponses} disabled={isAnalyzingResponses || surveyResponses.length === 0} className="btn btn-primary h-10 px-4 shrink-0">
                 {isAnalyzingResponses ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                    <span>Analyzing with AI...</span>
-                  </>
+                  <><Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /><span>Analysing...</span></>
                 ) : (
-                  <>
-                    <Sparkles className="w-3.5 h-3.5 text-white" />
-                    <span>Analyze Responses with AI</span>
-                  </>
+                  <><Sparkles className="w-3.5 h-3.5" aria-hidden="true" /><span>Analyse with AI</span></>
                 )}
               </button>
             </div>
 
-            {/* Score Breakdown Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3.5 rounded-xl border space-y-1" style={{ background: C.sheet, borderColor: C.line }}>
-                <span className="text-[9px] uppercase font-bold block" style={{ color: C.muted }}>Overall Score</span>
-                <div className="text-2xl font-black font-display" style={{ color: C.text }}>
-                  {surveyAnalysis?.overallScore !== undefined ? `${surveyAnalysis.overallScore}/100` : '—'}
-                </div>
-                <div className="text-[10px] font-bold" style={{ color: surveyAnalysis?.recommendation === 'PROCEED' ? C.ok : C.warn }}>
-                  {surveyAnalysis?.recommendation === 'PROCEED' ? '🟢 Proceed to Build' : surveyAnalysis ? '🟡 Iterate Pricing' : 'Awaiting analysis'}
-                </div>
-              </div>
-
-              <div className="p-3.5 rounded-xl border space-y-1" style={{ background: C.sheet, borderColor: C.line }}>
-                <span className="text-[9px] uppercase font-bold block" style={{ color: C.muted }}>Market Demand</span>
-                <div className="text-2xl font-black font-display" style={{ color: C.ok }}>
-                  {surveyAnalysis?.marketDemandScore !== undefined ? `${surveyAnalysis.marketDemandScore}%` : '—'}
-                </div>
-                <div className="text-[10px] font-medium" style={{ color: C.muted }}>Problem urgency signal</div>
-              </div>
-
-              <div className="p-3.5 rounded-xl border space-y-1" style={{ background: C.sheet, borderColor: C.line }}>
-                <span className="text-[9px] uppercase font-bold block" style={{ color: C.muted }}>Pricing Viability (${activeFoundingPrice})</span>
-                <div className="text-2xl font-black font-display" style={{ color: C.skyText }}>
-                  {surveyAnalysis?.pricingViabilityScore !== undefined ? `${surveyAnalysis.pricingViabilityScore}%` : '—'}
-                </div>
-                <div className="text-[10px] font-medium" style={{ color: C.muted }}>Willingness to pay signal</div>
-              </div>
-            </div>
-
-            {/* AI Executive Summary */}
-            {surveyAnalysis?.executiveSummary && (
-              <div className="p-4 rounded-xl border space-y-2" style={{ background: C.sheet, borderColor: C.line }}>
-                <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: C.text }}>
-                  AI Executive Summary
-                </span>
-                <p className="text-xs leading-relaxed" style={{ color: C.body }}>
-                  {surveyAnalysis.executiveSummary}
-                </p>
-                {surveyAnalysis.keyFindings?.length > 0 && (
-                  <div className="pt-2 border-t space-y-1" style={{ borderColor: C.line }}>
-                    {surveyAnalysis.keyFindings.map((finding, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-[11px]" style={{ color: C.body }}>
-                        <span className="font-bold" style={{ color: C.ok }}>✓</span>
-                        <span>{finding}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Discovery Questions Card */}
-          <div className="p-4 rounded-xl border space-y-3" style={{ background: C.row, borderColor: C.line }}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3" style={{ borderColor: C.line }}>
-              <div>
-                <h4 className="font-bold text-xs" style={{ color: C.text }}>Customer Discovery Questions</h4>
-                <p className="text-[11px]" style={{ color: C.muted }}>
-                  Qualitative discovery questions asked on the public survey page.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleGenerateSurvey}
-                disabled={isGeneratingSurvey}
-                className="px-3 py-1.5 rounded-xl text-white font-bold text-xs flex items-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer"
-                style={{ background: C.crimson }}
-              >
-                {isGeneratingSurvey ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                    <span>Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-3.5 h-3.5 text-white" />
-                    <span>Regenerate Questions with AI</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            <div className="space-y-2.5">
-              {(surveyData?.questions || []).map((q, index) => (
-                <div
-                  key={q.id || index}
-                  className="p-3.5 rounded-xl border space-y-1.5"
-                  style={{ background: C.sheet, borderColor: C.line }}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 flex-1">
-                      <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shrink-0 font-mono border" style={PILL_TONES.neutral}>
-                        {q.category || 'Discovery'}
-                      </span>
-                      <span className="font-bold text-xs" style={{ color: C.text }}>{q.question}</span>
-                    </div>
-                    <span
-                      className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 border"
-                      style={(q.responseCount || 0) > 0 ? PILL_TONES.ok : PILL_TONES.neutral}
-                    >
-                      {(q.responseCount || 0) > 0 ? `${q.responseCount} responses` : '0 responses'}
-                    </span>
-                  </div>
+              {analysisScores.map((s) => (
+                <div key={s.label} className="p-4 rounded-xl" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+                  <p className="m-0 text-xs" style={{ color: C.muted }}>{s.label}</p>
+                  <p className="serif m-0 mt-1.5 text-4xl leading-none" style={{ color: s.value ? s.color : C.faint }}>{s.value || '--'}</p>
+                  <p className="m-0 mt-2 text-xs" style={{ color: s.noteColor }}>{s.note}</p>
                 </div>
               ))}
             </div>
 
-            {/* Add Custom Question Form */}
-            <form onSubmit={handleAddQuestion} className="flex gap-2 pt-2 border-t" style={{ borderColor: C.line }}>
+            {surveyAnalysis?.executiveSummary && (
+              <div className="p-4 rounded-xl space-y-3" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+                <p className="m-0 text-sm leading-relaxed" style={{ color: C.body }}>{surveyAnalysis.executiveSummary}</p>
+                {surveyAnalysis.keyFindings?.length > 0 && (
+                  <ul className="list-none m-0 p-0 pt-3 space-y-1.5" style={{ borderTop: `1px solid ${C.line}` }}>
+                    {surveyAnalysis.keyFindings.map((finding, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm" style={{ color: C.body }}>
+                        <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" style={{ color: C.ok }} aria-hidden="true" />
+                        <span>{finding}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Questions */}
+          <section className="card p-5 sm:p-6 space-y-4" aria-labelledby="p1a-questions">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 id="p1a-questions" className="serif m-0 text-2xl">Survey questions</h4>
+                <p className="m-0 mt-1 text-xs" style={{ color: C.muted }}>What people are asked on the public survey page.</p>
+              </div>
+              <button type="button" onClick={handleGenerateSurvey} disabled={isGeneratingSurvey} className="btn btn-quiet h-9 px-3.5 shrink-0">
+                {isGeneratingSurvey ? (
+                  <><Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /><span>Writing questions...</span></>
+                ) : (
+                  <><Sparkles className="w-3.5 h-3.5" aria-hidden="true" /><span>Regenerate with AI</span></>
+                )}
+              </button>
+            </div>
+
+            <ol className="list-none m-0 p-0 space-y-2">
+              {(surveyData?.questions || []).map((q, index) => (
+                <li key={q.id || index} className="p-3.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+                  <div className="flex items-start gap-3 min-w-0">
+                    <span className="text-xs tabular-nums mt-0.5 shrink-0" style={{ color: C.faint }}>{index + 1}.</span>
+                    <div className="min-w-0">
+                      <p className="m-0 text-sm font-medium" style={{ color: C.text }}>{q.question}</p>
+                      <p className="m-0 mt-0.5 text-xs" style={{ color: C.faint }}>{q.category || 'Discovery'}</p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border shrink-0 self-start sm:self-center" style={(q.responseCount || 0) > 0 ? PILL_TONES.ok : PILL_TONES.neutral}>
+                    {q.responseCount || 0} {(q.responseCount || 0) === 1 ? 'response' : 'responses'}
+                  </span>
+                </li>
+              ))}
+            </ol>
+
+            <form onSubmit={handleAddQuestion} className="flex flex-col sm:flex-row gap-2 pt-4" style={{ borderTop: `1px solid ${C.line}` }}>
               <select
+                aria-label="Question type"
                 value={newQuestionCategory}
                 onChange={(e) => setNewQuestionCategory(e.target.value)}
-                className="px-3 py-2 rounded-xl text-xs font-bold outline-none border cursor-pointer"
-                style={{ background: C.sheet, borderColor: C.lineStrong, color: C.text }}
+                className="in sel cursor-pointer"
               >
-                <option value="Pain Point">Pain Point</option>
+                <option value="Pain Point">Pain point</option>
                 <option value="Pricing Validation">Pricing</option>
-                <option value="Feature Wishlist">Feature Wishlist</option>
+                <option value="Feature Wishlist">Feature wishlist</option>
                 <option value="Workflow Bottleneck">Workflow</option>
               </select>
               <input
                 type="text"
-                placeholder="Add custom survey question..."
+                aria-label="New question"
+                placeholder="Write your own question"
                 value={newQuestionText}
                 onChange={(e) => setNewQuestionText(e.target.value)}
-                className="flex-1 px-3.5 py-2 rounded-xl text-xs outline-none border transition-colors"
-                style={{ background: C.sheet, borderColor: C.line, color: C.text }}
+                className="in grow"
               />
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-xl text-white font-bold text-xs flex items-center gap-1 transition-all cursor-pointer"
-                style={{ background: C.crimson }}
-              >
-                <Plus className="w-3.5 h-3.5 text-white" />
-                <span>Add</span>
+              <button type="submit" className="btn btn-primary h-10 px-4">
+                <Plus className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>Add question</span>
               </button>
             </form>
-          </div>
+          </section>
 
-          {/* Live Audience Responses Stream */}
-          <div className="p-4 rounded-xl border space-y-3" style={{ background: C.row, borderColor: C.line }}>
-            <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: C.line }}>
+          {/* Responses */}
+          <section className="card p-5 sm:p-6 space-y-4" aria-labelledby="p1a-responses">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
               <div>
-                <h4 className="font-bold text-xs" style={{ color: C.text }}>Live Community Response Stream</h4>
-                <p className="text-[11px]" style={{ color: C.muted }}>
-                  Real-time responses submitted by audience members through the public survey URL.
-                </p>
+                <h4 id="p1a-responses" className="serif m-0 text-2xl">Responses</h4>
+                <p className="m-0 mt-1 text-xs" style={{ color: C.muted }}>Answers sent in through the public survey link.</p>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border font-mono" style={PILL_TONES.neutral}>
-                  {surveyResponses.length} Responses
-                </span>
-                {surveyResponses.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleClearAllSurveyResponses}
-                    className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors cursor-pointer border"
-                    style={{ background: C.crimsonSoft, borderColor: C.crimsonLine, color: C.crimsonText }}
-                  >
-                    Clear All
-                  </button>
-                )}
-              </div>
+              {surveyResponses.length > 0 && (
+                <button type="button" onClick={handleClearAllSurveyResponses} className="btn btn-danger h-8 px-3 text-xs">
+                  Clear all
+                </button>
+              )}
             </div>
 
             {surveyResponses.length === 0 ? (
-              <div
-                className="text-center py-8 text-xs border border-dashed rounded-xl space-y-1.5"
-                style={{ background: C.sheet, borderColor: C.line }}
-              >
-                <p className="font-semibold" style={{ color: C.body }}>No audience responses submitted yet.</p>
-                <p className="text-[10px]" style={{ color: C.muted }}>Share your survey URL to collect responses from the community.</p>
+              <div className="text-center py-10 rounded-xl space-y-1" style={{ background: C.sheet, border: `1px dashed ${C.lineStrong}` }}>
+                <p className="m-0 text-sm font-medium" style={{ color: C.body }}>No responses yet</p>
+                <p className="m-0 text-xs" style={{ color: C.muted }}>Share the survey link with the creator's community to start collecting answers.</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <ul className="list-none m-0 p-0 space-y-3">
                 {surveyResponses.map((r) => (
-                  <div
-                    key={r.id}
-                    className="p-4 rounded-xl border space-y-2.5"
-                    style={{ background: C.sheet, borderColor: C.line }}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2" style={{ borderColor: C.line }}>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs" style={{ color: C.text }}>{r.name}</span>
-                        <span className="text-[10px] font-mono" style={{ color: C.muted }}>({r.email})</span>
+                  <li key={r.id} className="p-4 rounded-xl space-y-3" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <span className="text-sm font-semibold" style={{ color: C.text }}>{r.name}</span>
+                        <span className="ml-2 text-xs break-all" style={{ color: C.muted }}>{r.email}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold border" style={PILL_TONES.ok}>
-                          Intent: {r.rating || 8}/10 🔥
-                        </span>
-                        <span className="text-[10px] font-mono" style={{ color: C.faint }}>{r.submittedAt || r.date}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteSurveyResponse(r.id)}
-                          title="Delete response"
-                          className="p-1 rounded hover:opacity-80 transition-opacity"
-                          style={{ color: C.crimsonText }}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-2.5">
+                        {r.rating ? (
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border" style={PILL_TONES.ok}>Intent {r.rating}/10</span>
+                        ) : null}
+                        <span className="text-xs" style={{ color: C.faint }}>{r.submittedAt || r.date}</span>
+                        <button type="button" onClick={() => handleDeleteSurveyResponse(r.id)} aria-label={`Delete response from ${r.name}`} title="Delete response" className="p-1 rounded cursor-pointer" style={{ color: C.crimsonText }}>
+                          <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       </div>
                     </div>
-
                     {r.answers && (
-                      <div className="space-y-1.5 text-[11px] pl-1" style={{ color: C.body }}>
+                      <ul className="list-none m-0 p-0 pt-3 space-y-1.5 text-sm" style={{ borderTop: `1px solid ${C.line}`, color: C.body }}>
                         {Object.entries(r.answers).map(([key, ans]) => (
-                          <div key={key} className="flex items-start gap-1.5">
-                            <span className="font-bold shrink-0" style={{ color: C.faint }}>•</span>
-                            <span>{ans}</span>
-                          </div>
+                          <li key={key} className="leading-relaxed">{ans}</li>
                         ))}
-                      </div>
+                      </ul>
                     )}
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
-          </div>
+          </section>
         </div>
       )}
 
-      {/* Bottom Approval Action */}
-      <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t" style={{ borderColor: C.line }}>
-        <div className="flex items-center gap-2 text-xs font-medium" style={{ color: C.muted }}>
-          <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: C.ok }} />
-          <span>Verification: Verify assets, copy, discovery survey & infrastructure</span>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            const step2Assets = project?.validationCampaign?.productAssets || project?.validationCampaign?.product_assets || {
-              productName: project?.productName,
-              productTagline: project?.productTagline,
-              pricingConfig: sanitizedPricingConfig
-            }
-
-            setIsStep2Approved(true)
-
-            const updated = {
-              ...(project || {}),
-              planLocked: true,
-              assetsApproved: true,
-              landingPageApproved: true,
-              validationCampaign: {
-                ...(project?.validationCampaign || {}),
-                product_assets: step2Assets,
-                productAssets: step2Assets,
-                campaign_kit: campaignKit,
-                campaignKit: campaignKit,
-                creator_tasks: campaignKit?.postingSchedule || [],
-                infrastructure: {
-                  landingPageUrl: `/p/${productSlug}`,
-                  checkoutUrl: `/p/${productSlug}/checkout`,
-                  waitlistCount: 240,
-                  attributionTracking: true
-                },
-                research_survey: surveyData,
-                review_status: 'approved',
-                reviewStatus: 'approved'
-              }
-            }
-
-            if (onUpdateProject) {
-              onUpdateProject((prev) => ({ ...(prev || {}), ...updated }))
-            }
-
-            if (project?.id) {
-              updateValidationCampaign(project.id, {
-                product_assets: step2Assets,
-                campaign_kit: campaignKit,
-                campaignKit: campaignKit,
-                creator_tasks: campaignKit?.postingSchedule || [],
-                infrastructure: {
-                  landingPageUrl: `/p/${productSlug}`,
-                  checkoutUrl: `/p/${productSlug}/checkout`,
-                  waitlistCount: 240,
-                  attributionTracking: true
-                },
-                research_survey: surveyData,
-                review_status: 'approved'
-              }).catch((e) => console.warn('[Phase1] DB campaign approval warning:', e))
-
-              updateCoLaunchProject(project.id, {
-                assetsApproved: true,
-                landingPageApproved: true,
-                campaignKit: campaignKit,
-                campaign_kit: campaignKit
-              }).catch((e) => console.warn('[Phase1] DB project approval warning:', e))
-
-              logProjectActivity(project.id, {
-                action: 'Validation Assets & Campaign Approved',
-                details: 'Step 2 assets, copy, and research survey approved. Advancing to Creator Campaign.',
-                step: 'assets',
-                phase: 1
-              }).catch((e) => console.warn('[Phase1] Activity logging warning:', e))
-            }
-
-            showNotification('Validation assets approved & locked in database! Advancing to Creator Campaign.')
-            setActiveStep('campaign')
-            onSelectStep?.('campaign')
-          }}
-          className="px-5 py-2.5 rounded-xl text-white font-extrabold text-xs flex items-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer hover:opacity-90"
-          style={{ background: C.crimson }}
-        >
-          <CheckCircle2 className="w-4 h-4 text-white" />
-          <span>Approve & Launch Validation Campaign</span>
-          <ArrowRight className="w-3.5 h-3.5 text-white" />
+      {/* Approval */}
+      <div className="pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ borderTop: `1px solid ${C.line}` }}>
+        <p className="m-0 flex items-start gap-2 text-sm max-w-xl" style={{ color: C.muted }}>
+          <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" style={{ color: C.ok }} aria-hidden="true" />
+          <span>Check the name, copy, pricing, page and survey, then approve to start the creator campaign.</span>
+        </p>
+        <button type="button" onClick={approveAssets} className="btn btn-primary h-11 px-6">
+          <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
+          <span>Approve and launch campaign</span>
+          <ArrowRight className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
     </div>
   )
 }
-
