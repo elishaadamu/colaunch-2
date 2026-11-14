@@ -1,7 +1,22 @@
 import { loadAiKeys } from './ai'
 import { loadKeys } from './scraper'
 
-const BASE = '/api'
+const BACKEND_BASE = (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+const BASE = BACKEND_BASE ? `${BACKEND_BASE}/api` : '/api'
+
+function buildApiUrl(path) {
+  if (typeof path === 'string' && (path.startsWith('http://') || path.startsWith('https://'))) {
+    return path
+  }
+  let clean = String(path || '')
+  if (clean.startsWith('/api/')) {
+    clean = clean.slice(4)
+  }
+  if (!clean.startsWith('/')) {
+    clean = '/' + clean
+  }
+  return `${BASE}${clean}`
+}
 
 function proxyAvatars(obj) {
   if (!obj || typeof obj !== 'object') return obj
@@ -50,8 +65,8 @@ async function req(method, path, body, customSignal = null) {
   }
   if (body) opts.body = JSON.stringify(body)
   try {
-    const cleanPath = path.startsWith('/api/') ? path.slice(4) : path
-    const res = await fetch(BASE + cleanPath, opts)
+    const url = buildApiUrl(path)
+    const res = await fetch(url, opts)
     clearTimeout(timeoutId)
     if (!res.ok) {
       let errMsg = ''
@@ -79,7 +94,7 @@ async function req(method, path, body, customSignal = null) {
         if (res.status === 500) errMsg = 'Backend server temporarily unavailable (HTTP 500). Service is ready for retry.'
         else if (res.status === 502) errMsg = 'Backend server restarting or unavailable (HTTP 502 Bad Gateway). Please wait a moment and retry.'
         else if (res.status === 504) errMsg = 'Gateway timeout (HTTP 504). Operation took too long.'
-        else if (res.status === 404) errMsg = `Endpoint not found (${cleanPath})`
+        else if (res.status === 404) errMsg = `Endpoint not found (${path})`
         else errMsg = `Server returned HTTP ${res.status}`
       }
       throw new Error(`${res.status}: ${errMsg.slice(0, 200)}`)

@@ -805,7 +805,7 @@ export default function CreatorParticipationManager() {
             <div className="h-5 w-[1px] hidden sm:block" style={{ background: C.line }} />
 
             <div className="flex items-center gap-2.5">
-              <CoLaunchLogo size={24} theme="dark" />
+              <CoLaunchLogo size={24} showText={false} theme="dark" />
               <div>
                 <div className="flex items-center gap-2">
                   <h1
