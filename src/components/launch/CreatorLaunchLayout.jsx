@@ -7,6 +7,7 @@ import { ProjectOSSkeleton } from './Section2Skeletons'
 import AdminPipelineLookup from './AdminPipelineLookup'
 import CreatorFollowUpCRM from './CreatorFollowUpCRM'
 import { createCoLaunchProject, getCoLaunchProject, getCoLaunchProjects } from '../../services/opsApi'
+import { buildValidationSeed } from './conceptSchema'
 import { updatePageSEO } from '../../utils/seo'
 import { getExpiringItem, setExpiringItem, removeExpiringItem, ONE_HOUR_MS } from '../../utils/expiringStorage'
 import FloatingPolygons, { HeroShallowPolygons } from '../ui/FloatingPolygons'
@@ -807,10 +808,29 @@ export default function CreatorLaunchLayout({
         ? newProjData.diyPassPrice
         : cobuilderPassPrice
 
+    let seed = null
+    if (newProjData.selectedConcept) {
+      try {
+        seed = buildValidationSeed(newProjData.selectedConcept, {
+          followers: newProjData.followers || newProjData.followerCount || newProjData.follower_count,
+        })
+      } catch (err) {
+        console.warn('[CreatorLaunchLayout] Error building validation seed:', err)
+      }
+    }
+
+    const targetVal = newProjData.presaleTarget || seed?.suggestedThreshold?.target || 5000
+    const targetOrders = seed?.suggestedThreshold?.buyers || Math.max(20, Math.round(targetVal / 100))
+    const thresholdText = seed?.suggestedThreshold
+      ? `$${targetVal.toLocaleString()} in presales (${targetOrders} founding orders) within 14 days`
+      : `$${targetVal.toLocaleString()} in presales within 14 days`
+
     const cleanProject = {
       id: projId,
       createdAt: new Date().toISOString(),
       currentPhase: newProjData.currentPhase || 1,
+      currentStep: 'plan',
+      status: 'validating',
       diyFee: feeToSet,
       diyPassPrice: feeToSet,
       hasCustomFee: true,
@@ -819,13 +839,35 @@ export default function CreatorLaunchLayout({
       videos: resolvedPosts,
       channelUrl: newProjData.channelUrl || (cleanHandle ? `https://www.youtube.com/@${cleanHandle}` : ''),
       channelDescription: newProjData.channelDescription || newProjData.creatorBio || '',
+      // Frozen concept snapshot
+      selectedConcept: newProjData.selectedConcept || null,
+      conceptFrozen: Boolean(newProjData.selectedConcept),
+      selectedConceptFrozenAt: seed?.frozenAt || new Date().toISOString(),
+      audienceEvidence: seed?.evidence || newProjData.audienceEvidence || '',
+      mvpDifficulty: seed?.estimatedBuild || newProjData.mvpDifficulty || '2 weeks',
+      revenueModel: seed?.offer?.revenueModel || newProjData.revenueModel || 'Subscription · 50/50 revenue share',
       // Fresh metrics
       currentPresales: 0,
-      presaleTarget: newProjData.presaleTarget || 12500,
+      presaleTarget: targetVal,
       visitors: 0,
       conversionRate: 0,
       reservations: [],
       experiments: [],
+      validationPlan: {
+        id: `plan_${projId}`,
+        customer: seed?.customer || newProjData.customer || newProjData.targetAudience || '',
+        problem: seed?.problem || newProjData.problem || '',
+        offer: `${newProjData.productName || seed?.product?.name || 'Venture'} Founding Co-Launch Access: ${newProjData.productTagline || seed?.product?.tagline || ''}`,
+        pricing: seed?.offer?.pricing || newProjData.pricing || '$29/mo Starter • $79/mo Pro',
+        testMethod: '1) Co-founder video announcement, 2) 10 user interviews, 3) 48-hour Founding Pre-Order sprint',
+        period: '14 days',
+        threshold: thresholdText,
+        targetRevenue: targetVal,
+        targetOrders: targetOrders,
+        status: 'ready',
+        generated: true,
+        locked: false,
+      },
       // Clear all legacy specs from former creators so the new creator starts fresh
       mvpBuildPlan: null,
       engineeringTasks: null,
