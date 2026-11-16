@@ -565,9 +565,13 @@ export default function AcquisitionStep5Concepts({
   step5Error,
   syncImapReplies,
 }) {
-  const concepts = selectedCreator?.productConcepts || [];
+  const concepts = (Array.isArray(selectedCreator?.productConcepts) && selectedCreator.productConcepts.length > 0)
+    ? selectedCreator.productConcepts
+    : (Array.isArray(selectedCreator?.product_concepts) && selectedCreator.product_concepts.length > 0)
+      ? selectedCreator.product_concepts
+      : [];
   const hasConcepts = Boolean(Array.isArray(concepts) && concepts.length > 0);
-  const showSkeleton = Boolean(isSynthesizingStep5Ai || !hasConcepts) && !step5Error;
+  const showSkeleton = Boolean(isSynthesizingStep5Ai);
   const sentInfo = selectedCreator ? pitchSentMap[selectedCreator.id] : null;
   const isDispatched = Boolean(sentInfo);
   const sendBlocked = isSynthesizingStep5Ai || !hasConcepts || Boolean(step5Error);
@@ -690,6 +694,23 @@ export default function AcquisitionStep5Concepts({
         </div>
       ) : showSkeleton ? (
         <Step5SkeletonLoader creatorName={creatorName} />
+      ) : !hasConcepts ? (
+        <div className="p-8 rounded-xl border border-white/10 bg-white/[0.02] text-center space-y-4">
+          <Lightbulb className="w-8 h-8 mx-auto text-amber-400/80" aria-hidden="true" />
+          <h3 className="text-base font-semibold text-white">No concepts generated yet for {creatorName}</h3>
+          <p className="text-xs text-white/50 max-w-md mx-auto">
+            Synthesize 3 bespoke software concepts grounded in {creatorName}&apos;s audience data and real community demand.
+          </p>
+          <button
+            type="button"
+            onClick={() => handleSynthesizeStep5Ai(selectedCreator)}
+            disabled={isSynthesizingStep5Ai}
+            className="btn btn-primary px-5 py-2.5 mx-auto"
+          >
+            <RefreshCw className={`w-4 h-4 ${isSynthesizingStep5Ai ? "animate-spin" : ""}`} />
+            <span>Generate 3 Concepts</span>
+          </button>
+        </div>
       ) : (
         <div className="space-y-5">
           <BrandColorBar

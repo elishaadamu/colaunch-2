@@ -439,14 +439,52 @@ export default function AcquisitionEngine({
             const localById = new Map();
             for (const p of (prev || [])) {
               if (p.id) localById.set(String(p.id), p);
+              if (p._id) localById.set(String(p._id), p);
+              if (p.handle) localById.set(p.handle.toLowerCase().replace(/^@/, "").trim(), p);
             }
             return dbList.map((dbC) => {
-              const localMatch = dbC.id ? localById.get(String(dbC.id)) : null;
+              const localMatch = (dbC.id ? localById.get(String(dbC.id)) : null)
+                || (dbC._id ? localById.get(String(dbC._id)) : null)
+                || (dbC.handle ? localById.get(dbC.handle.toLowerCase().replace(/^@/, "").trim()) : null)
+                || null;
+
+              const cId = dbC.id || dbC._id;
+              const cleanH = (dbC.handle || "").replace(/^@/, "").toLowerCase().trim();
+              const cachedConcepts = (() => {
+                try {
+                  const cached = (cId && localStorage.getItem(`forge_concepts_${cId}`)) || (cleanH && localStorage.getItem(`forge_concepts_${cleanH}`));
+                  if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                  }
+                } catch (e) {}
+                return [];
+              })();
+
+              const preservedConcepts = (Array.isArray(localMatch?.productConcepts) && localMatch.productConcepts.length > 0)
+                ? localMatch.productConcepts
+                : (Array.isArray(localMatch?.product_concepts) && localMatch.product_concepts.length > 0)
+                  ? localMatch.product_concepts
+                  : (Array.isArray(dbC.productConcepts) && dbC.productConcepts.length > 0)
+                    ? dbC.productConcepts
+                    : (Array.isArray(dbC.product_concepts) && dbC.product_concepts.length > 0)
+                      ? dbC.product_concepts
+                      : cachedConcepts;
+
               if (!localMatch) {
                 const safeStatus = (dbC.status === "launched" && !dbC.project_id && !dbC.projectId && !dbC.active_project_id)
                   ? "discovered"
                   : (dbC.status || "discovered");
-                return { ...dbC, status: safeStatus };
+                return {
+                  ...dbC,
+                  status: safeStatus,
+                  productConcepts: preservedConcepts,
+                  product_concepts: preservedConcepts,
+                  hasAiConcepts: Boolean(dbC.hasAiConcepts || dbC.has_ai_concepts || preservedConcepts.length > 0),
+                  has_ai_concepts: Boolean(dbC.has_ai_concepts || dbC.hasAiConcepts || preservedConcepts.length > 0),
+                  audienceIntelligence: dbC.audienceIntelligence || dbC.audience_intelligence || null,
+                  brandColor: dbC.brandColor || dbC.brand_color || null,
+                };
               }
               const localEmail = (localMatch.email || localMatch.email_public || "").trim();
               const dbEmail = (dbC.email || dbC.email_public || "").trim();
@@ -460,6 +498,12 @@ export default function AcquisitionEngine({
                 ...dbC,
                 status: safeStatus,
                 ...(preserveLocalEmail ? { email: localMatch.email, email_public: localMatch.email_public, email_verified: localMatch.email_verified } : {}),
+                productConcepts: preservedConcepts,
+                product_concepts: preservedConcepts,
+                hasAiConcepts: Boolean(localMatch.hasAiConcepts || localMatch.has_ai_concepts || dbC.hasAiConcepts || dbC.has_ai_concepts || preservedConcepts.length > 0),
+                has_ai_concepts: Boolean(localMatch.has_ai_concepts || localMatch.hasAiConcepts || dbC.has_ai_concepts || dbC.hasAiConcepts || preservedConcepts.length > 0),
+                audienceIntelligence: localMatch.audienceIntelligence || dbC.audienceIntelligence || dbC.audience_intelligence || null,
+                brandColor: localMatch.brandColor || dbC.brandColor || dbC.brand_color || null,
               };
             });
           });
@@ -1582,6 +1626,18 @@ export default function AcquisitionEngine({
                     status: dbStatus,
                     isApproved: dbStatus === "approved",
                     isRejected: dbStatus === "rejected",
+                    productConcepts: Array.isArray(dbItem.productConcepts) && dbItem.productConcepts.length > 0 ? dbItem.productConcepts : (Array.isArray(dbItem.product_concepts) && dbItem.product_concepts.length > 0 ? dbItem.product_concepts : []),
+                    product_concepts: Array.isArray(dbItem.product_concepts) && dbItem.product_concepts.length > 0 ? dbItem.product_concepts : (Array.isArray(dbItem.productConcepts) && dbItem.productConcepts.length > 0 ? dbItem.productConcepts : []),
+                    hasAiConcepts: Boolean(dbItem.hasAiConcepts || dbItem.has_ai_concepts || (dbItem.productConcepts && dbItem.productConcepts.length > 0) || (dbItem.product_concepts && dbItem.product_concepts.length > 0)),
+                    has_ai_concepts: Boolean(dbItem.has_ai_concepts || dbItem.hasAiConcepts || (dbItem.productConcepts && dbItem.productConcepts.length > 0) || (dbItem.product_concepts && dbItem.product_concepts.length > 0)),
+                    audienceIntelligence: dbItem.audienceIntelligence || dbItem.audience_intelligence || null,
+                    audience_intelligence: dbItem.audience_intelligence || dbItem.audienceIntelligence || null,
+                    brandColor: dbItem.brandColor || dbItem.brand_color || null,
+                    brand_color: dbItem.brand_color || dbItem.brandColor || null,
+                    selectedConceptId: dbItem.selectedConceptId || dbItem.selected_concept_id || null,
+                    selected_concept_id: dbItem.selected_concept_id || dbItem.selectedConceptId || null,
+                    selectedConcept: dbItem.selectedConcept || dbItem.selected_concept || null,
+                    selected_concept: dbItem.selected_concept || dbItem.selectedConcept || null,
                     replyClassification: (() => {
                       const raw = dbItem.reply_text;
                       const isCorrupt = raw && (raw.startsWith("Creator responded") || raw.includes("qualified for partnership pitch") || raw === "Yes, I would be interested.");
@@ -1622,16 +1678,53 @@ export default function AcquisitionEngine({
               const localById = new Map();
               for (const p of (prev || [])) {
                 if (p.id) localById.set(String(p.id), p);
+                if (p._id) localById.set(String(p._id), p);
+                if (p.handle) localById.set(p.handle.toLowerCase().replace(/^@/, "").trim(), p);
               }
 
               const merged = formattedDbCreators.map((dbC) => {
-                const localMatch = dbC.id ? localById.get(String(dbC.id)) : null;
+                const localMatch = (dbC.id ? localById.get(String(dbC.id)) : null)
+                  || (dbC._id ? localById.get(String(dbC._id)) : null)
+                  || (dbC.handle ? localById.get(dbC.handle.toLowerCase().replace(/^@/, "").trim()) : null)
+                  || null;
+
+                const cId = dbC.id || dbC._id;
+                const cleanH = (dbC.handle || "").replace(/^@/, "").toLowerCase().trim();
+                const cachedConcepts = (() => {
+                  try {
+                    const cached = (cId && localStorage.getItem(`forge_concepts_${cId}`)) || (cleanH && localStorage.getItem(`forge_concepts_${cleanH}`));
+                    if (cached) {
+                      const parsed = JSON.parse(cached);
+                      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    }
+                  } catch (e) {}
+                  return [];
+                })();
+
+                const mergedConcepts = (Array.isArray(localMatch?.productConcepts) && localMatch.productConcepts.length > 0)
+                  ? localMatch.productConcepts
+                  : (Array.isArray(localMatch?.product_concepts) && localMatch.product_concepts.length > 0)
+                    ? localMatch.product_concepts
+                    : (Array.isArray(dbC.productConcepts) && dbC.productConcepts.length > 0)
+                      ? dbC.productConcepts
+                      : (Array.isArray(dbC.product_concepts) && dbC.product_concepts.length > 0)
+                        ? dbC.product_concepts
+                        : cachedConcepts;
 
                 if (!localMatch) {
                   const safeStatus = (dbC.status === "launched" && !dbC.project_id && !dbC.projectId && !dbC.active_project_id)
                     ? "discovered"
                     : (dbC.status || "discovered");
-                  return { ...dbC, status: safeStatus };
+                  return {
+                    ...dbC,
+                    status: safeStatus,
+                    productConcepts: mergedConcepts,
+                    product_concepts: mergedConcepts,
+                    hasAiConcepts: Boolean(dbC.hasAiConcepts || dbC.has_ai_concepts || mergedConcepts.length > 0),
+                    has_ai_concepts: Boolean(dbC.has_ai_concepts || dbC.hasAiConcepts || mergedConcepts.length > 0),
+                    audienceIntelligence: dbC.audienceIntelligence || dbC.audience_intelligence || null,
+                    brandColor: dbC.brandColor || dbC.brand_color || null,
+                  };
                 }
 
                 const userEmail = (localMatch.email || localMatch.email_public || "").trim();
@@ -1651,7 +1744,12 @@ export default function AcquisitionEngine({
                     email_public: userEmail,
                     email_verified: Boolean(userEmail && userEmail.includes("@")),
                   } : {}),
-                  productConcepts: (localMatch.productConcepts && localMatch.productConcepts.length > 0) ? localMatch.productConcepts : dbC.productConcepts,
+                  productConcepts: mergedConcepts,
+                  product_concepts: mergedConcepts,
+                  hasAiConcepts: Boolean(localMatch.hasAiConcepts || localMatch.has_ai_concepts || dbC.hasAiConcepts || dbC.has_ai_concepts || mergedConcepts.length > 0),
+                  has_ai_concepts: Boolean(localMatch.has_ai_concepts || localMatch.hasAiConcepts || dbC.has_ai_concepts || dbC.hasAiConcepts || mergedConcepts.length > 0),
+                  audienceIntelligence: localMatch.audienceIntelligence || dbC.audienceIntelligence || dbC.audience_intelligence || null,
+                  brandColor: localMatch.brandColor || dbC.brandColor || dbC.brand_color || null,
                 };
               });
 
@@ -3034,10 +3132,28 @@ export default function AcquisitionEngine({
     ? {
       ...rawSelectedCreator,
       productConcepts:
-        Array.isArray(rawSelectedCreator.productConcepts) &&
-          rawSelectedCreator.productConcepts.length > 0
+        (Array.isArray(rawSelectedCreator.productConcepts) && rawSelectedCreator.productConcepts.length > 0)
           ? rawSelectedCreator.productConcepts
-          : null,
+          : (Array.isArray(rawSelectedCreator.product_concepts) && rawSelectedCreator.product_concepts.length > 0)
+            ? rawSelectedCreator.product_concepts
+            : (() => {
+              try {
+                const cId = rawSelectedCreator.id || rawSelectedCreator._id;
+                const h = (rawSelectedCreator.handle || "").replace(/^@/, "").toLowerCase().trim();
+                const cached = (cId && localStorage.getItem(`forge_concepts_${cId}`)) || (h && localStorage.getItem(`forge_concepts_${h}`));
+                if (cached) {
+                  const parsed = JSON.parse(cached);
+                  if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                }
+              } catch (e) {}
+              return null;
+            })(),
+      product_concepts:
+        (Array.isArray(rawSelectedCreator.productConcepts) && rawSelectedCreator.productConcepts.length > 0)
+          ? rawSelectedCreator.productConcepts
+          : (Array.isArray(rawSelectedCreator.product_concepts) && rawSelectedCreator.product_concepts.length > 0)
+            ? rawSelectedCreator.product_concepts
+            : null,
     }
     : null;
   const [autoLaunchCountdown, setAutoLaunchCountdown] = useState(null);
@@ -3953,19 +4069,30 @@ export default function AcquisitionEngine({
         };
       }
 
+      // Cache to localStorage
+      try {
+        if (creator.id) localStorage.setItem(`forge_concepts_${creator.id}`, JSON.stringify(normalized));
+        if (creator._id) localStorage.setItem(`forge_concepts_${creator._id}`, JSON.stringify(normalized));
+        if (creator.handle) localStorage.setItem(`forge_concepts_${creator.handle.replace(/^@/, "").toLowerCase().trim()}`, JSON.stringify(normalized));
+      } catch (e) {}
+
       setCreators((prev) =>
         prev.map((c) => {
           const isMatch =
-            c.id === creator.id ||
-            (c._id && c._id === creator.id) ||
-            (creator._id && c.id === creator._id) ||
-            (c.handle && creator.handle && c.handle.toLowerCase().replace(/^@/, "") === creator.handle.toLowerCase().replace(/^@/, ""));
+            (c.id && creator.id && String(c.id) === String(creator.id)) ||
+            (c._id && creator.id && String(c._id) === String(creator.id)) ||
+            (creator._id && c.id && String(c.id) === String(creator._id)) ||
+            (c._id && creator._id && String(c._id) === String(creator._id)) ||
+            (c.handle && creator.handle && c.handle.toLowerCase().replace(/^@/, "").trim() === creator.handle.toLowerCase().replace(/^@/, "").trim()) ||
+            (c.name && creator.name && c.name.toLowerCase().trim() === creator.name.toLowerCase().trim());
           return isMatch
             ? {
               ...c,
               productConcepts: normalized,
+              product_concepts: normalized,
               audienceIntelligence: audIntel || c.audienceIntelligence,
               hasAiConcepts: true,
+              has_ai_concepts: true,
             }
             : c;
         })
@@ -4161,19 +4288,30 @@ export default function AcquisitionEngine({
         }
       };
 
+      // Cache fallback to localStorage
+      try {
+        if (creator.id) localStorage.setItem(`forge_concepts_${creator.id}`, JSON.stringify(fallbackConcepts));
+        if (creator._id) localStorage.setItem(`forge_concepts_${creator._id}`, JSON.stringify(fallbackConcepts));
+        if (creator.handle) localStorage.setItem(`forge_concepts_${creator.handle.replace(/^@/, "").toLowerCase().trim()}`, JSON.stringify(fallbackConcepts));
+      } catch (e) {}
+
       setCreators((prev) =>
         prev.map((c) => {
           const isMatch =
-            c.id === creator.id ||
-            (c._id && c._id === creator.id) ||
-            (creator._id && c.id === creator._id) ||
-            (c.handle && creator.handle && c.handle.toLowerCase().replace(/^@/, "") === creator.handle.toLowerCase().replace(/^@/, ""));
+            (c.id && creator.id && String(c.id) === String(creator.id)) ||
+            (c._id && creator.id && String(c._id) === String(creator.id)) ||
+            (creator._id && c.id && String(c.id) === String(creator._id)) ||
+            (c._id && creator._id && String(c._id) === String(creator._id)) ||
+            (c.handle && creator.handle && c.handle.toLowerCase().replace(/^@/, "").trim() === creator.handle.toLowerCase().replace(/^@/, "").trim()) ||
+            (c.name && creator.name && c.name.toLowerCase().trim() === creator.name.toLowerCase().trim());
           return isMatch
             ? {
               ...c,
               productConcepts: fallbackConcepts,
+              product_concepts: fallbackConcepts,
               audienceIntelligence: fallbackAudIntel,
               hasAiConcepts: true,
+              has_ai_concepts: true,
             }
             : c;
         })
