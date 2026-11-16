@@ -55,17 +55,33 @@ async function req(method, path, body, customSignal = null) {
     }
   }
 
+  const operatorToken = typeof localStorage !== 'undefined'
+    ? (localStorage.getItem('forge_launch_auth_token') || localStorage.getItem('forge_op_token') || '')
+    : ''
+  const portalToken = typeof window !== 'undefined'
+    ? (new URLSearchParams(window.location.search).get('token') || sessionStorage.getItem('creator_portal_token') || '')
+    : ''
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-Gemini-Key': aiKeys?.geminiKey || '',
+    'X-OpenAI-Key': aiKeys?.openaiKey || '',
+    'X-Anthropic-Key': aiKeys?.anthropicKey || '',
+    'X-Together-Key': aiKeys?.togetherKey || '',
+    'X-Apify-Token': scrapeKeys?.apifyToken || (typeof localStorage !== 'undefined' ? localStorage.getItem('forge_apify_token') : '') || '',
+  }
+  if (operatorToken) {
+    headers['Authorization'] = `Bearer ${operatorToken}`
+    headers['X-Operator-Token'] = operatorToken
+  }
+  if (portalToken) {
+    headers['X-Portal-Token'] = portalToken
+  }
+
   const opts = {
     method,
     signal: controller.signal,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Gemini-Key': aiKeys?.geminiKey || '',
-      'X-OpenAI-Key': aiKeys?.openaiKey || '',
-      'X-Anthropic-Key': aiKeys?.anthropicKey || '',
-      'X-Together-Key': aiKeys?.togetherKey || '',
-      'X-Apify-Token': scrapeKeys?.apifyToken || localStorage.getItem('forge_apify_token') || '',
-    },
+    headers,
   }
   if (body) opts.body = JSON.stringify(body)
   try {
