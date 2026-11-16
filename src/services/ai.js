@@ -6642,3 +6642,22 @@ Return ONLY a valid JSON object in this exact schema:
   }
 }
 
+/**
+ * Generate 3 software product concepts strictly grounded in audience data using conceptSchema.
+ */
+export async function generateConceptsAI({ creator = {}, audience = {} }, signal = undefined) {
+  const { buildConceptPrompt, normalizeConcepts } = await import("../components/launch/conceptSchema");
+  const promptData = buildConceptPrompt({ creator, audience });
+  const raw = await aiTextCall(promptData.user, promptData.system, 4096, signal, true);
+  let parsed = null;
+  if (typeof raw === "string") {
+    const cleaned = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "").trim();
+    try { parsed = JSON.parse(cleaned); } catch {}
+  } else if (raw && typeof raw === "object") {
+    parsed = raw;
+  }
+  const comments = audience.comments || [];
+  return normalizeConcepts(parsed, { comments });
+}
+
+

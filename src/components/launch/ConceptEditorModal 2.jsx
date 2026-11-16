@@ -43,16 +43,16 @@ export default function ConceptEditorModal({
     problem: concept.problem || "",
     audienceEvidence: concept.audienceEvidence || concept.rationale || "",
     pricing: concept.pricing || "$29/mo Starter • $79/mo Pro",
-    revenueModel: concept.revenueModel || "SaaS Subscription • 50/50 Revenue Share",
+    revenueModel: concept.revenueModel || "Subscription · 50/50 revenue share",
     competition: concept.competition || "",
-    mvpDifficulty: concept.mvpDifficulty || "Low (2 weeks)",
+    mvpDifficulty: concept.mvpDifficulty || "2 weeks",
     demographicAlignment: concept.demographicAlignment || "24-42 Yrs • High-income digital practitioners",
     keyFeatures: Array.isArray(concept.keyFeatures) && concept.keyFeatures.length > 0
       ? [...concept.keyFeatures]
       : ["Automated Core Workflow", "Curated Preset & Template Library", "Real-Time Analytics Dashboard", "One-Click Digital Delivery"],
     mockup: {
       appUrl: concept.mockup?.appUrl || `${(concept.name || "app").toLowerCase().replace(/\s+/g, "")}.app`,
-      primaryMetric: concept.mockup?.primaryMetric || "$22.5K MRR",
+      primaryMetric: concept.mockup?.primaryMetric || "88/100 Fit",
       activeMetric: concept.mockup?.activeMetric || "850",
       efficiencyMetric: concept.mockup?.efficiencyMetric || "94%",
     }

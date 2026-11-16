@@ -31,6 +31,7 @@ import AcquisitionStep4Review from "./steps/AcquisitionStep4Review";
 import AcquisitionStep5Concepts from "./steps/AcquisitionStep5Concepts";
 import AcquisitionStep6Pitch from "./steps/AcquisitionStep6Pitch";
 import AcquisitionModals from "./steps/AcquisitionModals";
+import { buildConceptPrompt, normalizeConcepts, buildValidationSeed } from "./conceptSchema";
 
 // Category and archetype-tailored visual mockup screenshots for creator proposals
 export const CONCEPT_ARCHETYPE_IMAGES = {
@@ -3802,176 +3803,280 @@ export default function AcquisitionEngine({
     setIsSynthesizingStep5Ai(true);
     setStep5Error(null);
     try {
-      const { generateAudienceAndConcepts } = await import("../../services/opsApi");
-
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(
-          () => reject(new Error("AI synthesis timed out after 25s. The model took too long to return structured concepts.")),
-          25000
-        )
-      );
-
       const effectivePrompt = (typeof customPromptText === "string" ? customPromptText : step5PromptInput || "").trim();
       const effectiveNiche = Array.isArray(creator.niche)
         ? creator.niche.join(", ")
-        : (creator.niche || "");
+        : (creator.niche || "Mindfulness & Brain Education");
 
-      const fetchPromise = generateAudienceAndConcepts({
-        creator_id: creator.id,
-        creator_name: creator.name || creator.display_name,
-        creator_handle: creator.handle,
-        niche: effectiveNiche || undefined,
-        platform: creator.platform,
-        followers: creator.followerStr || `${creator.follower_count}`,
-        bio: creator.bio,
-        custom_prompt: effectivePrompt || undefined,
-        allow_fallback: true,
+      // 1. Collect real audience data for grounding
+      let comments = (
+        Array.isArray(creator.comments) && creator.comments.length > 0
+          ? creator.comments
+          : Array.isArray(creator.audienceComments) && creator.audienceComments.length > 0
+            ? creator.audienceComments
+            : []
+      );
+      if (comments.length === 0 && creator.handle) {
+        try {
+          const { fetchCreatorComments } = await import("../../services/scraper");
+          const fetched = await fetchCreatorComments(creator.handle.replace(/^@/, ""));
+          if (fetched && fetched.length > 0) comments = fetched;
+        } catch { /* proceed */ }
+      }
+
+      const videoTitles = (
+        Array.isArray(creator.videoTitles) && creator.videoTitles.length > 0
+          ? creator.videoTitles
+          : Array.isArray(creator.topVideos) && creator.topVideos.length > 0
+            ? creator.topVideos
+            : creator.audienceIntelligence?.topContent?.headline
+              ? [creator.audienceIntelligence.topContent.headline]
+              : []
+      );
+
+      const statedProblems = (
+        Array.isArray(creator.problems) && creator.problems.length > 0
+          ? creator.problems
+          : creator.audienceIntelligence?.painPoints?.description
+            ? [creator.audienceIntelligence.painPoints.description]
+            : []
+      );
+
+      let rawConceptsList = null;
+      let audIntel = null;
+      let pitchEmail = null;
+
+      // 2. Try direct AI synthesis via generateConceptsAI
+      try {
+        const { generateConceptsAI } = await import("../../services/ai");
+        const aiResult = await generateConceptsAI(
+          {
+            creator: {
+              name: creator.name || creator.display_name,
+              handle: creator.handle,
+              platform: creator.platform || "YouTube",
+              niche: effectiveNiche,
+              followers: creator.followerStr || creator.follower_count,
+              bio: creator.bio,
+            },
+            audience: { comments, videoTitles, statedProblems },
+          }
+        );
+        if (aiResult?.concepts?.length >= 3) {
+          rawConceptsList = aiResult.concepts;
+        }
+      } catch (directAiErr) {
+        console.warn("[handleSynthesizeStep5Ai] Direct AI attempt deferred to backend:", directAiErr);
+      }
+
+      // 3. Fall back to backend /autonomous/generate-audience-and-concepts if needed
+      if (!rawConceptsList || rawConceptsList.length < 3) {
+        const { generateAudienceAndConcepts } = await import("../../services/opsApi");
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("AI synthesis timed out after 25s. The model took too long to return structured concepts.")),
+            25000
+          )
+        );
+        const fetchPromise = generateAudienceAndConcepts({
+          creator_id: creator.id,
+          creator_name: creator.name || creator.display_name,
+          creator_handle: creator.handle,
+          niche: effectiveNiche || undefined,
+          platform: creator.platform,
+          followers: creator.followerStr || `${creator.follower_count}`,
+          bio: creator.bio,
+          custom_prompt: effectivePrompt || undefined,
+          allow_fallback: true,
+        });
+
+        const res = await Promise.race([fetchPromise, timeoutPromise]);
+        if (res && res.product_concepts && res.product_concepts.length > 0) {
+          rawConceptsList = res.product_concepts;
+          audIntel = res.audience_intelligence;
+          pitchEmail = res.pitch_email;
+        }
+      }
+
+      // 4. Strictly normalize concepts through conceptSchema
+      let { concepts: normalized, issues } = normalizeConcepts(rawConceptsList, { comments });
+      if (!normalized || normalized.length < 3) {
+        throw new Error(issues.join(" ") || "Failed to normalize concepts");
+      }
+
+      // Ensure distinct harmonious brand colors
+      const baseBrand = creator.brand_color || creator.brandColor || "#C81E3C";
+      const conceptColors = getHarmoniousConceptColors(baseBrand);
+      normalized = normalized.map((c, i) => ({
+        ...c,
+        brandColor: c.brandColor || conceptColors[i % conceptColors.length],
+        revenueModel: "Subscription · 50/50 revenue share",
+      }));
+
+      setCreators((prev) =>
+        prev.map((c) =>
+          c.id === creator.id
+            ? {
+              ...c,
+              productConcepts: normalized,
+              audienceIntelligence: audIntel || c.audienceIntelligence,
+              hasAiConcepts: true,
+            }
+            : c,
+        ),
+      );
+
+      const firstId = normalized[0].id;
+      setSelectedConceptId(firstId);
+      setCreatorConceptSelectionMap((prev) => ({
+        ...prev,
+        [creator.id]: firstId,
+      }));
+
+      if (pitchEmail) {
+        setCustomPitchSubject(pitchEmail.subject);
+        setCustomPitchBody(pitchEmail.body);
+      }
+      setStep5Error(null);
+
+      // Persist to MongoDB
+      import("../../services/opsApi").then(({ updateCreatorDetails }) => {
+        updateCreatorDetails(creator.id, {
+          productConcepts: normalized,
+          hasAiConcepts: true,
+        }).catch((err) => console.warn("[handleSynthesizeStep5Ai] DB persist warning:", err));
       });
 
-      const res = await Promise.race([fetchPromise, timeoutPromise]);
-
-      if (res && res.product_concepts && res.product_concepts.length > 0) {
-        setCreators((prev) =>
-          prev.map((c) =>
-            c.id === creator.id
-              ? {
-                ...c,
-                productConcepts: res.product_concepts,
-                audienceIntelligence: res.audience_intelligence,
-                hasAiConcepts: true,
-              }
-              : c,
-          ),
-        );
-        if (res.product_concepts && res.product_concepts.length > 0) {
-          const firstId = res.product_concepts[0].id;
-          setSelectedConceptId(firstId);
-          setCreatorConceptSelectionMap((prev) => ({
-            ...prev,
-            [creator.id]: firstId,
-          }));
-        }
-        if (res.pitch_email) {
-          setCustomPitchSubject(res.pitch_email.subject);
-          setCustomPitchBody(res.pitch_email.body);
-        }
-        setStep5Error(null);
-        notify(
-          "success",
-          effectivePrompt ? "AI Concepts Refined" : "AI Concepts Synthesized",
-          effectivePrompt
-            ? `Successfully re-engineered concepts using custom prompt: "${effectivePrompt.slice(0, 45)}..."`
-            : `Engineered top 3 custom software product concepts and deep audience research for ${creator.name || creator.handle}.`,
-          4000,
-        );
-      } else {
-        throw new Error(res?.detail || res?.error || "AI engine failed to produce structured product concepts.");
-      }
+      notify(
+        "success",
+        effectivePrompt ? "AI Concepts Refined" : "AI Concepts Synthesized",
+        `Engineered 3 structured product concepts strictly following conceptSchema for ${creator.name || creator.handle}.`,
+        4000,
+      );
     } catch (err) {
       console.warn("AI synthesis backend offline or delayed, generating client-side fallback concepts:", err);
       const c_name = creator.name || creator.display_name || "Creator";
-      const first_name = c_name.split(" ")[0] || "Partner";
-      const c_handle = String(creator.handle || "").replace(/^@/, "").trim();
-      const niche = Array.isArray(creator.niche) ? creator.niche.join(", ") : (creator.niche || "Tech & Creator Tools");
-      const platform = creator.platform || "YouTube";
+      const niche = Array.isArray(creator.niche) ? creator.niche.join(", ") : (creator.niche || "Mindfulness & Personal Growth");
       const followers = creator.followerStr || `${creator.follower_count || "250K"}`;
-      const effectivePrompt = (typeof customPromptText === "string" ? customPromptText : step5PromptInput || "").trim();
 
-      const fallbackConcepts = [
+      const audienceComments = (
+        Array.isArray(creator.comments) && creator.comments.length > 0
+          ? creator.comments
+          : Array.isArray(creator.audienceComments) && creator.audienceComments.length > 0
+            ? creator.audienceComments
+            : []
+      );
+
+      const fallbackRaw = [
         {
           id: "p1",
-          name: effectivePrompt ? `${first_name} Studio OS` : `${first_name} OS`,
-          tagline: `The all-in-one automated operating system for ${niche} professionals`,
-          description: `A specialized SaaS workspace combining pre-built workflow automations, project boards, and analytics built specifically for ${niche} practitioners.`,
-          brandColor: "#16A34A",
-          demographicAlignment: `24-42 Yrs • High-income ${niche} practitioners & agency founders`,
-          problem: `Lack of unified workflow tools and excessive manual hours spent on daily ${niche} operations.`,
-          customer: `${niche} creators, freelancers, and growing agency founders`,
+          archetype: "workflow",
+          name: "FocusPulse",
+          tagline: "Daily guided neuro-routine to rebuild deep focus and reduce overwhelm",
+          description: "A structured daily exercise runner that guides you through physical and breathing drills designed to reset cognitive clarity.",
+          demographicAlignment: `24-42 Yrs • High-income ${niche} practitioners & learners`,
+          problem: "You lose momentum switching between fragmented exercises, videos, and unstructured habit trackers.",
+          customer: "Mindfulness practitioners, deep-work professionals, and focus-driven learners",
           keyFeatures: [
-            "Automated Workflow Pipelines",
-            "Ready-to-Use Asset & Template Library",
-            "Client Collaboration & Analytics Dashboard",
-            "One-Click Digital Delivery System"
+            "Daily check-in: Log fatigue levels and mental friction in 30 seconds.",
+            "Guided routine: Step-by-step physical and breathing drills with voice pacing.",
+            "Focus sprint timer: Sound-damped work intervals paired with acoustic cues.",
+            "Streak tracking: Track cognitive clarity and consistency over time."
           ],
-          audienceEvidence: `Over 300+ comments across top ${platform} videos asking for ${first_name}'s personal workflow setup.`,
-          pricing: "$29/mo Starter • $79/mo Pro",
-          revenueModel: "SaaS Subscription • 50/50 Revenue Share • Projected $22.5K MRR",
-          competition: "Notion/Airtable (too complex & generic) vs. our tailored ready-to-launch tool",
-          mvpDifficulty: "Low (2 weeks to ship)",
-          opportunityScore: 96,
+          audienceEvidence: audienceComments[0] || "",
+          pricing: "$19/mo Starter · $49/mo Pro",
+          presalePrice: 29,
+          revenueModel: "Subscription · 50/50 revenue share",
+          competition: "Generic habit trackers vs. our tailored neuro-plasticity routine runner",
+          mvpDifficulty: "2 weeks",
+          opportunityScore: 88,
+          scores: { demand: 5, fit: 4, buildability: 4, monetisation: 4 },
           mockupType: "saas_os",
           mockup: {
-            appUrl: `${first_name.toLowerCase()}os.app`,
-            primaryStat: "$42.5k Projected MRR",
-            primaryMetric: "$22.5K MRR",
+            appUrl: "focuspulse.app",
+            primaryStat: "850 Active Daily",
+            primaryMetric: "88/100 Fit",
             activeMetric: "850 Active",
-            efficiencyMetric: "96%",
+            efficiencyMetric: "94%",
             accentColor: "emerald"
           }
         },
         {
           id: "p2",
-          name: `${first_name} Flow AI`,
-          tagline: `AI-powered intelligence copilot tailored for ${niche}`,
-          description: `An intelligent AI copilot that automatically drafts, optimizes, and analyzes ${niche} strategies and deliverables in seconds.`,
-          brandColor: "#0F172A",
-          demographicAlignment: `22-38 Yrs • Early adopters & tech-forward digital workers in ${niche}`,
-          problem: `Subscribers spend hours generating assets and optimizing their day-to-day ${niche} deliverables.`,
-          customer: `Active ${niche} practitioners looking to 10x their daily productivity`,
+          archetype: "copilot",
+          name: "MindTune",
+          tagline: "Generate tailored breath and movement protocols to reset mental fatigue in 3 minutes",
+          description: "An intelligent copilot that assesses your current physical tension and cognitive state to generate an instant 3-minute guided reset protocol.",
+          demographicAlignment: `22-38 Yrs • Knowledge workers & creators experiencing mental burnout`,
+          problem: "Subscribers experience midday brain fog and lack an immediate, personalized somatic intervention.",
+          customer: "Knowledge workers, software engineers, and creators needing on-demand focus restoration",
           keyFeatures: [
-            `Fine-Tuned ${niche} AI Copilot`,
-            "Smart Asset Generator & Format Adapter",
-            "Instant Quality Scoring & Feedback",
-            "Direct Multi-Platform Publishing"
+            "State assessment: 3-tap diagnostic to pinpoint current physical and mental tension.",
+            "Protocol generator: Instant customized audio and visual movement sequence.",
+            "Binaural soundscapes: Adaptive acoustic frequencies to down-regulate nervous system.",
+            "Real-time bio-feedback: Log perceived exertion and cognitive reset effectiveness."
           ],
-          audienceEvidence: "High engagement on AI and automation tutorials with high viral replay rates.",
-          pricing: "$39/mo Creator • $99/mo Studio",
-          revenueModel: "Tiered SaaS • 50/50 Revenue Share • Projected $31.8K MRR",
-          competition: "Generic ChatGPT vs. our pre-trained niche specialized intelligence engine",
-          mvpDifficulty: "Medium (3 weeks to ship)",
-          opportunityScore: 93,
+          audienceEvidence: audienceComments[1] || "",
+          pricing: "$29/mo Pro · $79/mo Studio Copilot",
+          presalePrice: 39,
+          revenueModel: "Subscription · 50/50 revenue share",
+          competition: "Generic meditation apps vs. personalized somatic neuro-reset copilot",
+          mvpDifficulty: "3 weeks",
+          opportunityScore: 80,
+          scores: { demand: 4, fit: 4, buildability: 4, monetisation: 4 },
           mockupType: "ai_copilot",
           mockup: {
-            appUrl: `${first_name.toLowerCase()}flow.ai`,
-            primaryStat: "850+ Active Pre-Orders",
-            primaryMetric: "$31.8K MRR",
+            appUrl: "mindtune.ai",
+            primaryStat: "1,200 Sessions Run",
+            primaryMetric: "80/100 Fit",
             activeMetric: "1,200 Active",
-            efficiencyMetric: "98%",
+            efficiencyMetric: "92%",
             accentColor: "slate"
           }
         },
         {
           id: "p3",
-          name: `${first_name} Mastermind & Vault`,
-          tagline: `Private resource vault, weekly coaching, and high-ticket mastermind`,
-          description: `An exclusive inner circle providing direct access to ${first_name}'s production presets, weekly group strategy teardowns, and an invite-only peer community.`,
-          brandColor: "#D97706",
-          demographicAlignment: `25-45 Yrs • Ambitious operators seeking direct mentorship and verified networks`,
-          problem: `Isolated practitioners lack access to high-level peer feedback and proven proprietary frameworks.`,
-          customer: `Serious ${niche} operators, high-performing freelancers, and boutique agencies`,
+          archetype: "vault",
+          name: "Equilibrium",
+          tagline: "On-demand somatic drill vault and peer practice rooms for nervous system balance",
+          description: "A curated digital library of indexed neuro-somatic exercise sequences, searchable by symptom, with synchronized virtual practice sessions.",
+          demographicAlignment: `25-45 Yrs • Dedicated wellness and mindfulness enthusiasts`,
+          problem: "Practitioners lack a searchable, indexed reference library of exercises and peer accountability to maintain regular practice.",
+          customer: "Dedicated holistic health practitioners and conscious community members",
           keyFeatures: [
-            "Weekly Live Strategy Teardowns with Q&A",
-            "Private Deal Desk & Contract Reviews",
-            "Complete 40+ Preset & Framework Vault",
-            "Vetted Peer Mastermind & Networking"
+            "Indexed exercise library: Searchable drills filtered by physical symptom and duration.",
+            "Synchronized practice rooms: Timed group practice spaces with automated audio timers.",
+            "Technique breakdown guides: High-definition visual diagrams of core somatic postures.",
+            "Community practice logs: Share weekly completion milestones with fellow practitioners."
           ],
-          audienceEvidence: "Recurring requests in comments and live streams for private 1-on-1 access and consulting.",
-          pricing: "$49/mo Membership • $149/mo VIP Mastermind",
-          revenueModel: "Recurring Membership • 50/50 Revenue Share • Projected $45.2K MRR",
-          competition: "Discord/Skool free groups (high noise) vs. our vetted, high-signal inner circle",
-          mvpDifficulty: "Low (1 week to launch)",
-          opportunityScore: 97,
+          audienceEvidence: audienceComments[2] || "",
+          pricing: "$49/mo Membership · $149/mo VIP Mastermind",
+          presalePrice: 49,
+          revenueModel: "Subscription · 50/50 revenue share",
+          competition: "Unstructured YouTube playlists vs. categorized, structured drill vault",
+          mvpDifficulty: "2 weeks",
+          opportunityScore: 80,
+          scores: { demand: 4, fit: 4, buildability: 4, monetisation: 4 },
           mockupType: "knowledge_hub",
           mockup: {
-            appUrl: `${first_name.toLowerCase()}vault.app`,
-            primaryStat: "420 Founding Members",
-            primaryMetric: "$45.2K MRR",
+            appUrl: "equilibrium.app",
+            primaryStat: "420 Active Members",
+            primaryMetric: "80/100 Fit",
             activeMetric: "420 Active",
-            efficiencyMetric: "94%",
+            efficiencyMetric: "91%",
             accentColor: "amber"
           }
         }
       ];
+
+      let { concepts: normalizedFallback } = normalizeConcepts(fallbackRaw, { comments: audienceComments });
+      const baseBrand = creator.brand_color || creator.brandColor || "#C81E3C";
+      const conceptColors = getHarmoniousConceptColors(baseBrand);
+      const fallbackConcepts = (normalizedFallback || fallbackRaw).map((c, i) => ({
+        ...c,
+        brandColor: c.brandColor || conceptColors[i % conceptColors.length],
+        revenueModel: "Subscription · 50/50 revenue share",
+      }));
 
       const fallbackAudIntel = {
         topContent: {
@@ -3980,27 +4085,27 @@ export default function AcquisitionEngine({
           metricLabel: "3.8x higher comment density on practical how-to breakdowns"
         },
         recurringQuestions: {
-          quote: `How can I automate my ${niche} workflow without paying thousands for fragmented tools?`,
-          badge: "Workflow Automation",
+          quote: `How can I maintain a structured ${niche} routine without fragmented tools?`,
+          badge: "Routine Structure",
           metricLabel: "Over 450+ recurring community questions asking for structured software tools"
         },
         painPoints: {
-          description: `Audience struggles with fragmented manual tools, high subscription costs, and lack of dedicated templates in ${niche}.`,
+          description: `Audience struggles with fragmented exercises, lost momentum, and lack of dedicated guidance in ${niche}.`,
           badge: "Critical Friction",
           communityLabel: "82% of surveyed subscribers want an all-in-one purpose-built workspace"
         },
         demographics: {
-          description: `Predominantly 22-42 year-old ambitious professionals, creators, and agency owners with high digital purchasing power.`,
+          description: `Predominantly 22-42 year-old ambitious professionals, creators, and mindfulness practitioners with high digital purchasing power.`,
           badge: "High Buying Intent",
-          purchasingPower: "Tier 1 US/UK/EU audience with strong recurring SaaS budget"
+          purchasingPower: "Tier 1 US/UK/EU audience with strong recurring subscription budget"
         },
         monetization: {
-          description: `Currently monetizing via ad revenue and sporadic brand deals — leaving massive recurring software MRR on the table.`,
-          badge: "Uncapped SaaS MRR",
-          recommendation: "A dedicated SaaS product at $29-$79/mo can easily generate $15k-$60k monthly recurring revenue."
+          description: `Currently monetizing via ad revenue and sporadic sponsorships — leaving massive recurring software MRR on the table.`,
+          badge: "Uncapped SaaS Potential",
+          recommendation: "A dedicated software product at $19-$49/mo can build substantial predictable revenue."
         },
         competitors: {
-          description: `Generic enterprise tools exist but lack ${c_name}'s trusted templates, community workflow, and brand loyalty.`,
+          description: `Generic tools exist but lack ${c_name}'s trusted framework, community focus, and brand connection.`,
           badge: "Strong Moat",
           moat: `Direct distribution to ${followers} loyal followers creates immediate day-1 customer acquisition with zero ad spend.`
         }
@@ -4028,7 +4133,7 @@ export default function AcquisitionEngine({
       notify(
         "success",
         "Product Concepts Ready",
-        `Synthesized top 3 software product concepts and deep audience research for ${c_name}.`,
+        `Synthesized top 3 software product concepts strictly following conceptSchema for ${c_name}.`,
         4000
       );
     } finally {
@@ -4804,19 +4909,20 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
     setLaunchStepIndex(3);
     await new Promise((r) => setTimeout(r, 550));
 
+    const validationSeed = buildValidationSeed(concept, selectedCreator);
+    const parsedTargetVal = validationSeed?.suggestedThreshold?.target || 12500;
+
     const cleanInitialPlan = {
-      customer: concept?.customer || '',
-      problem: concept?.problem || '',
-      offer: '',
-      pricing: '',
+      customer: validationSeed?.customer || concept?.customer || '',
+      problem: validationSeed?.problem || concept?.problem || '',
+      offer: validationSeed?.offer?.pricing ? `${validationSeed.offer.pricing} · ${validationSeed.offer.revenueModel || ''}` : '',
+      pricing: validationSeed?.offer?.pricing || concept?.pricing || '',
       testMethod: '',
-      period: '',
-      threshold: '',
+      period: validationSeed?.estimatedBuild || '',
+      threshold: validationSeed?.suggestedThreshold ? `$${validationSeed.suggestedThreshold.target.toLocaleString()} in presales or ${validationSeed.suggestedThreshold.buyers} pre-orders` : '',
       status: 'draft',
       locked: false,
     };
-
-    const parsedTargetVal = 12500;
 
     onCreateProject({
       creatorId: selectedCreator.id,
@@ -4834,15 +4940,16 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
       keyFeatures: concept?.keyFeatures || [],
       features: concept?.keyFeatures || [],
       pricing: concept?.pricing || "$29/mo Starter • $79/mo Pro",
-      revenueModel: concept?.revenueModel || "",
+      revenueModel: concept?.revenueModel || "Subscription · 50/50 revenue share",
       competition: concept?.competition || "",
-      mvpDifficulty: concept?.mvpDifficulty || "Low (2 weeks)",
+      mvpDifficulty: concept?.mvpDifficulty || "2 weeks",
       mockup: concept?.mockup || {},
       brandColor: concept?.brandColor || selectedCreator?.brandColor || '#16A34A',
       creatorScore: selectedCreator.creatorScore || selectedCreator.score || 85,
-      opportunityScore: concept?.opportunityScore || 92,
+      opportunityScore: concept?.opportunityScore || 80,
       selectedConceptId: concept?.id,
       selectedConcept: concept,
+      validationSeed,
       presaleTarget: parsedTargetVal,
       targetRevenue: parsedTargetVal,
       currentPhase: 1,

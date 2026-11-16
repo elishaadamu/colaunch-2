@@ -466,6 +466,15 @@ function ConceptCard({
 }) {
   const brandColor = resolveConceptBrandHex(concept, index, colorInfo, uniformBrandColor);
   const accentHex = getBrandColorObj(brandColor).hex;
+  const buildLabel = concept.mvpDifficulty
+    ? (concept.mvpDifficulty.includes("build")
+        ? concept.mvpDifficulty
+        : `${concept.mvpDifficulty.replace(/\s*to ship\b/i, "").replace(/^(low|medium|high)\s*\((.*?)\)$/i, "$2")} to build`)
+    : "2 weeks to build";
+  const revenueLabel = (concept.revenueModel || "Subscription · 50/50 revenue share")
+    .replace(/[•·]\s*Projected\s*\$[\d.,]+[KkMm]?\s*MRR/i, "")
+    .replace(/\s*·\s*Projected.*$/i, "")
+    .trim();
 
   return (
     <article className="tile p-4 sm:p-5 rounded-2xl flex flex-col justify-between gap-4" style={{ background: C.sheet, border: `1px solid ${C.line}`, color: C.text }}>
@@ -475,7 +484,9 @@ function ConceptCard({
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: accentHex }} aria-hidden="true" />
             Concept {index + 1}
           </span>
-          <Pill tone="neutral">Fit {concept.opportunityScore || 95}/100</Pill>
+          {concept.opportunityScore ? (
+            <Pill tone="neutral">Fit {concept.opportunityScore}/100</Pill>
+          ) : null}
         </div>
 
         <ConceptLandingPage
@@ -491,11 +502,11 @@ function ConceptCard({
         <div>
           <div className="flex items-baseline justify-between gap-2">
             <h3 className="serif m-0 text-2xl leading-tight" style={{ color: C.text }}>{concept.name}</h3>
-            <span className="text-xs shrink-0" style={{ color: C.faint }}>{concept.mvpDifficulty || "2 weeks"} to build</span>
+            <span className="text-xs shrink-0" style={{ color: C.faint }}>{buildLabel}</span>
           </div>
           <p className="mt-1 mb-0 text-sm font-medium" style={{ color: C.body }}>
             {formatConceptPricing(concept.pricing)}
-            <span className="font-normal" style={{ color: C.muted }}> · {concept.revenueModel || "Subscription, 50/50 revenue share"}</span>
+            <span className="font-normal" style={{ color: C.muted }}> · {revenueLabel}</span>
           </p>
         </div>
       </div>

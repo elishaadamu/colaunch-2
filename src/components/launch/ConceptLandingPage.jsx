@@ -3,6 +3,7 @@ import { Check, Monitor, Pencil, Plus, Smartphone, Trash2, X } from "lucide-reac
 import { generateCreatorAvatarSvg as defaultGenerateAvatarSvg } from "../../utils/avatarColorExtractor";
 import { formatConceptPricing } from "../../utils/pricing";
 import { FeatureIcon, HeroIllustration, WorkflowArt, kindOf } from "./illustrations";
+import { CONCEPT_ARCHETYPES } from "./conceptSchema";
 
 const FALLBACK_BRAND = "#c81e3c";
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -613,13 +614,15 @@ function LandingPageSurface({
   getCreatorAvatar,
   generateCreatorAvatarSvg,
 }) {
-  const layoutVariant = Number.isInteger(conceptIndex) ? ((conceptIndex % 3) + 3) % 3 : 0;
+  const layoutVariant = Number.isInteger(conceptIndex)
+    ? ((conceptIndex % 3) + 3) % 3
+    : concept?.archetype === "copilot"
+      ? 1
+      : concept?.archetype === "vault"
+        ? 2
+        : 0;
   const archetypeEyebrow =
-    layoutVariant === 1
-      ? "AI Intelligence Copilot"
-      : layoutVariant === 2
-        ? "Member Vault & Private Cohort"
-        : "Workflow Operating System";
+    CONCEPT_ARCHETYPES[layoutVariant]?.label || "Workflow Operating System";
   const [previewNote, setPreviewNote] = useState("");
   const [newFeatureDraft, setNewFeatureDraft] = useState("");
   const [cachedPosts, setCachedPosts] = useState([]);

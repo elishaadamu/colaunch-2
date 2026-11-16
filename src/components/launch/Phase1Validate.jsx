@@ -452,17 +452,18 @@ export default function Phase1Validate({
     if (!project) return
     setPresalesRevenue(Number(project.currentPresales || 0))
     setReservations(Array.isArray(project.reservations) ? project.reservations : [])
-    if (project.validationPlan) {
+    if (project.validationPlan && (project.validationPlan.customer || project.validationPlan.status === 'approved')) {
       setPlan(project.validationPlan)
     } else {
+      const seed = project.validationSeed
       setPlan({
-        customer: project.customer || project.targetAudience || '',
-        problem: project.problem || '',
-        offer: '',
-        pricing: '',
+        customer: seed?.customer || project.customer || project.targetAudience || '',
+        problem: seed?.problem || project.problem || '',
+        offer: seed?.offer ? `${seed.offer.pricing ? seed.offer.pricing + ' · ' : ''}${seed.offer.revenueModel || ''}` : '',
+        pricing: seed?.offer?.pricing || project.pricing || '',
         testMethod: '',
-        period: '',
-        threshold: '',
+        period: seed?.estimatedBuild || '',
+        threshold: seed?.suggestedThreshold ? `$${seed.suggestedThreshold.target.toLocaleString()} in presales or ${seed.suggestedThreshold.buyers} pre-orders` : '',
         status: 'draft',
         locked: false
       })
