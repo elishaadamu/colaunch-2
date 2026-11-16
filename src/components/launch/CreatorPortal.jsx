@@ -1,10 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import {
-  Rocket, CheckCircle2, DollarSign, Copy, Check, Video, MessageSquare,
-  Users, ExternalLink, Globe, Sparkles, AlertCircle, ShieldCheck, ArrowRight,
-  TrendingUp, Award, Calendar, CheckSquare, Eye, Smartphone, Send, FileText,
-  CheckCheck, Loader2, MessageCircle, Zap, Lock, Layers, Cpu, Laptop, CreditCard,
-  Plus, RotateCcw, Share2, HelpCircle, Menu, X, Star
+  Rocket, Check, Copy, Eye, Send, FileText, ExternalLink, Menu, X, Users,
+  Zap, Share2, Sparkles, Plus,
 } from 'lucide-react'
 import { getFrontendUrl, updateCoLaunchProject, getCoLaunchProject, getThreads, getWorkflowState } from '../../services/opsApi'
 import { updatePageSEO } from '../../utils/seo'
@@ -12,12 +9,18 @@ import { CreatorPortalSkeleton } from './Section2Skeletons'
 import { deduplicateAndSortMessages } from './CreatorWhatsAppChat'
 import ProjectOS from './ProjectOS'
 import DIYSubscriptionModal from './DIYSubscriptionModal'
-import CoLaunchLogo from '../ui/CoLaunchLogo'
 import PostVisualMockup from './PostVisualMockup'
 import { getPhase1StepGuards, getPhase2StepGuards, getPhase3StepGuards } from '../../utils/stepGuards'
 import { parseMainPricingAmount, parseConceptPricing } from '../../utils/pricing'
 import { startCreatorPortalPrePaymentTour, startCreatorPortalPostPaymentTour } from '../../utils/driverTour'
 import { RETRO_GAMING_PROJECT } from './ProjectOSPage'
+
+/**
+ * CreatorPortal: the creator's Command Center.
+ * Design: "Command Center" — one calm page, one number that matters (presales vs goal),
+ * a single progress strip, four tabs, and a slim summary column.
+ * Props, handlers and data loading are unchanged from the previous version.
+ */
 
 const C = {
   bg: '#08090c',
@@ -27,9 +30,9 @@ const C = {
   line: 'rgba(255,255,255,0.08)',
   lineStrong: 'rgba(255,255,255,0.18)',
   text: '#f3f4f6',
-  body: '#cdd1da',
-  muted: '#9ba1ae',
-  faint: '#6c7280',
+  body: '#d3d7e0',
+  muted: '#a3a9b6',
+  faint: '#7b8190',
   crimson: '#c81e3c',
   crimsonHover: '#d92a49',
   crimsonSoft: 'rgba(200,30,60,0.14)',
@@ -38,12 +41,6 @@ const C = {
   ok: '#6fcf9b',
   okSoft: 'rgba(111,207,155,0.12)',
   okLine: 'rgba(111,207,155,0.36)',
-  sky: '#7dd3fc',
-  skySoft: 'rgba(56,189,248,0.12)',
-  skyLine: 'rgba(56,189,248,0.36)',
-  violet: '#c4b5fd',
-  violetSoft: 'rgba(167,139,250,0.12)',
-  violetLine: 'rgba(167,139,250,0.36)',
   warn: '#f0b46a',
   warnSoft: 'rgba(240,180,106,0.12)',
   warnLine: 'rgba(240,180,106,0.36)',
@@ -52,54 +49,95 @@ const C = {
 const HEADING_FONT = "'Instrument Serif', Georgia, serif"
 
 const PORTAL_CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-.cp-root {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-.cp-root .serif {
-  font-family: 'Instrument Serif', Georgia, serif;
-  font-weight: 400;
-  letter-spacing: -0.015em;
-}
-.cp-root .font-mono {
-  font-family: 'JetBrains Mono', monospace;
-}
-.cp-root .cp-btn-primary {
-  background: ${C.crimson};
-  color: #ffffff;
-  border: 1px solid ${C.crimsonLine};
-  font-weight: 600;
-  border-radius: 0.75rem;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 10px rgba(200, 30, 60, 0.25);
-}
-.cp-root .cp-btn-primary:hover:not(:disabled) {
-  background: ${C.crimsonHover};
-  box-shadow: 0 4px 20px rgba(200, 30, 60, 0.4);
-  transform: translateY(-1px);
-}
-.cp-root .cp-btn-primary:active:not(:disabled) {
-  transform: translateY(0);
-}
-.cp-root .cp-btn-quiet {
-  background: ${C.raised};
-  color: ${C.body};
-  border: 1px solid ${C.lineStrong};
-  font-weight: 600;
-  border-radius: 0.75rem;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.cp-root .cp-btn-quiet:hover:not(:disabled) {
-  color: ${C.text};
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.25);
-  transform: translateY(-1px);
-}
-.cp-root .cp-btn-quiet:active:not(:disabled) {
-  transform: translateY(0);
-}
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+.cp-root{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.cp-root .serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:-0.01em}
+.cp-root .num{font-variant-numeric:tabular-nums}
+.cp-root :focus-visible{outline:2px solid ${C.crimson};outline-offset:2px}
+.cp-root .cp-btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;border-radius:.625rem;font-weight:600;font-size:.875rem;padding:.55rem 1rem;min-height:2.5rem;cursor:pointer;white-space:nowrap;border:1px solid transparent;transition:background-color .15s,border-color .15s,color .15s}
+.cp-root .cp-btn:disabled{opacity:.45;cursor:not-allowed}
+.cp-root .cp-btn-primary{background:${C.crimson};color:#fff}
+.cp-root .cp-btn-primary:hover:not(:disabled){background:${C.crimsonHover}}
+.cp-root .cp-btn-quiet{background:${C.raised};color:${C.body};border-color:${C.line}}
+.cp-root .cp-btn-quiet:hover:not(:disabled){border-color:${C.lineStrong};color:${C.text}}
+.cp-root .cp-btn-sm{min-height:2.125rem;padding:.35rem .75rem;font-size:.8125rem}
+.cp-root .cp-card{background:${C.sheet};border:1px solid ${C.line};border-radius:1rem}
+.cp-root .cp-tab{padding:.7rem .25rem;margin-right:1.5rem;font-size:.9375rem;font-weight:500;color:${C.muted};border-bottom:2px solid transparent;cursor:pointer;background:none;transition:color .15s,border-color .15s;white-space:nowrap}
+.cp-root .cp-tab:hover{color:${C.text}}
+.cp-root .cp-tab[aria-selected="true"]{color:${C.text};border-bottom-color:${C.crimson}}
+.cp-root .cp-chip{padding:.35rem .8rem;border-radius:999px;font-size:.8125rem;font-weight:500;color:${C.muted};background:${C.row};border:1px solid ${C.line};cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s}
+.cp-root .cp-chip:hover{color:${C.text};border-color:${C.lineStrong}}
+.cp-root .cp-chip[aria-pressed="true"]{background:${C.crimson};border-color:${C.crimson};color:#fff}
+.cp-root .cp-track{transition:border-color .15s}
+.cp-root .cp-track:hover{border-color:${C.lineStrong}}
+.cp-root .cp-fade{animation:cp-fade .18s ease-out}
+@keyframes cp-fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.cp-root details>summary{list-style:none;cursor:pointer}
+.cp-root details>summary::-webkit-details-marker{display:none}
+.cp-root .no-scrollbar{scrollbar-width:none}
+.cp-root .no-scrollbar::-webkit-scrollbar{display:none}
+@media (prefers-reduced-motion:reduce){.cp-root *{animation:none!important;transition:none!important}}
 `
+
+/* ── Small building blocks ───────────────────────────────────────────────── */
+function Stat({ label, value, note, id }) {
+  return (
+    <div id={id} className="min-w-0">
+      <dt className="text-sm" style={{ color: C.muted }}>{label}</dt>
+      <dd className="m-0 mt-1 text-2xl font-semibold num truncate" style={{ color: C.text }}>{value}</dd>
+      {note && <p className="m-0 mt-0.5 text-[13px]" style={{ color: C.faint }}>{note}</p>}
+    </div>
+  )
+}
+
+function Fact({ label, value }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 py-2.5" style={{ borderBottom: `1px solid ${C.line}` }}>
+      <dt className="text-sm" style={{ color: C.muted }}>{label}</dt>
+      <dd className="m-0 text-sm font-medium text-right num" style={{ color: C.text }}>{value}</dd>
+    </div>
+  )
+}
+
+function Empty({ icon: Icon, title, children }) {
+  return (
+    <div className="py-12 px-6 text-center rounded-xl" style={{ background: C.row, border: `1px dashed ${C.lineStrong}` }}>
+      {Icon && <Icon className="w-6 h-6 mx-auto mb-3" style={{ color: C.faint }} aria-hidden="true" />}
+      <p className="m-0 text-base font-medium" style={{ color: C.text }}>{title}</p>
+      {children && <div className="mt-1 text-sm" style={{ color: C.muted }}>{children}</div>}
+    </div>
+  )
+}
+
+function ModalShell({ title, subtitle, onClose, children, footer, wide = false }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(8,9,12,0.82)' }}
+      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cp-modal-title"
+        className={`cp-card cp-fade w-full ${wide ? 'max-w-xl' : 'max-w-lg'} max-h-[90vh] flex flex-col`}
+        style={{ borderColor: C.lineStrong }}
+      >
+        <div className="flex items-start justify-between gap-4 p-5" style={{ borderBottom: `1px solid ${C.line}` }}>
+          <div className="min-w-0">
+            {subtitle && <p className="m-0 text-sm" style={{ color: C.muted }}>{subtitle}</p>}
+            <h3 id="cp-modal-title" className="serif m-0 text-2xl leading-tight" style={{ color: C.text }}>{title}</h3>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close" className="cp-btn cp-btn-quiet cp-btn-sm" style={{ padding: '.35rem' }}>
+            <X className="w-4 h-4" aria-hidden="true" />
+          </button>
+        </div>
+        <div className="p-5 overflow-y-auto space-y-4">{children}</div>
+        {footer && <div className="p-4 flex items-center justify-end gap-2" style={{ borderTop: `1px solid ${C.line}` }}>{footer}</div>}
+      </div>
+    </div>
+  )
+}
 
 export default function CreatorPortal({ portalId, slug }) {
   const [loading, setLoading] = useState(true)
@@ -214,7 +252,7 @@ export default function CreatorPortal({ portalId, slug }) {
     return () => {
       isMounted = false
     }
-  }, [portalId])
+  }, [portalId, slug])
 
   useEffect(() => {
     const handleSync = (e) => {
@@ -277,8 +315,6 @@ export default function CreatorPortal({ portalId, slug }) {
 
   // The database is the ONLY source of truth for payment status. No localStorage mocking!
   const isDiyActive = Boolean(isDiyFromDb || isExplicitUrlPaid)
-
-
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -634,11 +670,11 @@ export default function CreatorPortal({ portalId, slug }) {
   const getTaskDraftContent = (task) => {
     if (!task) return ''
     const ck = project?.campaignKit || {}
-    if (task.draftKey === 'storySequence') return ck.storySequence || 'STORY 1 — Pain Point Poll\nSTORY 2 — Product Solution Reveal\nSTORY 3 — Pre-Order Link & Founding Member Callout'
-    if (task.draftKey === 'videoScript') return ck.videoScript || '60s Short-Form Video Script with hook, demo, and CTA'
-    if (task.draftKey === 'newsletterDraft') return ck.newsletterDraft || 'Email Newsletter Broadcast Draft detailing the launch'
-    if (task.draftKey === 'directMessageScript') return ck.directMessageScript || '1-on-1 DM Script for VIP audience members'
-    return ck.announcementPost || 'Social Announcement Post Copy tailored for your community'
+    if (task.draftKey === 'storySequence') return ck.storySequence || ''
+    if (task.draftKey === 'videoScript') return ck.videoScript || ''
+    if (task.draftKey === 'newsletterDraft') return ck.newsletterDraft || ''
+    if (task.draftKey === 'directMessageScript') return ck.directMessageScript || ''
+    return ck.announcementPost || ''
   }
 
   // Dynamic Phase & Step Synchronization directly matched with the Operator / Admin Dashboard
@@ -686,7 +722,7 @@ export default function CreatorPortal({ portalId, slug }) {
     return match ? Number(match[1]) : 0
   }
   const derivedPlanTarget = parseThresholdAmount(project?.validationPlan?.threshold)
-  const presaleTarget = derivedPlanTarget > 0 ? derivedPlanTarget : Number(project?.presaleTarget || project?.targetRevenue || 7000)
+  const presaleTarget = derivedPlanTarget > 0 ? derivedPlanTarget : Number(project?.presaleTarget || project?.targetRevenue || 0)
   const creatorRevenueShare = Math.round(presalesRevenue * 0.5)
 
   // Dynamic presale price & tier resolution from DB project / concept / campaign kit
@@ -711,22 +747,21 @@ export default function CreatorPortal({ portalId, slug }) {
   const backersNeededForGate = Math.max(1, Math.ceil(presaleTarget / (dynamicPresalePrice || 49)))
 
   const reservations = project?.reservations || []
-  const displayReservations = useMemo(() => {
-    if (reservations.length > 0) return reservations
-    if (presalesRevenue > 0) {
-      const count = Math.max(1, Math.round(presalesRevenue / (dynamicPresalePrice || 49)))
-      const unitPrice = dynamicPresalePrice || 49
-      return Array.from({ length: count }, (_, idx) => ({
-        id: `recorded-${idx + 1}`,
-        name: `Founding Backer #${idx + 1}`,
-        email: `backer${idx + 1}@audience.com`,
-        amount: unitPrice,
-        tier: dynamicPresaleTierName,
-        created_at: new Date().toISOString()
-      }))
+  // Only real, recorded reservations are listed. Nothing is invented from revenue totals.
+  const displayReservations = reservations
+
+  // Close dialogs with Escape (must stay above the early returns below)
+  useEffect(() => {
+    if (!viewDraftTask && !showAgreementModal) return undefined
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setViewDraftTask(null)
+        setShowAgreementModal(false)
+      }
     }
-    return []
-  }, [reservations, presalesRevenue, dynamicPresalePrice, dynamicPresaleTierName])
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [viewDraftTask, showAgreementModal])
 
   if (loading) {
     return <CreatorPortalSkeleton />
@@ -768,1973 +803,676 @@ export default function CreatorPortal({ portalId, slug }) {
   const campaignKit = project?.campaignKit || {}
   const schedule = (campaignKit.postingSchedule && campaignKit.postingSchedule.length > 0)
     ? campaignKit.postingSchedule
-    : (project?.checklist && project.checklist.length > 0 ? project.checklist : [
-        { id: 'day-1', day: 1, title: 'Problem Teaser & Discovery Poll', channel: 'X Post', isToday: false, done: true, draftKey: 'announcementPost', description: 'Post teaser and survey link to gather audience friction points.' },
-        { id: 'day-2', day: 2, title: 'Post Instagram Story #2 — Pain Point Poll & Announcement', channel: 'Instagram Stories', isToday: true, done: false, draftKey: 'storySequence', description: 'Post 3-story sequence with interactive poll sticker to drive warm audience to the pre-order page.' },
-        { id: 'day-3', day: 3, title: 'Publish 60-Second Video Demo & Launch Hook', channel: 'TikTok / Reels / Shorts', isToday: false, done: false, draftKey: 'videoScript', description: 'Post 60s short-form demo demonstrating the core solution in action.' },
-        { id: 'day-4', day: 4, title: 'Send Deep-Dive Email Newsletter Broadcast', channel: 'Email Newsletter', isToday: false, done: false, draftKey: 'newsletterDraft', description: 'Send dedicated email broadcast detailing feature architecture and founding member bonuses.' },
-        { id: 'day-5', day: 5, title: '1-on-1 VIP DM Outreach to 20 High-Intent Members', channel: 'Direct Messages', isToday: false, done: false, draftKey: 'directMessageScript', description: 'Reach out personally to 20 followers who engaged with earlier story polls.' },
-        { id: 'day-6', day: 6, title: 'Share Live Pre-Order Milestones & Survey Insights', channel: 'Stories & Community', isToday: false, done: false, draftKey: 'storySequence', description: 'Share validation momentum and backer counts to generate social proof and urgency.' },
-        { id: 'day-7', day: 7, title: 'Final 24-Hour Founding Tier Price Lock Push', channel: 'All Social Channels', isToday: false, done: false, draftKey: 'announcementPost', description: 'Final call before founding cohort closes and validation gate locks in.' }
-      ])
+    : (project?.checklist && project.checklist.length > 0 ? project.checklist : [])
   const completedTasksCount = schedule.filter(t => t.done || t.completed).length
   const totalTasksCount = schedule.length
-  const sprintTotalDays = schedule.length > 0 ? schedule.length : (project?.sprintDuration || 7)
+  const planDays = parseInt(String(project?.validationPlan?.period || '').replace(/[^0-9]/g, ''), 10)
+  const sprintTotalDays = planDays > 0 ? planDays : (schedule.length > 0 ? schedule.length : (Number(project?.sprintDuration) || null))
   const projectCreatedTime = project?.created_at ? new Date(project.created_at).getTime() : Date.now()
   const daysElapsed = Math.max(0, Math.floor((Date.now() - projectCreatedTime) / (1000 * 60 * 60 * 24)))
-  const daysRemaining = Math.max(1, sprintTotalDays - daysElapsed)
+  const daysRemaining = sprintTotalDays ? Math.max(0, sprintTotalDays - daysElapsed) : null
   const preorderUrl = `${getFrontendUrl()}/preorder?ref=${project?.creatorHandle?.replace('@','') || 'creator'}`
   const targetPct = presaleTarget > 0 ? Math.min(100, Math.round((presalesRevenue / presaleTarget) * 100)) : 0
 
-  return (
-    <div
-      className="cp-root min-h-screen font-sans flex flex-col relative antialiased"
-      style={{
-        backgroundColor: C.bg,
-        color: C.text,
-      }}
-    >
-      <style>{PORTAL_CSS}</style>
-      {/* Top Accent Gradient Bar — CoLaunch Crimson Base with Semantic Spectrum */}
-      <div
-        className="h-1 w-full shrink-0 z-50 sticky top-0"
-        style={{ background: `linear-gradient(90deg, ${C.crimson}, #a78bfa, #38bdf8)` }}
-      />
+  // Derived for the new layout
+  const visitorsCount = Number(project?.visitors ?? project?.telemetry?.visitors ?? 0)
+  const conversionLabel = visitorsCount > 0 ? `${Number(project?.conversionRate || 0).toFixed(1)}%` : '—'
+  const isTaskDone = (t) => Boolean(t.done || t.completed)
+  const todayTask = schedule.find((t) => !isTaskDone(t) && t.isToday) || schedule.find((t) => !isTaskDone(t)) || null
+  const upNextTasks = schedule.filter((t) => !isTaskDone(t) && t !== todayTask)
+  const doneTasks = schedule.filter(isTaskDone)
+  const phaseName = currentPhase === 1 ? 'Validate' : currentPhase === 2 ? 'Build MVP' : 'Launch'
+  const doneStepCount = activePhaseSteps.filter((s) => s.isDone).length
+  const scriptText = {
+    post: campaignKit.announcementPost || '',
+    story: campaignKit.storySequence || '',
+    video: campaignKit.videoScript || '',
+    email: campaignKit.newsletterDraft || '',
+    dm: campaignKit.directMessageScript || '',
+  }
+  // Test tools stay out of the creator's view unless explicitly enabled with ?simulate=1
+  const hasPrice = Boolean(
+    project?.selectedConcept?.pricing || project?.pricing || project?.validationPlan?.pricing ||
+    project?.campaignKit?.pricingTiers?.[0]?.price || project?.campaignKit?.foundingPrice ||
+    project?.presalePrice || project?.earlyBirdPrice
+  )
+  const showSimTools = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('simulate') === '1'
 
-      {/* ── TOP NAV HEADER ──────────────────────────────────────────────────────── */}
-      <header
-        id="tour-portal-header"
-        className="backdrop-blur-md sticky top-1 z-50 shadow-sm w-full max-w-full"
-        style={{ background: C.sheet, borderBottom: `1px solid ${C.line}` }}
-      >
-        <div className="h-14 flex items-center justify-between px-3 sm:px-6 gap-2 w-full">
-          {/* Brand / Partner Identity */}
-          <div className="flex items-center gap-2.5 min-w-0 flex-1 sm:flex-initial">
-            <div
-              className="relative w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0"
-              style={{ background: C.raised, border: `1px solid ${C.lineStrong}`, color: C.text }}
-            >
+  const trackLabel = isDiyActive ? 'Co-Builder' : 'Studio-managed'
+  const shareLabel = isDiyActive ? 'Revenue pool' : 'Your 50% share'
+  const shareValue = isDiyActive ? presalesRevenue : creatorRevenueShare
+  const hasTarget = presaleTarget > 0
+  const stepsForStrip = activePhaseSteps.map((s, i) => ({
+    ...s,
+    state: isTrackChoicePending ? 'upcoming' : s.isDone ? 'done' : i === resolvedActiveStepIndex ? 'active' : 'upcoming',
+  }))
+
+  const TABS = [
+    { id: 'tasks', label: 'Tasks', count: totalTasksCount > 0 ? `${completedTasksCount}/${totalTasksCount}` : null },
+    { id: 'scripts', label: 'Content' },
+    { id: 'presales', label: 'Pre-orders', count: totalBackersCount > 0 ? totalBackersCount : null },
+    { id: 'messages', label: 'Messages', count: portalDisplayMessages.length > 0 ? portalDisplayMessages.length : null },
+  ]
+  const SCRIPTS = [
+    { id: 'post', label: 'Announcement post' },
+    { id: 'story', label: 'Stories' },
+    { id: 'video', label: 'Video hook' },
+    { id: 'email', label: 'Email' },
+    { id: 'dm', label: 'Direct message' },
+  ]
+  const activeScriptText = scriptText[activeScriptTab] || ''
+
+  const openCoBuilderWorkspace = () => {
+    setTrackChoiceDismissed(true)
+    setActiveMainView('projectos')
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search)
+      searchParams.delete('offer')
+      searchParams.delete('track')
+      const newSearch = searchParams.toString()
+      window.history.replaceState({}, '', window.location.pathname + (newSearch ? `?${newSearch}` : '') + window.location.hash)
+    }
+  }
+
+  const upgradeRow = !isDiyActive && !isTrackChoicePending && (
+    <div
+      id="tour-portal-track-card"
+      className="cp-card px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+    >
+      <p className="m-0 text-sm" style={{ color: C.body }}>
+        <span className="font-semibold" style={{ color: C.text }}>Want to run the build yourself?</span>{' '}
+        The Co-Builder pass gives you the AI build tools and workspace. The 50/50 split stays the same.
+      </p>
+      <button id="tour-portal-unlock-btn" type="button" onClick={() => setShowDiyModal(true)} className="cp-btn cp-btn-quiet cp-btn-sm shrink-0">
+        <Zap className="w-3.5 h-3.5" style={{ color: C.warn }} aria-hidden="true" />
+        <span>Get the pass (${cobuilderPrice})</span>
+      </button>
+    </div>
+  )
+
+  return (
+    <div className="cp-root min-h-screen flex flex-col" style={{ backgroundColor: C.bg, color: C.text }}>
+      <style>{PORTAL_CSS}</style>
+
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <header id="tour-portal-header" className="sticky top-0 z-40" style={{ background: C.sheet, borderBottom: `1px solid ${C.line}` }}>
+        <div className="max-w-[1180px] mx-auto h-16 px-4 sm:px-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center" style={{ background: C.raised, border: `1px solid ${C.lineStrong}` }}>
               {resolvedAvatar && !avatarLoadError ? (
-                <img
-                  src={resolvedAvatar}
-                  alt={creatorName || 'Creator'}
-                  className="w-full h-full object-cover"
-                  onError={() => setAvatarLoadError(true)}
-                />
+                <img src={resolvedAvatar} alt="" className="w-full h-full object-cover" onError={() => setAvatarLoadError(true)} />
               ) : (
-                <div className="w-full h-full flex items-center justify-center font-bold text-xs uppercase" style={{ background: C.crimsonSoft, color: C.crimsonText }}>
-                  {(creatorName || 'C').charAt(0)}
-                </div>
+                <span className="font-semibold text-sm" style={{ color: C.crimsonText }}>{(creatorName || 'C').charAt(0).toUpperCase()}</span>
               )}
             </div>
-
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 min-w-0">
-                <span
-                  className="serif text-base sm:text-lg font-normal tracking-tight truncate max-w-[120px] sm:max-w-[220px] md:max-w-[280px]"
-                  style={{ color: C.text }}
-                >
-                  {productName}
-                </span>
-                <span
-                  className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0"
-                  style={{
-                    backgroundColor: C.crimsonSoft,
-                    color: C.crimsonText,
-                    border: `1px solid ${C.crimsonLine}`
-                  }}
-                >
-                  50/50
-                </span>
-              </div>
-              <p className="text-[11px] font-medium truncate max-w-[170px] sm:max-w-[220px] hidden md:block" style={{ color: C.muted }}>
-                Signed Partner: {creatorName}
-              </p>
+            <div className="min-w-0 leading-tight">
+              <p className="serif m-0 text-xl truncate" style={{ color: C.text }}>{productName}</p>
+              <p className="m-0 text-[13px] truncate hidden sm:block" style={{ color: C.muted }}>with {creatorName}</p>
             </div>
           </div>
 
-          {/* Center View Switcher (Desktop & Mobile Compact) */}
-          {!isTrackChoicePending && (
-            <div
-              className="flex items-center gap-1 p-1 rounded-xl shrink-0"
-              style={{ background: C.row, border: `1px solid ${C.line}` }}
-            >
-              <button
-                type="button"
-                onClick={() => setActiveMainView('launch_kit')}
-                className="px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
-                style={
-                  activeMainView === 'launch_kit'
-                    ? { background: C.crimson, color: '#ffffff' }
-                    : { color: C.muted }
-                }
-                title="Open Daily Launch Kit & Marketing Assets"
-              >
-                <Rocket className="w-3 h-3 sm:hidden" style={{ color: activeMainView === 'launch_kit' ? '#ffffff' : C.ok }} />
-                <span className="hidden sm:inline">Launch Kit</span>
-                <span className="sm:hidden">Kit</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveMainView('projectos')}
-                className="px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
-                style={
-                  activeMainView === 'projectos'
-                    ? { background: C.crimson, color: '#ffffff' }
-                    : { color: C.muted }
-                }
-                title="Open ProjectOS Operational Center"
-              >
-                <Layers className="w-3 h-3 sm:hidden" style={{ color: activeMainView === 'projectos' ? '#ffffff' : C.sky }} />
-                <span className="hidden sm:inline">ProjectOS</span>
-                <span className="sm:hidden">OS</span>
-              </button>
-            </div>
-          )}
-
-          {/* Desktop Right Controls (hidden on mobile, available in toggle drawer) */}
-          <div className="hidden lg:flex items-center gap-2 shrink-0">
-            {/* Track Indicator & Upgrade Pass Action */}
-            {isDiyActive ? (
-              <div
-                id="tour-portal-badge"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold"
-                style={{ background: C.okSoft, border: `1px solid ${C.okLine}`, color: C.ok }}
-              >
-                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: C.ok }} />
-                <span>Track 1: Co-Builder (${cobuilderPrice} Paid)</span>
-              </div>
-            ) : isTrackChoicePending ? (
-              <div className="flex items-center gap-2">
-                <div
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold"
-                  style={{ background: C.warnSoft, border: `1px solid ${C.warnLine}`, color: C.warn }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.warn }} />
-                  <span>Track Choice Pending</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowDiyModal(true)}
-                  className="cp-btn-primary h-8 flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-[0.98] shrink-0"
-                >
-                  <Zap className="w-3.5 h-3.5 shrink-0" style={{ color: C.warn, fill: C.warn }} />
-                  <span>Co-Builder Pass (${cobuilderPrice})</span>
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <div
-                  className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold"
-                  style={{ background: C.violetSoft, border: `1px solid ${C.violetLine}`, color: C.violet }}
-                >
-                  <span>🤝</span>
-                  <span>Track 2: Studio-Managed (50/50)</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowDiyModal(true)}
-                  className="cp-btn-primary h-8 flex items-center gap-1.5 px-3 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-[0.98] shrink-0"
-                >
-                  <Zap className="w-3.5 h-3.5 shrink-0" style={{ color: C.warn, fill: C.warn }} />
-                  <span>Upgrade to Co-Builder (${cobuilderPrice})</span>
-                </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {!isTrackChoicePending && (
+              <div role="group" aria-label="View" className="flex items-center p-1 rounded-xl" style={{ background: C.row, border: `1px solid ${C.line}` }}>
+                {[{ id: 'launch_kit', label: 'Launch kit', short: 'Kit' }, { id: 'projectos', label: 'Project OS', short: 'OS' }].map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    aria-pressed={activeMainView === v.id}
+                    onClick={() => setActiveMainView(v.id)}
+                    className="px-2.5 sm:px-3 py-1.5 rounded-lg text-sm font-semibold cursor-pointer transition-colors"
+                    style={activeMainView === v.id ? { background: C.crimson, color: '#fff' } : { color: C.muted }}
+                  >
+                    <span className="sm:hidden">{v.short}</span>
+                    <span className="hidden sm:inline">{v.label}</span>
+                  </button>
+                ))}
               </div>
             )}
 
-            {/* Driver.js Interactive Workflow Tour Trigger */}
-            <button
-              type="button"
-              onClick={() => isDiyActive ? startCreatorPortalPostPaymentTour(true) : startCreatorPortalPrePaymentTour(true)}
-              className="h-8 flex items-center gap-1.5 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0"
-              style={{ background: C.violetSoft, border: `1px solid ${C.violetLine}`, color: C.violet }}
-              title="Start Guided Walkthrough (Driver.js)"
+            <span
+              id="tour-portal-badge"
+              className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[13px] font-medium"
+              style={{ color: C.body, border: `1px solid ${C.line}`, background: C.row }}
             >
-              <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: C.violet }} />
-              <span className="hidden sm:inline">Workflow Tour</span>
-            </button>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: isDiyActive ? C.ok : C.faint }} aria-hidden="true" />
+              {isTrackChoicePending ? 'Choose a track' : trackLabel}
+            </span>
 
-            {/* Revenue Share Pill */}
-            <div id="tour-portal-equity" className="h-8 flex items-center pl-2" style={{ borderLeft: `1px solid ${C.line}` }}>
-              <div
-                className="px-2.5 py-1 rounded-lg flex items-center gap-1 text-[11px] font-mono font-bold"
-                style={{
-                  backgroundColor: C.okSoft,
-                  border: `1px solid ${C.okLine}`,
-                  color: C.ok
-                }}
+            <div className="relative">
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={isMobileNavOpen}
+                aria-label="More"
+                onClick={() => setIsMobileNavOpen((p) => !p)}
+                className="cp-btn cp-btn-quiet cp-btn-sm"
+                style={{ padding: '.35rem .6rem' }}
               >
-                <DollarSign className="w-3 h-3 shrink-0" style={{ color: C.ok }} />
-                <span className="text-[10px] font-sans font-semibold opacity-90" style={{ color: C.body }}>
-                  {isDiyActive ? '100% Pool:' : '50%:'}
-                </span>
-                <span className="font-extrabold" style={{ color: C.ok }}>
-                  ${(isDiyActive ? presalesRevenue : creatorRevenueShare).toLocaleString()}
-                </span>
-              </div>
+                {isMobileNavOpen ? <X className="w-4 h-4" aria-hidden="true" /> : <Menu className="w-4 h-4" aria-hidden="true" />}
+              </button>
+              {isMobileNavOpen && (
+                <>
+                  <button type="button" aria-label="Close menu" tabIndex={-1} className="fixed inset-0 z-40 cursor-default" onClick={() => setIsMobileNavOpen(false)} />
+                  <div role="menu" className="cp-card cp-fade absolute right-0 top-full mt-2 w-64 z-50 p-1.5" style={{ borderColor: C.lineStrong }}>
+                    <button role="menuitem" type="button" className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 cursor-pointer hover:bg-white/5"
+                      style={{ color: C.body }}
+                      onClick={() => { setIsMobileNavOpen(false); isDiyActive ? startCreatorPortalPostPaymentTour(true) : startCreatorPortalPrePaymentTour(true) }}>
+                      <Sparkles className="w-4 h-4" aria-hidden="true" /> Take the tour
+                    </button>
+                    <button role="menuitem" type="button" className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 cursor-pointer hover:bg-white/5"
+                      style={{ color: C.body }}
+                      onClick={() => { setIsMobileNavOpen(false); copyToClipboard(window.location.href, 'portal-link') }}>
+                      <Share2 className="w-4 h-4" aria-hidden="true" /> Copy portal link
+                    </button>
+                    <a role="menuitem" href={preorderUrl} target="_blank" rel="noreferrer" className="w-full px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 hover:bg-white/5"
+                      style={{ color: C.body }} onClick={() => setIsMobileNavOpen(false)}>
+                      <ExternalLink className="w-4 h-4" aria-hidden="true" /> Open pre-order page
+                    </a>
+                    <button role="menuitem" type="button" className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 cursor-pointer hover:bg-white/5"
+                      style={{ color: C.body }}
+                      onClick={() => { setIsMobileNavOpen(false); setShowAgreementModal(true) }}>
+                      <FileText className="w-4 h-4" aria-hidden="true" /> 50/50 agreement
+                    </button>
+                    {!isDiyActive && (
+                      <button role="menuitem" type="button" className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 cursor-pointer hover:bg-white/5"
+                        style={{ color: C.text }}
+                        onClick={() => { setIsMobileNavOpen(false); setShowDiyModal(true) }}>
+                        <Zap className="w-4 h-4" style={{ color: C.warn }} aria-hidden="true" /> Co-Builder pass (${cobuilderPrice})
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
-          </div>
-
-          {/* Mobile Right Controls: Compact Revenue Badge + Toggle Menu Button */}
-          <div className="flex lg:hidden items-center gap-1.5 shrink-0">
-            <div
-              className="px-2 py-1 rounded-lg flex items-center gap-0.5 text-[10px] sm:text-xs font-mono font-bold"
-              style={{
-                backgroundColor: C.okSoft,
-                border: `1px solid ${C.okLine}`,
-                color: C.ok
-              }}
-            >
-              <DollarSign className="w-3 h-3 shrink-0" style={{ color: C.ok }} />
-              <span>${(isDiyActive ? presalesRevenue : creatorRevenueShare).toLocaleString()}</span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsMobileNavOpen(prev => !prev)}
-              className="p-1.5 sm:p-2 rounded-lg transition-colors cursor-pointer"
-              style={
-                isMobileNavOpen
-                  ? { background: C.crimson, color: '#ffffff', border: `1px solid ${C.crimsonLine}` }
-                  : { background: C.raised, color: C.text, border: `1px solid ${C.lineStrong}` }
-              }
-              aria-label="Toggle Portal Navigation Menu"
-              title="Toggle Menu"
-            >
-              {isMobileNavOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-            </button>
           </div>
         </div>
-
-        {/* Mobile Expandable Navbar Drawer */}
-        {isMobileNavOpen && (
-          <div
-            className="lg:hidden px-3 sm:px-6 py-3 space-y-3 animate-in slide-in-from-top-2 duration-150 shadow-lg"
-            style={{ background: C.sheet, borderTop: `1px solid ${C.line}` }}
-          >
-            <div className="flex items-center justify-between text-xs pb-2" style={{ borderBottom: `1px solid ${C.line}` }}>
-              <span className="text-[10px] uppercase font-mono font-bold" style={{ color: C.muted }}>Signed Creator Partner</span>
-              <span className="text-xs font-bold" style={{ color: C.text }}>{creatorName}</span>
-            </div>
-
-            {/* View Switcher in Drawer */}
-            {!isTrackChoicePending && (
-              <div className="space-y-1">
-                <span className="text-[10px] uppercase font-mono font-bold" style={{ color: C.muted }}>Workspace View</span>
-                <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl" style={{ background: C.row, border: `1px solid ${C.line}` }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveMainView('launch_kit')
-                      setIsMobileNavOpen(false)
-                    }}
-                    className="py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                    style={
-                      activeMainView === 'launch_kit'
-                        ? { background: C.crimson, color: '#ffffff' }
-                        : { color: C.muted }
-                    }
-                  >
-                    <Rocket className="w-3.5 h-3.5" style={{ color: activeMainView === 'launch_kit' ? '#ffffff' : C.ok }} />
-                    <span>Launch Kit</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveMainView('projectos')
-                      setIsMobileNavOpen(false)
-                    }}
-                    className="py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                    style={
-                      activeMainView === 'projectos'
-                        ? { background: C.crimson, color: '#ffffff' }
-                        : { color: C.muted }
-                    }
-                  >
-                    <Layers className="w-3.5 h-3.5" style={{ color: activeMainView === 'projectos' ? '#ffffff' : C.sky }} />
-                    <span>ProjectOS</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div
-              className="flex items-center justify-between gap-2 p-2.5 rounded-xl"
-              style={{ background: C.row, border: `1px solid ${C.line}` }}
-            >
-              <div className="text-xs font-mono font-semibold flex items-center gap-1.5" style={{ color: C.body }}>
-                <span className="w-2 h-2 rounded-full" style={{ background: isDiyActive ? C.ok : C.violet }} />
-                <span>{isDiyActive ? `Track 1: Co-Builder ($${cobuilderPrice} Paid)` : 'Track 2: Studio-Managed (50/50)'}</span>
-              </div>
-              {!isDiyActive && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowDiyModal(true)
-                    setIsMobileNavOpen(false)
-                  }}
-                  className="cp-btn-primary px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer active:scale-95"
-                >
-                  <Zap className="w-3 h-3" style={{ color: C.warn, fill: C.warn }} />
-                  <span>${cobuilderPrice} Pass</span>
-                </button>
-              )}
-            </div>
-
-            {/* Quick Links & Share in Mobile Nav */}
-            <div className="grid grid-cols-2 gap-2 pt-0.5">
-              <button
-                type="button"
-                onClick={() => {
-                  copyToClipboard(window.location.href, 'portal-link')
-                  setIsMobileNavOpen(false)
-                }}
-                className="cp-btn-quiet px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-              >
-                <Share2 className="w-3.5 h-3.5" style={{ color: C.sky }} />
-                <span>Share Portal</span>
-              </button>
-              <a
-                href={preorderUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="cp-btn-primary px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>Pre-Order Link</span>
-              </a>
-            </div>
-          </div>
-        )}
       </header>
 
-      {/* Floating Notification */}
       {toast && (
-        <div
-          className="fixed bottom-6 right-6 z-50 p-3.5 rounded-xl font-bold text-xs shadow-2xl flex items-center gap-2.5 animate-bounce"
-          style={{ background: C.raised, color: C.text, border: `1px solid ${C.okLine}` }}
-        >
-          <CheckCircle2 className="w-4 h-4" style={{ color: C.ok }} />
+        <div role="status" className="cp-fade fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl flex items-center gap-2"
+          style={{ background: C.raised, color: C.text, border: `1px solid ${C.okLine}` }}>
+          <Check className="w-4 h-4" style={{ color: C.ok }} aria-hidden="true" />
           <span>{toast}</span>
         </div>
       )}
 
-      {/* ── MAIN BODY CONTAINER ─────────────────────────────────────────────────── */}
-      <div className="flex-1 w-full max-w-full 2xl:max-w-[1720px] mx-auto px-2.5 sm:px-4 lg:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5 overflow-x-hidden">
+      <main className="flex-1 w-full max-w-[1180px] mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-        {/* ── STEP / PHASE PROGRESS BAR ────────────────────────────────────────── */}
-        {isTrackChoicePending ? (
-          <div
-            className="rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs w-full"
-            style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: C.crimson }} />
-              <span className="font-mono text-[11px] font-bold uppercase tracking-wider" style={{ color: C.crimsonText }}>
-                Step 01 of 05
-              </span>
-              <span className="text-neutral-600">•</span>
-              <span className="font-medium" style={{ color: C.text }}>
-                Co-Launch Participation Track Choice
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-[11px] font-mono" style={{ color: C.muted }}>
-              <span>Phase 1: Validation</span>
-            </div>
+        {/* ── Progress strip ───────────────────────────────────────────────── */}
+        <section aria-label="Project progress" className="space-y-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h1 className="serif m-0 text-3xl" style={{ color: C.text }}>
+              {isTrackChoicePending ? 'Choose how to build' : `Phase ${currentPhase} of 3: ${phaseName}`}
+            </h1>
+            <p className="m-0 text-sm" style={{ color: C.muted }}>
+              {isTrackChoicePending ? 'Pick a track to start' : `${doneStepCount} of ${activePhaseSteps.length} steps done`}
+            </p>
           </div>
-        ) : (
-          <div
-            className="rounded-2xl p-3.5 sm:p-5 space-y-3 w-full max-w-full overflow-hidden"
-            style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-          >
-            {/* LEVEL 1: PROJECT ROADMAP & THE 3 PHASES */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 w-full" style={{ borderBottom: `1px solid ${C.line}` }}>
-              <div className="flex items-center gap-2 shrink-0">
-                <div
-                  className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.crimsonText }}
+          <ol className="m-0 p-0 list-none flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            {stepsForStrip.map((s, i) => (
+              <li key={s.id} className="flex items-center gap-2 shrink-0" aria-current={s.state === 'active' ? 'step' : undefined}>
+                <span
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold num"
+                  style={
+                    s.state === 'done' ? { background: C.ok, color: '#08090c' }
+                    : s.state === 'active' ? { background: C.crimson, color: '#fff' }
+                    : { border: `1px solid ${C.lineStrong}`, color: C.muted }
+                  }
                 >
-                  <Layers className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: C.faint }}>Roadmap:</span>
-                  <span className="serif text-base sm:text-lg font-normal truncate" style={{ color: C.text }}>
-                    Phase {currentPhase} of 3 — {currentPhase === 1 ? 'Market Validation' : currentPhase === 2 ? 'AI MVP Build' : 'Live Launch'}
-                  </span>
-                </div>
-              </div>
-
-              {/* The 3 Phases Macro Stepper */}
-              <div className="w-full sm:w-auto overflow-x-auto no-scrollbar scroll-smooth py-0.5">
-                <div className="flex items-center gap-1.5 min-w-max">
-                  {/* Phase 1 */}
-                  <div
-                    className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0"
-                    style={
-                      currentPhase === 1
-                        ? { background: C.crimson, color: '#ffffff' }
-                        : currentPhase > 1
-                        ? { background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }
-                        : { background: C.row, color: C.muted, border: `1px solid ${C.line}` }
-                    }
-                  >
-                    {currentPhase > 1 ? (
-                      <Check className="w-3 h-3 stroke-[3]" style={{ color: C.ok }} />
-                    ) : currentPhase === 1 ? (
-                      <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: C.ok }} />
-                    ) : null}
-                    <span>Phase 1: Validation</span>
-                  </div>
-
-                  <div className="w-2.5 h-[1px] shrink-0" style={{ background: C.lineStrong }} />
-
-                  {/* Phase 2 */}
-                  <div
-                    className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0"
-                    style={
-                      currentPhase === 2
-                        ? { background: C.crimson, color: '#ffffff' }
-                        : currentPhase > 2
-                        ? { background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }
-                        : { background: C.row, color: C.muted, border: `1px solid ${C.line}` }
-                    }
-                  >
-                    {currentPhase > 2 ? (
-                      <Check className="w-3 h-3 stroke-[3]" style={{ color: C.ok }} />
-                    ) : currentPhase === 2 ? (
-                      <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: C.ok }} />
-                    ) : null}
-                    <span>Phase 2: Build MVP</span>
-                  </div>
-
-                  <div className="w-2.5 h-[1px] shrink-0" style={{ background: C.lineStrong }} />
-
-                  {/* Phase 3 */}
-                  <div
-                    className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shrink-0"
-                    style={
-                      currentPhase === 3
-                        ? { background: C.crimson, color: '#ffffff' }
-                        : { background: C.row, color: C.muted, border: `1px solid ${C.line}` }
-                    }
-                  >
-                    {currentPhase === 3 ? (
-                      <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: C.ok }} />
-                    ) : null}
-                    <span>Phase 3: Live Launch</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* LEVEL 2: DISTINCT EXECUTION STEPS */}
-            <div className="space-y-1.5 w-full">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider" style={{ color: C.faint }}>
-                    Execution Progress
-                  </span>
-                  <span
-                    className="text-[10px] font-mono font-bold px-2 py-0.5 rounded"
-                    style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                  >
-                    {activePhaseSteps.filter(s => s.isDone).length} of {activePhaseSteps.length} Done
-                  </span>
-                </div>
-                <span className="text-[10px] font-mono hidden sm:inline" style={{ color: C.muted }}>
-                  Active: Step {activePhaseSteps[resolvedActiveStepIndex]?.num || '01'}
+                  {s.state === 'done' ? <Check className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" /> : i + 1}
                 </span>
-              </div>
+                <span className="text-sm" style={{ color: s.state === 'upcoming' ? C.muted : C.text, fontWeight: s.state === 'active' ? 600 : 500 }}>
+                  {s.fullLabel || s.label}
+                </span>
+                {i < stepsForStrip.length - 1 && <span className="w-5 h-px" style={{ background: s.state === 'done' ? C.ok : C.lineStrong }} aria-hidden="true" />}
+              </li>
+            ))}
+          </ol>
+        </section>
 
-              {/* Steps Container */}
-              <div className="w-full overflow-x-auto no-scrollbar scroll-smooth py-1">
-                <div className="flex items-center gap-2 min-w-max">
-                  {activePhaseSteps.map((step, idx) => {
-                    const isActive = idx === resolvedActiveStepIndex
-                    const isDone = Boolean(step.isDone)
-                    return (
-                      <div key={step.id} className="flex items-center gap-2 shrink-0">
-                        {isDone ? (
-                          <div
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-semibold"
-                            style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                          >
-                            <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: C.ok, color: '#08090c' }}>
-                              <Check className="w-2.5 h-2.5 stroke-[3]" />
-                            </div>
-                            <span className="font-sans font-bold" style={{ color: C.text }}>{step.label}</span>
-                          </div>
-                        ) : isActive ? (
-                          <div
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-mono font-bold"
-                            style={{ background: C.crimsonSoft, color: C.text, border: `1px solid ${C.crimsonLine}`, borderLeft: `3px solid ${C.crimson}` }}
-                          >
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold" style={{ background: C.crimson, color: '#ffffff' }}>
-                              STEP {step.num}
-                            </span>
-                            <span className="font-sans font-bold" style={{ color: C.text }}>{step.label}</span>
-                            <span className="w-2 h-2 rounded-full animate-pulse ml-0.5" style={{ background: C.ok }} />
-                          </div>
-                        ) : (
-                          <div
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono"
-                            style={{ background: C.row, color: C.muted, border: `1px solid ${C.line}` }}
-                          >
-                            <span className="font-bold" style={{ color: C.faint }}>{step.num}</span>
-                            <span className="font-sans font-medium" style={{ color: C.body }}>{step.label}</span>
-                          </div>
-                        )}
-                        {idx < activePhaseSteps.length - 1 && (
-                          <div
-                            className="w-4 sm:w-5 h-[2px] rounded-full shrink-0"
-                            style={{ background: isDone ? C.ok : C.line }}
-                          />
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {upgradeRow}
 
-        {/* ── INTERACTIVE CO-BUILDER PASS UPGRADE BANNER ──────────────── */}
-        {!isDiyActive && !isTrackChoicePending && (
-          <div
-            id="tour-portal-track-card"
-            className="rounded-2xl p-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden"
-            style={{ background: C.sheet, border: `1px solid ${C.crimsonLine}` }}
-          >
-            <div className="flex items-center gap-3.5">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: C.warnSoft, border: `1px solid ${C.warnLine}` }}
-              >
-                <Zap className="w-5 h-5" style={{ color: C.warn, fill: C.warn }} />
-              </div>
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-bold text-sm" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                    Interactive Co-Builder Pass (${cobuilderPrice} USD)
-                  </span>
-                  <span
-                    className="px-2 py-0.5 rounded-full font-mono text-[10px] font-bold"
-                    style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                  >
-                    50/50 Equity Maintained
-                  </span>
-                </div>
-                <p className="text-xs" style={{ color: C.muted }}>
-                  Want full command control to trigger AI MVP sprints, modify prompt blueprints, and code alongside the studio?
-                </p>
-              </div>
-            </div>
-            <button
-              id="tour-portal-unlock-btn"
-              type="button"
-              onClick={() => setShowDiyModal(true)}
-              className="cp-btn-primary px-5 py-2.5 rounded-xl font-bold text-xs transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] shrink-0 whitespace-nowrap"
-            >
-              <CreditCard className="w-3.5 h-3.5 text-white" />
-              <span>Unlock Interactive Pass (${cobuilderPrice} USD) →</span>
-            </button>
-          </div>
-        )}
-
-        {/* ── STATE 1: CO-LAUNCH PARTICIPATION TRACK CHOICE ───────────── */}
         {isTrackChoicePending ? (
-          <div className="max-w-5xl mx-auto space-y-8 py-2 sm:py-6">
-            {/* Clean Hero Header — Centered, Editorial & Legible */}
-            <div className="text-center space-y-3.5 max-w-2xl mx-auto px-2">
+          /* ── Track choice ─────────────────────────────────────────────── */
+          <section aria-label="Choose a track" className="space-y-5">
+            <p className="m-0 text-base max-w-2xl" style={{ color: C.body }}>
+              Both tracks split revenue 50/50 with {creatorName}. The difference is who does the building.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div
-                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-mono font-medium"
-                style={{ background: C.raised, border: `1px solid ${C.lineStrong}`, color: C.muted }}
-              >
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.crimson }} />
-                <span>Venture Activation • <strong style={{ color: C.text }}>{creatorName}</strong></span>
-              </div>
-
-              <h1
-                className="serif text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-white leading-tight"
-              >
-                Select Your Participation Track
-              </h1>
-
-              <p className="text-xs sm:text-sm leading-relaxed" style={{ color: C.body }}>
-                Every venture operates on our verified <strong className="font-semibold text-white">50/50 Co-Founder Equity Partnership</strong>. Choose whether you want hands-on building tools or full delegation to our studio engineering group.
-              </p>
-            </div>
-
-            {/* The 2 Main Choice Cards — Side-by-Side with Generous Spacing */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch">
-
-              {/* TRACK 1: INTERACTIVE CO-BUILDER PASS */}
-              <div
-                id="tour-portal-track-card"
+                className="cp-card cp-track p-6 flex flex-col gap-5 cursor-pointer"
                 onClick={() => setSelectedTrack('interactive')}
-                className="rounded-3xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-200 cursor-pointer relative"
-                style={{
-                  background: selectedTrack === 'interactive'
-                    ? 'linear-gradient(180deg, rgba(200, 30, 60, 0.14) 0%, rgba(16, 19, 26, 0.98) 100%)'
-                    : 'linear-gradient(180deg, rgba(23, 27, 36, 0.5) 0%, rgba(12, 14, 19, 0.96) 100%)',
-                  border: selectedTrack === 'interactive' ? `1px solid ${C.crimsonLine}` : `1px solid ${C.line}`,
-                  borderTop: `3px solid ${C.crimson}`,
-                  boxShadow: selectedTrack === 'interactive' ? '0 16px 40px rgba(200, 30, 60, 0.20)' : '0 4px 20px rgba(0,0,0,0.3)',
-                  transform: selectedTrack === 'interactive' ? 'translateY(-2px)' : 'none'
-                }}
+                style={{ borderColor: selectedTrack === 'interactive' ? C.crimsonLine : C.line }}
               >
-                {/* Recommended Badge */}
-                <div
-                  className="absolute -top-3 left-6 px-3.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5"
-                  style={{
-                    background: C.crimson,
-                    color: '#ffffff',
-                    border: '1px solid rgba(255, 255, 255, 0.25)',
-                    boxShadow: '0 4px 14px rgba(200, 30, 60, 0.45)'
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="serif m-0 text-3xl leading-tight">Build it with us</h2>
+                    <p className="m-0 mt-1 text-sm" style={{ color: C.muted }}>Co-Builder pass</p>
+                  </div>
+                  <p className="m-0 text-right">
+                    <span className="serif text-4xl num">${cobuilderPrice}</span>
+                    <span className="block text-[13px]" style={{ color: C.muted }}>one-time</span>
+                  </p>
+                </div>
+                <ul className="m-0 p-0 list-none space-y-2.5 text-[15px]" style={{ color: C.body }}>
+                  {['Run the build sprints yourself with the AI tools', 'Your own workspace and GitHub access', 'Direct control of Phases 1 to 3'].map((t) => (
+                    <li key={t} className="flex gap-2.5"><Check className="w-4 h-4 mt-1 shrink-0" style={{ color: C.ok }} aria-hidden="true" /><span>{t}</span></li>
+                  ))}
+                </ul>
+                <button
+                  id="tour-portal-unlock-btn"
+                  type="button"
+                  className="cp-btn cp-btn-primary mt-auto w-full"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (isDiyActive) { openCoBuilderWorkspace() } else { setSelectedTrack('interactive'); setShowDiyModal(true) }
                   }}
                 >
-                  <Star className="w-3 h-3 fill-current text-white" />
-                  <span className="text-white">RECOMMENDED</span>
-                </div>
-
-                <div className="space-y-5 pt-1">
-                  {/* Card Header & Price */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <span
-                        className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider inline-block mb-1.5"
-                        style={{ background: C.crimsonSoft, color: C.crimsonText, border: `1px solid ${C.crimsonLine}` }}
-                      >
-                        Track 1 • Interactive
-                      </span>
-                      <h2 className="serif text-2xl sm:text-3xl font-normal text-white">
-                        Co-Builder Pass
-                      </h2>
-                    </div>
-
-                    <div className="text-right shrink-0">
-                      <div className="serif text-3xl sm:text-4xl text-white font-normal leading-none">
-                        ${cobuilderPrice}
-                      </div>
-                      <span className="text-[11px] font-mono block mt-1" style={{ color: C.muted }}>
-                        one-time pass
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="text-xs sm:text-sm leading-relaxed" style={{ color: C.body }}>
-                    Take active command control to prompt AI feature sprints, review architecture blueprints, and build directly alongside our platform engine.
-                  </p>
-
-                  {/* Key Deliverables */}
-                  <div className="space-y-3 text-xs sm:text-sm pt-2" style={{ borderTop: `1px solid ${C.line}` }}>
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                        style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                      >
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
-                      <span style={{ color: C.body }}>
-                        <strong className="font-semibold text-white">50/50 Founder Equity</strong> locked in charter
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                        style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                      >
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
-                      <span style={{ color: C.body }}>
-                        <strong className="font-semibold text-white">Hands-on Workbench</strong> for all 3 phases
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                        style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                      >
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
-                      <span style={{ color: C.body }}>
-                        <strong className="font-semibold text-white">Rapid AI Sprints</strong> to trigger MVP feature modules
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                        style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                      >
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
-                      <span style={{ color: C.body }}>
-                        <strong className="font-semibold text-white">Dedicated Subdomain</strong> & GitHub repo access
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                <div className="pt-8 space-y-2">
-                  <button
-                    id="tour-portal-unlock-btn"
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (isDiyActive) {
-                        setTrackChoiceDismissed(true)
-                        setActiveMainView('projectos')
-                      } else {
-                        setSelectedTrack('interactive')
-                        setShowDiyModal(true)
-                      }
-                    }}
-                    className="cp-btn-primary w-full py-4 px-6 rounded-2xl font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span>{isDiyActive ? 'Open Co-Builder Workspace →' : `Choose Interactive Pass ($${cobuilderPrice})`}</span>
-                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                  </button>
-                  <p className="text-[11px] text-center font-mono" style={{ color: C.faint }}>
-                    Instant setup • Stripe & PayPal protected
-                  </p>
-                </div>
+                  {isDiyActive ? 'Open your workspace' : `Get the Co-Builder pass ($${cobuilderPrice})`}
+                </button>
               </div>
 
-              {/* TRACK 2: STUDIO-MANAGED TRACK */}
               <div
+                className="cp-card cp-track p-6 flex flex-col gap-5 cursor-pointer"
                 onClick={() => setSelectedTrack('managed')}
-                className="rounded-3xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-200 cursor-pointer relative"
-                style={{
-                  background: selectedTrack === 'managed'
-                    ? 'linear-gradient(180deg, rgba(56, 189, 248, 0.12) 0%, rgba(16, 19, 26, 0.98) 100%)'
-                    : 'linear-gradient(180deg, rgba(23, 27, 36, 0.5) 0%, rgba(12, 14, 19, 0.96) 100%)',
-                  border: selectedTrack === 'managed' ? `1px solid ${C.skyLine}` : `1px solid ${C.line}`,
-                  borderTop: `3px solid ${C.sky}`,
-                  boxShadow: selectedTrack === 'managed' ? '0 16px 40px rgba(56, 189, 248, 0.18)' : '0 4px 20px rgba(0,0,0,0.3)',
-                  transform: selectedTrack === 'managed' ? 'translateY(-2px)' : 'none'
-                }}
+                style={{ borderColor: selectedTrack === 'managed' ? C.crimsonLine : C.line }}
               >
-                <div className="space-y-5 pt-1">
-                  {/* Card Header & Price */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <span
-                        className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider inline-block mb-1.5"
-                        style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
-                      >
-                        Track 2 • Delegated
-                      </span>
-                      <h2 className="serif text-2xl sm:text-3xl font-normal text-white">
-                        Studio-Managed Track
-                      </h2>
-                    </div>
-
-                    <div className="text-right shrink-0">
-                      <div className="serif text-3xl sm:text-4xl text-white font-normal leading-none">
-                        $0
-                      </div>
-                      <span className="text-[11px] font-mono block mt-1" style={{ color: C.muted }}>
-                        upfront fee
-                      </span>
-                    </div>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="serif m-0 text-3xl leading-tight">We build it for you</h2>
+                    <p className="m-0 mt-1 text-sm" style={{ color: C.muted }}>Studio-managed</p>
                   </div>
-
-                  <p className="text-xs sm:text-sm leading-relaxed" style={{ color: C.body }}>
-                    Studio engineers handle all development, architecture, and deployment while you monitor progress in real-time and coordinate your audience.
-                  </p>
-
-                  {/* Key Deliverables */}
-                  <div className="space-y-3 text-xs sm:text-sm pt-2" style={{ borderTop: `1px solid ${C.line}` }}>
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                        style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
-                      >
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
-                      <span style={{ color: C.body }}>
-                        <strong className="font-semibold text-white">50/50 Founder Equity</strong> locked in charter
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                        style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
-                      >
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
-                      <span style={{ color: C.body }}>
-                        <strong className="font-semibold text-white">Done-For-You Sprints</strong> executed by studio engineers
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                        style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
-                      >
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
-                      <span style={{ color: C.body }}>
-                        <strong className="font-semibold text-white">Milestone Review Portal</strong> with live telemetry
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                        style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
-                      >
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
-                      <span style={{ color: C.body }}>
-                        <strong className="font-semibold text-white">Zero Technical Setup</strong> required on your end
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                <div className="pt-8 space-y-2">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelectedTrack('managed')
-                      handleDeclineDiyOffer()
-                    }}
-                    className="cp-btn-quiet w-full py-4 px-6 rounded-2xl font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span>Choose Studio-Managed (50/50) →</span>
-                  </button>
-                  <p className="text-[11px] text-center font-mono" style={{ color: C.faint }}>
-                    Standard tracking portal activated immediately
+                  <p className="m-0 text-right">
+                    <span className="serif text-4xl num">$0</span>
+                    <span className="block text-[13px]" style={{ color: C.muted }}>upfront</span>
                   </p>
                 </div>
-              </div>
-
-            </div>
-
-            {/* Partnership Guarantee Footer Bar — Clean, Legible, Authoritative */}
-            <div
-              className="rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4"
-              style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
+                <ul className="m-0 p-0 list-none space-y-2.5 text-[15px]" style={{ color: C.body }}>
+                  {['Studio engineers handle the build, hosting and fixes', 'Follow progress and review milestones', 'Nothing to set up on your side'].map((t) => (
+                    <li key={t} className="flex gap-2.5"><Check className="w-4 h-4 mt-1 shrink-0" style={{ color: C.ok }} aria-hidden="true" /><span>{t}</span></li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  className="cp-btn cp-btn-quiet mt-auto w-full"
+                  onClick={(e) => { e.stopPropagation(); setSelectedTrack('managed'); handleDeclineDiyOffer() }}
                 >
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-white block">
-                    Guaranteed 50/50 Co-Founder Partnership
-                  </span>
-                  <p className="text-[11px]" style={{ color: C.muted }}>
-                    Both tracks share equal commercial profit distributions and verified IP assignment under the venture charter.
-                  </p>
-                </div>
+                  Continue with studio-managed
+                </button>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setShowAgreementModal(true)}
-                className="text-xs font-mono font-medium flex items-center gap-1.5 cursor-pointer underline underline-offset-4 hover:opacity-80 transition-opacity shrink-0"
-                style={{ color: C.sky }}
-              >
-                <FileText className="w-3.5 h-3.5" />
-                <span>View Charter Agreement</span>
+            </div>
+            <p className="m-0 text-sm" style={{ color: C.muted }}>
+              <button type="button" onClick={() => setShowAgreementModal(true)} className="underline underline-offset-2 cursor-pointer" style={{ color: C.body }}>
+                Read the 50/50 agreement
               </button>
-            </div>
-          </div>
+            </p>
+          </section>
         ) : activeMainView === 'projectos' ? (
-          /* ── PROJECTOS WORKSPACE VIEW ────────────────────────────────────────── */
-          <div className="space-y-6">
-            {isDiyActive ? (
-              <div id="tour-portal-workspace" className="space-y-4">
-                <ProjectOS project={project} onUpdateProject={handleUpdateProject} userRole="creator" isDIY={isDiyActive} />
-              </div>
-            ) : (
-              /* Studio Managed Status Dashboard */
-              <div className="rounded-2xl p-6 sm:p-8 space-y-6" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6" style={{ borderBottom: `1px solid ${C.line}` }}>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span
-                        className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider"
-                        style={{ background: C.violetSoft, color: C.violet, border: `1px solid ${C.violetLine}` }}
-                      >
-                        🤝 Studio-Managed Venture
-                      </span>
-                      <span className="text-xs" style={{ color: C.faint }}>•</span>
-                      <span className="text-xs font-bold" style={{ color: C.ok }}>50/50 Revenue Split Active</span>
-                    </div>
-                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                      ProjectOS Progress Tracker: {productName}
-                    </h2>
-                    <p className="text-xs sm:text-sm leading-relaxed max-w-2xl" style={{ color: C.muted }}>
-                      You chose the Studio-Managed Co-Launch track. The CoLaunch studio engineering team handles 100% of software development, architecture, and deployments for you. You can track all sprint progress, pre-orders, and telemetry below.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-xl text-center space-y-1 shrink-0" style={{ background: C.row, border: `1px solid ${C.lineStrong}` }}>
-                    <span className="text-[10px] uppercase font-mono font-bold block" style={{ color: C.muted }}>Current Phase</span>
-                    <div className="text-lg font-black font-mono" style={{ color: C.text }}>
-                      Phase {project?.currentPhase || 1}: {project?.currentPhase === 3 ? 'Launch & Scale' : project?.currentPhase === 2 ? 'Build MVP' : 'Validate'}
-                    </div>
-                    <span className="text-[10px] font-bold block" style={{ color: C.ok }}>Managed by Studio Operators</span>
-                  </div>
-                </div>
-
-                {/* Progress Milestones */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl space-y-2" style={{ background: C.row, border: `1px solid ${C.line}` }}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold" style={{ color: C.text }}>Phase 1: Validation</span>
-                      <span
-                        className="text-[10px] px-2 py-0.5 rounded font-mono font-bold"
-                        style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                      >
-                        {project?.currentPhase > 1 ? 'Completed' : 'In Progress'}
-                      </span>
-                    </div>
-                    <p className="text-[11px]" style={{ color: C.muted }}>
-                      Studio operators are managing pre-order telemetry and customer interest validation.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-xl space-y-2" style={{ background: C.row, border: `1px solid ${C.line}` }}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold" style={{ color: C.text }}>Phase 2: Build MVP</span>
-                      <span
-                        className="text-[10px] px-2 py-0.5 rounded font-mono font-bold"
-                        style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
-                      >
-                        {project?.currentPhase === 2 ? 'Active Sprint' : project?.currentPhase > 2 ? 'Completed' : 'Upcoming'}
-                      </span>
-                    </div>
-                    <p className="text-[11px]" style={{ color: C.muted }}>
-                      Engineers configure the full stack, database, and customer dashboard.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-xl space-y-2" style={{ background: C.row, border: `1px solid ${C.line}` }}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold" style={{ color: C.text }}>Phase 3: Launch</span>
-                      <span
-                        className="text-[10px] px-2 py-0.5 rounded font-mono font-bold"
-                        style={{ background: C.violetSoft, color: C.violet, border: `1px solid ${C.violetLine}` }}
-                      >
-                        {project?.currentPhase === 3 ? 'Active Launch' : 'Upcoming'}
-                      </span>
-                    </div>
-                    <p className="text-[11px]" style={{ color: C.muted }}>
-                      Production deployment and recurring subscription checkout management.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Return to Launch Kit CTA */}
-                <div
-                  className="p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                  style={{ background: C.row, border: `1px solid ${C.line}` }}
-                >
-                  <div className="space-y-0.5">
-                    <h4 className="text-xs font-bold" style={{ color: C.text }}>Looking for your daily tasks & promotional scripts?</h4>
-                    <p className="text-[11px]" style={{ color: C.muted }}>
-                      Head over to your Daily Launch Kit to copy promotional copy, Instagram stories, and video scripts.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveMainView('launch_kit')}
-                    className="cp-btn-quiet px-5 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap"
-                  >
-                    Open Daily Launch Kit & Scripts →
-                  </button>
-                </div>
-
-                {/* DIY Pass Upgrade Card */}
-                {!isDiyActive && (
-                  <div
-                    className="p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                    style={{ background: C.row, border: `1px solid ${C.crimsonLine}` }}
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold" style={{ color: C.text }}>Want direct workbench & terminal access?</span>
-                        <span
-                          className="px-2 py-0.5 rounded-full font-mono text-[10px] font-bold"
-                          style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                        >
-                          ${cobuilderPrice} USD
-                        </span>
-                      </div>
-                      <p className="text-[11px]" style={{ color: C.muted }}>
-                        Unlock the Interactive Co-Builder Pass to trigger AI code generation, execute Phase 1–3 sprints yourself, and customize all specs.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowDiyModal(true)}
-                      className="cp-btn-primary px-5 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap active:scale-[0.98] flex items-center gap-2"
-                    >
-                      <Zap className="w-3.5 h-3.5" style={{ color: C.warn, fill: C.warn }} />
-                      <span>Unlock Interactive Pass (${cobuilderPrice} USD) →</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        ) : (
-          /* ── STATE 2: VALIDATION SPRINT & DAILY LAUNCH KIT (Image 3) ──────────── */
-          <div className="space-y-6">
-
-            {/* Validation Sprint Milestone Header Card */}
-            <div
-              className="rounded-2xl p-6 sm:p-7 space-y-5"
-              style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-            >
-              <div
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4"
-                style={{ borderBottom: `1px solid ${C.line}` }}
-              >
-                <div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider block" style={{ color: C.crimsonText }}>
-                    VALIDATION SPRINT MILESTONE
-                  </span>
-                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mt-0.5" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                    ${presalesRevenue.toLocaleString()}{' '}
-                    <span className="font-normal text-base sm:text-lg" style={{ color: C.muted }}>
-                      of ${presaleTarget.toLocaleString()} Presale Goal
-                    </span>
-                  </h1>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className="text-xs font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1.5"
-                    style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                  >
-                    <span className="w-2 h-2 rounded-full" style={{ background: C.ok }} />
-                    <span>{targetPct}% Target Reached</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress Bar with Milestones */}
-              <div className="space-y-2">
-                <div className="w-full rounded-full h-3 overflow-hidden p-0.5" style={{ background: C.row, border: `1px solid ${C.line}` }}>
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${Math.max(2, targetPct)}%`,
-                      background: `linear-gradient(90deg, ${C.crimson}, ${C.violet}, ${C.sky})`,
-                    }}
-                  />
-                </div>
-                <div className="flex items-center justify-between text-[11px] font-mono" style={{ color: C.faint }}>
-                  <span>$0 Baseline</span>
-                  <span className="font-semibold" style={{ color: C.warn }}>${Math.round(presaleTarget * 0.7).toLocaleString()} Gate Threshold</span>
-                  <span className="font-semibold" style={{ color: C.ok }}>${presaleTarget.toLocaleString()} Stretch Target</span>
-                </div>
-              </div>
-
-              {/* 5 KPI Metric Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-2">
-                <div className="p-3.5 rounded-xl" style={{ background: C.row, border: `1px solid ${C.okLine}` }}>
-                  <span className="text-[10px] font-mono font-bold uppercase block" style={{ color: C.faint }}>Your 50% Profit Share</span>
-                  <span className="text-base font-extrabold font-mono mt-0.5 block" style={{ color: C.ok }}>
-                    ${creatorRevenueShare.toLocaleString()}
-                  </span>
-                  <span className="text-[10px] block mt-0.5" style={{ color: C.muted }}>Automated payout routing</span>
-                </div>
-                <div className="p-3.5 rounded-xl" style={{ background: C.row, border: `1px solid ${C.skyLine}` }}>
-                  <span className="text-[10px] font-mono font-bold uppercase block" style={{ color: C.faint }}>Sprint Duration</span>
-                  <span className="text-base font-extrabold font-mono mt-0.5 block" style={{ color: C.sky }}>
-                    {sprintTotalDays} days
-                  </span>
-                  <span className="text-[10px] block mt-0.5" style={{ color: C.muted }}>{daysRemaining} day{daysRemaining === 1 ? '' : 's'} remaining</span>
-                </div>
-                <div className="p-3.5 rounded-xl" style={{ background: C.row, border: `1px solid ${C.violetLine}` }}>
-                  <span className="text-[10px] font-mono font-bold uppercase block" style={{ color: C.faint }}>Pre-Orders / Backers</span>
-                  <span className="text-base font-extrabold font-mono mt-0.5 block" style={{ color: C.violet }}>
-                    {totalBackersCount}
-                  </span>
-                  <span className="text-[10px] block mt-0.5" style={{ color: C.muted }}>Tier: ${dynamicPresalePrice} {dynamicPresaleTierName}</span>
-                </div>
-                <div className="p-3.5 rounded-xl" style={{ background: C.row, border: `1px solid ${C.crimsonLine}` }}>
-                  <span className="text-[10px] font-mono font-bold uppercase block" style={{ color: C.faint }}>Sprint Tasks</span>
-                  <span className="text-base font-extrabold font-mono mt-0.5 block" style={{ color: C.text }}>
-                    {completedTasksCount} / {totalTasksCount} done
-                  </span>
-                  <span className="text-[10px] font-bold block mt-0.5" style={{ color: C.crimsonText }}>
-                    {totalTasksCount > 0 ? Math.round((completedTasksCount / totalTasksCount) * 100) : 0}% complete
-                  </span>
-                </div>
-                <div className="col-span-2 sm:col-span-1 p-3.5 rounded-xl" style={{ background: C.row, border: `1px solid ${C.warnLine}` }}>
-                  <span className="text-[10px] font-mono font-bold uppercase block" style={{ color: C.faint }}>Conversion Funnel</span>
-                  <span className="text-base font-extrabold font-mono mt-0.5 block" style={{ color: C.warn }}>
-                    {Number(project.conversionRate || 0.0).toFixed(1)}%
-                  </span>
-                  <span className="text-[10px] block mt-0.5" style={{ color: C.muted }}>Traffic to checkout</span>
-                </div>
-              </div>
+          /* ── Project OS ───────────────────────────────────────────────── */
+          isDiyActive ? (
+            <div id="tour-portal-workspace">
+              <ProjectOS project={project} onUpdateProject={handleUpdateProject} userRole="creator" isDIY={isDiyActive} />
             </div>
-
-            {/* Sub-navigation Tabs */}
-            <div
-              className="w-full overflow-x-auto no-scrollbar scroll-smooth p-1.5 rounded-xl"
-              style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-            >
-              <div className="flex items-center gap-1.5 min-w-max">
+          ) : (
+            <section className="cp-card p-6 space-y-6" aria-label="Studio progress">
+              <div>
+                <h2 className="serif m-0 text-3xl">The studio is building {productName}</h2>
+                <p className="m-0 mt-2 max-w-2xl" style={{ color: C.body }}>
+                  You chose the studio-managed track, so the CoLaunch team handles development and deployment. Follow each phase below.
+                </p>
+              </div>
+              <ul className="m-0 p-0 list-none">
                 {[
-                  { id: 'tasks', label: 'Daily Launch Checklist', count: `${completedTasksCount}/${totalTasksCount}` },
-                  { id: 'scripts', label: 'Copyable Launch Content', count: `${schedule.length} items` },
-                  { id: 'presales', label: 'Verified Pre-Orders', count: `${totalBackersCount}` },
-                  { id: 'messages', label: 'Studio Chat & Messages', count: `${portalDisplayMessages.length}` },
-                  { id: 'strategy', label: 'Validation Specs' },
-                ].map(tab => {
-                  const isActive = activeTab === tab.id
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap shrink-0 cursor-pointer"
-                      style={
-                        isActive
-                          ? { background: C.crimson, color: '#ffffff', border: `1px solid ${C.crimsonLine}` }
-                          : { background: 'transparent', color: C.muted, border: '1px solid transparent' }
-                      }
-                    >
-                      <span>{tab.label}</span>
-                      {tab.count && (
-                        <span
-                          className="text-[10px] px-1.5 py-0.2 rounded font-mono"
-                          style={
-                            isActive
-                              ? { background: 'rgba(255,255,255,0.18)', color: '#ffffff' }
-                              : { background: C.raised, color: C.body }
-                          }
-                        >
-                          {tab.count}
-                        </span>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* 2-Column Sprint Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
-              {/* Left Column: Tab Content (8 of 12 cols) */}
-              <div className="lg:col-span-8 space-y-6">
-
-                {/* TAB 1: DAILY LAUNCH CHECKLIST */}
-                {activeTab === 'tasks' && (
-                  <div className="space-y-6">
-                    {/* Today's Action Card */}
-                    <div
-                      className="rounded-2xl p-5 space-y-3 relative overflow-hidden"
-                      style={{ background: C.sheet, border: `1.5px solid ${C.warnLine}` }}
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
-                              style={{ background: C.warnSoft, color: C.warn, border: `1px solid ${C.warnLine}` }}
-                            >
-                              🔥 TODAY'S ACTION (DAY 2)
-                            </span>
-                            <span className="text-xs font-medium" style={{ color: C.muted }}>Instagram Stories • Pain Point Poll</span>
-                          </div>
-                          <h4 className="text-base font-bold" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                            Today: Post Instagram Story #2 (Pain Point Poll & Pre-Order Link)
-                          </h4>
-                          <p className="text-xs leading-relaxed" style={{ color: C.body }}>
-                            Post the 3-story sequence with interactive poll sticker to drive warm audience to the pre-order page.
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => setViewDraftTask(schedule.find(t => t.day === 2) || schedule[0])}
-                            className="cp-btn-quiet px-4 py-2 rounded-xl text-xs font-bold transition-all duration-150 flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
-                          >
-                            <Eye className="w-3.5 h-3.5" style={{ color: C.sky }} />
-                            <span>View Draft</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => toggleChecklist(schedule.find(t => t.day === 2)?.id || 'day-2')}
-                            className="cp-btn-primary px-4 py-2 rounded-xl text-xs font-bold transition-all duration-150 flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
-                          >
-                            <Check className="w-3.5 h-3.5 stroke-[3]" />
-                            <span>Mark Done</span>
-                          </button>
-                        </div>
-                      </div>
+                  { n: 1, name: 'Validate', text: 'Test whether people will pay before anything is built.', state: currentPhase > 1 ? 'Done' : 'In progress', on: currentPhase === 1 },
+                  { n: 2, name: 'Build MVP', text: 'Engineers build the first working version.', state: currentPhase > 2 ? 'Done' : currentPhase === 2 ? 'In progress' : 'Up next', on: currentPhase === 2 },
+                  { n: 3, name: 'Launch', text: 'Go live with checkout and subscriptions.', state: currentPhase === 3 ? 'In progress' : 'Up next', on: currentPhase === 3 },
+                ].map((p) => (
+                  <li key={p.n} className="py-4 flex items-start justify-between gap-4" style={{ borderTop: `1px solid ${C.line}` }}>
+                    <div>
+                      <p className="m-0 font-semibold" style={{ color: C.text }}>Phase {p.n}: {p.name}</p>
+                      <p className="m-0 text-sm" style={{ color: C.muted }}>{p.text}</p>
                     </div>
+                    <span className="text-sm font-medium shrink-0" style={{ color: p.state === 'Done' ? C.ok : p.on ? C.crimsonText : C.muted }}>{p.state}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="pt-4 flex flex-wrap items-center justify-between gap-3" style={{ borderTop: `1px solid ${C.line}` }}>
+                <p className="m-0 text-sm" style={{ color: C.muted }}>Your daily posts and ready-to-copy content are in the launch kit.</p>
+                <button type="button" onClick={() => setActiveMainView('launch_kit')} className="cp-btn cp-btn-primary">Open launch kit</button>
+              </div>
+            </section>
+          )
+        ) : (
+          /* ── Launch kit ───────────────────────────────────────────────── */
+          <>
+            <section className="cp-card p-5 sm:p-6 space-y-5" aria-label="Validation goal">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="m-0 text-sm" style={{ color: C.muted }}>Pre-orders so far</p>
+                  <p className="m-0 mt-1">
+                    <span className="serif text-5xl num" style={{ color: C.text }}>${presalesRevenue.toLocaleString()}</span>
+                    {hasTarget && <span className="text-lg ml-2" style={{ color: C.muted }}>of ${presaleTarget.toLocaleString()} goal</span>}
+                  </p>
+                </div>
+                {hasTarget
+                  ? <p className="m-0 text-base font-semibold num" style={{ color: targetPct >= 100 ? C.ok : C.text }}>{targetPct}% of goal</p>
+                  : <p className="m-0 text-sm" style={{ color: C.warn }}>No goal set yet. Your studio contact will confirm it.</p>}
+              </div>
+              {hasTarget && (
+                <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={targetPct} aria-label="Progress to presale goal"
+                  className="h-2.5 w-full rounded-full overflow-hidden" style={{ background: C.raised }}>
+                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${targetPct}%`, background: targetPct >= 100 ? C.ok : C.crimson }} />
+                </div>
+              )}
+              <dl className="m-0 pt-5 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5" style={{ borderTop: `1px solid ${C.line}` }}>
+                <Stat id="tour-portal-equity" label={shareLabel} value={`$${shareValue.toLocaleString()}`} note={isDiyActive ? 'All presales' : 'Estimate, before fees'} />
+                <Stat label="Pre-orders" value={totalBackersCount} note={hasPrice ? `$${dynamicPresalePrice} per pre-order` : 'Price not set'} />
+                <Stat label="Conversion" value={conversionLabel} note={visitorsCount > 0 ? `${visitorsCount.toLocaleString()} visitors` : 'No visits recorded yet'} />
+                <Stat label="Time left" value={daysRemaining === null ? '—' : `${daysRemaining} day${daysRemaining === 1 ? '' : 's'}`} note={sprintTotalDays ? `${sprintTotalDays}-day sprint` : 'Sprint length not set'} />
+              </dl>
+            </section>
 
-                    {/* Creator Launch Action Checklist */}
-                    <div
-                      className="rounded-2xl p-6 space-y-4"
-                      style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-                    >
-                      <div
-                        className="flex items-center justify-between pb-3"
-                        style={{ borderBottom: `1px solid ${C.line}` }}
-                      >
-                        <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: C.text }}>
-                          CREATOR LAUNCH ACTION CHECKLIST
-                        </span>
-                        <span
-                          className="px-2.5 py-0.5 rounded-full font-mono text-[11px] font-bold"
-                          style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                        >
-                          {completedTasksCount} of {totalTasksCount} Completed
-                        </span>
-                      </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-8 min-w-0">
+                <div role="tablist" aria-label="Launch kit sections" className="flex overflow-x-auto no-scrollbar mb-5" style={{ borderBottom: `1px solid ${C.line}` }}>
+                  {TABS.map((t) => (
+                    <button key={t.id} role="tab" type="button" aria-selected={activeTab === t.id} onClick={() => setActiveTab(t.id)} className="cp-tab">
+                      {t.label}
+                      {t.count !== null && <span className="ml-2 text-[13px] num" style={{ color: C.faint }}>{t.count}</span>}
+                    </button>
+                  ))}
+                </div>
 
-                      <div className="space-y-3">
-                        {schedule.map(task => {
-                          const isDone = Boolean(task.done || task.completed)
-                          return (
-                            <div
-                              key={task.id}
-                              className="p-4 rounded-xl transition-all flex items-start justify-between gap-3"
-                              style={{
-                                background: C.row,
-                                border: `1px solid ${isDone ? C.okLine : C.line}`,
-                                opacity: isDone ? 0.78 : 1,
-                              }}
-                            >
-                              <div className="flex items-start gap-3">
-                                <button
-                                  type="button"
-                                  onClick={() => toggleChecklist(task.id)}
-                                  className="mt-0.5 w-5 h-5 rounded-md flex items-center justify-center transition-all cursor-pointer shrink-0"
-                                  style={
-                                    isDone
-                                      ? { background: C.ok, color: '#08090c', border: `1px solid ${C.ok}` }
-                                      : { background: C.raised, border: `1px solid ${C.lineStrong}` }
-                                  }
-                                >
-                                  {isDone && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                                </button>
-                                <div className="space-y-0.5">
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="text-[10px] font-mono font-bold uppercase" style={{ color: C.crimsonText }}>
-                                      DAY {task.day}
-                                    </span>
-                                    <span
-                                      className="text-[10px] px-2 py-0.5 rounded font-mono"
-                                      style={{ background: C.raised, color: C.sky, border: `1px solid ${C.line}` }}
-                                    >
-                                      {task.channel}
-                                    </span>
-                                  </div>
-                                  <div
-                                    className={`text-xs font-bold ${isDone ? 'line-through' : ''}`}
-                                    style={{ color: isDone ? C.muted : C.text }}
-                                  >
-                                    {task.title}
-                                  </div>
-                                  <p className="text-[11px] leading-normal" style={{ color: C.muted }}>
-                                    {task.description}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={() => setViewDraftTask(task)}
-                                className="cp-btn-quiet px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 transition-all duration-150 flex items-center gap-1 cursor-pointer active:scale-95 whitespace-nowrap"
-                              >
-                                <Eye className="w-3 h-3" style={{ color: C.sky }} />
-                                <span>View Draft</span>
+                {/* Tasks */}
+                {activeTab === 'tasks' && (
+                  <div className="space-y-6 cp-fade">
+                    {schedule.length === 0 ? (
+                      <Empty icon={Check} title="No posting tasks yet">
+                        Your daily posts appear here once the campaign has been approved.
+                      </Empty>
+                    ) : (
+                      <>
+                        {todayTask ? (
+                          <div className="cp-card p-5 space-y-3" style={{ background: C.raised, borderColor: C.lineStrong }}>
+                            <p className="m-0 text-sm font-semibold" style={{ color: C.crimsonText }}>
+                              Do this next{todayTask.day ? `, day ${todayTask.day}` : ''}{todayTask.channel ? ` on ${todayTask.channel}` : ''}
+                            </p>
+                            <h2 className="serif m-0 text-2xl leading-snug" style={{ color: C.text }}>{todayTask.title}</h2>
+                            {todayTask.description && <p className="m-0" style={{ color: C.body }}>{todayTask.description}</p>}
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              <button type="button" onClick={() => setViewDraftTask(todayTask)} className="cp-btn cp-btn-quiet">
+                                <Eye className="w-4 h-4" aria-hidden="true" /><span>View draft</span>
+                              </button>
+                              <button type="button" onClick={() => toggleChecklist(todayTask.id)} className="cp-btn cp-btn-primary">
+                                <Check className="w-4 h-4 stroke-[3]" aria-hidden="true" /><span>Mark as done</span>
                               </button>
                             </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* TAB 2: COPYABLE LAUNCH CONTENT */}
-                {activeTab === 'scripts' && (
-                  <div
-                    id="tour-portal-campaigns"
-                    className="rounded-2xl p-6 space-y-5"
-                    style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-                  >
-                    <div
-                      className="flex items-center justify-between pb-3"
-                      style={{ borderBottom: `1px solid ${C.line}` }}
-                    >
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-bold text-sm" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                            Copyable Promotional Assets
-                          </h3>
-                          <span
-                            className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold"
-                            style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                          >
-                            Audience-Grounded · Authentic Voice
-                          </span>
-                        </div>
-                        <p className="text-xs mt-0.5" style={{ color: C.muted }}>
-                          Every draft is derived directly from your verified channel uploads, channel bio, and community comments.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="w-full overflow-x-auto no-scrollbar scroll-smooth py-0.5">
-                      <div className="flex items-center gap-1.5 min-w-max">
-                        {[
-                          { id: 'post', label: 'Announcement Post' },
-                          { id: 'story', label: 'Instagram Stories (3-Part)' },
-                          { id: 'video', label: 'Video Demo Hook' },
-                          { id: 'email', label: 'Email Newsletter' },
-                          { id: 'dm', label: 'VIP DM Outreach' },
-                        ].map(st => {
-                          const isScriptActive = activeScriptTab === st.id
-                          return (
-                            <button
-                              key={st.id}
-                              onClick={() => setActiveScriptTab(st.id)}
-                              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0"
-                              style={
-                                isScriptActive
-                                  ? { background: C.crimson, color: '#ffffff', border: `1px solid ${C.crimsonLine}` }
-                                  : { background: C.row, color: C.muted, border: `1px solid ${C.line}` }
-                              }
-                            >
-                              {st.label}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 pt-2">
-                      {activeScriptTab === 'email' && (
-                        <div
-                          className="p-2.5 rounded-xl text-xs flex items-center justify-between gap-2"
-                          style={{ background: C.warnSoft, border: `1px solid ${C.warnLine}`, color: C.body }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: C.warn }} />
-                            <span className="text-[11px]">
-                              <strong style={{ color: C.warn }}>Anti-Spam Deliverability Guard:</strong> Formatted as a personal 1:1 plain-text email from you. 0 spam triggers, Primary Inbox delivery guaranteed.
-                            </span>
                           </div>
-                        </div>
-                      )}
-                      {activeScriptTab === 'video' && (
-                        <div
-                          className="p-2.5 rounded-xl text-xs flex items-center justify-between gap-2"
-                          style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.body }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Video className="w-4 h-4 shrink-0" style={{ color: C.crimsonText }} />
-                            <span className="text-[11px]">
-                              <strong style={{ color: C.crimsonText }}>Native Video Segment:</strong> Seamless mid-roll hook directly connecting the workflow problems discussed in your uploads to this software.
-                            </span>
+                        ) : (
+                          <div className="cp-card p-5 flex items-center gap-3" style={{ borderColor: C.okLine }}>
+                            <Check className="w-5 h-5" style={{ color: C.ok }} aria-hidden="true" />
+                            <p className="m-0 font-medium">All posting tasks are done.</p>
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      <div className="flex items-center justify-between gap-2 flex-wrap">
-                        {/* Visual / Text Toggle */}
-                        <div
-                          className="flex items-center gap-0.5 p-0.5 rounded-lg text-xs"
-                          style={{ background: C.row, border: `1px solid ${C.line}` }}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => setPortalDraftViewMode('visual')}
-                            className="px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer"
-                            style={
-                              portalDraftViewMode === 'visual'
-                                ? { background: C.raised, color: C.text, border: `1px solid ${C.lineStrong}` }
-                                : { background: 'transparent', color: C.muted, border: '1px solid transparent' }
-                            }
-                          >
-                            👁️ Visual Mockup Preview
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setPortalDraftViewMode('text')}
-                            className="px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer"
-                            style={
-                              portalDraftViewMode === 'text'
-                                ? { background: C.raised, color: C.text, border: `1px solid ${C.lineStrong}` }
-                                : { background: 'transparent', color: C.muted, border: '1px solid transparent' }
-                            }
-                          >
-                            📝 Raw Text Script
-                          </button>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const map = {
-                              post: campaignKit.announcementPost || `🚨 Sourced from our recent channel discussions, we're officially co-founding ${productName} — ${project?.productTagline || 'the new workspace'}. Reserve your early founding pass here: ${preorderUrl}`,
-                              story: campaignKit.storySequence || `STORY 1:\n"Quick poll for everyone watching my channel..."\n\nSTORY 2:\n"We have been secretly engineering ${productName}..."\n\nSTORY 3:\n"Grab founding access here: ${preorderUrl}"`,
-                              video: campaignKit.videoScript || `HOOK (0-8s): "If you saw our recent channel breakdown, you know how painful manual bottlenecks are..."\nDEMO (8-40s): "Here is how ${productName} handles it automatically..."\nCTA (40-60s): "Founding pass link in bio: ${preorderUrl}"`,
-                              email: campaignKit.newsletterDraft || `Subject: Why I'm co-founding ${productName} (private invite)\n\nHey everyone,\n\nWe are officially partnering with CoLaunch Studio to engineer ${productName}...\n\nReserve your pass: ${preorderUrl}`,
-                              dm: campaignKit.directMessageScript || `Hey! Saw your thoughts on our channel earlier — we just launched early founding access for ${productName}: ${preorderUrl}`
-                            }
-                            copyToClipboard(map[activeScriptTab], activeScriptTab)
-                          }}
-                          className="cp-btn-primary px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
-                        >
-                          {copiedKey === activeScriptTab ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                          <span>{copiedKey === activeScriptTab ? 'Copied!' : 'Copy Script Text'}</span>
-                        </button>
-                      </div>
-
-                      {portalDraftViewMode === 'visual' ? (
-                        <div className="p-3 sm:p-5 rounded-xl" style={{ background: C.row, border: `1px solid ${C.line}` }}>
-                          <PostVisualMockup
-                            type={
-                              activeScriptTab === 'story'
-                                ? 'story'
-                                : activeScriptTab === 'video'
-                                ? 'video'
-                                : activeScriptTab === 'email'
-                                ? 'newsletter'
-                                : 'post'
-                            }
-                            project={project}
-                            brandColor={C.crimson}
-                            copyText={
-                              activeScriptTab === 'story' ? (campaignKit.storySequence || '') :
-                              activeScriptTab === 'video' ? (campaignKit.videoScript || '') :
-                              activeScriptTab === 'email' ? (campaignKit.newsletterDraft || '') :
-                              activeScriptTab === 'dm' ? (campaignKit.directMessageScript || '') :
-                              (campaignKit.announcementPost || '')
-                            }
-                            preorderUrl={preorderUrl}
-                          />
-                        </div>
-                      ) : (
-                        <textarea
-                          readOnly
-                          rows={8}
-                          value={
-                            activeScriptTab === 'story' ? (campaignKit.storySequence || `STORY 1:\n"Quick question for everyone..."\n\nSTORY 2:\n"We have been secretly engineering ${productName}..."\n\nSTORY 3:\n"Grab founding access here: ${preorderUrl}"`) :
-                            activeScriptTab === 'video' ? (campaignKit.videoScript || `HOOK (0-8s): "If you saw our recent channel breakdown, you know how painful manual bottlenecks are..."\nDEMO (8-40s): "Here is how ${productName} handles it automatically..."\nCTA (40-60s): "Link in bio for pre-order access: ${preorderUrl}"`) :
-                            activeScriptTab === 'email' ? (campaignKit.newsletterDraft || `Subject: Why I'm co-founding ${productName} (private invite)\n\nHey everyone,\n\nWe are officially partnering with CoLaunch Studio to engineer ${productName}...\n\nReserve: ${preorderUrl}`) :
-                            activeScriptTab === 'dm' ? (campaignKit.directMessageScript || `Hey! Saw you were asking about this on our channel — we just launched early founding access for ${productName}: ${preorderUrl}`) :
-                            (campaignKit.announcementPost || `🚨 Big announcement! After hearing so many comments across our channel about the nightmare of manual workflows, we're officially building ${productName}.\n\nReserve your early pass now: ${preorderUrl}`)
-                          }
-                          className="w-full p-4 rounded-xl text-xs outline-none font-mono leading-relaxed resize-none select-all"
-                          style={{ background: C.row, border: `1px solid ${C.lineStrong}`, color: C.text }}
-                        />
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* TAB 3: VERIFIED PRE-ORDERS */}
-                {activeTab === 'presales' && (
-                  <div
-                    className="rounded-2xl p-6 space-y-4"
-                    style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-                  >
-                    <div
-                      className="flex items-center justify-between pb-3"
-                      style={{ borderBottom: `1px solid ${C.line}` }}
-                    >
-                      <div>
-                        <h3 className="font-bold text-sm" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                          Verified Backer Reservations ({totalBackersCount})
-                        </h3>
-                        <p className="text-xs" style={{ color: C.muted }}>
-                          Live feed of audience pre-orders directly tied to your revenue share.
-                        </p>
-                      </div>
-                      <span
-                        className="text-xs font-mono font-bold px-2.5 py-1 rounded-md"
-                        style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                      >
-                        ${presalesRevenue.toLocaleString()} Total Collected
-                      </span>
-                    </div>
-
-                    {displayReservations.length === 0 ? (
-                      <div
-                        className="py-12 text-center text-xs rounded-xl space-y-3"
-                        style={{ background: C.row, border: `1px dashed ${C.lineStrong}`, color: C.muted }}
-                      >
-                        <Users className="w-8 h-8 mx-auto" style={{ color: C.faint }} />
-                        <p>No customer pre-orders recorded yet. Pledges will populate here as backers join.</p>
-                        <button
-                          type="button"
-                          onClick={handleSimulatePreorder}
-                          className="cp-btn-primary px-3.5 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                          <span>Simulate First Pre-Order (+${dynamicPresalePrice})</span>
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {displayReservations.map(res => (
-                          <div
-                            key={res.id}
-                            className="p-3.5 rounded-xl flex items-center justify-between text-xs"
-                            style={{ background: C.row, border: `1px solid ${C.line}` }}
-                          >
-                            <div>
-                              <div className="font-bold" style={{ color: C.text }}>{res.name}</div>
-                              <span className="text-[10px] font-mono" style={{ color: C.faint }}>{res.email}</span>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-mono font-bold" style={{ color: C.ok }}>+${res.amount}</div>
-                              <span className="text-[10px] font-mono" style={{ color: C.sky }}>{res.tier || dynamicPresaleTierName}</span>
-                            </div>
+                        {upNextTasks.length > 0 && (
+                          <div>
+                            <h3 className="m-0 mb-1 text-base font-semibold" style={{ color: C.text }}>Coming up</h3>
+                            <ul className="m-0 p-0 list-none">
+                              {upNextTasks.map((task) => (
+                                <li key={task.id} className="py-3.5 flex items-center gap-3" style={{ borderBottom: `1px solid ${C.line}` }}>
+                                  <button type="button" onClick={() => toggleChecklist(task.id)} aria-label={`Mark "${task.title}" as done`}
+                                    className="w-5 h-5 rounded-md shrink-0 cursor-pointer" style={{ background: C.raised, border: `1px solid ${C.lineStrong}` }} />
+                                  <div className="min-w-0 flex-1">
+                                    <p className="m-0 font-medium truncate" style={{ color: C.text }}>{task.title}</p>
+                                    <p className="m-0 text-[13px]" style={{ color: C.muted }}>{[task.day ? `Day ${task.day}` : null, task.channel].filter(Boolean).join(' · ')}</p>
+                                  </div>
+                                  <button type="button" onClick={() => setViewDraftTask(task)} className="cp-btn cp-btn-quiet cp-btn-sm shrink-0">Draft</button>
+                                </li>
+                              ))}
+                            </ul>
                           </div>
-                        ))}
-                      </div>
+                        )}
+
+                        {doneTasks.length > 0 && (
+                          <details>
+                            <summary className="text-sm font-medium" style={{ color: C.muted }}>Completed ({doneTasks.length})</summary>
+                            <ul className="m-0 mt-2 p-0 list-none">
+                              {doneTasks.map((task) => (
+                                <li key={task.id} className="py-3 flex items-center gap-3" style={{ borderBottom: `1px solid ${C.line}` }}>
+                                  <button type="button" onClick={() => toggleChecklist(task.id)} aria-label={`Mark "${task.title}" as not done`}
+                                    className="w-5 h-5 rounded-md shrink-0 flex items-center justify-center cursor-pointer" style={{ background: C.ok, color: '#08090c' }}>
+                                    <Check className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
+                                  </button>
+                                  <p className="m-0 flex-1 min-w-0 truncate line-through" style={{ color: C.muted }}>{task.title}</p>
+                                  <button type="button" onClick={() => setViewDraftTask(task)} className="cp-btn cp-btn-quiet cp-btn-sm shrink-0">Draft</button>
+                                </li>
+                              ))}
+                            </ul>
+                          </details>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
 
-                {/* TAB 4: STUDIO CHAT & MESSAGES */}
-                {activeTab === 'messages' && (
-                  <div
-                    id="tour-portal-chat"
-                    className="rounded-2xl p-6 space-y-4"
-                    style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-                  >
-                    <div
-                      className="flex items-center justify-between pb-3"
-                      style={{ borderBottom: `1px solid ${C.line}` }}
-                    >
-                      <div>
-                        <h3 className="font-bold text-sm" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                          Studio Chat & Co-Founder Dispatch
-                        </h3>
-                        <p className="text-xs" style={{ color: C.muted }}>
-                          Direct operational communication channel with CoLaunch Studio.
-                        </p>
-                      </div>
-                      <span
-                        className="text-[10px] font-mono font-bold px-2 py-0.5 rounded"
-                        style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                      >
-                        ● Studio Online
-                      </span>
+                {/* Content */}
+                {activeTab === 'scripts' && (
+                  <div id="tour-portal-campaigns" className="space-y-4 cp-fade">
+                    <div className="flex flex-wrap gap-2" role="group" aria-label="Content type">
+                      {SCRIPTS.map((s) => (
+                        <button key={s.id} type="button" className="cp-chip" aria-pressed={activeScriptTab === s.id} onClick={() => setActiveScriptTab(s.id)}>{s.label}</button>
+                      ))}
                     </div>
 
-                    <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                      {portalDisplayMessages.length === 0 ? (
-                        <div className="text-center py-8 text-xs" style={{ color: C.muted }}>
-                          No messages yet. Send a note to CoLaunch Studio below.
+                    {!activeScriptText ? (
+                      <Empty icon={FileText} title="No draft for this yet">
+                        Your studio contact will add it once the campaign content is ready.
+                      </Empty>
+                    ) : (
+                      <>
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div role="group" aria-label="Preview style" className="flex items-center p-1 rounded-lg" style={{ background: C.row, border: `1px solid ${C.line}` }}>
+                            {[{ id: 'visual', label: 'Preview' }, { id: 'text', label: 'Plain text' }].map((m) => (
+                              <button key={m.id} type="button" aria-pressed={portalDraftViewMode === m.id} onClick={() => setPortalDraftViewMode(m.id)}
+                                className="px-3 py-1 rounded-md text-sm font-medium cursor-pointer"
+                                style={portalDraftViewMode === m.id ? { background: C.raised, color: C.text } : { color: C.muted }}>
+                                {m.label}
+                              </button>
+                            ))}
+                          </div>
+                          <button type="button" className="cp-btn cp-btn-primary" onClick={() => copyToClipboard(activeScriptText, activeScriptTab)}>
+                            {copiedKey === activeScriptTab ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
+                            <span>{copiedKey === activeScriptTab ? 'Copied' : 'Copy text'}</span>
+                          </button>
                         </div>
+
+                        {portalDraftViewMode === 'visual' ? (
+                          <div className="p-4 sm:p-5 rounded-xl" style={{ background: C.row, border: `1px solid ${C.line}` }}>
+                            <PostVisualMockup
+                              type={activeScriptTab === 'story' ? 'story' : activeScriptTab === 'video' ? 'video' : activeScriptTab === 'email' ? 'newsletter' : 'post'}
+                              project={project}
+                              brandColor={C.crimson}
+                              copyText={activeScriptText}
+                              preorderUrl={preorderUrl}
+                            />
+                          </div>
+                        ) : (
+                          <textarea readOnly rows={10} value={activeScriptText} aria-label="Draft text"
+                            className="w-full p-4 rounded-xl text-[15px] leading-relaxed resize-none outline-none"
+                            style={{ background: C.row, border: `1px solid ${C.lineStrong}`, color: C.text }} />
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Pre-orders */}
+                {activeTab === 'presales' && (
+                  <div className="space-y-4 cp-fade">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <h2 className="serif m-0 text-2xl">{totalBackersCount} pre-order{totalBackersCount === 1 ? '' : 's'}</h2>
+                      <p className="m-0 text-sm" style={{ color: C.muted }}>${presalesRevenue.toLocaleString()} collected</p>
+                    </div>
+                    {displayReservations.length === 0 ? (
+                      <Empty icon={Users} title="No pre-orders yet">
+                        Each pre-order shows up here as soon as it is paid.
+                        {showSimTools && (
+                          <div className="mt-4">
+                            <button type="button" onClick={handleSimulatePreorder} className="cp-btn cp-btn-quiet cp-btn-sm">
+                              <Plus className="w-4 h-4" aria-hidden="true" /><span>Add a test pre-order (simulated)</span>
+                            </button>
+                          </div>
+                        )}
+                      </Empty>
+                    ) : (
+                      <ul className="m-0 p-0 list-none">
+                        {displayReservations.map((res) => (
+                          <li key={res.id} className="py-3.5 flex items-center justify-between gap-4" style={{ borderBottom: `1px solid ${C.line}` }}>
+                            <div className="min-w-0">
+                              <p className="m-0 font-medium truncate" style={{ color: C.text }}>{res.name}</p>
+                              <p className="m-0 text-[13px] truncate" style={{ color: C.muted }}>{res.email}</p>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className="m-0 font-semibold num" style={{ color: C.ok }}>+${res.amount}</p>
+                              <p className="m-0 text-[13px]" style={{ color: C.muted }}>{res.tier || dynamicPresaleTierName}</p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+
+                {/* Messages */}
+                {activeTab === 'messages' && (
+                  <div id="tour-portal-chat" className="space-y-4 cp-fade">
+                    <div className="space-y-3 max-h-[28rem] overflow-y-auto pr-1">
+                      {portalDisplayMessages.length === 0 ? (
+                        <Empty icon={Send} title="No messages yet">Write to the studio below.</Empty>
                       ) : (
-                        portalDisplayMessages.map(msg => {
-                          const isStudio = msg.sender === 'admin'
+                        portalDisplayMessages.map((msg) => {
+                          const fromStudio = msg.sender === 'admin'
                           return (
-                            <div
-                              key={msg.id}
-                              className={`p-4 rounded-xl text-xs space-y-1 ${isStudio ? 'mr-8' : 'ml-8'}`}
-                              style={
-                                isStudio
-                                  ? { background: C.row, border: `1px solid ${C.lineStrong}` }
-                                  : { background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}` }
-                              }
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="font-bold" style={{ color: isStudio ? C.sky : C.crimsonText }}>
-                                  {msg.senderName}
-                                </span>
-                                <span className="text-[10px] font-mono" style={{ color: C.faint }}>{msg.time}</span>
+                            <div key={msg.id} className={`p-4 rounded-xl ${fromStudio ? 'mr-6 sm:mr-12' : 'ml-6 sm:ml-12'}`}
+                              style={fromStudio ? { background: C.row, border: `1px solid ${C.line}` } : { background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}` }}>
+                              <div className="flex items-baseline justify-between gap-3 mb-1">
+                                <span className="text-sm font-semibold" style={{ color: fromStudio ? C.text : C.crimsonText }}>{msg.senderName}</span>
+                                <span className="text-[13px]" style={{ color: C.faint }}>{msg.time}</span>
                               </div>
-                              <p className="leading-relaxed whitespace-pre-wrap" style={{ color: C.body }}>{msg.text}</p>
+                              <p className="m-0 whitespace-pre-wrap" style={{ color: C.body }}>{msg.text}</p>
                             </div>
                           )
                         })
                       )}
                       <div ref={chatMessagesEndRef} />
                     </div>
-
-                    <form onSubmit={handleSendCreatorMessage} className="pt-2 flex gap-2">
-                      <input
-                        type="text"
-                        value={creatorReplyText}
-                        onChange={(e) => setCreatorReplyText(e.target.value)}
-                        placeholder="Reply to CoLaunch Studio..."
-                        className="flex-1 px-4 py-2.5 rounded-xl text-xs outline-none transition-all font-sans"
-                        style={{ background: C.row, border: `1px solid ${C.lineStrong}`, color: C.text }}
-                      />
-                      <button
-                        type="submit"
-                        disabled={isSendingReply || !creatorReplyText.trim()}
-                        className="cp-btn-primary px-4 py-2.5 rounded-xl disabled:opacity-40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                        <span>Send</span>
+                    <form onSubmit={handleSendCreatorMessage} className="flex gap-2">
+                      <input type="text" value={creatorReplyText} onChange={(e) => setCreatorReplyText(e.target.value)}
+                        aria-label="Message to the studio" placeholder="Write to the studio"
+                        className="flex-1 min-w-0 px-4 py-2.5 rounded-xl outline-none"
+                        style={{ background: C.row, border: `1px solid ${C.lineStrong}`, color: C.text }} />
+                      <button type="submit" disabled={isSendingReply || !creatorReplyText.trim()} className="cp-btn cp-btn-primary">
+                        <Send className="w-4 h-4" aria-hidden="true" /><span>Send</span>
                       </button>
                     </form>
                   </div>
                 )}
-
-                {/* TAB 5: VALIDATION SPECS & STRATEGY */}
-                {activeTab === 'strategy' && (
-                  <div
-                    className="rounded-2xl p-6 space-y-4"
-                    style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-                  >
-                    <div className="pb-3" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <h3 className="font-bold text-sm" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                        Validation Strategy & Economic Model
-                      </h3>
-                      <p className="text-xs" style={{ color: C.muted }}>
-                        Commercial parameters and minimum gate thresholds required to proceed to Phase 2 Build.
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div className="p-4 rounded-xl space-y-1.5" style={{ background: C.row, border: `1px solid ${C.okLine}` }}>
-                        <span className="font-bold" style={{ color: C.ok }}>Commercial Split</span>
-                        <p className="leading-relaxed" style={{ color: C.body }}>
-                          Equal 50/50 profit share paid on all monthly recurring subscriptions and founding pre-orders.
-                        </p>
-                      </div>
-                      <div className="p-4 rounded-xl space-y-1.5" style={{ background: C.row, border: `1px solid ${C.skyLine}` }}>
-                        <span className="font-bold" style={{ color: C.sky }}>Gate Threshold</span>
-                        <p className="leading-relaxed" style={{ color: C.body }}>
-                          ${presaleTarget.toLocaleString()} in verified pre-orders unlocks production engineering and beta hosting.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
               </div>
 
-              {/* Right Column: PREVIEW DECK - SPRINT SUMMARY (4 of 12 cols) */}
-              <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
-                <div
-                  className="rounded-2xl p-6 space-y-6"
-                  style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-                >
-                  <div
-                    className="flex items-center justify-between pb-3"
-                    style={{ borderBottom: `1px solid ${C.line}` }}
-                  >
-                    <div>
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider block" style={{ color: C.crimsonText }}>
-                        PREVIEW DECK
-                      </span>
-                      <h3 className="text-sm font-bold tracking-tight" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                        SPRINT SUMMARY
-                      </h3>
-                    </div>
-                    <span
-                      className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold flex items-center gap-1"
-                      style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.ok }} />
-                      <span>Live Spec</span>
-                    </span>
-                  </div>
-
-                  {/* Spec Sheet Table */}
-                  <div className="space-y-3 text-xs">
-                    <div className="flex items-center justify-between py-1" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Venture Partner</span>
-                      <span className="font-bold" style={{ color: C.text }}>{creatorName}</span>
-                    </div>
-                    <div className="flex items-center justify-between py-1" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Validation Gate</span>
-                      <span className="font-mono font-bold" style={{ color: C.warn }}>${presaleTarget.toLocaleString()} Target</span>
-                    </div>
-                    <div className="flex items-center justify-between py-1" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Presale Price Point</span>
-                      <span className="font-mono font-bold" style={{ color: C.sky }}>${dynamicPresalePrice} {dynamicPresaleTierName}</span>
-                    </div>
-                    <div className="flex items-center justify-between py-1" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Backers Needed for Gate</span>
-                      <span className="font-mono font-bold" style={{ color: C.ok }}>~{backersNeededForGate.toLocaleString()} Pre-Orders</span>
-                    </div>
-                    <div className="flex items-center justify-between py-1" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Co-Founder Split</span>
-                      <span className="font-mono font-bold" style={{ color: C.violet }}>50% / 50% Irrevocable</span>
-                    </div>
-                    <div className="flex items-center justify-between py-1" style={{ borderBottom: `1px solid ${C.line}` }}>
-                      <span style={{ color: C.muted }}>Launch Timeline</span>
-                      <span className="font-bold" style={{ color: C.text }}>{sprintTotalDays} Days of Structured Posts</span>
-                    </div>
-                    <div className="flex items-center justify-between py-1">
-                      <span style={{ color: C.muted }}>Your Current 50% Pool</span>
-                      <span className="font-mono font-black" style={{ color: C.ok }}>${creatorRevenueShare.toLocaleString()} USD</span>
-                    </div>
-                  </div>
-
-                  {/* Better Action Buttons */}
-                  <div className="space-y-2 pt-2">
-                    {!isDiyActive && (
-                      <button
-                        type="button"
-                        onClick={() => setShowDiyModal(true)}
-                        className="cp-btn-primary w-full py-3 px-4 rounded-xl font-bold text-xs tracking-tight transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-                      >
-                        <Zap className="w-4 h-4" style={{ color: C.warn }} />
-                        <span>Unlock Interactive Pass (${cobuilderPrice} USD)</span>
-                      </button>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={handleSimulatePreorder}
-                      className="cp-btn-quiet w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-tight transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-                    >
-                      <Plus className="w-4 h-4 stroke-[3]" style={{ color: C.ok }} />
-                      <span>Simulate Backer Pre-Order (+${dynamicPresalePrice})</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setViewDraftTask(schedule.find(t => t.day === 2) || schedule[0])}
-                      className="cp-btn-quiet w-full py-2.5 px-4 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-                    >
-                      <Eye className="w-4 h-4" style={{ color: C.sky }} />
-                      <span>View Today's Story Assets</span>
-                    </button>
-                  </div>
-
-                  <p className="text-[10px] text-center leading-relaxed" style={{ color: C.faint }}>
-                    Real-time telemetry connected to {creatorName} payment gateway webhook.
-                  </p>
-
-                  <div
-                    className="pt-2 flex items-center justify-between text-[11px] font-mono"
-                    style={{ borderTop: `1px solid ${C.line}`, color: C.muted }}
-                  >
-                    <span>Venture Spec:</span>
-                    <button
-                      type="button"
-                      onClick={() => setShowAgreementModal(true)}
-                      className="font-bold flex items-center gap-1 cursor-pointer hover:underline transition-colors"
-                      style={{ color: C.sky }}
-                    >
-                      <FileText className="w-3 h-3" />
-                      <span>CF-5050 Agreement (50/50)</span>
-                    </button>
-                  </div>
-
-                  {/* Settlement Banner */}
-                  <div
-                    className="p-3.5 rounded-xl text-[11px] space-y-1"
-                    style={{ background: C.row, border: `1px solid ${C.okLine}`, color: C.body }}
-                  >
-                    <div className="flex items-center gap-1.5 font-bold" style={{ color: C.text }}>
-                      <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: C.ok }} />
-                      <span>Automated 50/50 Settlement</span>
-                    </div>
-                    <p className="leading-relaxed text-[10.5px]" style={{ color: C.muted }}>
-                      Presale revenues automatically deposit 50% directly into your verified partner bank ledger via Stripe Connect.
-                    </p>
-                  </div>
+              {/* Summary */}
+              <aside id="tour-portal-blueprint" className="lg:col-span-4 lg:sticky lg:top-24 cp-card p-5" aria-label="Sprint summary">
+                <h2 className="serif m-0 text-2xl mb-1">Sprint summary</h2>
+                <dl className="m-0">
+                  <Fact label="Goal" value={hasTarget ? `$${presaleTarget.toLocaleString()}` : 'Not set'} />
+                  <Fact label="Pre-order price" value={hasPrice ? `$${dynamicPresalePrice}` : 'Not set'} />
+                  {hasTarget && hasPrice && <Fact label="Pre-orders needed" value={`about ${backersNeededForGate.toLocaleString()}`} />}
+                  <Fact label="Sprint length" value={sprintTotalDays ? `${sprintTotalDays} days` : 'Not set'} />
+                  <Fact label="Revenue split" value="50 / 50" />
+                </dl>
+                <div className="pt-4 space-y-2">
+                  <a href={preorderUrl} target="_blank" rel="noreferrer" className="cp-btn cp-btn-primary w-full">
+                    <ExternalLink className="w-4 h-4" aria-hidden="true" /><span>Open pre-order page</span>
+                  </a>
+                  <button type="button" onClick={() => copyToClipboard(preorderUrl, 'preorder-link')} className="cp-btn cp-btn-quiet w-full">
+                    {copiedKey === 'preorder-link' ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
+                    <span>{copiedKey === 'preorder-link' ? 'Copied' : 'Copy link'}</span>
+                  </button>
+                  <button type="button" onClick={() => setShowAgreementModal(true)} className="w-full text-sm underline underline-offset-2 py-1 cursor-pointer" style={{ color: C.muted }}>
+                    Read the 50/50 agreement
+                  </button>
                 </div>
-              </div>
-
+              </aside>
             </div>
-          </div>
+          </>
         )}
+      </main>
 
-      </div>
-
-      {/* ── VIEW DRAFT MODAL ────────────────────────────────────────────────────── */}
+      {/* ── Draft modal ────────────────────────────────────────────────────── */}
       {viewDraftTask && (
-        <div
-          className="fixed inset-0 z-50 backdrop-blur-xs flex items-center justify-center p-4"
-          style={{ background: 'rgba(8,9,12,0.82)' }}
+        <ModalShell
+          title={viewDraftTask.title}
+          subtitle={[viewDraftTask.day ? `Day ${viewDraftTask.day}` : null, viewDraftTask.channel].filter(Boolean).join(' · ')}
+          onClose={() => setViewDraftTask(null)}
+          footer={
+            <>
+              <button type="button" onClick={() => setViewDraftTask(null)} className="cp-btn cp-btn-quiet">Close</button>
+              <button type="button" disabled={!getTaskDraftContent(viewDraftTask)} onClick={() => copyToClipboard(getTaskDraftContent(viewDraftTask), 'draft')} className="cp-btn cp-btn-primary">
+                {copiedKey === 'draft' ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
+                <span>{copiedKey === 'draft' ? 'Copied' : 'Copy text'}</span>
+              </button>
+            </>
+          }
         >
-          <div
-            className="max-w-lg w-full rounded-2xl shadow-2xl p-6 space-y-4"
-            style={{ background: C.sheet, border: `1px solid ${C.lineStrong}` }}
-          >
-            <div
-              className="flex items-center justify-between pb-3"
-              style={{ borderBottom: `1px solid ${C.line}` }}
-            >
-              <div>
-                <span className="text-[10px] font-mono font-bold uppercase" style={{ color: C.crimsonText }}>
-                  DAY {viewDraftTask.day} • {viewDraftTask.channel}
-                </span>
-                <h3 className="text-base font-bold mt-0.5" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                  {viewDraftTask.title}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setViewDraftTask(null)}
-                className="p-1.5 rounded-lg cursor-pointer transition-colors"
-                style={{ color: C.muted, background: C.row, border: `1px solid ${C.line}` }}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <p className="text-xs leading-relaxed" style={{ color: C.body }}>{viewDraftTask.description}</p>
-
-            <div className="space-y-2">
-              <span className="text-[10px] font-mono uppercase font-bold block" style={{ color: C.faint }}>
-                Copyable Copy
-              </span>
-              <textarea
-                readOnly
-                rows={6}
-                value={getTaskDraftContent(viewDraftTask)}
-                className="w-full p-3.5 rounded-xl text-xs outline-none font-mono leading-relaxed resize-none select-all"
-                style={{ background: C.row, border: `1px solid ${C.lineStrong}`, color: C.text }}
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => copyToClipboard(getTaskDraftContent(viewDraftTask), 'draft')}
-                className="cp-btn-primary px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer active:scale-[0.98] transition-all"
-              >
-                {copiedKey === 'draft' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedKey === 'draft' ? 'Copied!' : 'Copy to Clipboard'}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewDraftTask(null)}
-                className="cp-btn-quiet px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer active:scale-[0.98] transition-all"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+          {viewDraftTask.description && <p className="m-0" style={{ color: C.body }}>{viewDraftTask.description}</p>}
+          {getTaskDraftContent(viewDraftTask) ? (
+            <textarea readOnly rows={8} value={getTaskDraftContent(viewDraftTask)} aria-label="Draft text"
+              className="w-full p-4 rounded-xl text-[15px] leading-relaxed resize-none outline-none"
+              style={{ background: C.row, border: `1px solid ${C.lineStrong}`, color: C.text }} />
+          ) : (
+            <p className="m-0 text-sm" style={{ color: C.muted }}>No draft has been written for this task yet.</p>
+          )}
+        </ModalShell>
       )}
 
-      {/* ── CF-5050 CO-FOUNDER AGREEMENT SPEC MODAL ─────────────────────────────── */}
+      {/* ── Agreement modal (clause text unchanged) ────────────────────────── */}
       {showAgreementModal && (
-        <div
-          className="fixed inset-0 z-50 backdrop-blur-xs flex items-center justify-center p-4"
-          style={{ background: 'rgba(8,9,12,0.82)' }}
+        <ModalShell
+          wide
+          title="Equal 50/50 co-founder agreement"
+          subtitle="CF-5050"
+          onClose={() => setShowAgreementModal(false)}
+          footer={<button type="button" onClick={() => setShowAgreementModal(false)} className="cp-btn cp-btn-primary">Close</button>}
         >
-          <div
-            className="max-w-xl w-full rounded-2xl shadow-2xl p-6 sm:p-7 space-y-5"
-            style={{ background: C.sheet, border: `1px solid ${C.lineStrong}`, color: C.text }}
-          >
-            <div
-              className="flex items-center justify-between pb-3"
-              style={{ borderBottom: `1px solid ${C.line}` }}
-            >
-              <div>
-                <span
-                  className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-block"
-                  style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
-                >
-                  LEGAL CHARTER SPECIFICATION • VERIFIED
-                </span>
-                <h3 className="text-base sm:text-lg font-bold mt-1.5" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                  Equal 50/50 Co-Founder Equity Agreement
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowAgreementModal(false)}
-                className="p-1.5 rounded-lg cursor-pointer transition-colors"
-                style={{ color: C.muted, background: C.row, border: `1px solid ${C.line}` }}
-              >
-                <X className="w-4 h-4" />
-              </button>
+          <div className="grid grid-cols-2 gap-4 p-4 rounded-xl" style={{ background: C.row, border: `1px solid ${C.line}` }}>
+            <div>
+              <p className="m-0 text-sm" style={{ color: C.muted }}>Partner A</p>
+              <p className="m-0 font-semibold">CoLaunch Studio</p>
+              <p className="m-0 text-sm" style={{ color: C.muted }}>Engineering, hosting, AI architecture</p>
             </div>
-
-            <div
-              className="grid grid-cols-2 gap-3 text-xs p-3.5 rounded-xl"
-              style={{ background: C.row, border: `1px solid ${C.line}` }}
-            >
-              <div>
-                <span className="text-[10px] font-mono font-bold uppercase block" style={{ color: C.crimsonText }}>
-                  PARTNER A (STUDIO)
-                </span>
-                <span className="font-bold block mt-0.5" style={{ color: C.text }}>CoLaunch Studio</span>
-                <span className="text-[11px] block" style={{ color: C.muted }}>Engineering, Hosting, AI Architecture</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-mono font-bold uppercase block" style={{ color: C.sky }}>
-                  PARTNER B (CREATOR)
-                </span>
-                <span className="font-bold block mt-0.5" style={{ color: C.text }}>{creatorName}</span>
-                <span className="text-[11px] block" style={{ color: C.muted }}>Audience, Co-Marketing, Feedback</span>
-              </div>
-            </div>
-
-            <div className="space-y-3 text-xs max-h-64 overflow-y-auto pr-1" style={{ color: C.body }}>
-              <div className="p-3 rounded-xl space-y-1" style={{ background: C.row, border: `1px solid ${C.line}` }}>
-                <span className="font-bold" style={{ color: C.ok }}>1. Equal 50/50 Gross Net Revenue Division</span>
-                <p className="text-[11px] leading-relaxed" style={{ color: C.muted }}>
-                  All gross revenue generated from founding presales, monthly/annual software subscriptions, and add-on modules is divided exactly 50% to CoLaunch Studio and 50% to {creatorName}.
-                </p>
-              </div>
-              <div className="p-3 rounded-xl space-y-1" style={{ background: C.row, border: `1px solid ${C.line}` }}>
-                <span className="font-bold" style={{ color: C.sky }}>2. Irrevocable Automated Settlement</span>
-                <p className="text-[11px] leading-relaxed" style={{ color: C.muted }}>
-                  Payouts are handled through automated payment gateway webhooks (Stripe Connect). The creator's 50% share is routed directly to the verified partner ledger without artificial holding periods.
-                </p>
-              </div>
-              <div className="p-3 rounded-xl space-y-1" style={{ background: C.row, border: `1px solid ${C.line}` }}>
-                <span className="font-bold" style={{ color: C.violet }}>3. Full Engineering & Technical Provisioning</span>
-                <p className="text-[11px] leading-relaxed" style={{ color: C.muted }}>
-                  The studio assumes 100% responsibility for infrastructure, code deployments, LLM token provisioning, database scaling, and technical bug fixes.
-                </p>
-              </div>
-              <div className="p-3 rounded-xl space-y-1" style={{ background: C.row, border: `1px solid ${C.line}` }}>
-                <span className="font-bold" style={{ color: C.warn }}>4. Mutual Commercial IP & Transparency</span>
-                <p className="text-[11px] leading-relaxed" style={{ color: C.muted }}>
-                  Both parties maintain transparent visibility into real-time telemetry, transaction volumes, backer accounts, and sprint progress.
-                </p>
-              </div>
-            </div>
-
-            <div
-              className="flex items-center justify-between pt-3"
-              style={{ borderTop: `1px solid ${C.line}` }}
-            >
-              <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold" style={{ color: C.ok }}>
-                <ShieldCheck className="w-4 h-4" />
-                <span>Verified Legal Charter v2.4</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowAgreementModal(false)}
-                className="cp-btn-primary px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-[0.98]"
-              >
-                Close Spec
-              </button>
+            <div>
+              <p className="m-0 text-sm" style={{ color: C.muted }}>Partner B</p>
+              <p className="m-0 font-semibold">{creatorName}</p>
+              <p className="m-0 text-sm" style={{ color: C.muted }}>Audience, co-marketing, feedback</p>
             </div>
           </div>
-        </div>
+          <ol className="m-0 p-0 list-none space-y-4" style={{ color: C.body }}>
+            {[
+              ['Equal 50/50 gross net revenue division', `All gross revenue generated from founding presales, monthly/annual software subscriptions, and add-on modules is divided exactly 50% to CoLaunch Studio and 50% to ${creatorName}.`],
+              ['Irrevocable automated settlement', "Payouts are handled through automated payment gateway webhooks (Stripe Connect). The creator's 50% share is routed directly to the verified partner ledger without artificial holding periods."],
+              ['Full engineering and technical provisioning', 'The studio assumes 100% responsibility for infrastructure, code deployments, LLM token provisioning, database scaling, and technical bug fixes.'],
+              ['Mutual commercial IP and transparency', 'Both parties maintain transparent visibility into real-time telemetry, transaction volumes, backer accounts, and sprint progress.'],
+            ].map(([h, t], i) => (
+              <li key={h}>
+                <p className="m-0 font-semibold" style={{ color: C.text }}>{i + 1}. {h}</p>
+                <p className="m-0 mt-1 text-sm leading-relaxed" style={{ color: C.muted }}>{t}</p>
+              </li>
+            ))}
+          </ol>
+        </ModalShell>
       )}
 
-      {/* ── DIY SUBSCRIPTION MODAL ── */}
       <DIYSubscriptionModal
         isOpen={showDiyModal}
         onClose={() => setShowDiyModal(false)}
