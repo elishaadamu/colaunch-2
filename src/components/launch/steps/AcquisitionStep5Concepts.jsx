@@ -566,7 +566,7 @@ export default function AcquisitionStep5Concepts({
   syncImapReplies,
 }) {
   const concepts = selectedCreator?.productConcepts || [];
-  const hasConcepts = Boolean(selectedCreator?.hasAiConcepts && concepts.length > 0);
+  const hasConcepts = Boolean(Array.isArray(concepts) && concepts.length > 0);
   const showSkeleton = Boolean(isSynthesizingStep5Ai || !hasConcepts) && !step5Error;
   const sentInfo = selectedCreator ? pitchSentMap[selectedCreator.id] : null;
   const isDispatched = Boolean(sentInfo);
@@ -658,7 +658,7 @@ export default function AcquisitionStep5Concepts({
             className="btn btn-quiet h-9 px-3.5"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSynthesizingStep5Ai ? "animate-spin" : ""}`} aria-hidden="true" />
-            <span>{isSynthesizingStep5Ai ? "Generating..." : selectedCreator?.hasAiConcepts ? "Regenerate ideas" : "Generate ideas"}</span>
+            <span>{isSynthesizingStep5Ai ? "Generating..." : hasConcepts ? "Regenerate ideas" : "Generate ideas"}</span>
           </button>
           {isDispatched && (
             <button type="button" onClick={() => handleSendOpportunityPitch(selectedCreator)} disabled={isSendingPitch} className="btn btn-quiet h-9 px-3.5">
