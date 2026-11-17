@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { createPortal } from "react-dom";
 import {
   CheckCircle2,
   TrendingUp,
@@ -34,6 +33,7 @@ import {
   BookOpen,
   FolderOpen
 } from "lucide-react";
+import { ConceptLandingModal } from "./ConceptLandingPage";
 import { getFriendlyColorName, hexToRgba } from "../../utils/avatarColorExtractor";
 
 /**
@@ -107,256 +107,6 @@ export function getBrandColorObj(colorInput) {
     glow: hexToRgba(hex, 0.35),
     isCustom: true,
   };
-}
-
-/**
- * Full Landing Page Preview Modal
- * Gives the operator & creator an immersive, full-resolution preview of the public-facing product landing page.
- */
-function LandingPagePreviewModal({
-  isOpen,
-  onClose,
-  concept,
-  creator,
-  mockupType,
-  accentHex,
-  appUrl,
-  onOpenDeck,
-  onEditConcept
-}) {
-  if (!isOpen || !concept) return null;
-
-  const safeAccent = sanitizeAccentColor(accentHex);
-  const contrastText = getContrastTextColor(safeAccent);
-
-  const creatorName = creator?.name || creator?.display_name || "Creator";
-  const firstName = creatorName.split(" ")[0];
-  const niche = creator?.niche || "Tech & Creator Tools";
-  const conceptName = concept?.name || "Product OS";
-  const tagline = concept?.tagline || `The automated operating system for ${niche} professionals`;
-  const description = concept?.description || concept?.problem || "Streamline your daily workflows, eliminate manual friction, and accelerate execution with a dedicated software platform.";
-  const features = Array.isArray(concept?.keyFeatures) && concept.keyFeatures.length > 0
-    ? concept.keyFeatures
-    : ["Automated Workflow Pipelines", "Curated Template Library", "Real-Time Analytics Dashboard", "1-Click Digital Delivery"];
-  const pricing = concept?.pricing || "$29/mo Starter • $79/mo Pro";
-
-  const modalContent = (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
-      <div className="relative w-full max-w-4xl bg-[#090B10] border border-slate-800 rounded-none shadow-2xl overflow-hidden my-auto text-slate-100 flex flex-col max-h-[92vh]" style={{ borderRadius: '0px' }}>
-        {/* Modal Top Header */}
-        <div className="flex items-center justify-between px-4 py-3 bg-[#0D1017] border-b border-slate-800">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
-            <Monitor className="w-4 h-4 text-slate-400 shrink-0" />
-            <span>Landing Page Preview &mdash; {conceptName}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span
-              className="text-[10px] font-bold px-2.5 py-0.5 rounded-none border shadow-xs"
-              style={{
-                color: '#ffffff',
-                backgroundColor: `${safeAccent}35`,
-                borderColor: `${safeAccent}60`,
-                borderRadius: '0px'
-              }}
-            >
-              Interactive Preview
-            </span>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1.5 rounded-none hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
-              title="Close Preview"
-              style={{ borderRadius: '0px' }}
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Scrollable Landing Page Content */}
-        <div className="overflow-y-auto flex-1 p-6 sm:p-10 space-y-12">
-          {/* Landing Page Nav */}
-          <nav className="flex items-center justify-between pb-6 border-b border-slate-800/80">
-            <div className="flex items-center gap-2.5">
-              <div
-                className="w-8 h-8 rounded-none flex items-center justify-center font-black text-sm shadow-md"
-                style={{ backgroundColor: safeAccent, color: '#ffffff', borderRadius: '0px' }}
-              >
-                {conceptName.charAt(0)}
-              </div>
-              <span className="font-bold text-base tracking-tight text-white">{conceptName}</span>
-            </div>
-            <div className="hidden md:flex items-center gap-6 text-xs text-slate-300 font-medium">
-              <span className="hover:text-white cursor-pointer transition-colors">Features</span>
-              <span className="hover:text-white cursor-pointer transition-colors">Solutions</span>
-              <span className="hover:text-white cursor-pointer transition-colors">Pricing</span>
-              <span className="hover:text-white cursor-pointer transition-colors">About</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-400 hover:text-white cursor-pointer hidden sm:inline">Log in</span>
-              <button
-                type="button"
-                className="px-3.5 py-1.5 rounded-none font-bold text-xs transition-all active:scale-95 cursor-pointer shadow-md hover:opacity-95"
-                style={{ backgroundColor: safeAccent, color: '#ffffff', borderRadius: '0px' }}
-              >
-                Get Started Free →
-              </button>
-            </div>
-          </nav>
-
-          {/* Hero Section */}
-          <div className="text-center max-w-2xl mx-auto space-y-5 pt-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-none text-xs font-semibold border shadow-xs"
-              style={{
-                color: '#ffffff',
-                backgroundColor: `${safeAccent}30`,
-                borderColor: `${safeAccent}50`,
-                borderRadius: '0px'
-              }}
-            >
-              <span>Co-Launched with {creatorName} &mdash; Built for {niche}</span>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-              {mockupType === "ai_copilot" ? (
-                <>
-                  The AI Copilot that <span className="italic font-bold" style={{ color: safeAccent }}>actually</span> automates your {niche} workflow.
-                </>
-              ) : mockupType === "knowledge_hub" ? (
-                <>
-                  More impact. Less chaos. <span className="font-bold" style={{ color: safeAccent, textShadow: `0 0 24px ${safeAccent}40` }}>Built for {firstName}&apos;s community.</span>
-                </>
-              ) : (
-                <>
-                  Run your entire {niche} workflow <span className="font-bold" style={{ color: safeAccent, textShadow: `0 0 24px ${safeAccent}40` }}>in one unified operating system.</span>
-                </>
-              )}
-            </h1>
-
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl mx-auto">
-              {description}
-            </p>
-
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              <button
-                type="button"
-                className="px-5 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-95 shadow-lg active:scale-95 cursor-pointer flex items-center gap-2"
-                style={{ backgroundColor: safeAccent, color: contrastText, boxShadow: `0 8px 24px -4px ${safeAccent}60` }}
-              >
-                <span>Start Free Trial</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                className="px-5 py-2.5 rounded-xl font-semibold text-sm bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-200 transition-all active:scale-95 cursor-pointer"
-              >
-                Watch 2-Min Demo
-              </button>
-            </div>
-
-            {/* Social Proof */}
-            <div className="flex items-center justify-center gap-4 text-xs text-slate-400 pt-3">
-              <div className="flex items-center gap-1 text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                ))}
-              </div>
-              <span><strong>4.9/5</strong> rating from 1,200+ members</span>
-              <span className="hidden sm:inline">•</span>
-              <span className="hidden sm:inline text-slate-400">Zero setup required</span>
-            </div>
-          </div>
-
-          {/* Key Features Grid */}
-          <div className="space-y-4 pt-6 border-t border-slate-800/80">
-            <div className="text-center max-w-md mx-auto space-y-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: safeAccent }}>
-                Core Platform Capabilities
-              </span>
-              <h2 className="text-xl font-bold text-white">Everything needed to execute at scale</h2>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-3.5 pt-2">
-              {features.map((feat, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/90 flex items-start gap-3 hover:border-slate-700 transition-colors"
-                >
-                  <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                    style={{ backgroundColor: `${safeAccent}1a`, color: safeAccent }}
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-bold text-white">{feat}</h3>
-                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
-                      Tailored to {creatorName}&apos;s verified best practices and automated for immediate deployment.
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Pricing & Commercial Model Banner */}
-          <div
-            className="p-6 rounded-2xl border text-center space-y-3 relative overflow-hidden"
-            style={{
-              borderColor: `${safeAccent}45`,
-              background: `linear-gradient(180deg, ${safeAccent}15 0%, rgba(9, 11, 16, 0.85) 100%)`
-            }}
-          >
-            <span className="text-xs font-extrabold uppercase tracking-widest" style={{ color: safeAccent }}>
-              Transparent Launch Pricing
-            </span>
-            <div className="text-2xl font-black text-white font-mono">{pricing}</div>
-            <p className="text-xs text-slate-300 max-w-md mx-auto">
-              50/50 Co-Founder Revenue Share with CoLaunch • Fully managed cloud infrastructure, 24/7 billing, and product updates.
-            </p>
-          </div>
-        </div>
-
-        {/* Modal Footer Controls */}
-        <div className="px-6 py-3.5 bg-[#0D1017] border-t border-slate-800 flex items-center justify-between text-xs">
-          <span className="text-slate-400 font-mono">
-            Target Audience: <strong className="text-slate-200">{concept?.customer || "High-Intent Practitioners"}</strong>
-          </span>
-          <div className="flex items-center gap-2">
-            {onEditConcept && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onEditConcept();
-                }}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
-              >
-                <Sliders className="w-3.5 h-3.5 text-slate-300" />
-                <span>Customize Concept</span>
-              </button>
-            )}
-            {onOpenDeck && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenDeck();
-                }}
-                className="px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 hover:opacity-95 shadow-sm"
-                style={{ backgroundColor: safeAccent, color: contrastText }}
-              >
-                <Monitor className="w-3.5 h-3.5" style={{ color: contrastText }} />
-                <span>View Pitch Deck</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  return typeof document !== "undefined" ? createPortal(modalContent, document.body) : null;
 }
 
 /**
@@ -793,17 +543,15 @@ export default function DynamicConceptMockup({
         </div>
       </div>
 
-      {/* Extended Landing Page Preview Modal */}
-      <LandingPagePreviewModal
+      {/* Unified Concept Landing Page Modal */}
+      <ConceptLandingModal
         isOpen={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}
         concept={concept}
+        conceptIndex={conceptIndex}
         creator={creator}
-        mockupType={mockupType}
-        accentHex={accentHex}
-        appUrl={appUrl}
-        onOpenDeck={onOpenDeck}
-        onEditConcept={onEditConcept}
+        brandColor={accentHex}
+        onEdit={onEditConcept}
       />
     </>
   );

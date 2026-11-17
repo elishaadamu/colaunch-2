@@ -3374,6 +3374,13 @@ export default function AcquisitionEngine({
     const conceptsBlocks = conceptsWithImages
       .map((c, i) => {
         const featuresText = (c.keyFeatures || []).slice(0, 4).filter(Boolean).join(" · ");
+        const cSlug = (c.name || `concept-${i + 1}`)
+          .toLowerCase()
+          .replace(/[^a-z0-9\-]+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "") || `concept-${i + 1}`;
+        const landingUrl = `${frontendBase}/concept/${creatorSlug}?concept=${encodeURIComponent(cSlug)}`;
+
         const lines = [
           `${i + 1}. **${c.name}** (${c.pricing || "$29/mo Starter · $79/mo Pro"})`,
           `• Tagline: ${c.tagline || "Custom software platform"}`,
@@ -3383,9 +3390,10 @@ export default function AcquisitionEngine({
             ? `• Who it's for: ${c.customer || c.demographicAlignment}`
             : null,
           c.audienceEvidence ? `• Audience signal: ${c.audienceEvidence}` : null,
+          `• Live Concept Spec & Landing Page: ${landingUrl}`,
         ].filter(Boolean);
         if (c.imageUrl) {
-          lines.push(`\n![${c.name} Preview](${c.imageUrl})`);
+          lines.push(`\n[![${c.name} Preview](${c.imageUrl})](${landingUrl})\n[View Live Landing Page →](${landingUrl})`);
         }
         return lines.join("\n");
       })
