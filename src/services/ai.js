@@ -1370,12 +1370,58 @@ export function getChannelHeroFallbackImage(creatorData) {
   return '/images/saas_multi_device_showcase.jpg';
 }
 
+// ── Product screen prompt (built from the chosen concept, not a template) ─────
+// Layout names match ConceptLandingPage: 0 workflow, 1 copilot, 2 vault.
+const SCREEN_LAYOUTS = [
+  "a workflow board: a left column of steps or stages, and a main area showing the current item moving through them",
+  "an assistant: a wide conversation panel with one question from the user and one structured answer, and a slim side panel of saved items",
+  "a member library: a searchable grid of saved items in cards, a filter row on top, and one item opened in a side panel",
+];
+
+function featureTitle(f) {
+  const raw = typeof f === "string" ? f : f?.title || f?.name || "";
+  return String(raw).split(/:| - | — /)[0].trim().slice(0, 28);
+}
+
+export function buildProductScreenPrompt(project, { brandColor = "#c81e3c", direction = "", style = "screen" } = {}) {
+  const concept = project?.selectedConcept || project || {};
+  const productName = project?.productName || concept.productName || concept.name || "the product";
+  const tagline = project?.productTagline || concept.tagline || "";
+  const niche = project?.niche || "";
+  const rawFeatures = project?.keyFeatures || project?.features || concept.keyFeatures || [];
+  const titles = rawFeatures.map(featureTitle).filter(Boolean).slice(0, 3);
+  const idx = [project?.conceptIndex, project?.selectedConceptIndex, concept.index].find(Number.isInteger);
+  const layout = Number.isInteger(idx) ? SCREEN_LAYOUTS[((idx % 3) + 3) % 3] : "a clean dashboard with a side menu and one main working area";
+
+  const words = [productName, ...titles].map((t) => `"${t}"`).join(", ");
+  const screen =
+    `A single flat web app screenshot of a software product called "${productName}"` +
+    (tagline ? ` (${tagline})` : "") + (niche ? `, for ${niche}` : "") + ". " +
+    `The screen shows ${layout}. ` +
+    (titles.length ? `The three main areas are labelled exactly: ${titles.map((t) => `"${t}"`).join(", ")}. ` : "") +
+    `Use only these words as readable text: ${words}. All other text must be short, soft grey placeholder lines, not letters. ` +
+    `No numbers, no charts with values, no revenue, no user counts, no code, no logos, no people, no emoji. ` +
+    `Dark charcoal interface, white type, one accent colour ${brandColor} used only on the primary button and the active item. ` +
+    `Straight-on, filling the frame, crisp edges, generous spacing, consistent corner radius. Flat product screenshot, not a photo, no device frame, no glow.`;
+
+  const desk =
+    `Quiet product photograph of a laptop and a phone on a dark desk, both showing the same app screen for "${productName}". ` +
+    `The screens are dark with white type and one accent colour ${brandColor}; the only readable text is "${productName}". ` +
+    `Soft side light, shallow depth of field, no people, no logos, no extra text, no numbers.`;
+
+  const base = style === "desk" ? desk : screen;
+  const extra = direction && direction.trim() ? ` Extra direction from the creator: ${direction.trim().slice(0, 300)}.` : "";
+  // DALL-E 3 rewrites prompts; this keeps the exact wording.
+  return `I need to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS: ${base}${extra}`;
+}
+
 // ── OpenAI DALL-E 3 image generation ─────────────────────────────────────────
 
 export async function generateProductImageWithOpenAI(
   creatorData,
   promptOverride = null,
   signal = undefined,
+  imageOpts = {},
 ) {
   const { openaiKey } = loadAiKeys();
   if (!openaiKey) {
@@ -1396,8 +1442,8 @@ export async function generateProductImageWithOpenAI(
         model: "dall-e-3",
         prompt: prompt.slice(0, 4000),
         n: 1,
-        size: "1024x1024",
-        quality: "standard",
+        size: imageOpts.size || "1024x1024",
+        quality: imageOpts.quality || "standard",
         response_format: "url",
       }),
       signal,
@@ -1529,7 +1575,10 @@ export async function generateProductImage(creatorData, optionsOrSignal = {}) {
 
   // Strictly OpenAI DALL-E 3 image generation
   try {
-    rawImage = await generateProductImageWithOpenAI(creatorData, finalPrompt, signal);
+    rawImage = await generateProductImageWithOpenAI(creatorData, finalPrompt, signal, {
+      size: options.size,
+      quality: options.quality,
+    });
   } catch (err) {
     if (err.name === 'AbortError') throw err;
     console.warn('[Forge] OpenAI DALL-E generation notice:', err);

@@ -15,7 +15,8 @@ export function getPhase1StepGuards(project = {}) {
   const presaleGoal = derivedGoal > 0 ? derivedGoal : Number(project.presaleTarget || project.targetRevenue || 5000);
   const currentPresales = Number(String(project.currentPresales || 0).replace(/[^0-9.]/g, '')) ||
     (Array.isArray(project.reservations) ? project.reservations.reduce((acc, r) => acc + (Number(r.amount) || 0), 0) : 0);
-  const projectCurrentPhase = Number(project.currentPhase || project.current_phase || (project.status === 'building' ? 2 : project.status === 'launched' ? 3 : 1));
+  const rawPhase = project.currentPhase ?? project.current_phase;
+  const projectCurrentPhase = Number(rawPhase != null ? rawPhase : (project.status === 'building' ? 2 : project.status === 'launched' ? 3 : 1));
 
   // Step 1: Validation Plan Specification
   const isStep1Done = Boolean(
@@ -29,6 +30,17 @@ export function getPhase1StepGuards(project = {}) {
     project.validationPlan?.status === 'approved' ||
     project.validationPlan?.status === 'locked'
   );
+  const hasStep1Content = Boolean(
+    project.validationPlan && (
+      project.validationPlan.threshold ||
+      project.validationPlan.timeline ||
+      project.validationPlan.pricingModel ||
+      project.validationPlan.targetAudience ||
+      project.validationPlan.status ||
+      project.threshold
+    )
+  );
+  const step1Status = isStep1Done ? 'done' : (hasStep1Content || Boolean(project.step1Opened || project.planDraft)) ? 'in_progress' : 'not_started';
 
   // Step 2: Build Validation Assets (Requires Step 1 to be done)
   const isStep2Done = Boolean(
@@ -43,9 +55,29 @@ export function getPhase1StepGuards(project = {}) {
       project.validationCampaign?.review_status === 'approved'
     ))
   );
+  const hasStep2Content = Boolean(
+    project.mockupImage ||
+    project.mockup_image ||
+    project.meta?.mockup_image ||
+    project.landingPageUrl ||
+    project.surveyData ||
+    project.campaignKit?.landingPageCopy
+  );
+  const step2Status = isStep2Done ? 'done' : (hasStep2Content || Boolean(project.step2Opened)) ? 'in_progress' : 'not_started';
 
   // Step 3: Creator Campaign (Requires Step 1 AND Step 2 to be done)
+  // Human action required: isStep3Done is true only when approved by human action (or phase past 1)
   const resolvedKit = project.campaignKit || project.validationCampaign?.campaign_kit || project.validationCampaign?.campaignKit;
+  const hasKitContent = Boolean(
+    resolvedKit && (
+      (Array.isArray(resolvedKit.postingSchedule) && resolvedKit.postingSchedule.length > 0) ||
+      Boolean(resolvedKit.announcementPost?.trim()) ||
+      Boolean(resolvedKit.storySequence?.trim()) ||
+      Boolean(resolvedKit.videoScript?.trim()) ||
+      Boolean(resolvedKit.newsletterDraft?.trim())
+    )
+  );
+
   const isStep3Done = Boolean(
     projectCurrentPhase > 1 ||
     project.p1Complete === true ||
@@ -53,15 +85,15 @@ export function getPhase1StepGuards(project = {}) {
     (isStep1Done && isStep2Done && (
       project.campaignApproved === true ||
       project.phase1Step3Done === true ||
-      (resolvedKit && (
-        (Array.isArray(resolvedKit.postingSchedule) && resolvedKit.postingSchedule.length > 0) ||
-        Boolean(resolvedKit.announcementPost?.trim()) ||
-        Boolean(resolvedKit.storySequence?.trim()) ||
-        Boolean(resolvedKit.videoScript?.trim()) ||
-        Boolean(resolvedKit.newsletterDraft?.trim())
-      ))
+      project.step3Done === true
     ))
   );
+
+  const step3Status = isStep3Done
+    ? 'done'
+    : (hasKitContent || Boolean(project.step3Opened || project.campaignKitDraft))
+    ? 'in_progress'
+    : 'not_started';
 
   // Step 4: Run & Optimize (Requires Step 1, 2, AND 3 to be done)
   const isStep4Done = Boolean(
@@ -71,9 +103,17 @@ export function getPhase1StepGuards(project = {}) {
     (isStep1Done && isStep2Done && isStep3Done && (
       project.validationOptimized === true ||
       project.telemetryReviewed === true ||
-      project.phase1Step4Done === true
+      project.phase1Step4Done === true ||
+      project.step4Done === true
     ))
   );
+  const hasStep4Content = Boolean(
+    (Array.isArray(project.experiments) && project.experiments.length > 0) ||
+    currentPresales > 0 ||
+    (Array.isArray(project.reservations) && project.reservations.length > 0) ||
+    project.trafficLogged
+  );
+  const step4Status = isStep4Done ? 'done' : (hasStep4Content || Boolean(project.step4Opened)) ? 'in_progress' : 'not_started';
 
   // Step 5: Validation Gate Checkpoint
   const allPriorStepsDone = Boolean(
@@ -96,12 +136,13 @@ export function getPhase1StepGuards(project = {}) {
   );
 
   const isStep5Done = Boolean(isGatePassed || projectCurrentPhase > 1);
+  const step5Status = isStep5Done ? 'done' : (allPriorStepsDone || (Array.isArray(project.gateDecisions) && project.gateDecisions.length > 0)) ? 'in_progress' : 'not_started';
 
   // Step access unlock status (each step requires the preceding step to be completed)
   const canAccessStep1 = true;
   const canAccessStep2 = isStep1Done;
   const canAccessStep3 = isStep1Done && (isStep2Done || Boolean(project.landingPageApproved || project.assetsApproved));
-  const canAccessStep4 = isStep1Done && isStep2Done && (isStep3Done || Boolean(resolvedKit));
+  const canAccessStep4 = isStep1Done && isStep2Done && isStep3Done;
   const canAccessStep5 = allPriorStepsDone || isStep4Done;
 
   return {
@@ -110,6 +151,12 @@ export function getPhase1StepGuards(project = {}) {
     isStep3Done,
     isStep4Done,
     isStep5Done,
+    step1Status,
+    step2Status,
+    step3Status,
+    step4Status,
+    step5Status,
+    hasKitContent,
     isGatePassed,
     allPriorStepsDone,
     canAccessStep1,

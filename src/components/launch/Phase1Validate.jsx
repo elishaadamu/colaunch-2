@@ -46,7 +46,6 @@ import {
   Phase1ExperimentsGenSkeleton
 } from './Section2Skeletons'
 import ProductMockupCanvas from './ProductMockupCanvas'
-import ProductMockupDisplay from './ProductMockupDisplay'
 import AudienceGroundingModal from './AudienceGroundingModal'
 import PostVisualMockup, { XLogo } from './PostVisualMockup'
 import { getProjectAudienceGrounding } from '../../utils/audienceGrounding'
@@ -1846,6 +1845,12 @@ export default function Phase1Validate({
     isStep3Done,
     isStep4Done,
     isStep5Done,
+    step1Status,
+    step2Status,
+    step3Status,
+    step4Status,
+    step5Status,
+    hasKitContent,
     isGatePassed: dbGatePassed,
     allPriorStepsDone,
     canAccessStep1,
@@ -1985,15 +1990,16 @@ export default function Phase1Validate({
         <div className="w-full overflow-x-auto no-scrollbar scroll-smooth pb-1">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-max">
           {[
-            { id: 'plan', num: '01', label: '1. Plan', icon: FileText, isDone: isStep1Done, canAccess: canAccessStep1, color: C.crimson, activeBorder: C.crimsonLine },
-            { id: 'assets', num: '02', label: '2. Assets', icon: Layout, isDone: isStep2Done, canAccess: canAccessStep2, color: C.sky, activeBorder: C.skyLine },
-            { id: 'campaign', num: '03', label: '3. Campaign', icon: Megaphone, isDone: isStep3Done, canAccess: canAccessStep3, color: C.violet, activeBorder: C.violetLine },
-            { id: 'optimize', num: '04', label: '4. Optimize', icon: TrendingUp, isDone: isStep4Done, canAccess: canAccessStep4, color: C.ok, activeBorder: C.okLine },
-            { id: 'gate', num: '05', label: '5. Gate', icon: Flag, isDone: isStep5Done, canAccess: canAccessStep5, color: C.warn, activeBorder: C.warnLine },
+            { id: 'plan', num: '01', label: '1. Plan', icon: FileText, isDone: isStep1Done, status: step1Status, canAccess: canAccessStep1, color: C.crimson, activeBorder: C.crimsonLine },
+            { id: 'assets', num: '02', label: '2. Assets', icon: Layout, isDone: isStep2Done, status: step2Status, canAccess: canAccessStep2, color: C.sky, activeBorder: C.skyLine },
+            { id: 'campaign', num: '03', label: '3. Campaign', icon: Megaphone, isDone: isStep3Done, status: step3Status, canAccess: canAccessStep3, color: C.violet, activeBorder: C.violetLine },
+            { id: 'optimize', num: '04', label: '4. Optimize', icon: TrendingUp, isDone: isStep4Done, status: step4Status, canAccess: canAccessStep4, color: C.ok, activeBorder: C.okLine },
+            { id: 'gate', num: '05', label: '5. Gate', icon: Flag, isDone: isStep5Done, status: step5Status, canAccess: canAccessStep5, color: C.warn, activeBorder: C.warnLine },
           ].map((step, idx, arr) => {
             const isActive = activeStep === step.id
             const isLocked = !step.canAccess
-            const isDone = Boolean(step.isDone)
+            const isDone = step.status === 'done' || Boolean(step.isDone)
+            const isInProgress = step.status === 'in_progress' && !isDone
 
             return (
               <div key={step.id} className="flex items-center gap-1 sm:gap-2 shrink-0">
@@ -2019,7 +2025,17 @@ export default function Phase1Validate({
                         STEP {step.num}
                       </span>
                       <span className="font-sans font-extrabold whitespace-nowrap" style={{ color: '#ffffff' }}>{step.label}</span>
-                      <span className="w-1.5 h-1.5 rounded-full animate-pulse ml-0.5 shrink-0" style={{ background: step.color }} />
+                      {isDone ? (
+                        <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.ok, color: '#08090c' }}>
+                          <Check className="w-2 h-2 stroke-[3]" />
+                        </div>
+                      ) : isInProgress ? (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold" style={{ background: C.warnSoft, color: C.warn, border: `1px solid ${C.warnLine}` }}>
+                          Draft
+                        </span>
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full animate-pulse ml-0.5 shrink-0" style={{ background: step.color }} />
+                      )}
                     </>
                   ) : isDone ? (
                     <>
@@ -2027,6 +2043,14 @@ export default function Phase1Validate({
                         <Check className="w-2.5 h-2.5 stroke-[3]" />
                       </div>
                       <span className="font-sans font-bold whitespace-nowrap" style={{ color: C.text }}>{step.label}</span>
+                    </>
+                  ) : isInProgress ? (
+                    <>
+                      <span className="font-bold" style={{ color: C.faint }}>{step.num}</span>
+                      <span className="font-sans font-medium whitespace-nowrap" style={{ color: C.body }}>{step.label}</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold" style={{ background: C.warnSoft, color: C.warn, border: `1px solid ${C.warnLine}` }}>
+                        Draft
+                      </span>
                     </>
                   ) : isLocked ? (
                     <>

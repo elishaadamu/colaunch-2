@@ -1,616 +1,191 @@
-import { useState, useEffect, useRef } from 'react'
-import {
-  Sparkles, Camera, Download, RefreshCw, Loader2, Check, Image,
-  Layers, Palette, Activity, Zap, Users, BarChart3, CheckCircle2,
-  Sliders, ShieldCheck, ArrowRight, Smartphone, Monitor, Globe,
-  Edit3, Settings2
-} from 'lucide-react'
-import html2canvas from 'html2canvas'
-import { generateProductImage, generateProductImageWithOpenAI } from '../../services/ai'
+import { useState, useEffect } from 'react'
+import { Download, Loader2, Image as ImageIcon } from 'lucide-react'
+import { generateProductImage, buildProductScreenPrompt } from '../../services/ai'
 
 export default function ProductMockupCanvas({ project, onSaveMockupImage, onShowNotification }) {
-  const mockupRef = useRef(null)
-  const [viewMode, setViewMode] = useState('interactive') // 'interactive' | 'ai_generated' | 'converted'
-  const [accentColor, setAccentColor] = useState('crimson')
-  const [isCapturing, setIsCapturing] = useState(false)
-  const [isGeneratingAI, setIsGeneratingAI] = useState(false)
-  const [convertedImageUrl, setConvertedImageUrl] = useState(() => project?.mockupImage || null)
-  const [aiImageUrl, setAiImageUrl] = useState(() => project?.mockupImage || null)
-  const [showCustomizer, setShowCustomizer] = useState(false)
+  const [style, setStyle] = useState('screen') // 'screen' | 'desk'
+  const [direction, setDirection] = useState('')
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [imageUrl, setImageUrl] = useState(() => project?.mockupImage || project?.mockup_image || project?.meta?.mockup_image || null)
+  const [errorText, setErrorText] = useState('')
 
-  const productName = project?.productName || 'Software Product'
-  const creatorName = project?.creatorName || 'Creator'
-  const niche = project?.niche || 'Software'
-  const productTagline = project?.productTagline || 'Autonomous software suite built for creators'
-
-  // Dynamic real data derived from project
-  const initialAudienceVal = project?.followers
-    ? (Number(project.followers) >= 1000 ? `${(Number(project.followers) / 1000).toFixed(1)}k` : `${project.followers}`)
-    : (project?.visitors ? `${project.visitors}` : '124K')
-
-  const resCountInit = Array.isArray(project?.reservations) ? project.reservations.length : 0
-  const presalesInit = Number(String(project?.currentPresales || 0).replace(/[^0-9.]/g, '')) || (project?.reservations || []).reduce((acc, r) => acc + (Number(r.amount) || 0), 0)
-  const convRateInit = Number(project?.conversionRate || (project?.visitors ? (resCountInit / Number(project.visitors)) * 100 : 0)).toFixed(1)
-
-  const initialConversionVal = resCountInit > 0 ? `${resCountInit} Orders (${convRateInit}%)` : `${convRateInit}%`
-  const initialRevenueVal = presalesInit > 0 ? `$${presalesInit.toLocaleString()}` : '$0'
-
-  // Customizer state for editable mockup metrics
-  const [m1Label, setM1Label] = useState('Audience / Visitors')
-  const [m1Val, setM1Val] = useState(initialAudienceVal)
-  const [m2Label, setM2Label] = useState('Pre-Orders / Conversion')
-  const [m2Val, setM2Val] = useState(initialConversionVal)
-  const [m3Label, setM3Label] = useState('Presales Revenue')
-  const [m3Val, setM3Val] = useState(initialRevenueVal)
-
-  // Real-time synchronization whenever database pre-orders or revenue update
   useEffect(() => {
-    if (!project) return
-    const resCount = Array.isArray(project.reservations) ? project.reservations.length : 0
-    const presalesNum = Number(String(project.currentPresales || 0).replace(/[^0-9.]/g, '')) || (project.reservations || []).reduce((acc, r) => acc + (Number(r.amount) || 0), 0)
-    const conv = Number(project.conversionRate || (project.visitors ? (resCount / Number(project.visitors)) * 100 : 0)).toFixed(1)
-
-    if (resCount > 0) {
-      setM2Val(`${resCount} Orders (${conv}%)`)
-    } else {
-      setM2Val(`${conv}%`)
+    const existing = project?.mockupImage || project?.mockup_image || project?.meta?.mockup_image || null
+    if (existing && !imageUrl) {
+      setImageUrl(existing)
     }
+  }, [project])
 
-    setM3Val(presalesNum > 0 ? `$${presalesNum.toLocaleString()}` : '$0')
+  const productName = project?.productName || project?.name || project?.selectedConcept?.name || ''
+  const brandColor = project?.brandColor || project?.brand_color || '#c81e3c'
 
-    if (project.followers) {
-      setM1Val(Number(project.followers) >= 1000 ? `${(Number(project.followers) / 1000).toFixed(1)}k` : `${project.followers}`)
-    } else if (project.visitors) {
-      setM1Val(`${Number(project.visitors).toLocaleString()}`)
-    }
-  }, [project?.currentPresales, project?.reservations, project?.visitors, project?.conversionRate, project?.followers])
+  const handleGenerate = async () => {
+    if (!productName || isGenerating) return
+    setIsGenerating(true)
+    setErrorText('')
 
-  // Accent color themes
-  const themeMap = {
-    yellow: {
-      border: 'border-[#252B32]',
-      glow: 'shadow-[0_20px_50px_rgba(0,0,0,0.6)]',
-      badge: 'bg-yellow-400/15 text-yellow-300 border border-yellow-400/30',
-      primaryBg: 'bg-yellow-400',
-      primaryText: 'text-slate-950 font-black',
-      bar: 'bg-yellow-400',
-      text: 'text-yellow-400',
-      gradient: 'from-[#101419] to-[#0D1014]'
-    },
-    lime: {
-      border: 'border-[#252B32]',
-      glow: 'shadow-[0_20px_50px_rgba(0,0,0,0.6)]',
-      badge: 'bg-yellow-400/15 text-yellow-300 border border-yellow-400/30',
-      primaryBg: 'bg-yellow-400',
-      primaryText: 'text-slate-950 font-black',
-      bar: 'bg-yellow-400',
-      text: 'text-yellow-400',
-      gradient: 'from-[#101419] to-[#0D1014]'
-    },
-    emerald: {
-      border: 'border-emerald-500/40',
-      glow: 'shadow-emerald-950/50',
-      badge: 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30',
-      primaryBg: 'bg-emerald-600',
-      primaryText: 'text-white font-bold',
-      bar: 'bg-emerald-500',
-      text: 'text-emerald-400',
-      gradient: 'from-emerald-950/40 to-[#0e1117]'
-    },
-    indigo: {
-      border: 'border-indigo-500/40',
-      glow: 'shadow-indigo-950/50',
-      badge: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30',
-      primaryBg: 'bg-indigo-600',
-      primaryText: 'text-white font-bold',
-      bar: 'bg-indigo-500',
-      text: 'text-indigo-400',
-      gradient: 'from-indigo-950/40 to-[#0e1117]'
-    },
-    amber: {
-      border: 'border-amber-500/40',
-      glow: 'shadow-amber-950/50',
-      badge: 'bg-amber-500/15 text-amber-300 border border-amber-500/30',
-      primaryBg: 'bg-amber-500',
-      primaryText: 'text-slate-950 font-black',
-      bar: 'bg-amber-500',
-      text: 'text-amber-400',
-      gradient: 'from-amber-950/40 to-[#0e1117]'
-    },
-    crimson: {
-      border: 'border-[#c81e3c]/40',
-      glow: 'shadow-[#c81e3c]/20',
-      badge: 'bg-[#c81e3c]/15 text-white border border-[#c81e3c]/35',
-      primaryBg: 'bg-[#c81e3c] text-white',
-      primaryText: 'text-white font-bold',
-      bar: 'bg-[#c81e3c]',
-      text: 'text-white',
-      gradient: 'from-[#c81e3c]/20 to-[#0e1117]'
-    },
-    red: {
-      border: 'border-[#c81e3c]/40',
-      glow: 'shadow-[#c81e3c]/20',
-      badge: 'bg-[#c81e3c]/15 text-white border border-[#c81e3c]/35',
-      primaryBg: 'bg-[#c81e3c] text-white',
-      primaryText: 'text-white font-bold',
-      bar: 'bg-[#c81e3c]',
-      text: 'text-white',
-      gradient: 'from-[#c81e3c]/20 to-[#0e1117]'
-    },
-    rose: {
-      border: 'border-[#c81e3c]/40',
-      glow: 'shadow-[#c81e3c]/20',
-      badge: 'bg-[#c81e3c]/15 text-white border border-[#c81e3c]/35',
-      primaryBg: 'bg-[#c81e3c] text-white',
-      primaryText: 'text-white font-bold',
-      bar: 'bg-[#c81e3c]',
-      text: 'text-white',
-      gradient: 'from-[#c81e3c]/20 to-[#0e1117]'
-    },
-  }
-
-  const currentTheme = themeMap[accentColor] || themeMap.crimson || themeMap.red
-
-  // Convert live rendered DOM to PNG image
-  const handleConvertToImage = async () => {
-    if (!mockupRef.current) return
-    setIsCapturing(true)
     try {
-      await new Promise(r => setTimeout(r, 120))
-      const canvas = await html2canvas(mockupRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#090b0e',
-        logging: false
+      const prompt = buildProductScreenPrompt(project, {
+        brandColor,
+        direction,
+        style,
       })
-      const dataUrl = canvas.toDataURL('image/png')
-      setConvertedImageUrl(dataUrl)
-      setViewMode('converted')
-      onSaveMockupImage?.(dataUrl)
-      onShowNotification?.('UI Mockup converted to high-res PNG image!')
-    } catch (err) {
-      console.error('Failed to convert mockup to image:', err)
-      onShowNotification?.('Failed to convert mockup to image.')
-    } finally {
-      setIsCapturing(false)
-    }
-  }
 
-  // Generate with AI
-  const handleGenerateOpenAIImage = async () => {
-    setIsGeneratingAI(true)
-    onShowNotification?.('🎨 Generating high-resolution product mockup with AI...')
-    try {
-      const generated = await generateProductImage({
-        productName,
-        creatorName,
-        niche,
-        brandColor: '#c81e3c'
+      const url = await generateProductImage(project, {
+        prompt,
+        brandColor,
+        size: '1792x1024',
+        quality: 'hd',
       })
-      if (generated) {
-        setAiImageUrl(generated)
-        setConvertedImageUrl(generated)
-        setViewMode('ai_generated')
-        onSaveMockupImage?.(generated)
-        onShowNotification?.('✨ AI generated high-resolution product visual mockup!')
+
+      if (url) {
+        setImageUrl(url)
+        if (onSaveMockupImage) {
+          onSaveMockupImage(url)
+        }
+        if (onShowNotification) {
+          onShowNotification('Product image generated and saved')
+        }
+      } else {
+        throw new Error('No image was returned. Please try again.')
       }
     } catch (err) {
-      console.error('Image generation error:', err)
-      onShowNotification?.(`❌ AI image generation failed: ${err.message || 'Please retry.'}`)
+      const msg = err?.message || String(err)
+      if (msg.includes('NO_OPENAI_KEY') || msg.toLowerCase().includes('enter an active openai api key')) {
+        setErrorText('Missing OpenAI API key. Please add an OpenAI key in Settings to generate images.')
+      } else if (msg.includes('401') || msg.toLowerCase().includes('expired') || msg.toLowerCase().includes('unauthorized')) {
+        setErrorText('OpenAI API key rejected or expired. Please check your key in Settings.')
+      } else {
+        setErrorText(msg || 'Failed to generate image. Please try again.')
+      }
     } finally {
-      setIsGeneratingAI(false)
+      setIsGenerating(false)
     }
   }
 
-  // Download Image File
   const handleDownload = () => {
-    const activeImg = viewMode === 'ai_generated' ? aiImageUrl : convertedImageUrl
-    if (!activeImg) return
+    if (!imageUrl) return
     const a = document.createElement('a')
-    a.href = activeImg
-    a.download = `${productName.toLowerCase().replace(/[^a-z0-9]/g, '_')}_mockup.png`
+    a.href = imageUrl
+    a.download = `${(productName || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-mockup.png`
+    a.target = '_blank'
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    onShowNotification?.('Downloading mockup image file...')
   }
 
   return (
-    <div className="keep-dark product-mockup-canvas product-mockup-display space-y-4 w-full max-w-full overflow-hidden px-3 sm:px-5 pt-4 sm:pt-6 pb-6">
-      {/* Compact Responsive Control Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-2xl bg-[#101419] border border-[#252B32]">
-        {/* View Mode Tabs */}
-        <div className="flex items-center gap-1 bg-[#0D1014] p-1 rounded-xl border border-[#252B32] shrink-0">
+    <div className="space-y-4 rounded-xl bg-[#101419] border border-[#252B32] p-5 text-left text-[#F5F3EA]">
+      {/* Controls Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Style Switch */}
+        <div className="flex items-center rounded-lg bg-[#080A0C] border border-[#252B32] p-1">
           <button
-            onClick={() => setViewMode('interactive')}
-            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
-              viewMode === 'interactive' ? 'bg-yellow-400 text-slate-950 font-black' : 'text-[#969DA6] hover:text-[#F5F3EA]'
+            type="button"
+            onClick={() => setStyle('screen')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+              style === 'screen'
+                ? 'bg-[#171B24] text-[#F5F3EA] border border-[#252B32]'
+                : 'text-[#969DA6] hover:text-[#F5F3EA]'
             }`}
           >
-            Studio
+            Product screen
           </button>
           <button
-            onClick={() => setViewMode('ai_generated')}
-            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 ${
-              viewMode === 'ai_generated' ? 'bg-yellow-400 text-slate-950 font-black' : 'text-[#969DA6] hover:text-[#F5F3EA]'
+            type="button"
+            onClick={() => setStyle('desk')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+              style === 'desk'
+                ? 'bg-[#171B24] text-[#F5F3EA] border border-[#252B32]'
+                : 'text-[#969DA6] hover:text-[#F5F3EA]'
             }`}
           >
-            <Sparkles className="w-3 h-3 text-yellow-400" />
-            <span>Generated</span>
+            Laptop and phone
           </button>
-          {convertedImageUrl && (
-            <button
-              onClick={() => setViewMode('converted')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
-                viewMode === 'converted' ? 'bg-[#78E08F] text-[#080A0C]' : 'text-[#969DA6] hover:text-[#F5F3EA]'
-              }`}
-            >
-              PNG
-            </button>
-          )}
         </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {/* Accent Palette Selector */}
-          {viewMode === 'interactive' && (
-            <div className="flex items-center gap-1 pr-1.5 border-r border-[#252B32]">
-              {['yellow', 'emerald', 'indigo', 'amber', 'rose'].map(color => (
-                <button
-                  key={color}
-                  onClick={() => setAccentColor(color)}
-                  className={`w-4 h-4 rounded-full border transition-transform ${
-                    color === 'yellow' ? 'bg-yellow-400' :
-                    color === 'emerald' ? 'bg-emerald-500' :
-                    color === 'indigo' ? 'bg-indigo-500' :
-                    color === 'amber' ? 'bg-amber-500' : 'bg-rose-500'
-                  } ${accentColor === color || (color === 'yellow' && accentColor === 'lime') ? 'border-white scale-110 shadow-sm' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                  title={`${color} theme`}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Toggle Customizer */}
-          {viewMode === 'interactive' && (
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          {imageUrl && (
             <button
-              onClick={() => setShowCustomizer(!showCustomizer)}
-              className={`px-2.5 py-1 rounded-xl border text-xs font-semibold flex items-center gap-1 transition-colors ${
-                showCustomizer ? 'bg-yellow-400/10 text-yellow-400 border-yellow-400/40' : 'bg-[#171C22] text-[#969DA6] border-[#252B32] hover:text-[#F5F3EA]'
-              }`}
-            >
-              <Settings2 className="w-3 h-3" />
-              <span>Edit</span>
-            </button>
-          )}
-
-          {/* Snap PNG Button */}
-          {viewMode === 'interactive' && (
-            <button
-              onClick={handleConvertToImage}
-              disabled={isCapturing}
-              className="px-3 py-1 rounded-xl bg-[#78E08F] hover:bg-[#8ef2a5] text-[#080A0C] text-xs font-bold flex items-center gap-1 transition-all shadow-sm active:scale-95 disabled:opacity-50"
-            >
-              {isCapturing ? (
-                <>
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  <span>Snapping...</span>
-                </>
-              ) : (
-                <>
-                  <Camera className="w-3 h-3" />
-                  <span>Snap PNG</span>
-                </>
-              )}
-            </button>
-          )}
-
-          {/* AI Generator Button */}
-          <button
-            onClick={handleGenerateOpenAIImage}
-            disabled={isGeneratingAI}
-            className="px-3 py-1 rounded-xl bg-[#171C22] hover:bg-[#252B32] border border-[#252B32] text-[#F5F3EA] text-xs font-bold flex items-center gap-1 transition-all shadow-sm active:scale-95 disabled:opacity-50"
-          >
-            {isGeneratingAI ? (
-              <>
-                <Loader2 className="w-3 h-3 animate-spin" />
-                <span>Generating...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-3 h-3 text-[#C8FF3D]" />
-                <span>Generate AI</span>
-              </>
-            )}
-          </button>
-
-          {/* Download Button */}
-          {(convertedImageUrl || aiImageUrl) && (
-            <button
+              type="button"
               onClick={handleDownload}
-              className="p-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 hover:text-white border border-white/[0.1] transition-colors"
-              title="Download PNG Image"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#171B24] border border-[#252B32] text-xs font-medium text-[#F5F3EA] hover:border-[#3a4350] transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
+              <span>Download</span>
             </button>
           )}
+
+          <button
+            type="button"
+            onClick={handleGenerate}
+            disabled={isGenerating || !productName}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer"
+            style={{ backgroundColor: '#c81e3c' }}
+          >
+            {isGenerating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            <span>{imageUrl ? 'Generate again' : 'Generate image'}</span>
+          </button>
         </div>
       </div>
 
-      {/* Optional Data Customizer Drawer */}
-      {showCustomizer && viewMode === 'interactive' && (
-        <div className="p-4 rounded-xl bg-[#101419] border border-[#252B32] grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs animate-fade-in">
-          <div>
-            <label className="text-[10px] text-[#969DA6] font-mono font-bold block mb-1">Metric 1 (Label & Value)</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={m1Label}
-                onChange={e => setM1Label(e.target.value)}
-                className="w-1/2 px-2.5 py-1.5 rounded-lg bg-[#0D1014] border border-[#252B32] text-[#F5F3EA] text-xs outline-none focus:border-[#C8FF3D]"
-              />
-              <input
-                type="text"
-                value={m1Val}
-                onChange={e => setM1Val(e.target.value)}
-                className="w-1/2 px-2.5 py-1.5 rounded-lg bg-[#0D1014] border border-[#252B32] text-[#C8FF3D] font-bold text-xs outline-none focus:border-[#C8FF3D]"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="text-[10px] text-[#969DA6] font-mono font-bold block mb-1">Metric 2 (Label & Value)</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={m2Label}
-                onChange={e => setM2Label(e.target.value)}
-                className="w-1/2 px-2.5 py-1.5 rounded-lg bg-[#0D1014] border border-[#252B32] text-[#F5F3EA] text-xs outline-none focus:border-[#C8FF3D]"
-              />
-              <input
-                type="text"
-                value={m2Val}
-                onChange={e => setM2Val(e.target.value)}
-                className="w-1/2 px-2.5 py-1.5 rounded-lg bg-[#0D1014] border border-[#252B32] text-[#78E08F] font-bold text-xs outline-none focus:border-[#C8FF3D]"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="text-[10px] text-[#969DA6] font-mono font-bold block mb-1">Metric 3 (Label & Value)</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={m3Label}
-                onChange={e => setM3Label(e.target.value)}
-                className="w-1/2 px-2.5 py-1.5 rounded-lg bg-[#0D1014] border border-[#252B32] text-[#F5F3EA] text-xs outline-none focus:border-[#C8FF3D]"
-              />
-              <input
-                type="text"
-                value={m3Val}
-                onChange={e => setM3Val(e.target.value)}
-                className="w-1/2 px-2.5 py-1.5 rounded-lg bg-[#0D1014] border border-[#252B32] text-[#C8FF3D] font-bold text-xs outline-none focus:border-[#C8FF3D]"
-              />
-            </div>
-          </div>
+      {/* Optional Creator Direction */}
+      <div>
+        <label htmlFor="mockup-direction" className="block text-xs font-medium text-[#969DA6] mb-1.5">
+          Creator direction (optional)
+        </label>
+        <input
+          id="mockup-direction"
+          type="text"
+          maxLength={300}
+          value={direction}
+          onChange={(e) => setDirection(e.target.value)}
+          placeholder="e.g. Focus on interactive workflow steps, minimalist navigation"
+          className="w-full px-3 py-2 rounded-lg bg-[#080A0C] border border-[#252B32] text-xs text-[#F5F3EA] placeholder-[#686F78] outline-none focus:border-[#c81e3c] transition-colors"
+        />
+      </div>
+
+      {/* Error Message */}
+      {errorText && (
+        <div className="p-3 rounded-lg bg-[#171B24] border border-[#c81e3c]/40 text-xs text-[#ff8fa3]">
+          {errorText}
         </div>
       )}
 
-      {/* VIEW 1: INTERACTIVE LIVE UI STUDIO */}
-      {viewMode === 'interactive' && (
-        <div className="space-y-2">
-          {/* Mockup Canvas to be captured */}
-          <div
-            ref={mockupRef}
-            className={`keep-dark product-mockup-canvas product-mockup-display rounded-2xl bg-[#090b0e] border ${currentTheme.border} p-4 sm:p-6 shadow-2xl ${currentTheme.glow} transition-all space-y-4`}
-          >
-            {/* macOS Window Titlebar */}
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/90 shadow-sm shadow-red-950" />
-                  <div className="w-3 h-3 rounded-full bg-amber-500/90 shadow-sm shadow-amber-950" />
-                  <div className="w-3 h-3 rounded-full bg-emerald-500/90 shadow-sm shadow-emerald-950" />
-                </div>
-                <div className="px-3 py-0.5 rounded-md bg-[#141720] border border-white/[0.06] text-[10px] font-mono text-slate-400 flex items-center gap-1.5">
-                  <Globe className="w-3 h-3 text-slate-500" />
-                  <span>{`${(import.meta.env?.VITE_FRONTEND_URL || 'https://colaunch-frontend.vercel.app').replace(/\/$/, '')}/app/${productName.toLowerCase().replace(/[^a-z0-9]/g, '')}`}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${currentTheme.badge}`}>
-                  ⚡ Production v1.0
-                </span>
-                <span className="text-[10px] font-mono text-slate-400">Co-Built with {creatorName}</span>
-              </div>
-            </div>
-
-            {/* Mockup App Body */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-              {/* Mini App Sidebar */}
-              <div className="md:col-span-3 bg-[#11141c] border border-white/[0.06] rounded-xl p-3 space-y-3">
-                <div className="flex items-center gap-2 px-1">
-                  <div className={`w-7 h-7 rounded-lg ${currentTheme.primaryBg} flex items-center justify-center ${currentTheme.primaryText || 'text-white'} font-black text-xs shadow-md`}>
-                    {productName.slice(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <div className="font-bold text-white text-xs truncate">{productName}</div>
-                    <div className="text-[9px] text-slate-400 truncate">{niche}</div>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  {[
-                    { label: 'Overview', icon: BarChart3, active: true },
-                    { label: 'Workflows', icon: Zap, active: false },
-                    { label: 'Audience', icon: Users, active: false },
-                    { label: 'Integrations', icon: Layers, active: false },
-                  ].map((nav, i) => {
-                    const NavIcon = nav.icon
-                    return (
-                      <div
-                        key={i}
-                        className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 ${
-                          nav.active
-                            ? `${currentTheme.primaryBg} ${currentTheme.primaryText || 'text-white'} shadow-sm font-bold`
-                            : 'text-slate-400 hover:text-white hover:bg-white/[0.03]'
-                        }`}
-                      >
-                        <NavIcon className={`w-3.5 h-3.5 ${nav.active ? (currentTheme.primaryText || 'text-white') : ''}`} />
-                        <span className={nav.active ? (currentTheme.primaryText || 'text-white') : ''}>{nav.label}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Main App Viewport */}
-              <div className="md:col-span-9 space-y-3">
-                {/* Header Card */}
-                <div className={`p-4 rounded-xl bg-gradient-to-r ${currentTheme.gradient} border ${currentTheme.border} flex items-center justify-between`}>
-                  <div>
-                    <span className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 block">Workspace Dashboard</span>
-                    <h3 className="text-base font-extrabold text-white">{productName}</h3>
-                    <p className="text-[11px] text-slate-300">{productTagline}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-emerald-400 font-bold block">Status: Online</span>
-                    <span className="text-xs font-mono text-slate-300">Active Node</span>
-                  </div>
-                </div>
-
-                {/* 3 Metric Cards (Dynamic & Editable) */}
-                <div className="grid grid-cols-3 gap-2.5 text-xs">
-                  <div className="p-3 rounded-xl bg-[#11141c] border border-white/[0.06] space-y-1">
-                    <span className="text-[9px] uppercase font-bold text-slate-400 block truncate">{m1Label}</span>
-                    <div className="text-sm sm:text-base font-extrabold text-white">{m1Val}</div>
-                    <div className="w-full bg-white/[0.06] h-1 rounded-full overflow-hidden">
-                      <div className={`${currentTheme.bar} h-full w-4/5 rounded-full`} />
-                    </div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-[#11141c] border border-white/[0.06] space-y-1">
-                    <span className="text-[9px] uppercase font-bold text-slate-400 block truncate">{m2Label}</span>
-                    <div className="text-sm sm:text-base font-extrabold text-emerald-400">{m2Val}</div>
-                    <div className="w-full bg-white/[0.06] h-1 rounded-full overflow-hidden">
-                      <div className="bg-emerald-500 h-full w-11/12 rounded-full" />
-                    </div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-[#11141c] border border-white/[0.06] space-y-1">
-                    <span className="text-[9px] uppercase font-bold text-slate-400 block truncate">{m3Label}</span>
-                    <div className="text-sm sm:text-base font-extrabold text-indigo-300">{m3Val}</div>
-                    <div className="w-full bg-white/[0.06] h-1 rounded-full overflow-hidden">
-                      <div className="bg-indigo-500 h-full w-3/4 rounded-full" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Telemetry Stream Bar */}
-                <div className="p-3 rounded-xl bg-[#11141c] border border-white/[0.06] flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <Activity className={`w-4 h-4 ${currentTheme.text}`} />
-                    <span className="font-semibold text-slate-200">Real-Time Autonomous Pipeline Running</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                    Live Synced
-                  </span>
-                </div>
-              </div>
-            </div>
+      {/* 16:9 Image Area */}
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-[#080A0C] border border-[#252B32] flex items-center justify-center">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={productName || 'Planned product mockup'}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="text-center p-6 space-y-2">
+            <ImageIcon className="w-8 h-8 mx-auto text-[#686F78]" />
+            <p className="text-xs font-medium text-[#969DA6]">
+              No product image generated yet.
+            </p>
+            <p className="text-[11px] text-[#686F78]">
+              Choose a style and click generate image to illustrate the product.
+            </p>
           </div>
+        )}
 
-          <div className="flex items-center justify-between text-xs text-slate-400 px-2.5 pt-2.5 pb-4">
-            <span>Interactive Studio Canvas • Rendered at 2x Ultra HD resolution</span>
-            <button
-              onClick={handleConvertToImage}
-              className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 cursor-pointer transition-colors"
-            >
-              <span>Click "Convert to PNG" to save snapshot</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+        {isGenerating && (
+          <div className="absolute inset-0 bg-[#080A0C]/85 backdrop-blur-xs flex flex-col items-center justify-center gap-2 p-4 text-center">
+            <Loader2 className="w-6 h-6 animate-spin text-[#c81e3c]" />
+            <p className="text-xs font-medium text-[#F5F3EA]">Generating product illustration...</p>
+            <p className="text-[11px] text-[#969DA6]">This usually takes 10 to 15 seconds with DALL-E 3.</p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* VIEW 2: AI VISUAL MOCKUP */}
-      {viewMode === 'ai_generated' && (
-        <div className="p-5 rounded-2xl bg-[#101419] border border-[#252B32] space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-bold text-[#F5F3EA] flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#C8FF3D]" />
-                <span>AI Visual Product Mockup</span>
-              </h4>
-              <p className="text-xs text-[#969DA6]">Photorealistic product design render generated by AI Design Engine.</p>
-            </div>
-            {aiImageUrl && (
-              <button
-                onClick={handleDownload}
-                className="px-3 py-1.5 rounded-xl bg-[#C8FF3D] hover:bg-[#d8ff66] text-[#080A0C] font-bold text-xs flex items-center gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download Mockup</span>
-              </button>
-            )}
-          </div>
-
-          {aiImageUrl ? (
-            <div className="rounded-xl overflow-hidden border border-[#252B32] shadow-2xl max-h-[420px] flex items-center justify-center bg-black">
-              <img
-                src={aiImageUrl}
-                alt="AI Generated Mockup"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ) : (
-            <div className="py-12 text-center text-[#969DA6] border border-dashed border-[#252B32] rounded-2xl space-y-3">
-              <Image className="w-10 h-10 text-[#C8FF3D] mx-auto" />
-              <p className="text-xs">No visual product mockup generated yet.</p>
-              <button
-                onClick={handleGenerateOpenAIImage}
-                disabled={isGeneratingAI}
-                className="px-4 py-2 rounded-xl bg-[#C8FF3D] hover:bg-[#d8ff66] text-[#080A0C] font-bold text-xs flex items-center gap-1.5 mx-auto cursor-pointer"
-              >
-                {isGeneratingAI ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#080A0C]" /> : <Sparkles className="w-3.5 h-3.5 text-[#080A0C]" />}
-                <span>Generate AI Mockup</span>
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* VIEW 3: CONVERTED HIGH-RES PNG IMAGE */}
-      {viewMode === 'converted' && (
-        <div className="p-5 rounded-2xl bg-[#0e1117] border border-emerald-500/30 space-y-4 shadow-xl">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Exported High-Resolution PNG Image Asset</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleDownload}
-                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download PNG</span>
-              </button>
-              <button
-                onClick={() => setViewMode('interactive')}
-                className="px-3 py-1.5 rounded-xl bg-white/[0.06] text-slate-300 text-xs font-bold"
-              >
-                Edit in Studio
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-xl overflow-hidden border border-white/[0.1] shadow-2xl max-h-[420px] flex items-center justify-center bg-black">
-            <img
-              src={convertedImageUrl}
-              alt="Converted PNG Mockup"
-              className="w-full h-full object-contain"
-            />
-          </div>
-        </div>
-      )}
+      {/* Note under image */}
+      <p className="text-xs text-[#969DA6] leading-relaxed">
+        AI-generated illustration of the planned product. Labels can come out slightly off, so check the words before you launch.
+      </p>
     </div>
   )
 }

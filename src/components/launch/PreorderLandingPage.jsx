@@ -4,7 +4,6 @@ import {
   Zap, Star, Lock, Users, Globe, ExternalLink, HelpCircle, Check,
   Loader2, AlertCircle, RefreshCw, Layers, Award, Target, CheckCircle
 } from 'lucide-react'
-import ProductMockupDisplay from './ProductMockupDisplay'
 import { trackVisit } from '../../services/tracker'
 import { updatePageSEO } from '../../utils/seo'
 import {
@@ -82,6 +81,7 @@ export default function PreorderLandingPage({ slug }) {
   const creatorName = project?.creatorName || project?.creatorHandle || 'Creator Partner'
   const creatorAvatar = project?.creatorAvatar || selectedConcept?.creatorAvatar || null
   const creatorHandle = project?.creatorHandle || 'creator'
+  const savedMockupImage = project?.mockupImage || project?.mockup_image || project?.meta?.mockup_image || null
   const niche = project?.niche || selectedConcept?.demographicAlignment || selectedConcept?.niche || 'Software & Tech'
   const tagline = project?.productTagline || selectedConcept?.tagline || selectedConcept?.description || 'Personalized software tool built for the community.'
   const headline = project?.campaignKit?.landingPageCopy?.headline || `The ${productName} Workspace Built with ${creatorName}`
@@ -584,10 +584,21 @@ export default function PreorderLandingPage({ slug }) {
           </div>
         </div>
 
-        {/* Visual Designed Mockup Showcase (Full, Non-Editable UI Frame) */}
-        <div className="pt-6">
-          <ProductMockupDisplay project={project} theme="crimson" brandColor={brandColor || '#c81e3c'} />
-        </div>
+        {/* Saved Product Illustration Showcase */}
+        {savedMockupImage && (
+          <div className="pt-6 max-w-4xl mx-auto space-y-2">
+            <div className="overflow-hidden rounded-xl border border-[#252B32] bg-[#101419] shadow-2xl">
+              <img
+                src={savedMockupImage}
+                alt={productName || 'Planned product'}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+            <p className="text-xs text-[#969DA6] text-center">
+              Illustration of the planned product. The final design may differ.
+            </p>
+          </div>
+        )}
 
         {/* Creator's Approved Blueprint Spotlight Card */}
         <div className="pt-6 text-left">

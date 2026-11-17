@@ -960,6 +960,7 @@ export default function Phase1Step3Campaign({
                 const updated = {
                   ...(project || {}),
                   campaignApproved: true,
+                  phase1Step3Done: true,
                   step3Done: true,
                   campaignKit: campaignKit
                 }
@@ -967,6 +968,7 @@ export default function Phase1Step3Campaign({
                 if (project?.id) {
                   updateCoLaunchProject(project.id, {
                     campaignApproved: true,
+                    phase1Step3Done: true,
                     step3Done: true
                   }).catch((e) => console.warn(e))
                 }

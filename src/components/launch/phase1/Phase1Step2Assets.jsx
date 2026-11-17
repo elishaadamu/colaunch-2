@@ -10,7 +10,6 @@ import {
   logProjectActivity
 } from '../../../services/opsApi'
 import ProductMockupCanvas from '../ProductMockupCanvas'
-import ProductMockupDisplay from '../ProductMockupDisplay'
 import { C, PILL_TONES } from './phase1Constants'
 
 const ASSETS_CSS = `
@@ -386,9 +385,20 @@ export default function Phase1Step2Assets({
                 </a>
               </div>
             </div>
-            <div className="px-5 sm:px-10 pb-10 max-w-4xl mx-auto">
-              <ProductMockupDisplay project={project} theme="crimson" brandColor="#c81e3c" />
-            </div>
+            {(mockupImage || project?.mockupImage || project?.mockup_image || project?.meta?.mockup_image) && (
+              <div className="px-5 sm:px-10 pb-10 max-w-4xl mx-auto space-y-2">
+                <div className="overflow-hidden rounded-xl border border-[#252B32] bg-[#101419] shadow-2xl">
+                  <img
+                    src={mockupImage || project?.mockupImage || project?.mockup_image || project?.meta?.mockup_image}
+                    alt={productName || 'Planned product'}
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
+                <p className="m-0 text-xs text-center" style={{ color: C.muted }}>
+                  Illustration of the planned product. The final design may differ.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
