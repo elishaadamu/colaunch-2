@@ -1640,23 +1640,23 @@ export default function AcquisitionEngine({
                     selected_concept: dbItem.selected_concept || dbItem.selectedConcept || null,
                     replyClassification: (() => {
                       const raw = dbItem.reply_text;
-                      const isCorrupt = raw && (raw.startsWith("Creator responded") || raw.includes("qualified for partnership pitch") || raw === "Yes, I would be interested.");
-                      if (dbItem.reply_classification === "interested" && (isCorrupt || !raw)) {
+                      const isCorrupt = raw && (raw.startsWith("Creator responded") || raw.includes("qualified for partnership pitch"));
+                      if (dbItem.reply_classification === "interested" && isCorrupt) {
                         return dbStatus === "approved" ? "qualified" : "awaiting_reply";
                       }
                       return dbItem.reply_classification;
                     })(),
                     reply_classification: (() => {
                       const raw = dbItem.reply_text;
-                      const isCorrupt = raw && (raw.startsWith("Creator responded") || raw.includes("qualified for partnership pitch") || raw === "Yes, I would be interested.");
-                      if (dbItem.reply_classification === "interested" && (isCorrupt || !raw)) {
+                      const isCorrupt = raw && (raw.startsWith("Creator responded") || raw.includes("qualified for partnership pitch"));
+                      if (dbItem.reply_classification === "interested" && isCorrupt) {
                         return dbStatus === "approved" ? "qualified" : "awaiting_reply";
                       }
                       return dbItem.reply_classification;
                     })(),
                     replyText: (() => {
                       const raw = dbItem.reply_text;
-                      const isCorrupt = raw && (raw.startsWith("Creator responded") || raw.includes("qualified for partnership pitch") || raw === "Yes, I would be interested.");
+                      const isCorrupt = raw && (raw.startsWith("Creator responded") || raw.includes("qualified for partnership pitch"));
                       return isCorrupt ? null : raw;
                     })(),
                     creatorScore: (() => {
@@ -2365,12 +2365,11 @@ export default function AcquisitionEngine({
 
     // 1. Explicit user/DB classification
     const explicitCls = c.replyClassification || c.reply_classification;
-    const hasGenuineReplyText = Boolean(
-      c.replyText &&
-      !c.replyText.startsWith("Creator responded") &&
-      !c.replyText.includes("qualified for partnership pitch") &&
-      c.replyText !== "Yes, I would be interested."
+    const isCorruptText = c.replyText && (
+      c.replyText.startsWith("Creator responded") ||
+      c.replyText.includes("qualified for partnership pitch")
     );
+    const effectiveReplyText = isCorruptText ? null : c.replyText;
 
     if (
       explicitCls &&
@@ -2378,15 +2377,14 @@ export default function AcquisitionEngine({
       explicitCls !== "no_email"
     ) {
       const isPositive = explicitCls === "interested" || explicitCls === "qualified";
-      // Only treat as hasRealReply if genuine custom or simulated text exists
-      if (hasGenuineReplyText) {
+      if (effectiveReplyText || explicitCls === "interested" || explicitCls === "not_interested" || explicitCls === "question" || explicitCls === "qualified") {
         return {
-          hasRealReply: true,
+          hasRealReply: Boolean(effectiveReplyText),
           hasEmail: Boolean(cEmail && cEmail.includes("@")),
           classification: explicitCls,
           subject:
             c.replySubject || `Re: Outreach to ${c.name || c.display_name}`,
-          text: c.replyText,
+          text: effectiveReplyText || (isPositive ? "Creator confirmed interest to proceed with CoLaunch partnership." : null),
           time: c.replyTime || "Recently",
           sentiment:
             isPositive
@@ -2395,25 +2393,9 @@ export default function AcquisitionEngine({
                 ? "neutral"
                 : "negative",
           reasoning: isPositive
-            ? `Creator responded to Step 4 outreach. Qualified for Step 6 Opportunity Pitch.`
+            ? `Creator responded to Step 4 outreach. Qualified for Step 5 & 6 Opportunity Pitch.`
             : `Label explicitly assigned as ${explicitCls}.`,
           confidence: 96,
-          isRealImap: false,
-        };
-      }
-
-      // If approved or qualified by human operator without an inbound email:
-      if (c.status === "approved" || c.isApproved || explicitCls === "qualified") {
-        return {
-          hasRealReply: false,
-          hasEmail: Boolean(cEmail && cEmail.includes("@")),
-          classification: "qualified",
-          subject: `Outreach Sent: ${templateSubject.replace("{{display_name}}", c.name || c.display_name)}`,
-          text: null,
-          time: "Awaiting response",
-          sentiment: "Qualified",
-          reasoning: "Manually qualified by operator — awaiting creator reply.",
-          confidence: 100,
           isRealImap: false,
         };
       }
@@ -2598,6 +2580,12 @@ export default function AcquisitionEngine({
         "i would be interested",
         "i'm interested",
         "im interested",
+        "i am interested",
+        "interested, let's proceed",
+        "interested let's proceed",
+        "let's proceed",
+        "lets proceed",
+        "proceed",
         "go ahead",
         "go ahead with the process",
         "ahead with the process",
@@ -2607,6 +2595,9 @@ export default function AcquisitionEngine({
         "love to",
         "sounds great",
         "sounds good",
+        "looks great",
+        "looks good",
+        "sounds interesting",
         "let's talk",
         "lets talk",
         "let's do it",
@@ -2620,6 +2611,14 @@ export default function AcquisitionEngine({
         "thanks for reaching out",
         "let me know next steps",
         "ready to move forward",
+        "move forward",
+        "sure",
+        "yes please",
+        "i'm in",
+        "im in",
+        "down",
+        "let's build",
+        "lets build",
       ];
       const questionPatterns = [
         "?",
