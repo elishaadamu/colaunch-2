@@ -60,14 +60,14 @@ export function sanitizeAccentColor(hex) {
   const clean = String(hex).replace("#", "").toLowerCase().trim();
   const darkTones = ["0f172a", "1e293b", "090b10", "0a0e17", "000000", "111827", "18181b", "27272a", "334155", "475569"];
   if (darkTones.includes(clean)) {
-    return "#06B6D4"; // Ocean Cyan
+    return "#c81e3c"; // Creator Crimson default
   }
   const r = parseInt(clean.substring(0, 2), 16) || 0;
   const g = parseInt(clean.substring(2, 4), 16) || 0;
   const b = parseInt(clean.substring(4, 6), 16) || 0;
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   if (luminance < 0.25) {
-    return "#10B981"; // Electric Emerald
+    return "#c81e3c"; // Creator Crimson default
   }
   return String(hex).startsWith("#") ? hex : `#${hex}`;
 }
@@ -88,6 +88,10 @@ export function getContrastTextColor(hex) {
 export function getBrandColorObj(colorInput) {
   if (!colorInput) return BRAND_COLORS[0];
   const sanitizedInput = sanitizeAccentColor(colorInput);
+  const clean = sanitizedInput.toLowerCase();
+  if (clean === '#10b981' || clean === '#16a34a' || clean === '10b981' || clean === '16a34a' || clean === 'emerald') {
+    return BRAND_COLORS[0]; // Creator Crimson default (#c81e3c)
+  }
   const found = BRAND_COLORS.find(
     (c) =>
       c.name.toLowerCase() === String(sanitizedInput).toLowerCase() ||
@@ -127,14 +131,14 @@ export default function DynamicConceptMockup({
 
   const brandColorObj = theme
     ? {
-        name: theme.name,
-        hex: sanitizeAccentColor(theme.primaryHex),
-        glow: theme.glow || `${sanitizeAccentColor(theme.primaryHex)}35`,
-        bg: theme.badgeBg,
-        text: theme.badgeText,
-        border: theme.borderActive || sanitizeAccentColor(theme.primaryHex),
-      }
-    : getBrandColorObj(concept?.brandColor || (conceptIndex === 0 ? "#10B981" : conceptIndex === 1 ? "#06B6D4" : "#F59E0B"));
+      name: theme.name,
+      hex: sanitizeAccentColor(theme.primaryHex),
+      glow: theme.glow || `${sanitizeAccentColor(theme.primaryHex)}35`,
+      bg: theme.badgeBg,
+      text: theme.badgeText,
+      border: theme.borderActive || sanitizeAccentColor(theme.primaryHex),
+    }
+    : getBrandColorObj(concept?.brandColor || (conceptIndex === 0 ? "#c81e3c" : conceptIndex === 1 ? "#06B6D4" : "#F59E0B"));
   const accentHex = sanitizeAccentColor(brandColorObj.hex);
   const contrastText = getContrastTextColor(accentHex);
   const creatorName = creator?.name || creator?.display_name || "Creator";
@@ -215,8 +219,8 @@ export default function DynamicConceptMockup({
             background: mockupType === "ai_copilot"
               ? `radial-gradient(ellipse at 50% 0%, ${accentHex}20 0%, #070A0F 75%)`
               : mockupType === "knowledge_hub"
-              ? `radial-gradient(ellipse at 50% 0%, ${accentHex}24 0%, #080A0E 75%)`
-              : `radial-gradient(ellipse at 50% 0%, ${accentHex}25 0%, #06080C 75%)`
+                ? `radial-gradient(ellipse at 50% 0%, ${accentHex}24 0%, #080A0E 75%)`
+                : `radial-gradient(ellipse at 50% 0%, ${accentHex}25 0%, #06080C 75%)`
           }}
         >
           {/* If custom image provided, display it */}

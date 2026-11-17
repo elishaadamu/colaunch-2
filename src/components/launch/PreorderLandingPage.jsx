@@ -47,27 +47,34 @@ export default function PreorderLandingPage({ slug }) {
     return project.selectedConcept || (conceptsList.length > 0 ? conceptsList.find(c => c.selected) || conceptsList[0] : null)
   })()
 
-  // Derive dynamic brand color
+  // Default brand colors from index.css (:root --brand / --theme-accent: #c81e3c)
   const brandColor = (() => {
-    if (selectedConcept?.brandColor) return sanitizeAccentColor(selectedConcept.brandColor)
-    if (project?.brandColor || project?.brand_color) return sanitizeAccentColor(project.brandColor || project.brand_color)
+    const candidate = selectedConcept?.brandColor || project?.brandColor || project?.brand_color
+    if (candidate) {
+      const clean = String(candidate).trim().toLowerCase()
+      // Ignore old emerald/green defaults in favor of default #c81e3c from index.css
+      if (clean === '#10b981' || clean === '10b981' || clean === '#16a34a' || clean === '16a34a' || clean === 'emerald') {
+        return '#c81e3c'
+      }
+      return sanitizeAccentColor(candidate)
+    }
     if (typeof window !== 'undefined') {
       try {
         const stored = localStorage.getItem('forge_creator_brand_color_map')
         if (stored) {
           const map = JSON.parse(stored)
           const cId = project?.creatorId || project?.id
-          if (cId && map[cId]?.primaryHex) return sanitizeAccentColor(map[cId].primaryHex)
-          const matchEntry = Object.entries(map).find(([key]) => {
-            const cleanKey = key.toLowerCase().replace(/[^a-z0-9]/g, '')
-            const cleanSlug = (slug || '').toLowerCase().replace(/[^a-z0-9]/g, '')
-            return cleanKey === cleanSlug || cleanSlug.includes(cleanKey)
-          })
-          if (matchEntry && matchEntry[1]?.primaryHex) return sanitizeAccentColor(matchEntry[1].primaryHex)
+          const storedHex = cId && map[cId]?.primaryHex
+          if (storedHex) {
+            const cleanStored = String(storedHex).trim().toLowerCase()
+            if (cleanStored !== '#10b981' && cleanStored !== '10b981' && cleanStored !== '#16a34a' && cleanStored !== '16a34a') {
+              return sanitizeAccentColor(storedHex)
+            }
+          }
         }
-      } catch (e) {}
+      } catch (e) { }
     }
-    return '#10B981'
+    return '#c81e3c'
   })()
   const brandContrastText = getContrastTextColor(brandColor)
 
@@ -163,12 +170,12 @@ export default function PreorderLandingPage({ slug }) {
   // Payer Details (Required)
   const [buyerName, setBuyerName] = useState('')
   const [buyerEmail, setBuyerEmail] = useState('')
-  
+
   // Stripe Card Details
   const [cardNumber, setCardNumber] = useState('')
   const [cardExp, setCardExp] = useState('')
   const [cardCvc, setCardCvc] = useState('')
-  
+
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingStep, setProcessingStep] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
@@ -441,7 +448,7 @@ export default function PreorderLandingPage({ slug }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#080A0C] text-[#F5F3EA] selection:bg-[#10B981] selection:text-[#080A0C] font-sans antialiased overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#080A0C] text-[#F5F3EA] selection:bg-[#c81e3c] selection:text-[#080A0C] font-sans antialiased overflow-x-hidden relative">
       {/* Top Dynamic API Loading Indicator Bar */}
       {isLoading && (
         <div
@@ -690,17 +697,16 @@ export default function PreorderLandingPage({ slug }) {
                 <div
                   key={idx}
                   onClick={() => openCheckout({ name: t.name, price: t.price, deposit: t.deposit })}
-                  className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden group ${
-                    isSelected || t.highlight
+                  className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden group ${isSelected || t.highlight
                       ? 'bg-gradient-to-b from-[#14181E] to-[#101419]'
                       : 'bg-[#101419] border-[#252B32] hover:border-[#252B32]/80'
-                  }`}
+                    }`}
                   style={
                     isSelected || t.highlight
                       ? {
-                          borderColor: brandColor,
-                          boxShadow: `0 8px 24px -4px ${hexToRgba(brandColor, 0.2)}`
-                        }
+                        borderColor: brandColor,
+                        boxShadow: `0 8px 24px -4px ${hexToRgba(brandColor, 0.2)}`
+                      }
                       : {}
                   }
                 >
@@ -711,15 +717,15 @@ export default function PreorderLandingPage({ slug }) {
                       style={
                         t.highlight
                           ? {
-                              backgroundColor: `${brandColor}20`,
-                              color: brandColor,
-                              borderColor: `${brandColor}40`
-                            }
+                            backgroundColor: `${brandColor}20`,
+                            color: brandColor,
+                            borderColor: `${brandColor}40`
+                          }
                           : {
-                              backgroundColor: '#171C22',
-                              color: '#969DA6',
-                              borderColor: '#252B32'
-                            }
+                            backgroundColor: '#171C22',
+                            color: '#969DA6',
+                            borderColor: '#252B32'
+                          }
                       }
                     >
                       {t.badge}
@@ -743,17 +749,16 @@ export default function PreorderLandingPage({ slug }) {
                       e.stopPropagation()
                       openCheckout({ name: t.name, price: t.price, deposit: t.deposit })
                     }}
-                    className={`w-full mt-4 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      t.highlight || isSelected
+                    className={`w-full mt-4 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${t.highlight || isSelected
                         ? 'shadow-md hover:opacity-90'
                         : 'bg-[#171C22] hover:bg-[#252B32] text-[#F5F3EA] border border-[#252B32]'
-                    }`}
+                      }`}
                     style={
                       t.highlight || isSelected
                         ? {
-                            backgroundColor: brandColor,
-                            color: brandContrastText
-                          }
+                          backgroundColor: brandColor,
+                          color: brandContrastText
+                        }
                         : {}
                     }
                   >
@@ -911,17 +916,16 @@ export default function PreorderLandingPage({ slug }) {
                             key={idx}
                             type="button"
                             onClick={() => setSelectedTier({ name: t.name, price: t.price, deposit: t.deposit })}
-                            className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
-                              isChosen
+                            className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${isChosen
                                 ? 'text-[#F5F3EA] shadow-sm'
                                 : 'bg-[#0D1014] border-[#252B32] text-[#969DA6] hover:text-[#F5F3EA]'
-                            }`}
+                              }`}
                             style={
                               isChosen
                                 ? {
-                                    backgroundColor: `${brandColor}18`,
-                                    borderColor: brandColor
-                                  }
+                                  backgroundColor: `${brandColor}18`,
+                                  borderColor: brandColor
+                                }
                                 : {}
                             }
                           >
@@ -973,18 +977,17 @@ export default function PreorderLandingPage({ slug }) {
                       <button
                         type="button"
                         onClick={() => setPaymentMethod('stripe')}
-                        className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
-                          paymentMethod === 'stripe'
+                        className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${paymentMethod === 'stripe'
                             ? 'shadow-sm'
                             : 'bg-[#0D1014] border-[#252B32] text-[#969DA6] hover:text-[#F5F3EA]'
-                        }`}
+                          }`}
                         style={
                           paymentMethod === 'stripe'
                             ? {
-                                backgroundColor: brandColor,
-                                color: brandContrastText,
-                                borderColor: brandColor
-                              }
+                              backgroundColor: brandColor,
+                              color: brandContrastText,
+                              borderColor: brandColor
+                            }
                             : {}
                         }
                       >
@@ -995,11 +998,10 @@ export default function PreorderLandingPage({ slug }) {
                       <button
                         type="button"
                         onClick={() => setPaymentMethod('paypal')}
-                        className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
-                          paymentMethod === 'paypal'
+                        className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${paymentMethod === 'paypal'
                             ? 'bg-[#0070ba] text-white border-[#0070ba] shadow-sm'
                             : 'bg-[#0D1014] border-[#252B32] text-[#969DA6] hover:text-[#F5F3EA]'
-                        }`}
+                          }`}
                       >
                         <span className="font-extrabold italic">P</span>
                         <span>PayPal</span>
@@ -1066,18 +1068,17 @@ export default function PreorderLandingPage({ slug }) {
                   <button
                     type="submit"
                     disabled={isProcessing}
-                    className={`w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 shadow-lg cursor-pointer ${
-                      paymentMethod === 'paypal'
+                    className={`w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 shadow-lg cursor-pointer ${paymentMethod === 'paypal'
                         ? 'bg-[#ffc439] hover:bg-[#f0b830] text-[#080A0C]'
                         : 'hover:opacity-90'
-                    }`}
+                      }`}
                     style={
                       paymentMethod === 'stripe'
                         ? {
-                            backgroundColor: brandColor,
-                            color: brandContrastText,
-                            boxShadow: `0 8px 24px -4px ${hexToRgba(brandColor, 0.3)}`
-                          }
+                          backgroundColor: brandColor,
+                          color: brandContrastText,
+                          boxShadow: `0 8px 24px -4px ${hexToRgba(brandColor, 0.3)}`
+                        }
                         : {}
                     }
                   >
