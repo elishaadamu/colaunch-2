@@ -1054,8 +1054,8 @@ export default function CreatorLaunchLayout({
                 } catch { }
               }}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-none text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${activeSection === 'section1'
-                ? 'bg-[#C81E3C] text-white border-transparent shadow-sm'
-                : 'text-[#94A3B8] hover:text-white hover:bg-[#131929] border-transparent'
+                  ? 'bg-[#C81E3C] text-white border-transparent shadow-sm'
+                  : 'text-[#94A3B8] hover:text-white hover:bg-[#131929] border-transparent'
                 }`}
             >
               <Target className={`w-3.5 h-3.5 ${activeSection === 'section1' ? 'text-white' : 'text-[#94A3B8]'}`} />
@@ -1459,10 +1459,10 @@ export default function CreatorLaunchLayout({
                         setShowSection1Sidebar(false)
                       }}
                       className={`w-full flex items-start gap-3 p-3 rounded-none text-left transition-all cursor-pointer ${isCur
-                        ? 'bg-[#C81E3C] text-white shadow-sm border border-transparent font-semibold'
-                        : isDone
-                          ? 'bg-[#131929] hover:bg-[#1A2236] text-white border border-[#1E293B]'
-                          : 'bg-[#0D121F] hover:bg-[#131929] text-[#94A3B8] hover:text-white border border-[#1E293B]'
+                          ? 'bg-[#C81E3C] text-white shadow-sm border border-transparent font-semibold'
+                          : isDone
+                            ? 'bg-[#131929] hover:bg-[#1A2236] text-white border border-[#1E293B]'
+                            : 'bg-[#0D121F] hover:bg-[#131929] text-[#94A3B8] hover:text-white border border-[#1E293B]'
                         }`}
                     >
                       <div className={`w-8 h-8 rounded-none shrink-0 flex items-center justify-center mt-0.5 ${isCur ? 'bg-white/20 text-white' : isDone ? 'bg-[#131929] text-[#C81E3C]' : 'bg-[#131929] text-[#94A3B8]'

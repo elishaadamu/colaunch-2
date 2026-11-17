@@ -457,7 +457,7 @@ export default function AcquisitionEngine({
                     const parsed = JSON.parse(cached);
                     if (Array.isArray(parsed) && parsed.length > 0) return parsed;
                   }
-                } catch (e) { }
+                } catch (e) {}
                 return [];
               })();
 
@@ -584,13 +584,13 @@ export default function AcquisitionEngine({
       try {
         localStorage.setItem("forge_launch_min_followers", "100000");
         localStorage.setItem("forge_launch_max_followers", "1000000");
-      } catch (e) { }
+      } catch (e) {}
     }
     if ((creatorsBatchCount || 25) > 50) {
       setCreatorsBatchCount(50);
       try {
         localStorage.setItem("forge_launch_creators_batch_count", "50");
-      } catch (e) { }
+      } catch (e) {}
     }
   }, []);
   const [selectedCreatorId, setSelectedCreatorId] = useState(() => {
@@ -1697,7 +1697,7 @@ export default function AcquisitionEngine({
                       const parsed = JSON.parse(cached);
                       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
                     }
-                  } catch (e) { }
+                  } catch (e) {}
                   return [];
                 })();
 
@@ -3144,7 +3144,7 @@ export default function AcquisitionEngine({
                   const parsed = JSON.parse(cached);
                   if (Array.isArray(parsed) && parsed.length > 0) return parsed;
                 }
-              } catch (e) { }
+              } catch (e) {}
               return null;
             })(),
       product_concepts:
@@ -3209,7 +3209,7 @@ export default function AcquisitionEngine({
             const next = { ...prev, [cId]: newEntry };
             try {
               localStorage.setItem("forge_creator_brand_color_map", JSON.stringify(next));
-            } catch (e) { }
+            } catch (e) {}
             return next;
           });
 
@@ -3271,7 +3271,7 @@ export default function AcquisitionEngine({
       const next = { ...prev, [cId]: newEntry };
       try {
         localStorage.setItem("forge_creator_brand_color_map", JSON.stringify(next));
-      } catch (e) { }
+      } catch (e) {}
       return next;
     });
 
@@ -3305,7 +3305,7 @@ export default function AcquisitionEngine({
           ...(updatedForCreator.length > 0 ? { product_concepts: updatedForCreator } : {}),
         })
       )
-      .catch(() => { });
+      .catch(() => {});
 
     // Sync to Creator Dashboard & Admin OS
     if (typeof window !== "undefined") {
@@ -3490,7 +3490,7 @@ export default function AcquisitionEngine({
             );
           }
         })
-        .catch(() => { });
+        .catch(() => {});
     }
   }, [selectedCreator?.id, selectedCreator?.handle]);
 
@@ -3887,12 +3887,12 @@ export default function AcquisitionEngine({
         prev.map((c) =>
           c.id === cId
             ? {
-              ...c,
-              status: "pitched",
-              brandColor: primaryHex,
-              brand_color: primaryHex,
-              productConcepts: conceptsToSend,
-            }
+                ...c,
+                status: "pitched",
+                brandColor: primaryHex,
+                brand_color: primaryHex,
+                productConcepts: conceptsToSend,
+              }
             : c
         )
       );
@@ -4082,7 +4082,7 @@ export default function AcquisitionEngine({
         if (creator.id) localStorage.setItem(`forge_concepts_${creator.id}`, JSON.stringify(normalized));
         if (creator._id) localStorage.setItem(`forge_concepts_${creator._id}`, JSON.stringify(normalized));
         if (creator.handle) localStorage.setItem(`forge_concepts_${creator.handle.replace(/^@/, "").toLowerCase().trim()}`, JSON.stringify(normalized));
-      } catch (e) { }
+      } catch (e) {}
 
       setCreators((prev) =>
         prev.map((c) => {
@@ -4301,7 +4301,7 @@ export default function AcquisitionEngine({
         if (creator.id) localStorage.setItem(`forge_concepts_${creator.id}`, JSON.stringify(fallbackConcepts));
         if (creator._id) localStorage.setItem(`forge_concepts_${creator._id}`, JSON.stringify(fallbackConcepts));
         if (creator.handle) localStorage.setItem(`forge_concepts_${creator.handle.replace(/^@/, "").toLowerCase().trim()}`, JSON.stringify(fallbackConcepts));
-      } catch (e) { }
+      } catch (e) {}
 
       setCreators((prev) =>
         prev.map((c) => {
@@ -4403,9 +4403,9 @@ export default function AcquisitionEngine({
       prev.map((c) =>
         c.id === selectedCreator.id
           ? {
-            ...c,
-            productConcepts: newConcepts,
-          }
+              ...c,
+              productConcepts: newConcepts,
+            }
           : c,
       ),
     );
@@ -5302,7 +5302,7 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
           `Your Dedicated DIY ProjectOS Command Center URL`,
           `Hi ${creator.name || 'there'},\n\nYour DIY ProjectOS Command Center has been activated by the studio with 100% revenue ownership.\n\nAccess your full DIY ProjectOS pipeline here:\n${dedicatedUrl}\n\nBest,\nCoLaunch Studio Team`,
           creator.id
-        ).catch(() => { });
+        ).catch(() => {});
       }
 
       notify("success", "DIY Activated", "Full DIY ProjectOS activated for creator with 100% revenue ownership!", 4500);
@@ -6609,7 +6609,7 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
                   </span>
                 ) : (
                   <span className="font-semibold text-white">
-                    {unlaunchedCreators.length !== creators.length
+                    {unlaunchedCreators.length !== creators.length 
                       ? `${unlaunchedCreators.length} active leads (${creators.length} in DB)`
                       : `${creators.length} active leads`}
                   </span>
@@ -6669,35 +6669,39 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
                     setActiveStep(item.step);
                   }
                 }}
-                className={`relative flex items-center gap-3 p-3 rounded-none text-left transition cursor-pointer group min-w-0 ${isActive
+                className={`relative flex items-center gap-3 p-3 rounded-none text-left transition cursor-pointer group min-w-0 ${
+                  isActive
                     ? "bg-[#C81E3C] text-white border border-[#C81E3C] shadow-md font-bold"
                     : "bg-[#0D121F] hover:bg-[#131929] border border-[#334155] text-[#94A3B8] hover:text-white shadow-2xs"
-                  }`}
+                }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-none flex items-center justify-center flex-shrink-0 transition-colors ${isActive
+                  className={`w-8 h-8 rounded-none flex items-center justify-center flex-shrink-0 transition-colors ${
+                    isActive
                       ? "bg-white/20 text-white"
                       : "bg-[#131929] text-[#94A3B8] group-hover:bg-[#1A2236] group-hover:text-white"
-                    }`}
+                  }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span
-                      className={`text-[10px] font-bold uppercase tracking-wider block ${isActive
+                      className={`text-[10px] font-bold uppercase tracking-wider block ${
+                        isActive
                           ? "text-white/80"
                           : "text-[#64748B] group-hover:text-[#94A3B8]"
-                        }`}
+                      }`}
                     >
                       {item.num}
                     </span>
                   </div>
                   <span
-                    className={`text-xs truncate block ${isActive
+                    className={`text-xs truncate block ${
+                      isActive
                         ? "font-bold text-white"
                         : "font-medium text-[#94A3B8] group-hover:text-white"
-                      }`}
+                    }`}
                   >
                     {item.label}
                   </span>

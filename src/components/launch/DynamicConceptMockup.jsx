@@ -131,13 +131,13 @@ export default function DynamicConceptMockup({
 
   const brandColorObj = theme
     ? {
-      name: theme.name,
-      hex: sanitizeAccentColor(theme.primaryHex),
-      glow: theme.glow || `${sanitizeAccentColor(theme.primaryHex)}35`,
-      bg: theme.badgeBg,
-      text: theme.badgeText,
-      border: theme.borderActive || sanitizeAccentColor(theme.primaryHex),
-    }
+        name: theme.name,
+        hex: sanitizeAccentColor(theme.primaryHex),
+        glow: theme.glow || `${sanitizeAccentColor(theme.primaryHex)}35`,
+        bg: theme.badgeBg,
+        text: theme.badgeText,
+        border: theme.borderActive || sanitizeAccentColor(theme.primaryHex),
+      }
     : getBrandColorObj(concept?.brandColor || (conceptIndex === 0 ? "#c81e3c" : conceptIndex === 1 ? "#06B6D4" : "#F59E0B"));
   const accentHex = sanitizeAccentColor(brandColorObj.hex);
   const contrastText = getContrastTextColor(accentHex);
@@ -219,8 +219,8 @@ export default function DynamicConceptMockup({
             background: mockupType === "ai_copilot"
               ? `radial-gradient(ellipse at 50% 0%, ${accentHex}20 0%, #070A0F 75%)`
               : mockupType === "knowledge_hub"
-                ? `radial-gradient(ellipse at 50% 0%, ${accentHex}24 0%, #080A0E 75%)`
-                : `radial-gradient(ellipse at 50% 0%, ${accentHex}25 0%, #06080C 75%)`
+              ? `radial-gradient(ellipse at 50% 0%, ${accentHex}24 0%, #080A0E 75%)`
+              : `radial-gradient(ellipse at 50% 0%, ${accentHex}25 0%, #06080C 75%)`
           }}
         >
           {/* If custom image provided, display it */}
