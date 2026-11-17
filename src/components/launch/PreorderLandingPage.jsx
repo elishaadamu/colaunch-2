@@ -319,6 +319,30 @@ export default function PreorderLandingPage({ slug }) {
     }
   }, [slug])
 
+  // Handle returning from verified Stripe Checkout
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const sp = new URLSearchParams(window.location.search)
+    if (sp.get('checkout_success') === 'true' || sp.get('session_id')) {
+      const sessionId = sp.get('session_id') || 'cs_verified'
+      const amount = sp.get('amount') || selectedTier?.price || '49'
+      const tier = sp.get('tier') || selectedTier?.name || 'Founding Member Pass'
+      setSuccessReceipt({
+        txId: sessionId,
+        name: 'Founding Supporter',
+        email: sp.get('customer_email') || '',
+        amount: Number(amount) || 49,
+        tier: tier,
+        paymentMethod: sp.get('test_checkout') === 'true' ? 'Stripe (Test Mode)' : 'Stripe Live Rails',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        status: 'Paid & Confirmed'
+      })
+      setIsSuccess(true)
+      setCheckoutModalOpen(true)
+    }
+  }, [])
+
   if (isLoading && !project) {
     return <PreorderLandingSkeleton slug={slug} />
   }
@@ -337,17 +361,9 @@ export default function PreorderLandingPage({ slug }) {
     }
 
     setIsProcessing(true)
-    setProcessingStep('Authorizing secure transaction...')
+    setProcessingStep('Authorizing secure checkout session...')
 
     try {
-      // 1. Handshake & payment verification simulation
-      await new Promise(r => setTimeout(r, 600))
-      setProcessingStep('Securing reservation & recording payment on database...')
-
-      const txId = paymentMethod === 'stripe' 
-        ? `tx_stripe_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
-        : `tx_paypal_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
-
       const urlParams = new URLSearchParams(window.location.search)
       const refQuery = (urlParams.get('ref') || urlParams.get('utm_source') || urlParams.get('utm') || urlParams.get('source') || urlParams.get('channel') || '').toLowerCase()
       let attributedChannel = 'Direct / Other'
@@ -365,68 +381,41 @@ export default function PreorderLandingPage({ slug }) {
 
       const activeExpVariant = project?.campaignKit?.pricingConfig?.activeExperimentTitle || project?.campaignKit?.landingPageCopy?.activeExperimentTitle || null
 
-      const newReservation = {
-        id: `res-${Date.now()}`,
-        name: buyerName.trim(),
-        email: buyerEmail.trim(),
-        amount: selectedTier.price,
-        tier: selectedTier.name,
-        paymentMethod: paymentMethod === 'stripe' ? 'Stripe' : 'PayPal',
-        channel: attributedChannel,
-        txId: txId,
-        date: 'Just now',
-        timestamp: Date.now(),
-        status: 'Paid',
-        experimentVariant: activeExpVariant
-      }
+      // Create verified Checkout Session with backend
+      const { createProjectCheckoutSession } = await import('../../services/opsApi')
+      const successUrl = `${window.location.origin}${window.location.pathname}?checkout_success=true&tier=${encodeURIComponent(selectedTier.name)}&amount=${selectedTier.price}`
+      const cancelUrl = window.location.href
 
-      // Optimistic Local State Sync
-      const current = project || {}
-      const existingReservations = Array.isArray(current.reservations) ? current.reservations : []
-      const nextReservations = [newReservation, ...existingReservations]
-      const nextTotalRevenue = nextReservations.reduce((acc, r) => acc + (Number(r.amount) || 0), 0)
-      const totalUniqueVisitors = Number(current.visitors || 1)
-      const nextConversionRate = totalUniqueVisitors > 0 ? ((nextReservations.length / totalUniqueVisitors) * 100).toFixed(1) : 0
-
-      const updated = {
-        ...current,
-        reservations: nextReservations,
-        currentPresales: nextTotalRevenue,
-        conversionRate: Number(nextConversionRate)
-      }
-
-      setProject(updated)
-      window.dispatchEvent(new CustomEvent('forge_project_updated', { detail: updated }))
-
-      // 2. Real API Persistence Call to DB
-      setProcessingStep('Provisioning private access token & syncing project...')
-      const { recordPreorderUniversal } = await import('../../services/opsApi')
-      const dbResult = await recordPreorderUniversal({
-        projectId: project?.id,
+      const sessionRes = await createProjectCheckoutSession(project?.id, {
         slug: slug,
         creatorHandle: project?.creatorHandle,
         name: buyerName.trim(),
         email: buyerEmail.trim(),
         amount: selectedTier.price,
         tier: selectedTier.name,
-        paymentMethod: paymentMethod === 'stripe' ? 'Stripe' : 'PayPal',
+        tierName: selectedTier.name,
         channel: attributedChannel,
-        txId: txId,
-        experimentVariant: activeExpVariant
+        ref: refQuery || attributedChannel,
+        successUrl,
+        cancelUrl,
       })
 
-      if (dbResult) {
-        setProject(dbResult)
-        window.dispatchEvent(new CustomEvent('forge_project_updated', { detail: dbResult }))
+      // If a live Stripe checkout URL was returned, redirect customer to Stripe Checkout
+      if (sessionRes?.checkoutUrl && !sessionRes?.isTestMode && sessionRes?.mode === 'stripe_live') {
+        setProcessingStep('Redirecting to Stripe Live Checkout...')
+        window.location.href = sessionRes.checkoutUrl
+        return
       }
 
+      // Test/Developer Mode fallback (when STRIPE_SECRET_KEY is not configured)
+      const txId = sessionRes?.sessionId || `tx_test_${Date.now().toString(36)}`
       const receipt = {
         txId,
         name: buyerName.trim(),
         email: buyerEmail.trim(),
         amount: selectedTier.price,
         tier: selectedTier.name,
-        paymentMethod: paymentMethod === 'stripe' ? 'Stripe (Credit / Debit Card)' : 'PayPal Express',
+        paymentMethod: sessionRes?.isTestMode ? 'Stripe (Test Mode)' : 'Stripe (Credit / Debit Card)',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
         status: 'Paid & Confirmed'

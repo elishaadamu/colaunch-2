@@ -286,16 +286,12 @@ export default function CreatorPortal({ portalId, slug }) {
     if (typeof window !== 'undefined') {
       const sp = new URLSearchParams(window.location.search)
       const v = sp.get('view')
+      if (v === 'projectos' || v === 'pipeline' || v === 'workspace') {
+        return 'projectos'
+      }
       if (v === 'launch_kit') return 'launch_kit'
-      if (v === 'projectos' || v === 'pipeline' || v === 'diy') {
-        return 'projectos'
-      }
-      const isPaidParam = sp.get('token') === 'cf_diy_paid' || sp.get('paid') === 'true'
-      if (isPaidParam) {
-        return 'projectos'
-      }
     }
-    return 'projectos'
+    return 'launch_kit'
   })
 
   const [activeTab, setActiveTab] = useState('tasks') // 'tasks' | 'scripts' | 'presales' | 'messages' | 'strategy'
@@ -381,18 +377,20 @@ export default function CreatorPortal({ portalId, slug }) {
       : (defaultPassPrice || (!isNaN(projectSpecificFee) && projectSpecificFee > 0 ? projectSpecificFee : 50))
   )
 
-  // When creator has paid, projectOS is the default view (unless explicitly overridden by URL)
+  // Only switch view if explicitly requested in URL query
   const hasAutoSwitchedToProjectOS = useRef(false)
   useEffect(() => {
-    if (!hasAutoSwitchedToProjectOS.current && isDiyActive) {
+    if (!hasAutoSwitchedToProjectOS.current) {
       if (typeof window !== 'undefined') {
         const sp = new URLSearchParams(window.location.search)
-        if (sp.get('view') === 'launch_kit') return
+        const v = sp.get('view')
+        if (v === 'projectos' || v === 'workspace') {
+          setActiveMainView('projectos')
+        }
       }
-      setActiveMainView('projectos')
       hasAutoSwitchedToProjectOS.current = true
     }
-  }, [isDiyActive])
+  }, [])
 
   const isTrackChoiceUrl = typeof window !== 'undefined' && (
     new URLSearchParams(window.location.search).get('offer') === 'track_choice' ||

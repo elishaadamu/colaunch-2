@@ -889,44 +889,44 @@ partnerships@colaunch.com`
         .s2 .s2-btn-crimson:hover { background: ${C.crimsonHover} !important; }
       `}</style>
       {/* SECTION 2 HEADER (DARK SLATE & CRIMSON BASE + SEMANTIC ACCENTS) */}
-      <div
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3"
-        style={{ borderBottom: `1px solid ${C.line}` }}
-      >
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span
-              className="text-[11px] font-mono font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border"
-              style={PILL_TONES.crimson}
+      {userRole !== 'creator' && (
+        <div
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3"
+          style={{ borderBottom: `1px solid ${C.line}` }}
+        >
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span
+                className="text-[11px] font-mono font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border"
+                style={PILL_TONES.crimson}
+              >
+                SECTION 2 • PROJECT OS
+              </span>
+              <span style={{ color: C.faint }}>•</span>
+              <span
+                className="text-xs font-bold px-2.5 py-0.5 rounded-full border truncate max-w-full"
+                style={PILL_TONES.raised}
+              >
+                {cleanProductName}
+              </span>
+            </div>
+            <h1
+              className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight mt-1"
+              style={{ ...HEADING_FONT, color: C.text }}
             >
-              SECTION 2 • PROJECT OS
-            </span>
-            <span style={{ color: C.faint }}>•</span>
-            <span
-              className="text-xs font-bold px-2.5 py-0.5 rounded-full border truncate max-w-full"
-              style={PILL_TONES.raised}
-            >
-              {cleanProductName}
-            </span>
+              CO-LAUNCH PROJECT OS
+            </h1>
+            <p className="text-xs mt-0.5 flex items-center gap-1.5 flex-wrap" style={{ color: C.muted }}>
+              <span>Co-Founding Partner:</span>
+              <strong className="font-bold" style={{ color: C.crimsonText }}>{cleanCreatorName}</strong>
+              <span className="font-mono text-[11px]" style={{ color: C.faint }}>({cleanCreatorHandle})</span>
+              <span className="hidden xs:inline" style={{ color: C.faint }}>•</span>
+              <span className="italic line-clamp-1 xs:line-clamp-none" style={{ color: C.body }}>"{cleanTagline}"</span>
+            </p>
           </div>
-          <h1
-            className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight mt-1"
-            style={{ ...HEADING_FONT, color: C.text }}
-          >
-            CO-LAUNCH PROJECT OS
-          </h1>
-          <p className="text-xs mt-0.5 flex items-center gap-1.5 flex-wrap" style={{ color: C.muted }}>
-            <span>Co-Founding Partner:</span>
-            <strong className="font-bold" style={{ color: C.crimsonText }}>{cleanCreatorName}</strong>
-            <span className="font-mono text-[11px]" style={{ color: C.faint }}>({cleanCreatorHandle})</span>
-            <span className="hidden xs:inline" style={{ color: C.faint }}>•</span>
-            <span className="italic line-clamp-1 xs:line-clamp-none" style={{ color: C.body }}>"{cleanTagline}"</span>
-          </p>
-        </div>
 
-        {/* Right CTA / Portal Quick Button (Color Studio removed; uses CoLaunch base Crimson + accents) */}
-        <div id="tour-s2-theme-picker" className="flex items-center gap-2 flex-wrap shrink-0">
-          {userRole !== 'creator' && (
+          {/* Right CTA / Portal Quick Button (Color Studio removed; uses CoLaunch base Crimson + accents) */}
+          <div id="tour-s2-theme-picker" className="flex items-center gap-2 flex-wrap shrink-0">
             <a
               href={portalUrl}
               target="_blank"
@@ -938,44 +938,44 @@ partnerships@colaunch.com`
               <span>Co-Founder Portal</span>
               <ExternalLink className="w-3 h-3" style={{ color: C.skyText }} />
             </a>
-          )}
 
-          <button
-            onClick={() => setShowShareModal(true)}
-            className="s2-btn-quiet px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all whitespace-nowrap active:scale-95 cursor-pointer"
-            style={{ background: C.raised, borderColor: C.line, color: C.body }}
-          >
-            <Share2 className="w-3.5 h-3.5" style={{ color: C.violetText }} />
-            <span>Share Portal</span>
-          </button>
-
-          <button
-            onClick={handleResetPhasesToStart}
-            className="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap active:scale-95 hover:opacity-90"
-            style={{ background: C.warnSoft, borderColor: C.warnLine, color: C.warn }}
-            title="Reset all project phases back to Phase 1 (Audience Validation)"
-          >
-            <RotateCcw className="w-3.5 h-3.5" style={{ color: C.warn }} />
-            <span>Reset Phases to Start</span>
-          </button>
-
-          {onResetProject && (
             <button
-              onClick={() => {
-                if (window.confirm('Reset this co-launch project and return to Section 1?')) {
-                  onResetProject(project?.id)
-                }
-              }}
-              className="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap active:scale-95 hover:opacity-90"
-              style={{ background: C.crimsonSoft, borderColor: C.crimsonLine, color: C.crimsonText }}
-              title="Reset project and return to Section 1"
+              onClick={() => setShowShareModal(true)}
+              className="s2-btn-quiet px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all whitespace-nowrap active:scale-95 cursor-pointer"
+              style={{ background: C.raised, borderColor: C.line, color: C.body }}
             >
-              <Trash2 className="w-3.5 h-3.5" style={{ color: C.crimsonText }} />
-              <span>Reset Project</span>
+              <Share2 className="w-3.5 h-3.5" style={{ color: C.violetText }} />
+              <span>Share Portal</span>
             </button>
-          )}
+
+            <button
+              onClick={handleResetPhasesToStart}
+              className="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap active:scale-95 hover:opacity-90"
+              style={{ background: C.warnSoft, borderColor: C.warnLine, color: C.warn }}
+              title="Reset all project phases back to Phase 1 (Audience Validation)"
+            >
+              <RotateCcw className="w-3.5 h-3.5" style={{ color: C.warn }} />
+              <span>Reset Phases to Start</span>
+            </button>
+
+            {onResetProject && (
+              <button
+                onClick={() => {
+                  if (window.confirm('Reset this co-launch project and return to Section 1?')) {
+                    onResetProject(project?.id)
+                  }
+                }}
+                className="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap active:scale-95 hover:opacity-90"
+                style={{ background: C.crimsonSoft, borderColor: C.crimsonLine, color: C.crimsonText }}
+                title="Reset project and return to Section 1"
+              >
+                <Trash2 className="w-3.5 h-3.5" style={{ color: C.crimsonText }} />
+                <span>Reset Project</span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* EXPANDED FULL-WIDTH COMMAND CENTER */}
       <div className="w-full space-y-4">
@@ -1121,29 +1121,31 @@ partnerships@colaunch.com`
                     )}
                   </span>
 
-                  {/* Direct button to mark Phase 1 done and advance to Phase 2 */}
-                  {currentPhase === 1 ? (
-                    <button
-                      type="button"
-                      onClick={() => handleAdvancePhase(2)}
-                      className="s2-btn-crimson mt-1 w-full py-1.5 px-2 rounded-lg text-white text-[10px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer active:scale-95"
-                      style={{ backgroundColor: C.crimson }}
-                      title="Mark Phase 1 as Done and Advance to Phase 2: Build MVP"
-                    >
-                      <CheckCircle2 className="w-3 h-3 text-white" />
-                      <span>Mark P1 Done → P2</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleResetPhasesToStart}
-                      className="mt-1 w-full py-1 px-2 rounded-lg border text-[10px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer hover:opacity-90"
-                      style={{ background: C.warnSoft, borderColor: C.warnLine, color: C.warn }}
-                      title="Reset all phases back to Phase 1: Validate"
-                    >
-                      <RotateCcw className="w-3 h-3" style={{ color: C.warn }} />
-                      <span>Reset to Phase 1</span>
-                    </button>
+                  {/* Direct button to mark Phase 1 done and advance to Phase 2 (operator only) */}
+                  {userRole !== 'creator' && (
+                    currentPhase === 1 ? (
+                      <button
+                        type="button"
+                        onClick={() => handleAdvancePhase(2)}
+                        className="s2-btn-crimson mt-1 w-full py-1.5 px-2 rounded-lg text-white text-[10px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer active:scale-95"
+                        style={{ backgroundColor: C.crimson }}
+                        title="Mark Phase 1 as Done and Advance to Phase 2: Build MVP"
+                      >
+                        <CheckCircle2 className="w-3 h-3 text-white" />
+                        <span>Mark P1 Done → P2</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleResetPhasesToStart}
+                        className="mt-1 w-full py-1 px-2 rounded-lg border text-[10px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer hover:opacity-90"
+                        style={{ background: C.warnSoft, borderColor: C.warnLine, color: C.warn }}
+                        title="Reset all phases back to Phase 1: Validate"
+                      >
+                        <RotateCcw className="w-3 h-3" style={{ color: C.warn }} />
+                        <span>Reset to Phase 1</span>
+                      </button>
+                    )
                   )}
                 </div>
               </div>
@@ -1155,7 +1157,7 @@ partnerships@colaunch.com`
             {/* Header inside Command Center */}
             <div
               id="tour-s2-header"
-              className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3.5"
+              className="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-3.5"
               style={{ borderBottom: `1px solid ${C.line}` }}
             >
               <div className="flex-1 min-w-0 space-y-1.5">
@@ -1258,8 +1260,8 @@ partnerships@colaunch.com`
                   )}
                 </span>
 
-                {/* Direct quick advance button if currently on Phase 1 */}
-                {currentPhase === 1 && (
+                {/* Direct quick advance button if currently on Phase 1 (operator only) */}
+                {userRole !== 'creator' && currentPhase === 1 && (
                   <button
                     type="button"
                     onClick={() => handleAdvancePhase(2)}
@@ -1272,27 +1274,31 @@ partnerships@colaunch.com`
                   </button>
                 )}
 
-                <button
-                  type="button"
-                  onClick={() => startSection2Tour(true)}
-                  className="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap hover:opacity-90"
-                  style={{ background: C.violetSoft, borderColor: C.violetLine, color: C.violetText }}
-                  title="Start Interactive Guided Walkthrough (Driver.js)"
-                >
-                  <Sparkles className="w-3.5 h-3.5" style={{ color: C.violet }} />
-                  <span>Workflow Tour</span>
-                </button>
+                {userRole !== 'creator' && (
+                  <button
+                    type="button"
+                    onClick={() => startSection2Tour(true)}
+                    className="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap hover:opacity-90"
+                    style={{ background: C.violetSoft, borderColor: C.violetLine, color: C.violetText }}
+                    title="Start Interactive Guided Walkthrough (Driver.js)"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" style={{ color: C.violet }} />
+                    <span>Workflow Tour</span>
+                  </button>
+                )}
 
-                <button
-                  type="button"
-                  onClick={() => setShowWiringTutorial(true)}
-                  className="s2-btn-quiet px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
-                  style={{ background: C.raised, borderColor: C.line, color: C.body }}
-                  title="Open Text-Based Workflow Wiring Tutorial"
-                >
-                  <Workflow className="w-3.5 h-3.5" style={{ color: C.muted }} />
-                  <span>Wiring Guide</span>
-                </button>
+                {userRole !== 'creator' && (
+                  <button
+                    type="button"
+                    onClick={() => setShowWiringTutorial(true)}
+                    className="s2-btn-quiet px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
+                    style={{ background: C.raised, borderColor: C.line, color: C.body }}
+                    title="Open Text-Based Workflow Wiring Tutorial"
+                  >
+                    <Workflow className="w-3.5 h-3.5" style={{ color: C.muted }} />
+                    <span>Wiring Guide</span>
+                  </button>
+                )}
 
                 <button
                   id="tour-s2-open-workspace-btn"

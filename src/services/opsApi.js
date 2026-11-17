@@ -340,6 +340,10 @@ export const getCreatorCampaignTasks = (id) => req('GET', `/projects/${id}/creat
 export const updateCreatorCampaignTask = (id, taskId, updates) => req('PATCH', `/projects/${id}/creator-tasks/${taskId}`, updates)
 export const sendTaskReminder = (id, taskId) => req('POST', `/projects/${id}/remind-task/${taskId}`)
 export const addProjectReservation = (id, reservation) => req('POST', `/projects/${id}/reservations`, reservation)
+export const createProjectCheckoutSession = (projectId, data = {}) => {
+  const endpoint = projectId ? `/projects/${projectId}/create-checkout-session` : '/projects/create-checkout-session'
+  return req('POST', endpoint, { ...data, projectId })
+}
 export const recordPreorderUniversal = (data) => req('POST', '/projects/record-preorder', data)
 export const recordSurveyResponseUniversal = (data) => req('POST', '/projects/record-survey-response', data)
 export const addProjectSurveyResponse = (id, data) => req('POST', `/projects/${id}/survey-response`, data)

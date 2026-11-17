@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
     ...loadEnv(mode, __dirname, ''),
     ...loadEnv(mode, process.cwd(), ''),
   }
-  const backendTarget = env.VITE_BACKEND_URL || env.VITE_API_URL || 'https://creator-forge-backend-jj1y.onrender.com'
+  const backendTarget = env.VITE_BACKEND_URL || env.VITE_API_URL || 'http://localhost:8000'
 
   return {
     plugins: [react()],
@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api\/together/, ''),
         },
-        // FastAPI backend — CoLaunch ops pipeline (points to Render backend in .env)
+        // FastAPI backend — CoLaunch ops pipeline (points to local or env backend)
         '/api': {
           target: backendTarget,
           changeOrigin: true,
@@ -52,8 +52,12 @@ export default defineConfig(({ mode }) => {
           timeout: 300000,
           proxyTimeout: 300000,
           configure: (proxy) => {
-            proxy.on('error', (err) => {
+            proxy.on('error', (err, req, res) => {
               console.warn(`[Vite proxy] FastAPI backend not running at ${backendTarget}:`, err.message)
+              if (res && !res.headersSent && typeof res.writeHead === 'function') {
+                res.writeHead(502, { 'Content-Type': 'application/json' })
+                res.end(JSON.stringify({ error: 'Backend unreachable', message: err.message }))
+              }
             })
           },
         },
