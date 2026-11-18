@@ -70,6 +70,7 @@ export default function PublicSurveyPage({ slug }) {
   const productName = project?.productName || 'Software Product'
   const creatorName = project?.creatorName || 'Creator'
   const niche = project?.niche || 'Software Workflows'
+  const brandColor = project?.brandColor || project?.brand_color || '#c81e3c'
   
   const rawQuestions = project?.surveyData?.questions ||
     project?.validationCampaign?.researchSurvey?.questions ||
@@ -136,26 +137,40 @@ export default function PublicSurveyPage({ slug }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 selection:bg-purple-500 selection:text-white font-sans antialiased py-10 px-4">
+    <div className="min-h-screen bg-[#07090e] text-slate-100 selection:bg-[#c81e3c] selection:text-white font-sans antialiased py-10 px-4">
       <div className="max-w-2xl mx-auto space-y-8">
         {/* Header Branding */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-bold">
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border"
+            style={{
+              backgroundColor: 'rgba(200, 30, 60, 0.12)',
+              borderColor: 'rgba(200, 30, 60, 0.35)',
+              color: '#ff8fa3',
+            }}
+          >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Community Discovery Research</span>
+            <span>Community discovery research</span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Help Shape <span className="text-purple-400">{productName}</span>
+            Help shape <span style={{ color: brandColor }}>{productName}</span>
           </h1>
 
           <p className="text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
             Co-founded with <strong className="text-white">{creatorName}</strong>. Share 2 minutes of feedback to help us build the exact features you need.
           </p>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-xl text-xs font-bold border"
+            style={{
+              backgroundColor: 'rgba(200, 30, 60, 0.08)',
+              borderColor: 'rgba(200, 30, 60, 0.25)',
+              color: '#ff8fa3',
+            }}
+          >
             <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Founding Contributor Priority Access Included</span>
+            <span>Founding contributor priority access included</span>
           </div>
         </div>
 
@@ -163,19 +178,27 @@ export default function PublicSurveyPage({ slug }) {
         <div className="p-6 sm:p-8 rounded-3xl bg-[#0e1117] border border-white/[0.08] shadow-2xl space-y-6">
           {isSubmitted ? (
             <div className="text-center py-10 space-y-4 animate-fade-in">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-2xl">
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center mx-auto text-2xl border"
+                style={{
+                  backgroundColor: 'rgba(200, 30, 60, 0.15)',
+                  borderColor: 'rgba(200, 30, 60, 0.4)',
+                  color: '#ff8fa3',
+                }}
+              >
                 ✓
               </div>
-              <h3 className="text-xl font-bold text-white">Thank You for Your Feedback!</h3>
+              <h3 className="text-xl font-bold text-white">Thank you for your feedback!</h3>
               <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
                 Your response has been recorded. The AI validation engine is analyzing your feedback to prioritize the Day 1 MVP roadmap.
               </p>
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <a
                   href={`/preorder/${productName.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
-                  className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+                  className="px-5 py-2.5 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: brandColor }}
                 >
-                  <span>View Founding Pre-Order Page</span>
+                  <span>View founding pre-order page</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </a>
                 <button
@@ -183,9 +206,9 @@ export default function PublicSurveyPage({ slug }) {
                     setIsSubmitted(false)
                     setAnswers({})
                   }}
-                  className="px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-slate-300 text-xs font-bold"
+                  className="px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-slate-300 text-xs font-bold cursor-pointer"
                 >
-                  Submit Another Response
+                  Submit another response
                 </button>
               </div>
             </div>
@@ -196,7 +219,13 @@ export default function PublicSurveyPage({ slug }) {
                 {questions.map((q, idx) => (
                   <div key={q.id || idx} className="p-4 rounded-2xl bg-[#141720] border border-white/[0.06] space-y-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 text-[10px] font-extrabold uppercase tracking-wider">
+                      <span
+                        className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider"
+                        style={{
+                          backgroundColor: 'rgba(200, 30, 60, 0.15)',
+                          color: '#ff8fa3',
+                        }}
+                      >
                         {q.category || `Question ${idx + 1}`}
                       </span>
                       <span className="text-xs font-bold text-white flex-1">{q.question}</span>
@@ -208,7 +237,7 @@ export default function PublicSurveyPage({ slug }) {
                       placeholder="Type your feedback here..."
                       value={answers[q.id] || ''}
                       onChange={e => handleAnswerChange(q.id, e.target.value)}
-                      className="w-full px-3.5 py-2 rounded-xl bg-[#090b0e] border border-white/[0.08] text-xs text-white placeholder:text-slate-500 outline-none focus:border-purple-500/60 transition-colors"
+                      className="w-full px-3.5 py-2 rounded-xl bg-[#090b0e] border border-white/[0.08] text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#c81e3c] transition-colors"
                     />
                   </div>
                 ))}
@@ -218,7 +247,7 @@ export default function PublicSurveyPage({ slug }) {
               <div className="p-4 rounded-2xl bg-[#141720] border border-white/[0.06] space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-white">How excited are you to use {productName}?</span>
-                  <span className="text-xs font-extrabold text-purple-400 font-mono">{intentRating}/10</span>
+                  <span className="text-xs font-extrabold font-mono" style={{ color: brandColor }}>{intentRating}/10</span>
                 </div>
                 <input
                   type="range"
@@ -226,7 +255,8 @@ export default function PublicSurveyPage({ slug }) {
                   max="10"
                   value={intentRating}
                   onChange={e => setIntentRating(Number(e.target.value))}
-                  className="w-full accent-purple-500 cursor-pointer"
+                  className="w-full cursor-pointer"
+                  style={{ accentColor: brandColor }}
                 />
                 <div className="flex justify-between text-[10px] text-slate-400">
                   <span>1 - Not interested</span>
@@ -238,25 +268,25 @@ export default function PublicSurveyPage({ slug }) {
               {/* Respondent Info (Name & Email for VIP access) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Your Name</label>
+                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Your name</label>
                   <input
                     type="text"
                     required
                     placeholder="Enter your full name"
                     value={respondentName}
                     onChange={e => setRespondentName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#141720] border border-white/[0.08] text-xs text-white placeholder:text-slate-500 outline-none focus:border-purple-500/60"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#141720] border border-white/[0.08] text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#c81e3c]"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Your Email (for VIP Alpha invite)</label>
+                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Your email (for VIP Alpha invite)</label>
                   <input
                     type="email"
                     required
                     placeholder="Enter your email address"
                     value={respondentEmail}
                     onChange={e => setRespondentEmail(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#141720] border border-white/[0.08] text-xs text-white placeholder:text-slate-500 outline-none focus:border-purple-500/60"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#141720] border border-white/[0.08] text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#c81e3c]"
                   />
                 </div>
               </div>
@@ -265,17 +295,21 @@ export default function PublicSurveyPage({ slug }) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-purple-950/50 transition-all disabled:opacity-50 active:scale-[0.99]"
+                className="w-full py-3 rounded-2xl text-white font-extrabold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-50 active:scale-[0.99] cursor-pointer hover:opacity-90"
+                style={{
+                  backgroundColor: brandColor,
+                  boxShadow: '0 10px 25px -5px rgba(200, 30, 60, 0.4)',
+                }}
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Submitting Feedback...</span>
+                    <span>Submitting feedback...</span>
                   </>
                 ) : (
                   <>
                     <Send className="w-3.5 h-3.5" />
-                    <span>Submit Discovery Feedback & Claim VIP Spot</span>
+                    <span>Submit discovery feedback & claim VIP spot</span>
                   </>
                 )}
               </button>
