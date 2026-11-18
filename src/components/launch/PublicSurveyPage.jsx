@@ -137,32 +137,42 @@ export default function PublicSurveyPage({ slug }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 selection:bg-[#c81e3c] selection:text-white font-sans antialiased py-10 px-4">
-      <div className="max-w-2xl mx-auto space-y-8">
-        {/* Header Branding */}
-        <div className="text-center space-y-3">
-          <div
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border"
-            style={{
-              backgroundColor: 'rgba(200, 30, 60, 0.12)',
-              borderColor: 'rgba(200, 30, 60, 0.35)',
-              color: '#ff8fa3',
-            }}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Community discovery research</span>
-          </div>
+    <div className="survey-root min-h-screen bg-[#07090e] text-slate-100 selection:bg-[#c81e3c] selection:text-white font-sans antialiased py-12 px-4 sm:px-6">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        .survey-root .serif {
+          font-family: 'Instrument Serif', Georgia, serif;
+          letter-spacing: -0.015em;
+          font-weight: 400;
+        }
+      `}</style>
 
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Help shape <span style={{ color: brandColor }}>{productName}</span>
+      <div className="max-w-2xl mx-auto space-y-8">
+        {/* Top bar branding */}
+        <div className="flex items-center justify-between text-xs pb-4 border-b border-white/[0.08]">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: brandColor }} />
+            <span className="font-semibold text-slate-200">Community Discovery</span>
+          </div>
+          <span className="text-slate-400 font-mono text-[11px]">2 min feedback</span>
+        </div>
+
+        {/* Header Hero */}
+        <div className="text-center space-y-3 pt-2">
+          <p className="text-xs font-semibold tracking-wider uppercase text-slate-400">
+            Product Advisory Board · {creatorName}
+          </p>
+
+          <h1 className="serif text-4xl sm:text-6xl text-white font-normal leading-[1.08] tracking-tight">
+            Help shape <em className="italic" style={{ color: brandColor }}>{productName}</em>
           </h1>
 
-          <p className="text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
-            Co-founded with <strong className="text-white">{creatorName}</strong>. Share 2 minutes of feedback to help us build the exact features you need.
+          <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto leading-relaxed">
+            Co-founded with <strong className="text-white font-medium">{creatorName}</strong>. Your feedback decides which features get built into the Day 1 release.
           </p>
 
           <div
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-xl text-xs font-bold border"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium border"
             style={{
               backgroundColor: 'rgba(200, 30, 60, 0.08)',
               borderColor: 'rgba(200, 30, 60, 0.25)',
@@ -174,152 +184,219 @@ export default function PublicSurveyPage({ slug }) {
           </div>
         </div>
 
-        {/* Survey Form Card */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-[#0e1117] border border-white/[0.08] shadow-2xl space-y-6">
-          {isSubmitted ? (
-            <div className="text-center py-10 space-y-4 animate-fade-in">
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center mx-auto text-2xl border"
-                style={{
-                  backgroundColor: 'rgba(200, 30, 60, 0.15)',
-                  borderColor: 'rgba(200, 30, 60, 0.4)',
-                  color: '#ff8fa3',
-                }}
-              >
-                ✓
-              </div>
-              <h3 className="text-xl font-bold text-white">Thank you for your feedback!</h3>
-              <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                Your response has been recorded. The AI validation engine is analyzing your feedback to prioritize the Day 1 MVP roadmap.
-              </p>
-              <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-                <a
-                  href={`/preorder/${productName.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
-                  className="px-5 py-2.5 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: brandColor }}
-                >
-                  <span>View founding pre-order page</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </a>
-                <button
-                  onClick={() => {
-                    setIsSubmitted(false)
-                    setAnswers({})
-                  }}
-                  className="px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-slate-300 text-xs font-bold cursor-pointer"
-                >
-                  Submit another response
-                </button>
-              </div>
+        {/* Form Container */}
+        {isSubmitted ? (
+          <div
+            className="p-8 sm:p-12 rounded-3xl border text-center space-y-4 animate-fade-in"
+            style={{
+              backgroundColor: '#0c0e14',
+              borderColor: 'rgba(255, 255, 255, 0.08)',
+            }}
+          >
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto text-2xl border"
+              style={{
+                backgroundColor: 'rgba(200, 30, 60, 0.12)',
+                borderColor: 'rgba(200, 30, 60, 0.35)',
+                color: '#ff8fa3',
+              }}
+            >
+              ✓
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Question Items */}
-              <div className="space-y-5">
-                {questions.map((q, idx) => (
-                  <div key={q.id || idx} className="p-4 rounded-2xl bg-[#141720] border border-white/[0.06] space-y-2.5">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider"
-                        style={{
-                          backgroundColor: 'rgba(200, 30, 60, 0.15)',
-                          color: '#ff8fa3',
-                        }}
-                      >
+            <h2 className="serif text-3xl sm:text-4xl font-normal text-white">
+              Thank you for your feedback.
+            </h2>
+            <p className="text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
+              Your responses have been recorded and are directly shaping the Day 1 MVP roadmap for {productName}.
+            </p>
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a
+                href={`/preorder/${productName.toLowerCase().replace(/[^a-z0-9]/g, '')}`}
+                className="px-5 py-2.5 rounded-xl text-white text-xs font-semibold flex items-center gap-1.5 transition-opacity hover:opacity-90"
+                style={{ backgroundColor: brandColor }}
+              >
+                <span>View founding pre-order page</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSubmitted(false)
+                  setAnswers({})
+                }}
+                className="px-4 py-2.5 rounded-xl text-slate-300 text-xs font-semibold border border-white/10 hover:bg-white/[0.05] cursor-pointer"
+                style={{ backgroundColor: '#07090e' }}
+              >
+                Submit another response
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Question Items */}
+            <div className="space-y-4">
+              {questions.map((q, idx) => (
+                <div
+                  key={q.id || idx}
+                  className="p-5 sm:p-6 rounded-2xl border transition-colors space-y-3"
+                  style={{
+                    backgroundColor: '#0c0e14',
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                  }}
+                >
+                  <div className="flex items-baseline justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xs font-mono font-semibold" style={{ color: '#ff8fa3' }}>
+                        0{idx + 1}
+                      </span>
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                         {q.category || `Question ${idx + 1}`}
                       </span>
-                      <span className="text-xs font-bold text-white flex-1">{q.question}</span>
                     </div>
-
-                    <textarea
-                      rows={2}
-                      required={idx === 0}
-                      placeholder="Type your feedback here..."
-                      value={answers[q.id] || ''}
-                      onChange={e => handleAnswerChange(q.id, e.target.value)}
-                      className="w-full px-3.5 py-2 rounded-xl bg-[#090b0e] border border-white/[0.08] text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#c81e3c] transition-colors"
-                    />
+                    {idx === 0 && (
+                      <span className="text-[10px] text-slate-500 font-mono">Required</span>
+                    )}
                   </div>
+
+                  <h3 className="serif text-xl sm:text-2xl text-white font-normal leading-snug">
+                    {q.question}
+                  </h3>
+
+                  <textarea
+                    rows={3}
+                    required={idx === 0}
+                    placeholder="Write your thoughts or specific workflows..."
+                    value={answers[q.id] || ''}
+                    onChange={e => handleAnswerChange(q.id, e.target.value)}
+                    className="w-full p-3.5 rounded-xl text-sm text-white placeholder:text-slate-500 outline-none transition-all resize-y"
+                    style={{
+                      backgroundColor: '#07090e',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                    }}
+                    onFocus={e => (e.target.style.borderColor = brandColor)}
+                    onBlur={e => (e.target.style.borderColor = 'rgba(255, 255, 255, 0.08)')}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Buying Intent Rating Pill Bar */}
+            <div
+              className="p-5 sm:p-6 rounded-2xl border space-y-3"
+              style={{
+                backgroundColor: '#0c0e14',
+                borderColor: 'rgba(255, 255, 255, 0.08)',
+              }}
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <h3 className="serif text-xl sm:text-2xl text-white font-normal">
+                  How excited are you to use {productName}?
+                </h3>
+                <span className="text-sm font-semibold font-mono" style={{ color: brandColor }}>
+                  {intentRating}/10
+                </span>
+              </div>
+
+              <div className="grid grid-cols-10 gap-1 sm:gap-2 pt-1">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => setIntentRating(num)}
+                    className="h-10 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer border"
+                    style={
+                      intentRating === num
+                        ? {
+                            backgroundColor: brandColor,
+                            borderColor: brandColor,
+                            color: '#ffffff',
+                            boxShadow: '0 4px 14px rgba(200, 30, 60, 0.35)',
+                          }
+                        : {
+                            backgroundColor: '#07090e',
+                            borderColor: 'rgba(255, 255, 255, 0.08)',
+                            color: '#94a3b8',
+                          }
+                    }
+                  >
+                    {num}
+                  </button>
                 ))}
               </div>
 
-              {/* Buying Intent Rating Slider */}
-              <div className="p-4 rounded-2xl bg-[#141720] border border-white/[0.06] space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white">How excited are you to use {productName}?</span>
-                  <span className="text-xs font-extrabold font-mono" style={{ color: brandColor }}>{intentRating}/10</span>
-                </div>
+              <div className="flex justify-between text-xs text-slate-400 pt-1">
+                <span>1 — Not interested</span>
+                <span>5 — Might try</span>
+                <span>10 — Need it on day one</span>
+              </div>
+            </div>
+
+            {/* Respondent Info (Name & Email for VIP access) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300 block">Your name</label>
                 <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={intentRating}
-                  onChange={e => setIntentRating(Number(e.target.value))}
-                  className="w-full cursor-pointer"
-                  style={{ accentColor: brandColor }}
+                  type="text"
+                  required
+                  placeholder="First and last name"
+                  value={respondentName}
+                  onChange={e => setRespondentName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-slate-500 outline-none transition-colors"
+                  style={{
+                    backgroundColor: '#0c0e14',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                  }}
+                  onFocus={e => (e.target.style.borderColor = brandColor)}
+                  onBlur={e => (e.target.style.borderColor = 'rgba(255, 255, 255, 0.08)')}
                 />
-                <div className="flex justify-between text-[10px] text-slate-400">
-                  <span>1 - Not interested</span>
-                  <span>5 - Might try</span>
-                  <span>10 - Need it immediately 🔥</span>
-                </div>
               </div>
-
-              {/* Respondent Info (Name & Email for VIP access) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Your name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Enter your full name"
-                    value={respondentName}
-                    onChange={e => setRespondentName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#141720] border border-white/[0.08] text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#c81e3c]"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Your email (for VIP Alpha invite)</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="Enter your email address"
-                    value={respondentEmail}
-                    onChange={e => setRespondentEmail(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#141720] border border-white/[0.08] text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#c81e3c]"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300 block">Your email (for VIP Alpha invite)</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="you@email.com"
+                  value={respondentEmail}
+                  onChange={e => setRespondentEmail(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-slate-500 outline-none transition-colors"
+                  style={{
+                    backgroundColor: '#0c0e14',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                  }}
+                  onFocus={e => (e.target.style.borderColor = brandColor)}
+                  onBlur={e => (e.target.style.borderColor = 'rgba(255, 255, 255, 0.08)')}
+                />
               </div>
+            </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 rounded-2xl text-white font-extrabold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-50 active:scale-[0.99] cursor-pointer hover:opacity-90"
-                style={{
-                  backgroundColor: brandColor,
-                  boxShadow: '0 10px 25px -5px rgba(200, 30, 60, 0.4)',
-                }}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Submitting feedback...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Submit discovery feedback & claim VIP spot</span>
-                  </>
-                )}
-              </button>
-            </form>
-          )}
-        </div>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-3.5 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 active:scale-[0.99] cursor-pointer hover:opacity-90"
+              style={{
+                backgroundColor: brandColor,
+                boxShadow: '0 8px 24px -4px rgba(200, 30, 60, 0.4)',
+              }}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Submitting feedback...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>Submit discovery feedback & claim VIP spot</span>
+                </>
+              )}
+            </button>
+          </form>
+        )}
 
         {/* Footer */}
-        <div className="text-center text-slate-500 text-xs">
-          Powered by CoLaunch Co-Launch OS · Confidential Discovery Research
+        <div className="text-center text-slate-500 text-xs pt-4">
+          Powered by CoLaunch · Confidential Discovery Research
         </div>
       </div>
     </div>
