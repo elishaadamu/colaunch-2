@@ -2021,20 +2021,20 @@ input[type="range"]:focus {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background-color: #10B981;
+  background-color: #C81E3C;
   cursor: pointer;
   margin-top: -5px;
   border: none !important;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 8px rgba(200, 30, 60, 0.4);
 }
 .slider-emerald::-moz-range-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background-color: #10B981;
+  background-color: #C81E3C;
   cursor: pointer;
   border: none !important;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 8px rgba(200, 30, 60, 0.4);
 }
 
 .slider-rose {
@@ -2197,7 +2197,7 @@ input[type="range"]:focus {
   border-color: rgba(255, 77, 109, 0.55);
   box-shadow: 0 0 0 1px rgba(200, 30, 60, 0.25) inset, 0 12px 32px -16px var(--acq-glow);
 }
-.acq-step[data-state="done"] { border-color: rgba(52, 211, 153, 0.22); }
+.acq-step[data-state="done"] { border-color: #2a2a30; }
 
 /* Subtle entrance for step panels */
 @keyframes acqFadeUp {

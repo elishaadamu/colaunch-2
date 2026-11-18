@@ -169,7 +169,7 @@ export default function AcquisitionStep1Setup({
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F1B26] text-[#00F2FE] flex items-center justify-center border border-emerald-900/50">
+                  <div className="w-10 h-10 rounded-lg bg-[#0F1B26] text-[#00F2FE] flex items-center justify-center border border-[#3a3a42]">
                     <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-1.01-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
                   </div>
                   <div className="text-left">
@@ -459,8 +459,8 @@ export default function AcquisitionStep1Setup({
             <span className="text-[10px] uppercase tracking-wider font-extrabold text-[#71717A] block">Preview Deck</span>
             <h2 className="text-sm font-bold tracking-tight text-white uppercase">Campaign Summary</h2>
           </div>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live Spec
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-mono font-bold text-[#FAFAFA] bg-[#1C1C20] border border-[#3a3a42]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D6D] animate-pulse" /> Live Spec
           </span>
         </div>
 
@@ -470,10 +470,10 @@ export default function AcquisitionStep1Setup({
           <div id="tour-s1-followers" className="py-2.5 space-y-1.5 text-xs">
             <div className="flex items-center justify-between">
               <span className="text-[#A1A1AA] flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-emerald-400" />
+                <Users className="w-3.5 h-3.5 text-[#FAFAFA]" />
                 <span>Min Followers</span>
               </span>
-              <span className="font-mono font-bold text-emerald-300 bg-emerald-950/40 border border-emerald-500/40 px-2 py-0.5 rounded-lg">
+              <span className="font-mono font-bold text-[#FAFAFA] bg-[#1C1C20] border border-[#3a3a42] px-2 py-0.5 rounded-lg">
                 {minFollowers >= 1000000 ? "1M" : `${Math.round((minFollowers || 100000) / 1000)}K`}
               </span>
             </div>
@@ -506,7 +506,7 @@ export default function AcquisitionStep1Setup({
           <div id="tour-s1-creators-count" className="py-2.5 space-y-1.5 text-xs">
             <div className="flex items-center justify-between">
               <span className="text-[#A1A1AA] flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5 text-emerald-400" />
+                <Target className="w-3.5 h-3.5 text-[#FAFAFA]" />
                 <span>Batch Discovery Size</span>
               </span>
               <div className="flex items-center gap-1.5">
@@ -517,11 +517,11 @@ export default function AcquisitionStep1Setup({
                     setCreatorsBatchCount(val);
                     try { localStorage.setItem("forge_launch_creators_batch_count", String(val)); } catch (err) {}
                   }}
-                  className="w-5 h-5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/40 flex items-center justify-center font-bold text-emerald-200 transition cursor-pointer"
+                  className="w-5 h-5 rounded-lg bg-[#1C1C20] hover:bg-[#26262c] border border-[#3a3a42] flex items-center justify-center font-bold text-[#FAFAFA] transition cursor-pointer"
                 >
                   -
                 </button>
-                <span className="font-mono font-bold text-emerald-300 px-1">{creatorsBatchCount || 25}</span>
+                <span className="font-mono font-bold text-[#FAFAFA] px-1">{creatorsBatchCount || 25}</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -529,11 +529,11 @@ export default function AcquisitionStep1Setup({
                     setCreatorsBatchCount(val);
                     try { localStorage.setItem("forge_launch_creators_batch_count", String(val)); } catch (err) {}
                   }}
-                  className="w-5 h-5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/40 flex items-center justify-center font-bold text-emerald-200 transition cursor-pointer"
+                  className="w-5 h-5 rounded-lg bg-[#1C1C20] hover:bg-[#26262c] border border-[#3a3a42] flex items-center justify-center font-bold text-[#FAFAFA] transition cursor-pointer"
                 >
                   +
                 </button>
-                <span className="text-[10px] text-emerald-400/70">Creators</span>
+                <span className="text-[10px] text-[#FAFAFA]">Creators</span>
               </div>
             </div>
             <input

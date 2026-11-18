@@ -6689,7 +6689,7 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
                         isActive
                           ? "bg-[#C81E3C] text-white shadow-[0_6px_16px_-6px_rgba(200,30,60,0.9)]"
                           : isDone
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                          ? "bg-[#1C1C20] text-white border border-[#3a3a42]"
                           : "bg-[#141417] text-[#71717A] border border-[#222227] group-hover:text-white"
                       }`}
                     >

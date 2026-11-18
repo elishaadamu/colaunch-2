@@ -158,7 +158,7 @@ export default function AcquisitionStep2Discovery({
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-sm font-bold text-white tracking-wide font-display flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)] shrink-0" />
+                  <span className="w-2 h-2 rounded-full bg-[#FF4D6D] animate-pulse shadow-[0_0_8px_rgba(255,77,109,0.8)] shrink-0" />
                   <span>Discovering Target Creators</span>
                 </h3>
                 <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-[#141417] text-white border border-[#2a2a30] font-mono">
@@ -193,7 +193,7 @@ export default function AcquisitionStep2Discovery({
       loadingCreatorsFromDb ? (
         <div className="text-center py-16 text-slate-500 text-xs space-y-4 animate-in fade-in">
           <div className="flex flex-col items-center gap-3">
-            <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+            <Loader2 className="w-8 h-8 animate-spin text-[#FF4D6D]" />
             <p className="text-sm font-medium text-slate-600">Loading creators from database…</p>
             <p className="text-[11px] text-slate-400">Syncing your pipeline from the server</p>
           </div>
@@ -208,7 +208,7 @@ export default function AcquisitionStep2Discovery({
             disabled={discovering}
             className="relative inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#0F0F12] hover:bg-[#222227] text-white font-medium text-xs shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
           >
-            <Search className="w-4 h-4 text-emerald-400" />
+            <Search className="w-4 h-4 text-[#FF4D6D]" />
             <span>
               Start Lead Discovery ({creatorsBatchCount} Creators)
             </span>
@@ -260,8 +260,8 @@ export default function AcquisitionStep2Discovery({
                     <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide font-display">
                       Scouting Active: {validCreators.length} of {creatorsBatchCount || 25} Creators Gathered
                     </h3>
-                    <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 font-mono inline-flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold text-[#FAFAFA] bg-[#1C1C20] border border-[#3a3a42] font-mono inline-flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D6D] animate-pulse shrink-0" />
                       <span>Live Ingestion</span>
                     </span>
                   </div>
@@ -322,7 +322,7 @@ export default function AcquisitionStep2Discovery({
               </div>
               <div className="flex items-center justify-between text-[11px] text-[#A1A1AA] pt-0.5">
                 <span>Advanceable</span>
-                <span className="font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-lg text-[10px] font-mono">
+                <span className="font-bold text-[#FAFAFA] bg-[#1C1C20] border border-[#3a3a42] px-2 py-0.5 rounded-lg text-[10px] font-mono">
                   {Math.round((advanceableCount / (validCreators.length || 1)) * 100)}% Pass
                 </span>
               </div>
@@ -343,7 +343,7 @@ export default function AcquisitionStep2Discovery({
               </div>
               <div className="flex items-center justify-between text-[11px] text-[#A1A1AA] pt-0.5">
                 <span>Direct Inboxes</span>
-                <span className="font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-lg text-[10px] font-mono">
+                <span className="font-bold text-[#FAFAFA] bg-[#1C1C20] border border-[#3a3a42] px-2 py-0.5 rounded-lg text-[10px] font-mono">
                   {Math.round((verifiedEmailCount / (validCreators.length || 1)) * 100)}% Verified
                 </span>
               </div>
@@ -519,7 +519,7 @@ export default function AcquisitionStep2Discovery({
                               ? 'bg-red-600 text-white'
                               : platformSlug === 'instagram'
                                 ? 'bg-gradient-to-tr from-amber-500 via-rose-500 to-pink-600 text-white'
-                                : 'bg-[#050506] text-emerald-400'
+                                : 'bg-[#050506] text-[#FAFAFA]'
                             }`}>
                             {platformSlug === 'youtube' ? (
                               <Youtube className="w-2.5 h-2.5" />
@@ -544,13 +544,13 @@ export default function AcquisitionStep2Discovery({
                         <span
                           className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border flex items-center gap-1 ${
                             isAbove
-                              ? "text-emerald-400 bg-emerald-950/40 border-emerald-500/30"
+                              ? "text-[#FAFAFA] bg-[#1C1C20] border-[#3a3a42]"
                               : "text-[#A1A1AA] bg-[#141417] border-[#2a2a30]"
                           }`}
                         >
-                          <TrendingUp className={`w-3 h-3 ${isAbove ? "text-emerald-400" : "text-[#A1A1AA]"}`} />
+                          <TrendingUp className={`w-3 h-3 ${isAbove ? "text-[#FF4D6D]" : "text-[#A1A1AA]"}`} />
                           <span>{score}/100</span>
-                          {isAbove && <span className="text-emerald-400 font-black">✓</span>}
+                          {isAbove && <span className="text-[#FAFAFA] font-black">✓</span>}
                         </span>
                       </div>
                     </div>
@@ -642,15 +642,15 @@ export default function AcquisitionStep2Discovery({
                                   </span>
                                   {(c.hunter_score || hunterDataMap[c.id]?.score) ? (
                                     <span
-                                      className="text-[9px] font-extrabold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-1.5 py-0.5 rounded-lg flex items-center gap-1 whitespace-nowrap"
+                                      className="text-[9px] font-extrabold text-[#FAFAFA] bg-[#1C1C20] border border-[#3a3a42] px-1.5 py-0.5 rounded-lg flex items-center gap-1 whitespace-nowrap"
                                       title={`Hunter.io: ${c.hunter_score || hunterDataMap[c.id]?.score}%`}
                                     >
-                                      <Check className="w-2.5 h-2.5 text-emerald-400 stroke-[2.5]" />
+                                      <Check className="w-2.5 h-2.5 text-[#FAFAFA] stroke-[2.5]" />
                                       <span>{c.hunter_score || hunterDataMap[c.id]?.score}%</span>
                                     </span>
                                   ) : (
-                                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-1.5 py-0.5 rounded-lg flex items-center gap-1 whitespace-nowrap">
-                                      <Check className="w-2.5 h-2.5 text-emerald-400 stroke-[2.5]" />
+                                    <span className="text-[9px] font-bold text-[#FAFAFA] bg-[#1C1C20] border border-[#3a3a42] px-1.5 py-0.5 rounded-lg flex items-center gap-1 whitespace-nowrap">
+                                      <Check className="w-2.5 h-2.5 text-[#FAFAFA] stroke-[2.5]" />
                                       <span>Verified</span>
                                     </span>
                                   )}
@@ -666,7 +666,7 @@ export default function AcquisitionStep2Discovery({
                                     title="Copy Email"
                                   >
                                     {copiedEmail === effectiveEmail ? (
-                                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                      <Check className="w-3.5 h-3.5 text-[#FAFAFA]" />
                                     ) : (
                                       <Copy className="w-3.5 h-3.5" />
                                     )}
