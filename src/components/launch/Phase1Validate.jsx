@@ -1760,15 +1760,12 @@ export default function Phase1Validate({
     showNotification(`Reverted experiment "${exp.title}" back to control.`)
   }
 
-  const handleSimulatePresale = (e) => {
-    e?.preventDefault()
-    if (!simBuyerName.trim() || !simBuyerEmail.trim()) {
-      showNotification('Please enter a backer name and email.')
-      return
-    }
-    const name = simBuyerName.trim()
-    const email = simBuyerEmail.trim()
-    const amount = Number(simBuyerTier) || dynamicMainPrice
+  const handleAddSimulatedReservation = (customData = {}) => {
+    const randomNames = ['Alex Rivera', 'Jordan Chen', 'Taylor Swift', 'Morgan Lee', 'Chris Pratt', 'Samira Khan', 'Elena Rostova', 'Marcus Brody']
+    const randomPick = randomNames[Math.floor(Math.random() * randomNames.length)]
+    const name = (typeof customData?.name === 'string' && customData.name.trim()) ? customData.name.trim() : randomPick
+    const email = (typeof customData?.email === 'string' && customData.email.trim()) ? customData.email.trim() : `${name.toLowerCase().replace(/[^a-z0-9]+/g, '.')}@example.com`
+    const amount = Number(customData?.amount) || activeFoundingPrice || dynamicMainPrice || 49
 
     const newReservation = {
       id: `r-${Date.now()}`,
@@ -1785,8 +1782,6 @@ export default function Phase1Validate({
 
     setReservations(nextReservations)
     setPresalesRevenue(nextRevenue)
-    setSimBuyerName('')
-    setSimBuyerEmail('')
 
     const updated = {
       ...(project || {}),
@@ -1799,7 +1794,6 @@ export default function Phase1Validate({
 
     if (onUpdateProject) onUpdateProject(prev => ({ ...(prev || {}), ...updated }))
 
-    // Persist pre-order reservation to SQLite / PostgreSQL database
     if (project?.id) {
       addProjectReservation(project.id, {
         name,
@@ -1811,6 +1805,21 @@ export default function Phase1Validate({
     }
 
     showNotification(`Recorded $${amount} presale pledge from ${name}!`)
+  }
+
+  const handleSimulatePresale = (e) => {
+    e?.preventDefault()
+    if (!simBuyerName.trim() || !simBuyerEmail.trim()) {
+      showNotification('Please enter a backer name and email.')
+      return
+    }
+    handleAddSimulatedReservation({
+      name: simBuyerName.trim(),
+      email: simBuyerEmail.trim(),
+      amount: Number(simBuyerTier) || dynamicMainPrice
+    })
+    setSimBuyerName('')
+    setSimBuyerEmail('')
   }
 
   const handleClearAllReservations = () => {
