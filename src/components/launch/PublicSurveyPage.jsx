@@ -4,14 +4,14 @@ import { getProjectBySlug, getCoLaunchProjects, recordSurveyResponseUniversal } 
 import { trackVisit } from '../../services/tracker'
 import { updatePageSEO } from '../../utils/seo'
 
-const DEFAULT_ACCENT = '#c81e3c'
+const DEFAULT_ACCENT = '#10b981'
 
 // Every colour on this page is derived from one accent value, so changing the project's
 // brand colour (or falling back to the default) restyles the whole page with no other edits.
 function buildAccent(input) {
   let hex = String(input || '').trim()
   if (/^#[0-9a-f]{3}$/i.test(hex)) hex = '#' + hex.slice(1).split('').map(c => c + c).join('')
-  if (!/^#[0-9a-f]{6}$/i.test(hex)) hex = DEFAULT_ACCENT
+  if (!/^#[0-9a-f]{6}$/i.test(hex) || hex.toLowerCase() === '#c81e3c') hex = DEFAULT_ACCENT
   const n = parseInt(hex.slice(1), 16)
   const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
   const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4) }
@@ -91,7 +91,9 @@ export default function PublicSurveyPage({ slug }) {
   const productName = project?.productName || 'Software Product'
   const creatorName = project?.creatorName || 'Creator'
   const niche = project?.niche || 'Software Workflows'
-  const brandColor = project?.brandColor || project?.brand_color || '#c81e3c'
+  const brandColor = (project?.brandColor && project.brandColor.toLowerCase() !== '#c81e3c')
+    ? project.brandColor
+    : DEFAULT_ACCENT
   
   const rawQuestions = project?.surveyData?.questions ||
     project?.validationCampaign?.researchSurvey?.questions ||
