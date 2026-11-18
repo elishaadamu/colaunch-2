@@ -102,7 +102,7 @@ export default function ProductMockupCanvas({ project, onSaveMockupImage, onShow
             onClick={() => setStyle('screen')}
             className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
             style={{
-              backgroundColor: style === 'screen' ? '#171B24' : 'transparent',
+              backgroundColor: style === 'screen' ? '#171B24' : '#080A0C',
               borderColor: style === 'screen' ? '#252B32' : 'transparent',
               borderWidth: '1px',
               borderStyle: 'solid',
@@ -116,7 +116,7 @@ export default function ProductMockupCanvas({ project, onSaveMockupImage, onShow
             onClick={() => setStyle('desk')}
             className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
             style={{
-              backgroundColor: style === 'desk' ? '#171B24' : 'transparent',
+              backgroundColor: style === 'desk' ? '#171B24' : '#080A0C',
               borderColor: style === 'desk' ? '#252B32' : 'transparent',
               borderWidth: '1px',
               borderStyle: 'solid',

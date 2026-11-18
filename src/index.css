@@ -581,6 +581,16 @@
   border-color: #334155 !important;
 }
 
+/* Neutralise the root white-theme rule for every child of product-mockup-canvas
+   so that inline style= colours on buttons, inputs and divs are not overridden.
+   We cannot use !important on inline styles, so instead we cancel the cascade
+   by resetting the properties that the white-theme sets with !important. */
+.phase-modal-white-theme .product-mockup-canvas * {
+  background-color: unset;
+  color: unset;
+  border-color: unset;
+}
+
 .phase-modal-white-theme .keep-dark [class*="bg-[#090b0e]"],
 .phase-modal-white-theme .product-mockup-display [class*="bg-[#090b0e]"],
 .phase-modal-white-theme .product-mockup-canvas [class*="bg-[#090b0e]"] {
