@@ -1454,8 +1454,8 @@ export async function generateProductImageWithOpenAI(
 
   const prompt = promptOverride || buildChannelSpecificImagePrompt(creatorData);
 
-  // gpt-image-1 renders UI and text far better; DALL-E 3 is the fallback.
-  const candidateModels = ["gpt-image-1", "dall-e-3"];
+  // Preferred: GPT Sunburst image models (2.6, then 2.5). Fallbacks: gpt-image-1, then DALL-E 3.
+  const candidateModels = ["gpt-image-2.6-sunburst", "gpt-image-2.5-sunburst", "gpt-image-1", "dall-e-3"];
   const wantsLandscape = String(imageOpts.size || "").startsWith("1792") || String(imageOpts.size || "").startsWith("1536");
   let lastError = null;
 
@@ -1466,7 +1466,7 @@ export async function generateProductImageWithOpenAI(
         prompt: prompt.slice(0, model === "dall-e-3" ? 4000 : 32000),
         n: 1,
       };
-      if (model === "gpt-image-1") {
+      if (model.startsWith("gpt-image")) {
         payload.size = wantsLandscape ? "1536x1024" : (imageOpts.size === "1024x1792" ? "1024x1536" : imageOpts.size || "1024x1024");
         payload.quality = imageOpts.quality === "hd" || imageOpts.quality === "high" ? "high" : (imageOpts.quality || "high");
       } else {
