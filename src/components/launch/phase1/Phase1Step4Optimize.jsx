@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
-  Rocket, Activity, Sliders, Radar, Trophy, Megaphone,
-  MessageSquare, Crown, Camera, Video, Mail, Trash2, ArrowRight,
-  Loader2, Plus, Sparkles, TrendingUp, Users, DollarSign, CheckCircle2
+  Activity, Sliders, Radar, Trophy, Megaphone,
+  MessageSquare, Crown, Camera, Video, Mail,
+  Loader2, Plus, Check, Lock, Target
 } from 'lucide-react'
 import { updateCoLaunchProject } from '../../../services/opsApi'
 import { XLogo } from '../PostVisualMockup'
@@ -30,108 +30,95 @@ export default function Phase1Step4Optimize({
   onSelectStep,
   onUpdateProject
 }) {
-  // Stage Progression System
-  const currentLevelData = (() => {
-    if (reservations.length >= 50 || presalesRevenue >= presaleTarget) {
-      return {
-        level: 5,
-        title: 'Cohort Validated',
-        subtitle: 'Phase 1 validation criteria achieved. 50 Founding Members secured for Phase 2 MVP Engineering.',
-        badgeStyle: PILL_TONES.ok,
-        nextTarget: 'Target Reached (50 Backers)'
-      }
-    }
-    if (reservations.length >= 10 || presalesRevenue >= 500) {
-      return {
-        level: 4,
-        title: 'Scaling Momentum',
-        subtitle: `${reservations.length} / 50 Founding passes secured. Strong conversion velocity across channels.`,
-        badgeStyle: PILL_TONES.violet,
-        nextTarget: '50 Backers Target'
-      }
-    }
-    if (reservations.length >= 1 || presalesRevenue >= 50) {
-      return {
-        level: 3,
-        title: 'Early Traction',
-        subtitle: `First paid pre-orders verified! ${50 - reservations.length} Founding passes remaining.`,
-        badgeStyle: PILL_TONES.ok,
-        nextTarget: '10 Backers Milestone'
-      }
-    }
-    if (totalTraffic >= 10 || totalSignups >= 1) {
-      return {
-        level: 2,
-        title: 'Audience Signal',
-        subtitle: `${totalTraffic} unique visitors tracking funnel resonance. Awaiting first customer pre-order.`,
-        badgeStyle: PILL_TONES.sky,
-        nextTarget: 'First Customer Pre-Order'
-      }
-    }
-    return {
-      level: 1,
-      title: 'Funnel Initialized',
-      subtitle: 'Validation engine active. Direct creator audience to pre-order checkout to validate demand.',
-      badgeStyle: PILL_TONES.neutral,
-      nextTarget: 'First 10 Visitors'
-    }
+  // All progress below is computed from real project data. Nothing is simulated or scored with invented weights.
+  const visitors = Number(totalTraffic) || 0
+  const signups = Number(totalSignups) || 0
+  const backers = reservations.length
+  const surveyCount = surveyResponses?.length || 0
+  const revenue = Number(presalesRevenue) || 0
+  const goalRevenue = Number(presaleTarget) || 0
+  const schedule = campaignKit?.postingSchedule || []
+  const postsTotal = schedule.length
+  const postsDone = schedule.filter((t) => t.done).length
+  const kitReady = Boolean(campaignKit?.announcementPost || postsTotal > 0)
+  const showSimTools = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('simulate') === '1'
+
+  const level = (() => {
+    if (backers >= 50 || (goalRevenue > 0 && revenue >= goalRevenue)) return 5
+    if (backers >= 10 || revenue >= 500) return 4
+    if (backers >= 1 || revenue >= 50) return 3
+    if (visitors >= 10 || signups >= 1) return 2
+    return 1
   })()
 
-  // Validation Milestones
-  const validationTrophies = [
-    {
-      id: 'launch_kit',
-      title: 'Mission Uplink',
-      desc: 'Launch roadmap & assets ready',
-      icon: Megaphone,
-      unlocked: Boolean(campaignKit?.announcementPost || (campaignKit?.postingSchedule || []).length > 0),
-      reward: 'Steps 1–3 Ready'
-    },
-    {
-      id: 'traffic_pulse',
-      title: 'Audience Radar',
-      desc: 'Traffic arriving from creator channels',
-      icon: Radar,
-      unlocked: totalTraffic > 0,
-      reward: 'Audience Active',
-      current: `${totalTraffic} / 10 visitors`
-    },
-    {
-      id: 'survey_voice',
-      title: 'Voice of Community',
-      desc: 'Discovery feedback recorded',
-      icon: MessageSquare,
-      unlocked: (surveyResponses?.length || 0) > 0,
-      reward: 'Demand Validated',
-      current: `${surveyResponses?.length || 0} responses`
-    },
-    {
-      id: 'genesis_backer',
-      title: 'Genesis Backer',
-      desc: 'First pre-order payment collected',
-      icon: Crown,
-      unlocked: reservations.length > 0,
-      reward: 'First Sale',
-      current: `${reservations.length} / 1 backer`
-    },
-    {
-      id: 'sovereign_gate',
-      title: 'Sovereign Validation',
-      desc: '50 Founding Members secured',
-      icon: Trophy,
-      unlocked: reservations.length >= 50 || presalesRevenue >= presaleTarget,
-      reward: 'Phase 2 Unlock',
-      current: `${reservations.length} / 50 backers`
-    }
+  const LEVELS = [
+    { level: 1, title: 'Funnel ready', subtitle: 'Send your audience to your pre-order page to get started.' },
+    { level: 2, title: 'Audience signal', subtitle: `${visitors.toLocaleString()} visitors so far. Now turn them into a first pre-order.` },
+    { level: 3, title: 'Early traction', subtitle: `${backers} paid ${backers === 1 ? 'pre-order' : 'pre-orders'} confirmed. ${Math.max(0, 50 - backers)} founding passes left.` },
+    { level: 4, title: 'Scaling momentum', subtitle: `${backers} of 50 founding passes taken.` },
+    { level: 5, title: 'Cohort validated', subtitle: 'You hit the validation target. You can take this to the gate.' },
   ]
+  const levelData = LEVELS[level - 1]
+
+  // What it takes to reach the next level, measured with real counts.
+  const next = [
+    { label: 'Reach 10 visitors', value: visitors, goal: 10 },
+    { label: 'Get your first pre-order', value: backers, goal: 1 },
+    { label: 'Reach 10 pre-orders', value: backers, goal: 10 },
+    { label: 'Reach 50 pre-orders', value: backers, goal: 50 },
+    null,
+  ][level - 1]
+  const nextProgress = next ? Math.min(1, next.value / next.goal) : 1
+
+  // One clear next move, chosen from what the data says.
+  const quest = (() => {
+    if (level === 5) return { title: 'Target reached', body: 'Review your numbers, then go to the gate checkpoint to decide what happens next.' }
+    if (postsTotal > 0 && postsDone === 0) {
+      return { title: 'Publish your first post', body: `You have ${postsTotal} posts planned and none marked as published.`, action: { label: 'Open the campaign', onClick: () => { setActiveStep('campaign'); onSelectStep?.('campaign') } } }
+    }
+    if (visitors === 0) {
+      return { title: 'Get your first visitor', body: 'No one has visited your pre-order page yet. Put your pre-order link in your next post or story.' }
+    }
+    if (backers === 0) {
+      return { title: 'Get your first pre-order', body: `${visitors.toLocaleString()} ${visitors === 1 ? 'person has' : 'people have'} visited and nobody has pre-ordered. Test a new headline or price.`, action: { label: 'Run AI optimization', onClick: handleRunExperimentsAI } }
+    }
+    return { title: `Get ${Math.max(0, 50 - backers)} more pre-orders`, body: `You are at ${backers} of 50. Post again on the channel that sends the most visitors.` }
+  })()
+
+  const milestones = [
+    { id: 'kit', title: 'Kit ready', desc: 'Campaign plan and posts written', icon: Megaphone, unlocked: kitReady, status: kitReady ? 'Done' : 'Open Step 3 to create it' },
+    { id: 'visitors', title: 'First visitors', desc: 'People arrive from your channels', icon: Radar, unlocked: visitors > 0, status: visitors > 0 ? `${visitors.toLocaleString()} so far` : '0 of 10 visitors', pct: Math.min(1, visitors / 10) },
+    { id: 'voices', title: 'Voices heard', desc: 'Survey answers from your audience', icon: MessageSquare, unlocked: surveyCount > 0, status: `${surveyCount} ${surveyCount === 1 ? 'response' : 'responses'}` },
+    { id: 'first', title: 'First pre-order', desc: 'A real payment collected', icon: Crown, unlocked: backers > 0, status: backers > 0 ? 'Done' : '0 of 1 pre-orders', pct: Math.min(1, backers / 1) },
+    { id: 'cohort', title: 'Cohort validated', desc: '50 founding members secured', icon: Trophy, unlocked: level === 5, status: `${backers} of 50 pre-orders`, pct: Math.min(1, backers / 50), reward: 'Unlocks Phase 2' },
+  ]
+  const nextMilestoneId = (milestones.find((m) => !m.unlocked) || {}).id
+
+  // One-time level-up moment: shown only when the saved level for this project is lower than the current one.
+  const [levelUp, setLevelUp] = useState(null)
+  useEffect(() => {
+    if (!project?.id) return
+    const key = `p1s4_level_${project.id}`
+    let saved = null
+    try { saved = Number(localStorage.getItem(key)) || null } catch (_) {}
+    if (saved && level > saved) {
+      setLevelUp(level)
+      const t = setTimeout(() => setLevelUp(null), 7000)
+      try { localStorage.setItem(key, String(level)) } catch (_) {}
+      return () => clearTimeout(t)
+    }
+    try { localStorage.setItem(key, String(Math.max(level, saved || 0))) } catch (_) {}
+  }, [project?.id, level])
+
+  const pct = (n) => `${Math.round(n * 100)}%`
 
   // Attribution Channels
   const rawChannels = [
     {
       id: 'instagram',
-      name: 'Instagram Stories',
+      name: 'Instagram stories',
       icon: Camera,
-      badge: 'Story Polls',
+      badge: 'Story polls',
       traffic: Math.max(
         (project?.uniqueVisitors || []).filter((v) => {
           const ch = (v.channel || '').toLowerCase()
@@ -145,7 +132,7 @@ export default function Phase1Step4Optimize({
       id: 'tiktok',
       name: 'TikTok / Shorts',
       icon: Video,
-      badge: '60s Video Mid-Roll',
+      badge: '60 second video',
       traffic: Math.max(
         (project?.uniqueVisitors || []).filter((v) => {
           const ch = (v.channel || '').toLowerCase()
@@ -157,9 +144,9 @@ export default function Phase1Step4Optimize({
     },
     {
       id: 'x',
-      name: 'X (Social Post)',
+      name: 'X',
       isXLogo: true,
-      badge: 'Announcement Post',
+      badge: 'Announcement post',
       traffic: Math.max(
         (project?.uniqueVisitors || []).filter((v) => {
           const ch = (v.channel || '').toLowerCase()
@@ -171,9 +158,9 @@ export default function Phase1Step4Optimize({
     },
     {
       id: 'newsletter',
-      name: 'Email Newsletter',
+      name: 'Email newsletter',
       icon: Mail,
-      badge: '1:1 Founder Letter',
+      badge: 'Founder letter',
       traffic: Math.max(
         (project?.uniqueVisitors || []).filter((v) => {
           const ch = (v.channel || '').toLowerCase()
@@ -192,146 +179,185 @@ export default function Phase1Step4Optimize({
       className="p-5 sm:p-6 rounded-2xl space-y-5"
       style={{ background: C.sheet, border: `1px solid ${C.line}` }}
     >
-      {/* Funnel Progress Banner */}
-      <div
-        className="p-4 sm:p-5 rounded-2xl border space-y-3"
-        style={{ background: C.row, borderColor: C.line }}
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="relative shrink-0">
+      <style>{`
+        @keyframes p1s4-rise { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+        .p1s4-rise { animation: p1s4-rise .35s ease-out both }
+        @media (prefers-reduced-motion: reduce) { .p1s4-rise { animation: none } }
+      `}</style>
+
+      {levelUp && (
+        <div
+          role="status"
+          className="p1s4-rise flex items-center justify-between gap-3 px-4 py-3 rounded-xl border"
+          style={{ background: C.okSoft, borderColor: C.okLine }}
+        >
+          <span className="text-sm font-semibold" style={{ color: C.text }}>
+            Level {levelUp} reached: {LEVELS[levelUp - 1].title}
+          </span>
+          <button type="button" onClick={() => setLevelUp(null)} className="text-xs cursor-pointer" style={{ color: C.muted }}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Level and next move */}
+      <div className="rounded-2xl border overflow-hidden" style={{ background: C.row, borderColor: C.line }}>
+        <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <div className="lg:col-span-7 space-y-4 min-w-0">
+            <div className="flex items-start gap-4">
               <div
-                className="w-10 h-10 rounded-xl border flex items-center justify-center text-white shadow-sm"
-                style={{ background: C.crimson, borderColor: C.crimsonLine }}
+                className="shrink-0 w-16 h-16 rounded-2xl border flex flex-col items-center justify-center"
+                style={{ background: C.crimsonSoft, borderColor: C.crimsonLine }}
               >
-                <Rocket className="w-5 h-5 text-white" />
+                <span className="text-[11px] leading-none" style={{ color: C.crimsonText }}>Level</span>
+                <span className="text-3xl leading-none mt-1" style={{ ...HEADING_FONT, color: C.text }}>{level}</span>
               </div>
-              <div
-                className="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-full text-[8px] font-mono font-bold shadow-sm border"
-                style={{ background: C.ok, color: '#08090c', borderColor: C.row }}
-              >
-                LVL {currentLevelData.level}
+              <div className="min-w-0">
+                <h3 className="m-0 text-2xl leading-tight" style={{ ...HEADING_FONT, color: C.text }}>{levelData.title}</h3>
+                <p className="m-0 mt-1 text-sm" style={{ color: C.muted }}>{levelData.subtitle}</p>
               </div>
             </div>
 
-            <div className="space-y-0.5 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span
-                  className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider border"
-                  style={currentLevelData.badgeStyle}
-                >
-                  Stage {currentLevelData.level}: {currentLevelData.title}
-                </span>
-                <h3 className="text-sm font-bold tracking-tight truncate" style={{ ...HEADING_FONT, color: C.text }}>
-                  4. Run + Optimize Validation Engine
-                </h3>
+            {/* Level track: filled levels are reached, the next segment fills with real progress */}
+            <div>
+              <div className="flex gap-1.5" role="img" aria-label={`Level ${level} of 5`}>
+                {LEVELS.map((l) => {
+                  const fill = l.level <= level ? 1 : l.level === level + 1 ? nextProgress : 0
+                  return (
+                    <div key={l.level} className="flex-1 h-2.5 rounded-full overflow-hidden" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+                      <div className="h-full rounded-full transition-all duration-700" style={{ width: pct(fill), background: l.level <= level ? C.crimson : C.ok }} />
+                    </div>
+                  )
+                })}
               </div>
-
-              <div className="flex items-center gap-2 text-[11px] min-w-0" style={{ color: C.muted }}>
-                <span className="truncate max-w-xs sm:max-w-md">{currentLevelData.subtitle}</span>
-                <span className="text-slate-600 hidden sm:inline">•</span>
-                <div className="hidden sm:flex items-center gap-1.5 shrink-0 font-mono text-[10px]">
-                  <span>Cohort: <strong style={{ color: C.text }}>{reservations.length}/50</strong></span>
-                  <div
-                    className="w-20 h-1.5 rounded-full overflow-hidden border inline-block align-middle"
-                    style={{ background: C.sheet, borderColor: C.line }}
-                  >
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        background: C.ok,
-                        width: `${Math.min(100, Math.max(8, (reservations.length / 50) * 100))}%`
-                      }}
-                    />
-                  </div>
-                  <span style={{ color: C.ok }}>{currentLevelData.nextTarget}</span>
-                </div>
+              <div className="hidden sm:flex gap-1.5 mt-2">
+                {LEVELS.map((l) => (
+                  <span key={l.level} className="flex-1 text-[11px] truncate" style={{ color: l.level === level ? C.text : C.faint, fontWeight: l.level === level ? 600 : 400 }}>
+                    {l.title}
+                  </span>
+                ))}
               </div>
             </div>
+
+            {next && (
+              <p className="m-0 text-sm" style={{ color: C.body }}>
+                Next level: {next.label}. <span style={{ color: C.text, fontWeight: 600 }}>{Math.min(next.value, next.goal)} of {next.goal}</span>
+              </p>
+            )}
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={handleRunExperimentsAI}
-              disabled={isAnalyzingExperiments}
-              className="px-3.5 py-2 rounded-xl text-white text-xs font-bold transition-all disabled:opacity-50 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-              style={{ background: C.crimson }}
-            >
-              {isAnalyzingExperiments ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                  <span>Analyzing Telemetry...</span>
-                </>
-              ) : (
-                <>
-                  <Sliders className="w-3.5 h-3.5 text-white" />
-                  <span>Run AI Optimization</span>
-                </>
+          <div className="lg:col-span-5 rounded-xl border p-4 flex flex-col justify-between gap-3" style={{ background: C.sheet, borderColor: C.line }}>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 text-sm" style={{ color: C.crimsonText }}>
+                <Target className="w-4 h-4" />
+                <span className="font-semibold">Your next move</span>
+              </div>
+              <p className="m-0 text-lg" style={{ ...HEADING_FONT, color: C.text }}>{quest.title}</p>
+              <p className="m-0 text-sm" style={{ color: C.muted }}>{quest.body}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {quest.action && (
+                <button
+                  type="button"
+                  onClick={quest.action.onClick}
+                  disabled={isAnalyzingExperiments}
+                  className="px-3.5 py-2 rounded-xl text-white text-xs font-semibold cursor-pointer disabled:opacity-50 active:scale-95"
+                  style={{ background: C.crimson }}
+                >
+                  {quest.action.label}
+                </button>
               )}
-            </button>
+              <button
+                type="button"
+                onClick={handleRunExperimentsAI}
+                disabled={isAnalyzingExperiments}
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-95 border"
+                style={quest.action?.label === 'Run AI optimization' ? { display: 'none' } : { background: C.raised, borderColor: C.lineStrong, color: C.text }}
+              >
+                {isAnalyzingExperiments ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sliders className="w-3.5 h-3.5" />}
+                <span>{isAnalyzingExperiments ? 'Analyzing' : 'Run AI optimization'}</span>
+              </button>
+              {postsTotal > 0 && (
+                <span className="text-xs ml-auto" style={{ color: C.muted }}>Posts published: {postsDone} of {postsTotal}</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Telemetry Metric Cards */}
+      {/* Milestones */}
       <div className="space-y-2">
         <div className="flex items-center justify-between px-1">
-          <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: C.text }}>
+          <span className="text-sm font-semibold" style={{ color: C.text }}>Milestones</span>
+          <span className="text-xs" style={{ color: C.muted }}>{milestones.filter((m) => m.unlocked).length} of {milestones.length} reached</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+          {milestones.map((m) => {
+            const Icon = m.icon
+            const isNext = m.id === nextMilestoneId
+            return (
+              <div
+                key={m.id}
+                className="p-3.5 rounded-xl border space-y-2"
+                style={{
+                  background: m.unlocked ? C.okSoft : C.row,
+                  borderColor: m.unlocked ? C.okLine : isNext ? C.crimsonLine : C.line,
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ background: m.unlocked ? C.ok : C.sheet, color: m.unlocked ? '#08090c' : C.faint, border: m.unlocked ? 'none' : `1px solid ${C.line}` }}
+                  >
+                    {m.unlocked ? <Check className="w-4 h-4" /> : isNext ? <Icon className="w-4 h-4" style={{ color: C.crimsonText }} /> : <Lock className="w-3.5 h-3.5" />}
+                  </span>
+                  {isNext && <span className="text-[11px] px-2 py-0.5 rounded-full border" style={PILL_TONES.crimson}>Next</span>}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold" style={{ color: C.text }}>{m.title}</div>
+                  <div className="text-xs" style={{ color: C.muted }}>{m.desc}</div>
+                </div>
+                {!m.unlocked && m.pct !== undefined && (
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: C.sheet }}>
+                    <div className="h-full rounded-full transition-all duration-700" style={{ width: pct(m.pct), background: C.crimson }} />
+                  </div>
+                )}
+                <div className="text-xs" style={{ color: m.unlocked ? C.ok : C.body }}>
+                  {m.unlocked && m.reward ? m.reward : m.status}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Numbers */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <span className="text-sm font-semibold flex items-center gap-1.5" style={{ color: C.text }}>
             <Activity className="w-3.5 h-3.5" style={{ color: C.ok }} />
-            <span>Validation Engine Telemetry</span>
+            <span>Your numbers</span>
           </span>
-          <span className="text-[10px] font-mono font-medium" style={{ color: C.muted }}>
-            Target: 50 Presales (${presaleTarget.toLocaleString()} Milestone)
+          <span className="text-xs" style={{ color: C.muted }}>
+            Goal: 50 pre-orders{goalRevenue > 0 ? `, $${goalRevenue.toLocaleString()}` : ''}
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs">
-          <div className="p-3 rounded-xl border space-y-1" style={{ background: C.row, borderColor: C.line }}>
-            <span className="text-[9px] font-bold uppercase tracking-wider block" style={{ color: C.muted }}>Traffic</span>
-            <div className="text-xl font-extrabold font-mono" style={{ color: C.text }}>{totalTraffic.toLocaleString()}</div>
-            <div className="text-[9px]" style={{ color: C.faint }}>Unique Visitors</div>
-          </div>
-
-          <div className="p-3 rounded-xl border space-y-1" style={{ background: C.row, borderColor: C.line }}>
-            <span className="text-[9px] font-bold uppercase tracking-wider block" style={{ color: C.skyText }}>CTR</span>
-            <div className="text-xl font-extrabold font-mono" style={{ color: C.skyText }}>
-              {totalTraffic > 0 ? ((totalSignups / totalTraffic) * 100).toFixed(1) : '3.8'}%
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          {[
+            { label: 'Visitors', value: visitors.toLocaleString(), note: 'Unique visits' },
+            { label: 'Signup rate', value: visitors > 0 ? `${((signups / visitors) * 100).toFixed(1)}%` : '—', note: 'Signups per visitor' },
+            { label: 'Pre-orders', value: `${backers} of 50`, note: 'Founding members' },
+            { label: 'Revenue', value: `$${revenue.toLocaleString()}`, note: 'Collected and verified', tone: C.ok },
+            { label: 'Survey answers', value: String(surveyCount), note: 'From your audience' },
+            { label: 'Conversion', value: visitors > 0 && Number.isFinite(Number(conversionRate)) ? `${Number(conversionRate).toFixed(1)}%` : '—', note: 'Visitors who pre-ordered' },
+          ].map((c) => (
+            <div key={c.label} className="p-3 rounded-xl border space-y-1" style={{ background: C.row, borderColor: C.line }}>
+              <span className="text-xs block" style={{ color: C.muted }}>{c.label}</span>
+              <div className="text-xl font-bold" style={{ color: c.tone || C.text }}>{c.value}</div>
+              <div className="text-[11px]" style={{ color: C.faint }}>{c.note}</div>
             </div>
-            <div className="text-[9px]" style={{ color: C.faint }}>Click-Through Rate</div>
-          </div>
-
-          <div className="p-3 rounded-xl border space-y-1" style={{ background: C.row, borderColor: C.line }}>
-            <span className="text-[9px] font-bold uppercase tracking-wider block" style={{ color: C.crimsonText }}>Pre-Orders</span>
-            <div className="text-xl font-extrabold font-mono" style={{ color: C.crimsonText }}>
-              {reservations.length} / 50
-            </div>
-            <div className="text-[9px]" style={{ color: C.faint }}>Founding Members</div>
-          </div>
-
-          <div className="p-3 rounded-xl border space-y-1" style={{ background: C.row, borderColor: C.line }}>
-            <span className="text-[9px] font-bold uppercase tracking-wider block" style={{ color: C.ok }}>Presales Revenue</span>
-            <div className="text-xl font-extrabold font-mono" style={{ color: C.ok }}>
-              ${presalesRevenue.toLocaleString()}
-            </div>
-            <div className="text-[9px]" style={{ color: C.faint }}>Collected & Verified</div>
-          </div>
-
-          <div className="p-3 rounded-xl border space-y-1" style={{ background: C.row, borderColor: C.line }}>
-            <span className="text-[9px] font-bold uppercase tracking-wider block" style={{ color: C.violetText }}>Discovery</span>
-            <div className="text-xl font-extrabold font-mono" style={{ color: C.violetText }}>
-              {surveyResponses.length}
-            </div>
-            <div className="text-[9px]" style={{ color: C.faint }}>Survey Submissions</div>
-          </div>
-
-          <div className="p-3 rounded-xl border space-y-1" style={{ background: C.row, borderColor: C.line }}>
-            <span className="text-[9px] font-bold uppercase tracking-wider block" style={{ color: C.warn }}>Conversion Rate</span>
-            <div className="text-xl font-extrabold font-mono" style={{ color: C.warn }}>
-              {conversionRate || '2.89'}%
-            </div>
-            <div className="text-[9px]" style={{ color: C.faint }}>Visitor to Backer</div>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -339,12 +365,13 @@ export default function Phase1Step4Optimize({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start text-xs">
         {/* Left: Channel Attribution Breakdown */}
         <div className="lg:col-span-5 p-4 rounded-xl border space-y-3" style={{ background: C.row, borderColor: C.line }}>
-          <span className="text-[11px] font-bold uppercase tracking-wider block font-mono" style={{ color: C.text }}>
-            Traffic & Attribution Breakdown
+          <span className="text-sm font-semibold block" style={{ color: C.text }}>
+            Where your visitors come from
           </span>
           <div className="space-y-2">
             {rawChannels.map((ch) => {
               const Icon = ch.icon
+              const isTop = ch.traffic > 0 && ch.traffic === Math.max(...rawChannels.map((c) => c.traffic))
               return (
                 <div
                   key={ch.id}
@@ -358,12 +385,15 @@ export default function Phase1Step4Optimize({
                       <Icon className="w-4 h-4" style={{ color: C.skyText }} />
                     )}
                     <div>
-                      <div className="font-bold text-xs" style={{ color: C.text }}>{ch.name}</div>
+                      <div className="font-bold text-xs flex items-center gap-1.5" style={{ color: C.text }}>
+                        <span>{ch.name}</span>
+                        {isTop && <span className="text-[10px] px-1.5 rounded-full border font-medium" style={PILL_TONES.ok}>Top channel</span>}
+                      </div>
                       <div className="text-[10px]" style={{ color: C.muted }}>{ch.badge}</div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-mono font-bold" style={{ color: C.text }}>{ch.traffic} visits</div>
+                    <div className="font-bold" style={{ color: C.text }}>{ch.traffic} visits</div>
                     <div className="text-[10px]" style={{ color: C.ok }}>{ch.conversions} backers</div>
                   </div>
                 </div>
@@ -376,12 +406,12 @@ export default function Phase1Step4Optimize({
         <div className="lg:col-span-7 p-4 rounded-xl border space-y-3" style={{ background: C.row, borderColor: C.line }}>
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider block font-mono" style={{ color: C.text }}>
-                Live Backers & Pre-Order Stream
+              <span className="text-sm font-semibold block" style={{ color: C.text }}>
+                Pre-orders
               </span>
-              <p className="text-[10px]" style={{ color: C.muted }}>Verified customer deposits & founding member pass purchases.</p>
+              <p className="text-xs" style={{ color: C.muted }}>Each paid pre-order appears here as it arrives.</p>
             </div>
-            {handleAddSimulatedReservation && (
+            {showSimTools && handleAddSimulatedReservation && (
               <button
                 type="button"
                 onClick={handleAddSimulatedReservation}
@@ -389,7 +419,7 @@ export default function Phase1Step4Optimize({
                 style={{ background: C.raised, borderColor: C.lineStrong, color: C.text }}
               >
                 <Plus className="w-3 h-3" />
-                <span>Simulate Backer</span>
+                <span>Add test pre-order</span>
               </button>
             )}
           </div>
@@ -397,7 +427,7 @@ export default function Phase1Step4Optimize({
           <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
             {reservations.length === 0 ? (
               <div className="text-center py-8 text-xs border border-dashed rounded-xl" style={{ borderColor: C.line, color: C.muted }}>
-                No pre-orders recorded yet. Backer passes will appear here in real-time.
+                No pre-orders yet. Your first one will unlock the next level.
               </div>
             ) : (
               reservations.map((r, idx) => (
@@ -407,12 +437,12 @@ export default function Phase1Step4Optimize({
                   style={{ background: C.sheet, borderColor: C.line }}
                 >
                   <div>
-                    <div className="font-bold text-xs" style={{ color: C.text }}>{r.customerName || r.name || 'Founding Backer'}</div>
-                    <div className="text-[10px] font-mono" style={{ color: C.muted }}>{r.email} • {r.passType || 'Co-Builder Pass'}</div>
+                    <div className="font-bold text-xs" style={{ color: C.text }}>{r.customerName || r.name || 'Pre-order'}</div>
+                    <div className="text-[11px]" style={{ color: C.muted }}>{[r.email, r.passType].filter(Boolean).join(', ')}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-mono font-bold text-xs" style={{ color: C.ok }}>+${r.amount || 49}</div>
-                    <div className="text-[9px]" style={{ color: C.faint }}>{r.date || 'Just now'}</div>
+                    <div className="font-bold text-xs" style={{ color: C.ok }}>{Number(r.amount) > 0 ? `$${Number(r.amount).toLocaleString()}` : ""}</div>
+                    <div className="text-[9px]" style={{ color: C.faint }}>{r.date || ''}</div>
                   </div>
                 </div>
               ))
@@ -426,13 +456,13 @@ export default function Phase1Step4Optimize({
         <div className="p-4 sm:p-5 rounded-xl border space-y-3.5" style={{ background: C.row, borderColor: C.line }}>
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider block font-mono" style={{ color: C.violetText }}>
-                Active A/B Experiments & AI Optimization
+              <span className="text-sm font-semibold block" style={{ color: C.text }}>
+                Tests to improve conversion
               </span>
-              <p className="text-[10px]" style={{ color: C.muted }}>Iterative message, pricing, and headline variants generated to boost cohort conversion rate.</p>
+              <p className="text-xs" style={{ color: C.muted }}>Headline, message and price ideas written by AI from your numbers.</p>
             </div>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded border" style={PILL_TONES.violet}>
-              {experimentsList.length} Active Tests
+            <span className="text-xs px-2 py-0.5 rounded border" style={PILL_TONES.violet}>
+              {experimentsList.length} {experimentsList.length === 1 ? 'test' : 'tests'}
             </span>
           </div>
 
@@ -445,7 +475,7 @@ export default function Phase1Step4Optimize({
               >
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-xs" style={{ color: C.text }}>{exp.name}</span>
-                  <span className="text-[9px] font-mono px-1.5 py-0.2 rounded border" style={PILL_TONES.ok}>
+                  <span className="text-[10px] px-1.5 rounded border" style={PILL_TONES.ok}>
                     {exp.trafficSplit || '50/50'}
                   </span>
                 </div>
@@ -458,7 +488,7 @@ export default function Phase1Step4Optimize({
                     <span style={{ color: C.body }}>{exp.variantA}</span>
                   </div>
                   <div className="p-2 rounded border" style={{ background: 'rgba(111,207,155,0.06)', borderColor: C.okLine }}>
-                    <span className="font-bold block" style={{ color: C.ok }}>Variant B (Winner):</span>
+                    <span className="font-bold block" style={{ color: C.ok }}>Variant B (suggested):</span>
                     <span style={{ color: C.text }}>{exp.variantB}</span>
                   </div>
                 </div>
@@ -469,7 +499,7 @@ export default function Phase1Step4Optimize({
                     className="w-full mt-2 py-1.5 px-3 rounded-lg text-white font-bold text-[10px] transition-all cursor-pointer shadow-sm active:scale-95"
                     style={{ background: C.crimson }}
                   >
-                    Apply Winning Variant B to Campaign
+                    Use variant B in the campaign
                   </button>
                 )}
               </div>
@@ -506,11 +536,9 @@ export default function Phase1Step4Optimize({
           className="px-5 py-2.5 rounded-xl text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 hover:opacity-90"
           style={{ background: C.crimson }}
         >
-          <span>Proceed to Step 5: Gate Checkpoint</span>
-          <ArrowRight className="w-3.5 h-3.5 text-white" />
+          <span>Go to the gate checkpoint</span>
         </button>
       </div>
     </div>
   )
 }
-
