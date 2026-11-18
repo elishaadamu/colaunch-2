@@ -7,44 +7,51 @@ import { CRMSkeleton } from "./Section2Skeletons";
 import CoLaunchLogo from "../ui/CoLaunchLogo";
 
 const C = {
-  bg: '#08090c',
-  sheet: '#10131a',
-  row: '#0c0e13',
-  raised: '#171b24',
+  bg: '#050506',
+  sheet: '#0c0c0e',
+  row: '#111114',
+  raised: '#1c1c20',
   line: 'rgba(255,255,255,0.08)',
   lineStrong: 'rgba(255,255,255,0.18)',
-  text: '#f3f4f6',
-  body: '#cdd1da',
-  muted: '#9ba1ae',
-  faint: '#6c7280',
+  text: '#fafafa',
+  body: '#d4d4d8',
+  muted: '#a1a1aa',
+  faint: '#71717a',
   crimson: '#c81e3c',
   crimsonHover: '#d92a49',
   crimsonSoft: 'rgba(200,30,60,0.14)',
   crimsonLine: 'rgba(200,30,60,0.42)',
   crimsonText: '#ff8fa3',
-  ok: '#6fcf9b',
-  okSoft: 'rgba(111,207,155,0.12)',
-  okLine: 'rgba(111,207,155,0.36)',
-  sky: '#7dd3fc',
-  skySoft: 'rgba(56,189,248,0.12)',
-  skyLine: 'rgba(56,189,248,0.36)',
-  violet: '#c4b5fd',
-  violetSoft: 'rgba(167,139,250,0.12)',
-  violetLine: 'rgba(167,139,250,0.36)',
-  warn: '#f0b46a',
-  warnSoft: 'rgba(240,180,106,0.12)',
-  warnLine: 'rgba(240,180,106,0.36)',
+  ok: '#34d399',
+  okSoft: 'rgba(52,211,153,0.10)',
+  okLine: 'rgba(52,211,153,0.32)',
+  sky: '#e4e4e7',
+  skySoft: 'rgba(255,255,255,0.06)',
+  skyLine: 'rgba(255,255,255,0.18)',
+  violet: '#ff8fa3',
+  violetSoft: 'rgba(255,77,109,0.10)',
+  violetLine: 'rgba(255,77,109,0.34)',
+  warn: '#fbbf24',
+  warnSoft: 'rgba(251,191,36,0.10)',
+  warnLine: 'rgba(251,191,36,0.32)',
 };
 
 const HEADING_FONT = "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 const CRM_PAGE_CSS = `
-.crm-page-root .crm-btn-primary{background:${C.crimson};color:#ffffff;border:1px solid ${C.crimsonLine};transition:background-color .15s,border-color .15s}
-.crm-page-root .crm-btn-primary:hover:not(:disabled){background:${C.crimsonHover}}
-.crm-page-root .crm-btn-quiet{background:${C.row};color:${C.body};border:1px solid ${C.line};transition:background-color .15s,color .15s,border-color .15s}
-.crm-page-root .crm-btn-quiet:hover:not(:disabled){background:${C.raised};color:${C.text};border-color:${C.lineStrong}}
-.crm-page-root .crm-btn-danger{background:${C.crimsonSoft};color:${C.crimsonText};border:1px solid ${C.crimsonLine};transition:background-color .15s}
-.crm-page-root .crm-btn-danger:hover:not(:disabled){background:rgba(200,30,60,0.24)}
+.crm-page-root .crm-btn-primary{background:linear-gradient(180deg,#d62546 0%,#c81e3c 55%,#ad1833 100%);color:#fff;border:1px solid rgba(255,77,109,.35);box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 10px 26px -12px rgba(200,30,60,.6);transition:filter .15s,box-shadow .2s,transform .15s}
+.crm-page-root .crm-btn-primary:hover:not(:disabled){filter:brightness(1.08);box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 14px 32px -12px rgba(200,30,60,.75)}
+.crm-page-root .crm-btn-primary:active:not(:disabled){transform:translateY(1px)}
+.crm-page-root .crm-btn-quiet{background:#111114;color:#d4d4d8;border:1px solid rgba(255,255,255,.08);transition:background-color .15s,color .15s,border-color .15s}
+.crm-page-root .crm-btn-quiet:hover:not(:disabled){background:#1c1c20;color:#fafafa;border-color:rgba(255,255,255,.18)}
+.crm-page-root .crm-btn-danger{background:rgba(200,30,60,.10);color:#ff8fa3;border:1px solid rgba(200,30,60,.42);transition:background-color .15s,color .15s}
+.crm-page-root .crm-btn-danger:hover:not(:disabled){background:rgba(200,30,60,.22);color:#fff}
+.crm-page-root button:focus-visible,.crm-page-root a:focus-visible,.crm-page-root input:focus-visible,.crm-page-root select:focus-visible,.crm-page-root textarea:focus-visible{outline:2px solid #ff4d6d;outline-offset:2px}
+.crm-page-root input[type=text]:focus,.crm-page-root textarea:focus,.crm-page-root select:focus{border-color:rgba(200,30,60,.7)!important;box-shadow:0 0 0 3px rgba(200,30,60,.18)}
+.crm-page-root ::selection{background:#c81e3c;color:#fff}
+.crm-page-root ::-webkit-scrollbar{width:8px;height:8px}
+.crm-page-root ::-webkit-scrollbar-thumb{background:#2a2a30;border-radius:999px}
+.crm-page-root ::-webkit-scrollbar-thumb:hover{background:#c81e3c}
 `;
 
 export default function FollowUpCRMPage() {

@@ -36,44 +36,58 @@ import {
 } from "lucide-react";
 
 const C = {
-  bg: '#08090c',
-  sheet: '#10131a',
-  row: '#0c0e13',
-  raised: '#171b24',
+  bg: '#050506',
+  sheet: '#0c0c0e',
+  row: '#111114',
+  raised: '#1c1c20',
   line: 'rgba(255,255,255,0.08)',
   lineStrong: 'rgba(255,255,255,0.18)',
-  text: '#f3f4f6',
-  body: '#cdd1da',
-  muted: '#9ba1ae',
-  faint: '#6c7280',
+  text: '#fafafa',
+  body: '#d4d4d8',
+  muted: '#a1a1aa',
+  faint: '#71717a',
   crimson: '#c81e3c',
   crimsonHover: '#d92a49',
   crimsonSoft: 'rgba(200,30,60,0.14)',
   crimsonLine: 'rgba(200,30,60,0.42)',
   crimsonText: '#ff8fa3',
-  ok: '#6fcf9b',
-  okSoft: 'rgba(111,207,155,0.12)',
-  okLine: 'rgba(111,207,155,0.36)',
-  sky: '#7dd3fc',
-  skySoft: 'rgba(56,189,248,0.12)',
-  skyLine: 'rgba(56,189,248,0.36)',
-  violet: '#c4b5fd',
-  violetSoft: 'rgba(167,139,250,0.12)',
-  violetLine: 'rgba(167,139,250,0.36)',
-  warn: '#f0b46a',
-  warnSoft: 'rgba(240,180,106,0.12)',
-  warnLine: 'rgba(240,180,106,0.36)',
+  ok: '#34d399',
+  okSoft: 'rgba(52,211,153,0.10)',
+  okLine: 'rgba(52,211,153,0.32)',
+  sky: '#e4e4e7',
+  skySoft: 'rgba(255,255,255,0.06)',
+  skyLine: 'rgba(255,255,255,0.18)',
+  violet: '#ff8fa3',
+  violetSoft: 'rgba(255,77,109,0.10)',
+  violetLine: 'rgba(255,77,109,0.34)',
+  warn: '#fbbf24',
+  warnSoft: 'rgba(251,191,36,0.10)',
+  warnLine: 'rgba(251,191,36,0.32)',
 };
 
 const HEADING_FONT = "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 const CRM_CSS = `
-.crm-root .crm-btn-primary{background:${C.crimson};color:#ffffff;border:1px solid ${C.crimsonLine};transition:background-color .15s,border-color .15s}
-.crm-root .crm-btn-primary:hover:not(:disabled){background:${C.crimsonHover}}
-.crm-root .crm-btn-quiet{background:${C.row};color:${C.body};border:1px solid ${C.line};transition:background-color .15s,color .15s,border-color .15s}
-.crm-root .crm-btn-quiet:hover:not(:disabled){background:${C.raised};color:${C.text};border-color:${C.lineStrong}}
-.crm-root .crm-btn-danger{background:${C.crimsonSoft};color:${C.crimsonText};border:1px solid ${C.crimsonLine};transition:background-color .15s}
-.crm-root .crm-btn-danger:hover:not(:disabled){background:rgba(200,30,60,0.24)}
+.crm-root .crm-btn-primary{background:linear-gradient(180deg,#d62546 0%,#c81e3c 55%,#ad1833 100%);color:#fff;border:1px solid rgba(255,77,109,.35);box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 10px 26px -12px rgba(200,30,60,.6);transition:filter .15s,box-shadow .2s,transform .15s}
+.crm-root .crm-btn-primary:hover:not(:disabled){filter:brightness(1.08);box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 14px 32px -12px rgba(200,30,60,.75)}
+.crm-root .crm-btn-primary:active:not(:disabled){transform:translateY(1px)}
+.crm-root .crm-btn-quiet{background:#111114;color:#d4d4d8;border:1px solid rgba(255,255,255,.08);transition:background-color .15s,color .15s,border-color .15s}
+.crm-root .crm-btn-quiet:hover:not(:disabled){background:#1c1c20;color:#fafafa;border-color:rgba(255,255,255,.18)}
+.crm-root .crm-btn-danger{background:rgba(200,30,60,.10);color:#ff8fa3;border:1px solid rgba(200,30,60,.42);transition:background-color .15s,color .15s}
+.crm-root .crm-btn-danger:hover:not(:disabled){background:rgba(200,30,60,.22);color:#fff}
+.crm-root button:focus-visible,.crm-root a:focus-visible,.crm-root input:focus-visible,.crm-root select:focus-visible,.crm-root textarea:focus-visible{outline:2px solid #ff4d6d;outline-offset:2px}
+.crm-root input[type=text]:focus,.crm-root textarea:focus,.crm-root select:focus{border-color:rgba(200,30,60,.7)!important;box-shadow:0 0 0 3px rgba(200,30,60,.18)}
+.crm-root ::selection{background:#c81e3c;color:#fff}
+.crm-root ::-webkit-scrollbar{width:8px;height:8px}
+.crm-root ::-webkit-scrollbar-thumb{background:#2a2a30;border-radius:999px}
+.crm-root ::-webkit-scrollbar-thumb:hover{background:#c81e3c}
+.crm-root .crm-card{transition:border-color .18s,transform .18s,box-shadow .18s}
+.crm-root .crm-card:hover{transform:translateY(-1px);box-shadow:0 18px 40px -24px rgba(0,0,0,.95),0 0 0 1px rgba(255,255,255,.06)}
+.crm-root .crm-kpi{transition:border-color .18s,background-color .18s,transform .18s}
+.crm-root .crm-kpi:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.18)!important}
+.crm-root .crm-chip{transition:background-color .15s,color .15s,border-color .15s}
+.crm-root .crm-chip:hover{color:#fafafa!important;border-color:rgba(255,255,255,.18)!important}
+@media (prefers-reduced-motion:reduce){.crm-root .crm-card,.crm-root .crm-kpi{transition:none}.crm-root .crm-card:hover,.crm-root .crm-kpi:hover{transform:none}}
 `;
 
 function getStageBadgeProps(stageId) {
@@ -1486,48 +1500,58 @@ export default function CreatorFollowUpCRM({
 
   const crmContent = (
     <div
-      className={`crm-root w-full ${isPage ? "rounded-2xl" : "max-w-6xl rounded-2xl max-h-[92vh]"} flex flex-col overflow-hidden shadow-sm`}
-      style={{ background: C.sheet, border: `1px solid ${C.line}` }}
+      className={`crm-root relative w-full ${isPage ? "rounded-2xl" : "max-w-6xl rounded-2xl max-h-[92vh]"} flex flex-col overflow-hidden`}
+      style={{
+        background: `linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0) 160px), ${C.sheet}`,
+        border: '1px solid #2a2a30',
+        boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset, 0 30px 60px -30px rgba(0,0,0,0.9)',
+      }}
     >
       <style>{CRM_CSS}</style>
 
       {/* Header Titlebar */}
       <div
         id="tour-crm-header"
-        className="px-6 py-4 flex items-center justify-between flex-wrap gap-3"
-        style={{ background: C.sheet, borderBottom: `1px solid ${C.line}` }}
+        className="relative px-5 sm:px-6 py-5 flex items-center justify-between flex-wrap gap-4 overflow-hidden"
+        style={{ borderBottom: `1px solid ${C.line}` }}
       >
-        <div className="flex items-center gap-3">
+        <div className="absolute inset-x-0 top-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,77,109,0.7), transparent)' }} aria-hidden="true" />
+        <div className="absolute -top-24 left-1/3 w-[60%] h-48 rounded-full pointer-events-none" style={{ background: 'rgba(200,30,60,0.14)', filter: 'blur(60px)' }} aria-hidden="true" />
+        <div className="relative flex items-center gap-3.5 min-w-0">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-2xs shrink-0"
-            style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.crimsonText }}
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: 'linear-gradient(160deg, rgba(200,30,60,0.35), rgba(200,30,60,0.08))', border: `1px solid ${C.crimsonLine}`, color: '#fff', boxShadow: '0 10px 24px -12px rgba(200,30,60,0.8)' }}
           >
             <Users className="w-5 h-5" />
           </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base font-bold tracking-tight" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-                Creator Outreach & Follow-Up CRM Directory
+          <div className="min-w-0">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: '#ff4d6d' }}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#ff4d6d', boxShadow: '0 0 10px rgba(255,77,109,0.9)' }} />
+              Follow-Up CRM
+            </span>
+            <div className="flex items-center gap-2 flex-wrap mt-0.5">
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight m-0" style={{ color: C.text, fontFamily: HEADING_FONT }}>
+                Creator relationships
               </h2>
               <span
-                className="text-[10px] font-bold px-2 py-0.5 rounded-full font-mono"
-                style={{ background: C.row, color: C.crimsonText, border: `1px solid ${C.crimsonLine}` }}
+                className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+                style={{ background: C.crimsonSoft, color: C.crimsonText, border: `1px solid ${C.crimsonLine}` }}
               >
-                {enrichedCreators.length} Total Leads
+                {enrichedCreators.length} leads
               </span>
             </div>
-            <p className="text-xs mt-0.5" style={{ color: C.muted }}>
-              Track creator interest, review full back-and-forth messages, manage step 6 pitches, and advance co-launch partnerships.
+            <p className="text-xs mt-1 m-0" style={{ color: C.muted }}>
+              Track interest, read every reply, manage Step 6 pitches and move partners into co-launch.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="relative flex items-center gap-2 flex-shrink-0 flex-wrap">
           {/* Driver.js Workflow Tour Trigger */}
           <button
             type="button"
             onClick={() => startCrmTour(true)}
-            className="crm-btn-quiet flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex-shrink-0"
+            className="crm-btn-quiet flex items-center gap-1.5 px-3 h-9 rounded-xl text-xs font-semibold cursor-pointer flex-shrink-0"
             title="Start Guided Walkthrough (Driver.js)"
           >
             <Sparkles className="w-3.5 h-3.5 flex-shrink-0" style={{ color: C.warn }} />
@@ -1539,7 +1563,7 @@ export default function CreatorFollowUpCRM({
             type="button"
             onClick={onSyncImap}
             disabled={isSyncingImap}
-            className="crm-btn-primary flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer disabled:opacity-50 flex-shrink-0"
+            className="crm-btn-primary flex items-center gap-1.5 px-3.5 h-9 rounded-xl text-xs font-bold cursor-pointer disabled:opacity-50 flex-shrink-0"
             title="Poll Gmail IMAP for latest creator replies"
           >
             <RefreshCw className={`w-3.5 h-3.5 flex-shrink-0 inline-block origin-center ${isSyncingImap ? "animate-spin" : ""}`} />
@@ -1550,10 +1574,10 @@ export default function CreatorFollowUpCRM({
             id="tour-crm-export"
             type="button"
             onClick={handleExportCSV}
-            className="crm-btn-quiet flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex-shrink-0"
+            className="crm-btn-quiet flex items-center gap-1.5 px-3 h-9 rounded-xl text-xs font-semibold cursor-pointer flex-shrink-0"
             title="Export all lead statuses to CSV"
           >
-            <Download className="w-3.5 h-3.5 flex-shrink-0" style={{ color: C.sky }} />
+            <Download className="w-3.5 h-3.5 flex-shrink-0" style={{ color: C.muted }} />
             <span>Export CSV</span>
           </button>
 
@@ -1572,8 +1596,8 @@ export default function CreatorFollowUpCRM({
       {/* KPI Status Pills */}
       <div
         id="tour-crm-kpis"
-        className="p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5"
-        style={{ background: C.sheet, borderBottom: `1px solid ${C.line}` }}
+        className="p-4 sm:px-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5"
+        style={{ borderBottom: `1px solid ${C.line}` }}
       >
         {[
           { id: "all", label: "All Leads", count: counts.all, color: C.text, dot: C.crimson, accent: C.crimson },
@@ -1581,7 +1605,7 @@ export default function CreatorFollowUpCRM({
           { id: "interested", label: "Interested", count: counts.interested, color: C.ok, dot: C.ok, accent: C.ok },
           { id: "studio_replied", label: "Studio Replied", count: counts.studio_replied, color: C.sky, dot: C.sky, accent: C.sky },
           { id: "question", label: "Questions", count: counts.question, color: C.warn, dot: C.warn, accent: C.warn },
-          { id: "awaiting_reply", label: "Awaiting Reply", count: counts.awaiting_reply, color: C.muted, dot: C.faint, accent: C.faint },
+          { id: "awaiting_reply", label: "Awaiting Reply", count: counts.awaiting_reply, color: C.body, dot: C.faint, accent: C.faint },
         ].map((item) => {
           const isActive = statusFilter === item.id;
           return (
@@ -1589,33 +1613,30 @@ export default function CreatorFollowUpCRM({
               key={item.id}
               type="button"
               onClick={() => setStatusFilter(item.id)}
-              className="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs"
+              aria-pressed={isActive}
+              className="crm-kpi relative p-3.5 rounded-xl text-left cursor-pointer overflow-hidden"
               style={
                 isActive
-                  ? { background: C.crimson, border: `1px solid ${C.crimsonLine}`, color: '#ffffff', borderTop: `3px solid #ffffff` }
-                  : { background: C.row, border: `1px solid ${C.line}`, borderTop: `3px solid ${item.accent}`, color: C.body }
+                  ? { background: 'linear-gradient(160deg, rgba(200,30,60,0.24) 0%, rgba(200,30,60,0.06) 100%)', border: '1px solid rgba(255,77,109,0.55)', boxShadow: '0 12px 30px -18px rgba(200,30,60,0.9)' }
+                  : { background: C.row, border: `1px solid ${C.line}` }
               }
             >
-              <div className="flex items-center justify-between">
+              <span
+                className="text-[11px] font-semibold flex items-center gap-1.5 truncate"
+                style={{ color: isActive ? '#ffd1da' : C.muted }}
+              >
                 <span
-                  className="text-[11px] font-semibold flex items-center gap-1.5 truncate"
-                  style={{ color: isActive ? '#ffffff' : C.muted }}
-                >
-                  {item.dot && (
-                    <span
-                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      style={{ background: isActive ? '#ffffff' : item.dot }}
-                    />
-                  )}
-                  <span className="truncate">{item.label}</span>
-                </span>
-                <span
-                  className="text-sm font-mono font-bold ml-1"
-                  style={{ color: isActive ? '#ffffff' : item.color }}
-                >
-                  {item.count}
-                </span>
-              </div>
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{ background: isActive ? '#ff4d6d' : item.dot, boxShadow: isActive ? '0 0 8px rgba(255,77,109,0.9)' : 'none' }}
+                />
+                <span className="truncate">{item.label}</span>
+              </span>
+              <span
+                className="block mt-1.5 text-2xl font-bold tracking-tight tabular-nums"
+                style={{ color: isActive ? '#ffffff' : item.color, fontFamily: HEADING_FONT }}
+              >
+                {item.count}
+              </span>
             </button>
           );
         })}
@@ -1624,8 +1645,8 @@ export default function CreatorFollowUpCRM({
       {/* Filter Controls & Search Bar */}
       <div
         id="tour-crm-search"
-        className="p-4 flex items-center justify-between flex-wrap gap-3"
-        style={{ background: C.row, borderBottom: `1px solid ${C.line}` }}
+        className="px-4 sm:px-6 py-3.5 flex items-center justify-between flex-wrap gap-3"
+        style={{ background: 'rgba(255,255,255,0.015)', borderBottom: `1px solid ${C.line}` }}
       >
         <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: C.faint }} />
@@ -1634,24 +1655,21 @@ export default function CreatorFollowUpCRM({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by creator name, handle, email, or niche..."
-            className="w-full rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none shadow-2xs transition-all font-sans"
+            className="w-full rounded-xl pl-9 pr-4 h-10 text-sm focus:outline-none font-sans"
             style={{
-              background: C.sheet,
-              border: `1px solid ${C.lineStrong}`,
+              background: C.bg,
+              border: `1px solid ${C.line}`,
               color: C.text,
             }}
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: C.faint }}>
-            Platform:
-          </span>
+        <div className="flex items-center gap-1 p-1 rounded-xl" role="group" aria-label="Filter by platform" style={{ background: C.bg, border: `1px solid ${C.line}` }}>
           {[
             { id: "all", label: "All", activeBg: C.crimson, activeColor: '#ffffff', activeBorder: C.crimsonLine },
-            { id: "youtube", label: "YouTube", activeBg: 'rgba(239,68,68,0.2)', activeColor: '#ef4444', activeBorder: 'rgba(239,68,68,0.5)' },
-            { id: "instagram", label: "Instagram", activeBg: 'rgba(236,72,153,0.2)', activeColor: '#ec4899', activeBorder: 'rgba(236,72,153,0.5)' },
-            { id: "tiktok", label: "TikTok", activeBg: 'rgba(6,182,212,0.2)', activeColor: '#06b6d4', activeBorder: 'rgba(6,182,212,0.5)' },
+            { id: "youtube", label: "YouTube", activeBg: C.crimsonSoft, activeColor: '#ffffff', activeBorder: 'rgba(255,77,109,0.55)' },
+            { id: "instagram", label: "Instagram", activeBg: C.crimsonSoft, activeColor: '#ffffff', activeBorder: 'rgba(255,77,109,0.55)' },
+            { id: "tiktok", label: "TikTok", activeBg: C.crimsonSoft, activeColor: '#ffffff', activeBorder: 'rgba(255,77,109,0.55)' },
           ].map((p) => {
             const isPlatformActive = platformFilter === p.id;
             return (
@@ -1659,11 +1677,12 @@ export default function CreatorFollowUpCRM({
                 key={p.id}
                 type="button"
                 onClick={() => setPlatformFilter(p.id)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer shadow-2xs"
+                aria-pressed={isPlatformActive}
+                className="crm-chip px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
                 style={
                   isPlatformActive
-                    ? { background: p.activeBg, color: p.activeColor, border: `1px solid ${p.activeBorder}` }
-                    : { background: C.sheet, color: C.muted, border: `1px solid ${C.line}` }
+                    ? { background: p.id === 'all' ? C.crimson : p.activeBg, color: '#ffffff', border: `1px solid ${p.activeBorder}` }
+                    : { background: 'transparent', color: C.muted, border: '1px solid transparent' }
                 }
               >
                 {p.label}
@@ -1676,7 +1695,7 @@ export default function CreatorFollowUpCRM({
       {/* Sort, Page Size & Top Pagination Toolbar */}
       <div
         className="px-4 sm:px-6 py-2.5 flex items-center justify-between flex-wrap gap-3 text-xs"
-        style={{ background: C.sheet, borderBottom: `1px solid ${C.line}` }}
+        style={{ borderBottom: `1px solid ${C.line}` }}
       >
         <div className="flex items-center flex-wrap gap-4">
           {/* Sort Dropdown */}
@@ -1727,7 +1746,7 @@ export default function CreatorFollowUpCRM({
                     className="px-2 py-0.5 text-[11px] font-semibold rounded-md transition-all cursor-pointer"
                     style={
                       isSelected
-                        ? { background: C.raised, color: C.text, border: `1px solid ${C.lineStrong}`, fontWeight: 700 }
+                        ? { background: C.crimson, color: '#ffffff', fontWeight: 700 }
                         : { background: 'transparent', color: C.muted }
                     }
                   >
@@ -1817,14 +1836,14 @@ export default function CreatorFollowUpCRM({
               return (
                 <div
                   key={c.id}
-                  className="p-5 sm:p-5 rounded-2xl transition-all duration-200 flex flex-col gap-3.5 shadow-sm"
+                  className="crm-card relative p-5 rounded-2xl flex flex-col gap-3.5 overflow-hidden"
                   style={{
-                    background: C.sheet,
+                    background: `linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 90px), ${C.row}`,
                     border: `1px solid ${c.isRejected ? C.crimsonLine : C.line}`,
-                    borderLeft: `4px solid ${accentBorderColor}`,
                     opacity: c.isRejected ? 0.7 : 1,
                   }}
                 >
+                  <span className="absolute left-0 top-4 bottom-4 w-[3px] rounded-r-full" style={{ background: accentBorderColor }} aria-hidden="true" />
                   {/* 1. Header: Avatar, Name, Handle, Email & Stage */}
                   <div
                     className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3"
@@ -1836,7 +1855,7 @@ export default function CreatorFollowUpCRM({
                           src={
                             c.avatar ||
                             c.avatar_url ||
-                            `https://ui-avatars.com/api/?name=${encodeURIComponent(c.handle || "Creator")}&background=171b24&color=f3f4f6`
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(c.handle || "Creator")}&background=1c1c20&color=fafafa`
                           }
                           alt=""
                           className="w-11 h-11 rounded-xl object-cover shadow-2xs"
@@ -1849,7 +1868,7 @@ export default function CreatorFollowUpCRM({
                           {c.platform?.toLowerCase() === "instagram" ? (
                             <Instagram className="w-2.5 h-2.5 text-pink-500" />
                           ) : c.platform?.toLowerCase() === "tiktok" ? (
-                            <Music className="w-2.5 h-2.5 text-cyan-400" />
+                            <Music className="w-2.5 h-2.5 text-white" />
                           ) : (
                             <Youtube className="w-2.5 h-2.5 text-red-500" />
                           )}
@@ -1878,7 +1897,7 @@ export default function CreatorFollowUpCRM({
                               className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono transition-all"
                               style={{ background: C.row, border: `1px solid ${C.lineStrong}`, color: C.body }}
                             >
-                              <Mail className="w-3 h-3 flex-shrink-0" style={{ color: C.sky }} />
+                              <Mail className="w-3 h-3 flex-shrink-0" style={{ color: C.muted }} />
                               <span className="truncate max-w-[200px]" title={email}>{email}</span>
                               <button
                                 type="button"
@@ -1920,11 +1939,11 @@ export default function CreatorFollowUpCRM({
                     {/* Top Right: Score & Stage Badges */}
                     <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
                       <span
-                        className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-2xs"
-                        style={{ background: C.warnSoft, color: C.warn, border: `1px solid ${C.warnLine}` }}
+                        className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg flex items-center gap-1"
+                        style={{ background: C.bg, color: C.text, border: `1px solid ${C.line}` }}
                         title="Creator Assessment Score"
                       >
-                        <Zap className="w-3 h-3" />
+                        <Zap className="w-3 h-3" style={{ color: C.warn }} />
                         <span>Score {c.creatorScore || c.score || 75}/100</span>
                       </span>
 
@@ -1947,9 +1966,9 @@ export default function CreatorFollowUpCRM({
                     {/* Followers Pill (Sky Accent) */}
                     <div
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold shadow-2xs"
-                      style={{ background: C.skySoft, color: C.sky, border: `1px solid ${C.skyLine}` }}
+                      style={{ background: C.bg, color: C.body, border: `1px solid ${C.line}` }}
                     >
-                      <Users className="w-3 h-3" />
+                      <Users className="w-3 h-3" style={{ color: C.crimsonText }} />
                       <span>{c.followerStr || c.follower_count || "112K"}</span>
                       <span className="text-[10px] font-normal opacity-75">followers</span>
                     </div>
@@ -1957,9 +1976,9 @@ export default function CreatorFollowUpCRM({
                     {/* Engagement Pill (Emerald Accent) */}
                     <div
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold shadow-2xs"
-                      style={{ background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }}
+                      style={{ background: C.bg, color: C.body, border: `1px solid ${C.line}` }}
                     >
-                      <Flame className="w-3 h-3" />
+                      <Flame className="w-3 h-3" style={{ color: C.warn }} />
                       <span>{c.engagement || "3.9"}%</span>
                       <span className="text-[10px] font-normal opacity-75">eng.</span>
                     </div>
@@ -1968,9 +1987,9 @@ export default function CreatorFollowUpCRM({
                     {(c.niche || c.nicheFit || c.niche_fit) && (
                       <div
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold shadow-2xs"
-                        style={{ background: C.violetSoft, color: C.violet, border: `1px solid ${C.violetLine}` }}
+                        style={{ background: C.bg, color: C.body, border: `1px solid ${C.line}` }}
                       >
-                        <Sparkles className="w-3 h-3" />
+                        <Sparkles className="w-3 h-3" style={{ color: C.muted }} />
                         <span>{c.niche || c.nicheFit || c.niche_fit || "Tech / AI"}</span>
                       </div>
                     )}
@@ -1979,7 +1998,7 @@ export default function CreatorFollowUpCRM({
                     <div
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold shadow-2xs"
                       style={{
-                        background: c.outreach_sent ? 'rgba(111,207,155,0.08)' : C.row,
+                        background: c.outreach_sent ? C.okSoft : C.bg,
                         color: c.outreach_sent ? C.ok : C.muted,
                         border: `1px solid ${c.outreach_sent ? C.okLine : C.line}`,
                       }}
@@ -2005,7 +2024,7 @@ export default function CreatorFollowUpCRM({
                     <div
                       className="p-3.5 rounded-xl shadow-2xs transition-all"
                       style={{
-                        background: '#0c1017',
+                        background: C.bg,
                         border: `1px solid ${reply.classification === "interested" ? C.okLine : C.skyLine}`,
                         borderLeft: `4px solid ${reply.classification === "interested" ? C.ok : C.sky}`,
                       }}
