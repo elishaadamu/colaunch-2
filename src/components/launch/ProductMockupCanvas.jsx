@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Download, Loader2, Image as ImageIcon } from 'lucide-react'
 import { generateProductImage, buildProductScreenPrompt } from '../../services/ai'
+import { resolveProjectLanding } from '../../utils/projectLanding'
 
 export default function ProductMockupCanvas({ project, onSaveMockupImage, onShowNotification }) {
   const [style, setStyle] = useState('screen') // 'screen' | 'desk'
@@ -17,7 +18,8 @@ export default function ProductMockupCanvas({ project, onSaveMockupImage, onShow
   }, [project])
 
   const productName = project?.productName || project?.name || project?.selectedConcept?.name || ''
-  const brandColor = project?.brandColor || project?.brand_color || '#c81e3c'
+  // Same accent as the approved Step 5 landing page (crimson / emerald / ember)
+  const brandColor = resolveProjectLanding(project || {}).brandColor || project?.brandColor || '#c81e3c'
 
   const handleGenerate = async () => {
     if (!productName || isGenerating) return

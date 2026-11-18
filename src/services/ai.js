@@ -1387,32 +1387,56 @@ export function buildProductScreenPrompt(project, { brandColor = "#c81e3c", dire
   const concept = project?.selectedConcept || project || {};
   const productName = project?.productName || concept.productName || concept.name || "the product";
   const tagline = project?.productTagline || concept.tagline || "";
-  const niche = project?.niche || "";
-  const rawFeatures = project?.keyFeatures || project?.features || concept.keyFeatures || [];
-  const titles = rawFeatures.map(featureTitle).filter(Boolean).slice(0, 3);
-  const idx = [project?.conceptIndex, project?.selectedConceptIndex, concept.index].find(Number.isInteger);
-  const layout = Number.isInteger(idx) ? SCREEN_LAYOUTS[((idx % 3) + 3) % 3] : "a clean dashboard with a side menu and one main working area";
+  const niche = Array.isArray(project?.niche) ? project.niche.join(", ") : (project?.niche || "");
+  const customer = concept.customer || project?.targetAudience || "";
+  const rawFeatures = concept.keyFeatures || project?.keyFeatures || project?.features || [];
+  const titles = rawFeatures.map(featureTitle).filter(Boolean).slice(0, 4);
+  const f = (i, fallback) => titles[i] || fallback;
+  const idx = [concept.landingIndex, project?.conceptIndex, project?.selectedConceptIndex, concept.index].find(Number.isInteger);
+  const archetype = concept.archetype || (idx === 1 ? "copilot" : idx === 2 ? "vault" : "workflow");
 
-  const words = [productName, ...titles].map((t) => `"${t}"`).join(", ");
+  // Main working area per concept type, filled with plausible sample content.
+  const main = {
+    workflow:
+      `MAIN AREA: a pipeline board titled "${f(0, "Active workflow")}" with 4 columns ("To do", "In progress", "Review", "Done"). ` +
+      `Each column holds 2-3 cards; every card has a short realistic task title, a small coloured tag, a due date like "Nov 24", a tiny progress bar and a circular avatar with initials. ` +
+      `Above the board: a segmented control ("Board", "List", "Timeline") and a primary button "+ New ${f(0, "item").split(" ")[0]}".`,
+    copilot:
+      `MAIN AREA: an AI assistant workspace. A large prompt box at the bottom with a "Generate" button in the accent colour. ` +
+      `Above it, one user question and a rich structured AI answer card: a bold heading, 3 bullet points with short real sentences, a small comparison table (3 rows, 3 columns), and source chips underneath. ` +
+      `A right side panel titled "${f(1, "Saved insights")}" lists 5 saved items with dates.`,
+    vault:
+      `MAIN AREA: a members-only resource library. A search bar and filter chips ("All", "${f(0, "Playbooks")}", "${f(1, "Sessions")}", "${f(2, "Templates")}"). ` +
+      `Below, a 3-column grid of 6 content cards, each with a cover thumbnail made of abstract gradient shapes, a title, a category tag, a duration or page count, a progress bar, and a bookmark icon. ` +
+      `A right panel shows an "Upcoming live session" card with date, time and a "Join" button.`,
+  }[archetype] || "";
+
   const screen =
-    `A single flat web app screenshot of a software product called "${productName}"` +
-    (tagline ? ` (${tagline})` : "") + (niche ? `, for ${niche}` : "") + ". " +
-    `The screen shows ${layout}. ` +
-    (titles.length ? `The three main areas are labelled exactly: ${titles.map((t) => `"${t}"`).join(", ")}. ` : "") +
-    `Use only these words as readable text: ${words}. All other text must be short, soft grey placeholder lines, not letters. ` +
-    `No numbers, no charts with values, no revenue, no user counts, no code, no logos, no people, no emoji. ` +
-    `Dark charcoal interface, white type, one accent colour ${brandColor} used only on the primary button and the active item. ` +
-    `Straight-on, filling the frame, crisp edges, generous spacing, consistent corner radius. Flat product screenshot, not a photo, no device frame, no glow.`;
+    `High-fidelity UI design of a premium SaaS web app dashboard called "${productName}"` +
+    (tagline ? ` — ${tagline}` : "") + (niche ? `, built for the ${niche} audience` : "") +
+    (customer ? ` (users: ${customer})` : "") + ". " +
+    `Desktop browser screen, 16:9, viewed perfectly straight-on, filling the whole frame, no device frame, no background scene. ` +
+    `LAYOUT: ` +
+    `TOP BAR: product wordmark "${productName}" with a small geometric logo mark on the left, a search field "Search…", a notification bell with a red dot, and a round user avatar with initials on the right. ` +
+    `LEFT SIDEBAR: navigation with icons — "Dashboard" (active, highlighted in the accent colour), "${f(0, "Workflows")}", "${f(1, "Insights")}", "${f(2, "Library")}", "${f(3, "Community")}", "Settings"; a small upgrade card at the bottom. ` +
+    `KPI ROW: 4 metric cards with realistic sample numbers, small trend arrows (green up, red down) and tiny sparklines — e.g. "Active members 1,284 +12%", "${f(0, "Sessions")} completed 3,942", "Avg. engagement 68%", "Retention 91%". ` +
+    `CHART: a smooth area line chart "Last 30 days" with gridlines, axis labels and a hover tooltip, next to a small donut chart with a 3-item legend. ` +
+    `${main} ` +
+    `STYLE: modern, polished product UI in the quality of Linear, Vercel or Stripe dashboards. Near-black background (#0b0b0d), card surfaces #141417 with 1px subtle borders, ` +
+    `crisp white and grey sans-serif typography (Inter-like) with clear hierarchy, accent colour ${brandColor} for the active nav item, primary buttons, chart line and highlights, ` +
+    `secondary accents in soft emerald and amber for status tags. Dense but airy spacing, consistent 8px grid, subtle shadows, pixel-perfect alignment, retina-sharp. ` +
+    `All text must be legible, correctly spelled English; spell "${productName}"${titles.length ? ` and ${titles.map((t) => `"${t}"`).join(", ")}` : ""} exactly. ` +
+    `No lorem ipsum, no gibberish, no real brand logos, no watermark, no photos of real people.`;
 
   const desk =
-    `Quiet product photograph of a laptop and a phone on a dark desk, both showing the same app screen for "${productName}". ` +
-    `The screens are dark with white type and one accent colour ${brandColor}; the only readable text is "${productName}". ` +
-    `Soft side light, shallow depth of field, no people, no logos, no extra text, no numbers.`;
+    `Premium product photograph: a MacBook Pro and an iPhone on a dark walnut desk, both displaying the "${productName}" SaaS dashboard ` +
+    `(dark UI, accent colour ${brandColor}, sidebar navigation, KPI cards with numbers, an area chart and ${archetype === "copilot" ? "an AI chat answer" : archetype === "vault" ? "a grid of content cards" : "a task pipeline board"}). ` +
+    `The phone shows the mobile version of the same app. Moody studio lighting with a soft ${brandColor} rim light, shallow depth of field, 35mm, photorealistic, ` +
+    `screens sharp and legible, the wordmark "${productName}" spelled exactly. No people, no other logos, no watermark.`;
 
   const base = style === "desk" ? desk : screen;
-  const extra = direction && direction.trim() ? ` Extra direction from the creator: ${direction.trim().slice(0, 300)}.` : "";
-  // DALL-E 3 rewrites prompts; this keeps the exact wording.
-  return `I need to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS: ${base}${extra}`;
+  const extra = direction && direction.trim() ? ` Creator direction (follow it): ${direction.trim().slice(0, 300)}.` : "";
+  return `${base}${extra}`;
 }
 
 // ── OpenAI DALL-E 3 image generation ─────────────────────────────────────────
@@ -1430,19 +1454,25 @@ export async function generateProductImageWithOpenAI(
 
   const prompt = promptOverride || buildChannelSpecificImagePrompt(creatorData);
 
-  // Try candidate models: gpt-image-2.6-sunburst first, then gpt-image-2.5-sunburst, then dall-e-3
-  const candidateModels = ["gpt-image-2.6-sunburst", "gpt-image-2.5-sunburst", "dall-e-3"];
+  // gpt-image-1 renders UI and text far better; DALL-E 3 is the fallback.
+  const candidateModels = ["gpt-image-1", "dall-e-3"];
+  const wantsLandscape = String(imageOpts.size || "").startsWith("1792") || String(imageOpts.size || "").startsWith("1536");
   let lastError = null;
 
   for (const model of candidateModels) {
     try {
       const payload = {
         model,
-        prompt: prompt.slice(0, 4000),
+        prompt: prompt.slice(0, model === "dall-e-3" ? 4000 : 32000),
         n: 1,
       };
-      if (imageOpts.size) {
-        payload.size = imageOpts.size;
+      if (model === "gpt-image-1") {
+        payload.size = wantsLandscape ? "1536x1024" : (imageOpts.size === "1024x1792" ? "1024x1536" : imageOpts.size || "1024x1024");
+        payload.quality = imageOpts.quality === "hd" || imageOpts.quality === "high" ? "high" : (imageOpts.quality || "high");
+      } else {
+        payload.size = wantsLandscape ? "1792x1024" : (imageOpts.size || "1024x1024");
+        payload.quality = imageOpts.quality === "high" || imageOpts.quality === "hd" ? "hd" : "standard";
+        payload.style = "vivid";
       }
 
       const res = await fetch("/api/openai/v1/images/generations", {
