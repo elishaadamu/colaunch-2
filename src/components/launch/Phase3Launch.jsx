@@ -415,16 +415,16 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
       {saveToast && typeof document !== 'undefined' && createPortal(
         <div
           data-toast="true"
-          className="toast-notification keep-dark fixed bottom-6 right-6 z-[99999] px-4 py-2.5 rounded-2xl bg-slate-900/95 border border-amber-500/40 text-white font-bold text-xs shadow-2xl flex items-center gap-2 backdrop-blur-md animate-slide-up"
-          style={{ backgroundColor: '#0f172a', color: '#ffffff' }}
+          className="toast-notification keep-dark fixed bottom-6 right-6 z-[99999] px-4 py-2.5 rounded-2xl bg-[#050506]/95 border border-amber-500/40 text-white font-bold text-xs shadow-2xl flex items-center gap-2 backdrop-blur-md animate-slide-up"
+          style={{ backgroundColor: '#111114', color: '#ffffff', border: '1px solid #2a2a30' }}
         >
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span style={{ color: '#ffffff' }}>{saveToast}</span>
           <button
             type="button"
             onClick={() => setSaveToast('')}
-            className="text-slate-400 hover:text-white p-1 rounded-lg ml-2 cursor-pointer"
-            style={{ color: '#94a3b8' }}
+            className="text-[#71717A] hover:text-white p-1 rounded-lg ml-2 cursor-pointer"
+            style={{ color: '#a1a1aa' }}
           >
             <X className="w-3 h-3" />
           </button>
@@ -434,23 +434,23 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
 
       {/* Kill Confirmation Modal */}
       {showKillModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="max-w-md w-full p-6 rounded-3xl bg-white border border-red-200 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-red-600">
+        <div className="fixed inset-0 z-50 bg-[#050506]/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="max-w-md w-full p-6 rounded-3xl bg-[#0C0C0E] border border-red-500/30 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-red-300">
               <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h3 className="text-base font-black text-slate-950">Confirm Phase 3 Sunset / Kill</h3>
+              <h3 className="text-base font-black text-[#FAFAFA]">Confirm Phase 3 Sunset / Kill</h3>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Are you sure you want to sunset <strong className="text-slate-900">{project?.productName || 'this product'}</strong>? You can choose to archive the repository, halt marketing campaigns, and notify existing active subscribers.
+            <p className="text-xs text-[#A1A1AA] leading-relaxed">
+              Are you sure you want to sunset <strong className="text-[#FAFAFA]">{project?.productName || 'this product'}</strong>? You can choose to archive the repository, halt marketing campaigns, and notify existing active subscribers.
             </p>
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-[11px] text-red-700 font-medium">
-              Active Subscribers: <strong className="text-red-900">{telemetry.customers}</strong> • Total Revenue: <strong className="text-red-900">${telemetry.revenue.toLocaleString()}</strong>
+            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-[11px] text-red-300 font-medium">
+              Active Subscribers: <strong className="text-red-300">{telemetry.customers}</strong> • Total Revenue: <strong className="text-red-300">${telemetry.revenue.toLocaleString()}</strong>
             </div>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setShowKillModal(false)}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-xl bg-[#18181C] hover:bg-[#222227] text-[#D4D4D8] text-xs font-semibold cursor-pointer transition-colors"
               >
                 Cancel
               </button>
@@ -482,28 +482,28 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
         const isReadyToLaunch = allChecklistsDone
 
         return (
-          <div className="p-6 sm:p-7 rounded-3xl bg-slate-50/90 border border-slate-200/90 shadow-sm space-y-5 text-slate-900">
+          <div className="p-6 sm:p-7 rounded-3xl bg-[#111114]/90 border border-[#2a2a30]/90 shadow-sm space-y-5 text-[#FAFAFA]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-mono font-bold uppercase tracking-wider">
+                  <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-mono font-bold uppercase tracking-wider">
                     Phase 3 Checkpoint — COMMERCIAL LAUNCH
                   </span>
                   <span className={`text-[10px] font-mono font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 ${
                     isLive
-                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                      ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
                       : isReadyToLaunch
-                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                        : 'bg-amber-50 text-amber-800 border-amber-300'
+                        ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+                        : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
                   }`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${isLive || isReadyToLaunch ? 'bg-emerald-500' : 'bg-amber-500'}`} />
                     <span>{isLive ? 'LIVE IN PRODUCTION' : isReadyToLaunch ? 'READY TO LAUNCH' : 'PRE-LAUNCH PREPARATION'}</span>
                   </span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-black text-[#FAFAFA] tracking-tight">
                   Turn the Working MVP into a Real Revenue-Producing Business
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#A1A1AA] max-w-2xl leading-relaxed">
                   Execute commercial launch, coordinate creator marketing assets, ensure production infrastructure reliability, and monitor live channel attribution.
                 </p>
               </div>
@@ -535,69 +535,69 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                       setPrepSubtab('checklists')
                       showToast(`Complete all launch checklists in Step 1 before launching (${completedTasksCount}/${totalTasksCount} verified).`)
                     }}
-                    className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs text-slate-700 font-semibold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0 shadow-2xs"
+                    className="px-4 py-2.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] border border-[#2a2a30] text-xs text-[#D4D4D8] font-semibold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0 shadow-2xs"
                     title="Complete all Creator & Engineering checklist items in Step 1 to unlock launch"
                   >
                     <Lock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                    <span className="whitespace-nowrap text-slate-700 font-semibold">Launch Locked ({completedTasksCount}/{totalTasksCount} Verified)</span>
+                    <span className="whitespace-nowrap text-[#D4D4D8] font-semibold">Launch Locked ({completedTasksCount}/{totalTasksCount} Verified)</span>
                   </button>
                 )}
 
                 <button
                   type="button"
                   onClick={handleExportMarkdown}
-                  className="p-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shrink-0 shadow-2xs transition-colors"
+                  className="p-2.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold flex items-center gap-1.5 cursor-pointer shrink-0 shadow-2xs transition-colors"
                   title="Download Launch Report"
                 >
-                  <FileText className="w-4 h-4 text-slate-600" />
+                  <FileText className="w-4 h-4 text-[#A1A1AA]" />
                 </button>
               </div>
             </div>
 
             {/* Live Production Telemetry Bar */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
+                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-300" />
                   <span>Live Revenue</span>
                 </span>
-                <div className="text-xl sm:text-2xl font-black text-emerald-600 font-mono">
+                <div className="text-xl sm:text-2xl font-black text-emerald-300 font-mono">
                   ${telemetry.revenue.toLocaleString()}
                 </div>
-                <span className="text-[10px] text-slate-400 block font-mono">Processed revenue</span>
+                <span className="text-[10px] text-[#71717A] block font-mono">Processed revenue</span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-blue-600" />
+              <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
+                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-[#FF8FA3]" />
                   <span>Paying Customers</span>
                 </span>
-                <div className="text-xl sm:text-2xl font-black text-slate-900 font-mono">
+                <div className="text-xl sm:text-2xl font-black text-[#FAFAFA] font-mono">
                   {telemetry.customers}
                 </div>
-                <span className="text-[10px] text-slate-400 block font-mono">{telemetry.visitors > 0 ? ((telemetry.customers / telemetry.visitors) * 100).toFixed(1) : '0.0'}% paid conversion</span>
+                <span className="text-[10px] text-[#71717A] block font-mono">{telemetry.visitors > 0 ? ((telemetry.customers / telemetry.visitors) * 100).toFixed(1) : '0.0'}% paid conversion</span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <Eye className="w-3.5 h-3.5 text-amber-600" />
+              <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
+                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5 text-amber-300" />
                   <span>Visitor Traffic</span>
                 </span>
-                <div className="text-xl sm:text-2xl font-black text-blue-600 font-mono">
+                <div className="text-xl sm:text-2xl font-black text-[#FF8FA3] font-mono">
                   {telemetry.visitors.toLocaleString()}
                 </div>
-                <span className="text-[10px] text-slate-400 block font-mono">Tracked sessions</span>
+                <span className="text-[10px] text-[#71717A] block font-mono">Tracked sessions</span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <Radio className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
+                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <Radio className="w-3.5 h-3.5 text-emerald-300" />
                   <span>Top Channel</span>
                 </span>
-                <div className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                <div className="text-xs sm:text-sm font-bold text-[#FAFAFA] truncate">
                   {channelStats && channelStats.length > 0 ? (channelStats.find(c => c.topPerformer)?.channel || channelStats[0]?.channel) : 'Creator Direct'}
                 </div>
-                <span className="text-[10px] text-emerald-600 font-semibold block font-mono">
+                <span className="text-[10px] text-emerald-300 font-semibold block font-mono">
                   {channelStats && channelStats.length > 0 ? (channelStats.find(c => c.topPerformer)?.convRate || channelStats[0]?.convRate) : '0.0%'} Conversion
                 </span>
               </div>
@@ -607,16 +607,16 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
       })()}
 
       {/* 4-Step Phase 3 Stepper Navigation */}
-      <div className="p-3 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2.5">
-        <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+      <div className="p-3 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-sm space-y-2.5">
+        <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#1C1C20]">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-amber-600 shrink-0" />
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#E4E4E7]">
               Commercial Launch & Scale Pipeline
             </span>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 text-white text-xs font-mono font-bold shadow-xs select-none">
-            <span className="text-[10px] text-slate-300 uppercase font-mono tracking-wider">Milestones:</span>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#050506] text-white text-xs font-mono font-bold shadow-xs select-none">
+            <span className="text-[10px] text-[#D4D4D8] uppercase font-mono tracking-wider">Milestones:</span>
             <span className="font-extrabold text-xs text-emerald-400">
               {[p3Guards.isStep1Done, p3Guards.isStep2Done, p3Guards.isStep3Done, p3Guards.isStep4Done].filter(Boolean).length} of 4 Complete
             </span>
@@ -644,18 +644,18 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 title={isLocked ? getP3StepMissingPrerequisiteText(tab.id) : tab.label}
                 className={`flex items-center justify-between p-3 rounded-xl text-xs transition-all cursor-pointer border ${
                   isActive
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-md font-bold'
+                    ? 'bg-[#050506] text-white border-[#222227] shadow-md font-bold'
                     : isDone
-                    ? 'bg-emerald-50/80 text-emerald-900 border-emerald-300 hover:bg-emerald-100/90 font-semibold'
+                    ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/15 font-semibold'
                     : isLocked
-                    ? 'bg-slate-50 text-slate-400 border-slate-200/80 cursor-not-allowed opacity-60'
-                    : 'bg-slate-50 text-slate-700 hover:text-slate-950 hover:bg-slate-100 border-slate-200'
+                    ? 'bg-[#111114] text-[#71717A] border-[#2a2a30]/80 cursor-not-allowed opacity-60'
+                    : 'bg-[#111114] text-[#D4D4D8] hover:text-[#FAFAFA] hover:bg-[#18181C] border-[#2a2a30]'
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-400' : isDone ? 'text-emerald-600' : isLocked ? 'text-slate-400' : 'text-slate-600'}`} />
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-400' : isDone ? 'text-emerald-300' : isLocked ? 'text-[#71717A]' : 'text-[#A1A1AA]'}`} />
                   <div className="text-left min-w-0">
-                    <span className={`block text-[9px] font-mono uppercase tracking-wider font-bold ${isActive ? 'text-slate-400' : 'text-slate-400'}`}>
+                    <span className={`block text-[9px] font-mono uppercase tracking-wider font-bold ${isActive ? 'text-[#71717A]' : 'text-[#71717A]'}`}>
                       Step {tab.num}
                     </span>
                     <span className="truncate block font-sans font-bold text-[11px] sm:text-xs">
@@ -670,11 +670,11 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                   ) : isLocked ? (
-                    <Lock className="w-3.5 h-3.5 text-slate-400" />
+                    <Lock className="w-3.5 h-3.5 text-[#71717A]" />
                   ) : isActive ? (
                     <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
                   ) : (
-                    <span className="w-2 h-2 rounded-full bg-slate-300 shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-[#2a2a30] shrink-0" />
                   )}
                 </div>
               </button>
@@ -687,8 +687,8 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
       {activeStep === 'prep' && (
         <div className="space-y-5">
           {/* Subtabs Navigation */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
-            <div className="p-1 rounded-xl bg-slate-100 border border-slate-200 flex items-center gap-1 overflow-x-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2a2a30] pb-3">
+            <div className="p-1 rounded-xl bg-[#18181C] border border-[#2a2a30] flex items-center gap-1 overflow-x-auto">
               {[
                 { id: 'strategy', label: 'Strategy & Schedule', icon: Calendar },
                 { id: 'assets', label: 'Creator Launch Assets', icon: Video },
@@ -703,8 +703,8 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                     onClick={() => setPrepSubtab(sub.id)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                       prepSubtab === sub.id
-                        ? 'bg-white text-slate-900 border border-slate-200/80 shadow-2xs'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                        ? 'bg-[#0C0C0E] text-[#FAFAFA] border border-[#2a2a30]/80 shadow-2xs'
+                        : 'text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#0C0C0E]/50'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -719,10 +719,10 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 type="button"
                 onClick={handleGenerateStrategy}
                 disabled={isGeneratingStrategy}
-                className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-amber-700 border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shrink-0 shadow-2xs"
+                className="px-3.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-amber-300 border border-[#2a2a30] text-xs font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shrink-0 shadow-2xs"
                 title="Synthesizes complete launch strategy, 48-hour schedule, and checklists with AI"
               >
-                {isGeneratingStrategy ? <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" /> : <Sparkles className="w-3.5 h-3.5 text-amber-600" />}
+                {isGeneratingStrategy ? <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-300" /> : <Sparkles className="w-3.5 h-3.5 text-amber-300" />}
                 <span>{isGeneratingStrategy ? 'Synthesizing with AI...' : 'Regenerate Strategy with AI'}</span>
               </button>
             )}
@@ -732,28 +732,28 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           {prepSubtab === 'strategy' && (
             isGeneratingStrategy ? (
               <div className="space-y-4 animate-fade-in">
-                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 text-amber-900 text-xs shadow-2xs">
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-amber-300 text-xs shadow-2xs">
                   <div className="flex items-center gap-2.5">
-                    <Loader2 className="w-5 h-5 animate-spin text-amber-600 shrink-0" />
+                    <Loader2 className="w-5 h-5 animate-spin text-amber-300 shrink-0" />
                     <div>
-                      <strong className="text-slate-900 block text-sm font-bold">Synthesizing Launch Strategy with AI...</strong>
-                      <span className="text-[11px] text-slate-600">Analyzing presales, multi-channel distribution matrix, and 48-hour schedule</span>
+                      <strong className="text-[#FAFAFA] block text-sm font-bold">Synthesizing Launch Strategy with AI...</strong>
+                      <span className="text-[11px] text-[#A1A1AA]">Analyzing presales, multi-channel distribution matrix, and 48-hour schedule</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono text-amber-700 bg-white px-2.5 py-1 rounded-lg border border-amber-200 font-bold shrink-0 shadow-2xs">
+                  <span className="text-[10px] font-mono text-amber-300 bg-[#0C0C0E] px-2.5 py-1 rounded-lg border border-amber-500/30 font-bold shrink-0 shadow-2xs">
                     AI In Progress
                   </span>
                 </div>
                 <Phase3StrategySkeleton />
               </div>
             ) : !strategy ? (
-              <div className="p-8 sm:p-12 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 text-center space-y-4 shadow-2xs animate-fade-in">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-amber-600 mx-auto">
+              <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
+                <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-amber-300 mx-auto">
                   <Sparkles className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-black text-slate-900">No Launch Strategy Generated Yet</h3>
-                  <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                  <h3 className="text-base font-black text-[#FAFAFA]">No Launch Strategy Generated Yet</h3>
+                  <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
                     Click below to synthesize a commercial launch strategy, multi-channel distribution plan, and 48-hour rollout schedule with AI.
                   </p>
                 </div>
@@ -761,7 +761,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   type="button"
                   onClick={handleGenerateStrategy}
                   disabled={isGeneratingStrategy}
-                  className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-amber-400" />
                   <span>Generate Launch Strategy with AI</span>
@@ -779,54 +779,54 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                       : project?.launchDate || todayFormatted
 
                     return (
-                      <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3 flex flex-col justify-between">
+                      <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3 flex flex-col justify-between">
                         <div className="space-y-2">
-                          <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                             <Clock className="w-3.5 h-3.5" />
                             <span>Target Commercial Launch Window</span>
                           </span>
                           <div className="flex items-baseline gap-2 flex-wrap">
-                            <span className="text-2xl font-black text-slate-900 font-mono tracking-tight">
+                            <span className="text-2xl font-black text-[#FAFAFA] font-mono tracking-tight">
                               {activeLaunchDate}
                             </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">
                               Active 48h Window
                             </span>
                           </div>
-                          <p className="text-xs text-slate-600 leading-relaxed">
+                          <p className="text-xs text-[#A1A1AA] leading-relaxed">
                             Coordinated 48-hour commercial launch window synchronized across creator distribution channels.
                           </p>
                         </div>
-                        <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-100 text-[11px] text-amber-800 flex items-center gap-2 font-medium">
-                          <Flame className="w-4 h-4 text-amber-600 shrink-0" />
+                        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-300 flex items-center gap-2 font-medium">
+                          <Flame className="w-4 h-4 text-amber-300 shrink-0" />
                           <span>48h Urgency countdown timer active on checkout</span>
                         </div>
                       </div>
                     )
                   })()}
 
-                  <div className="md:col-span-2 p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                      <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
+                  <div className="md:col-span-2 p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                    <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2">
+                      <span className="text-[10px] font-bold text-[#FF8FA3] uppercase tracking-wider flex items-center gap-1.5">
                         <Globe className="w-3.5 h-3.5" />
                         <span>Target Launch Channels & Expected Conversion Shares</span>
                       </span>
-                      <span className="text-[10px] font-mono text-slate-400">Multi-Channel Matrix</span>
+                      <span className="text-[10px] font-mono text-[#71717A]">Multi-Channel Matrix</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       {(strategy.targetChannels || []).map((tc, idx) => (
-                        <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-xs">
+                        <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1.5 text-xs">
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                              <Radio className="w-3.5 h-3.5 text-blue-500" />
+                            <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5">
+                              <Radio className="w-3.5 h-3.5 text-[#FF8FA3]" />
                               <span>{tc.channel}</span>
                             </span>
-                            <span className="text-[10px] font-bold text-amber-700 font-mono px-2 py-0.5 rounded bg-amber-50 border border-amber-200">{tc.expectedShare}</span>
+                            <span className="text-[10px] font-bold text-amber-300 font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">{tc.expectedShare}</span>
                           </div>
-                          <p className="text-[11px] text-slate-600 leading-relaxed">{tc.strategy}</p>
+                          <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{tc.strategy}</p>
                           {tc.tactics && (
-                            <div className="text-[10px] text-slate-500 italic pt-1 border-t border-slate-200/60">
+                            <div className="text-[10px] text-[#A1A1AA] italic pt-1 border-t border-[#2a2a30]/60">
                               ⚡ Tactic: {tc.tactics}
                             </div>
                           )}
@@ -837,13 +837,13 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 </div>
 
                 {/* Commercial Offers & Pricing Tiers */}
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-emerald-600" />
+                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4">
+                  <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
+                    <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-emerald-300" />
                       <span>Commercial Launch Offers & Urgency Tiers</span>
                     </h3>
-                    <span className="text-[10px] text-emerald-700 font-mono px-2.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 font-bold">
+                    <span className="text-[10px] text-emerald-300 font-mono px-2.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 font-bold">
                       48-Hour Founding Pricing
                     </span>
                   </div>
@@ -884,26 +884,26 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                               key={idx}
                               className={`p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-4 ${
                                 isVip
-                                  ? 'bg-slate-50 border-amber-200 hover:border-amber-300 shadow-2xs'
-                                  : 'bg-slate-50 border-emerald-200 hover:border-emerald-300 shadow-2xs'
+                                  ? 'bg-[#111114] border-amber-500/30 hover:border-amber-500/30 shadow-2xs'
+                                  : 'bg-[#111114] border-emerald-500/30 hover:border-emerald-500/30 shadow-2xs'
                               }`}
                             >
                               <div className="space-y-3">
                                 {/* Header: Title & Badge */}
-                                <div className="flex items-start justify-between gap-3 border-b border-slate-200 pb-3">
+                                <div className="flex items-start justify-between gap-3 border-b border-[#2a2a30] pb-3">
                                   <div className="space-y-0.5">
-                                    <h4 className="font-black text-slate-900 text-base tracking-tight">
+                                    <h4 className="font-black text-[#FAFAFA] text-base tracking-tight">
                                       {offer.tier}
                                     </h4>
-                                    <p className={`text-xs font-semibold ${isVip ? 'text-amber-600' : 'text-emerald-700'}`}>
+                                    <p className={`text-xs font-semibold ${isVip ? 'text-amber-300' : 'text-emerald-300'}`}>
                                       {offer.discount}
                                     </p>
                                   </div>
                                   <span
                                     className={`shrink-0 whitespace-nowrap text-[9px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider ${
                                       isVip
-                                        ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                                        : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                        ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                                        : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
                                     }`}
                                   >
                                     {isVip ? 'VIP Tier' : 'Founding Tier'}
@@ -911,26 +911,26 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                 </div>
 
                                 {/* Prominent Pricing Box */}
-                                <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
+                                <div className="p-3 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1.5">
                                   <div className="flex items-baseline gap-2 flex-wrap">
-                                    <span className={`text-xl sm:text-2xl font-black font-mono tracking-tight ${isVip ? 'text-amber-700' : 'text-emerald-700'}`}>
+                                    <span className={`text-xl sm:text-2xl font-black font-mono tracking-tight ${isVip ? 'text-amber-300' : 'text-emerald-300'}`}>
                                       {mainPrice}
                                     </span>
                                     {isVip ? (
-                                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
+                                      <span className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wide">
                                         Lifetime Access
                                       </span>
                                     ) : (
-                                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
+                                      <span className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wide">
                                         Locked Renewal Rate
                                       </span>
                                     )}
                                   </div>
                                   {extraPrices.length > 0 && (
-                                    <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-slate-100">
-                                      <span className="text-[10px] text-slate-500">Also includes:</span>
+                                    <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-[#1C1C20]">
+                                      <span className="text-[10px] text-[#A1A1AA]">Also includes:</span>
                                       {extraPrices.map((extra, eIdx) => (
-                                        <span key={eIdx} className="text-[10px] font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
+                                        <span key={eIdx} className="text-[10px] font-mono text-[#D4D4D8] bg-[#18181C] px-2 py-0.5 rounded">
                                           {extra}
                                         </span>
                                       ))}
@@ -941,13 +941,13 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                 {/* Structured Perks List */}
                                 {perkList.length > 0 && (
                                   <div className="space-y-2 pt-1">
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#A1A1AA] block">
                                       Included Founding Privileges:
                                     </span>
                                     <div className="space-y-1.5">
                                       {perkList.map((perk, pIdx) => (
-                                        <div key={pIdx} className="flex items-start gap-2 text-xs text-slate-700 leading-snug">
-                                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${isVip ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                        <div key={pIdx} className="flex items-start gap-2 text-xs text-[#D4D4D8] leading-snug">
+                                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${isVip ? 'bg-amber-500/15 text-amber-300' : 'bg-emerald-500/15 text-emerald-300'}`}>
                                             <Check className="w-2.5 h-2.5" />
                                           </div>
                                           <span>{perk}</span>
@@ -959,12 +959,12 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                               </div>
 
                               {/* Footer: Cap & Urgency */}
-                              <div className="flex items-center justify-between pt-3 text-[10px] text-slate-500 border-t border-slate-200 mt-auto">
+                              <div className="flex items-center justify-between pt-3 text-[10px] text-[#A1A1AA] border-t border-[#2a2a30] mt-auto">
                                 <span className="flex items-center gap-1.5">
                                   <span className={`w-2 h-2 rounded-full ${isVip ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                                  <span>Cap: <strong className="text-slate-900 font-mono">{offer.spots} Founding Spots</strong></span>
+                                  <span>Cap: <strong className="text-[#FAFAFA] font-mono">{offer.spots} Founding Spots</strong></span>
                                 </span>
-                                <span className={`px-2.5 py-0.5 rounded font-bold ${isVip ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
+                                <span className={`px-2.5 py-0.5 rounded font-bold ${isVip ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'}`}>
                                   {offer.urgency}
                                 </span>
                               </div>
@@ -977,20 +977,20 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 </div>
 
                 {/* Core Messaging Angles & Objection Busters */}
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-blue-600" />
+                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                  <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-[#FF8FA3]" />
                     <span>Core Launch Messaging Angles & Objection Counters</span>
                   </h3>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {(strategy.messagingPillars || []).map((m, idx) => (
-                      <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-2">
-                        <span className="font-bold text-amber-700 block text-xs">{m.angle}</span>
-                        <p className="text-slate-900 text-[11px] font-medium leading-relaxed italic">"{m.hook}"</p>
+                      <div key={idx} className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 text-xs space-y-2">
+                        <span className="font-bold text-amber-300 block text-xs">{m.angle}</span>
+                        <p className="text-[#FAFAFA] text-[11px] font-medium leading-relaxed italic">"{m.hook}"</p>
                         {m.counterObjection && (
-                          <div className="text-[10px] text-slate-500 pt-1.5 border-t border-slate-200">
-                            <strong className="text-slate-700">Objection Buster:</strong> {m.counterObjection}
+                          <div className="text-[10px] text-[#A1A1AA] pt-1.5 border-t border-[#2a2a30]">
+                            <strong className="text-[#D4D4D8]">Objection Buster:</strong> {m.counterObjection}
                           </div>
                         )}
                       </div>
@@ -999,24 +999,24 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 </div>
 
                 {/* 48-Hour Coordinated Launch Schedule */}
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-amber-600" />
+                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
+                    <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-amber-300" />
                       <span>Coordinated 48-Hour Launch Schedule & Timeline</span>
                     </h3>
-                    <span className="text-[10px] font-mono text-amber-600 font-bold">Hour-by-Hour Roadmap</span>
+                    <span className="text-[10px] font-mono text-amber-300 font-bold">Hour-by-Hour Roadmap</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {(strategy.launchSchedule || []).map((item, idx) => (
-                      <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-xs">
+                      <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1.5 text-xs">
                         <div className="flex items-center justify-between">
-                          <span className="font-mono font-bold text-amber-700 text-[11px]">{item.time}</span>
-                          <span className="text-[9px] px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-sans font-semibold">{item.channel}</span>
+                          <span className="font-mono font-bold text-amber-300 text-[11px]">{item.time}</span>
+                          <span className="text-[9px] px-2 py-0.5 rounded-md bg-[#0C0C0E] border border-[#2a2a30] text-[#D4D4D8] font-sans font-semibold">{item.channel}</span>
                         </div>
-                        <h4 className="font-bold text-slate-900 text-xs">{item.event}</h4>
-                        <p className="text-[11px] text-slate-600 leading-relaxed">{item.details}</p>
+                        <h4 className="font-bold text-[#FAFAFA] text-xs">{item.event}</h4>
+                        <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{item.details}</p>
                       </div>
                     ))}
                   </div>
@@ -1029,28 +1029,28 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           {prepSubtab === 'assets' && (
             isGeneratingAssets ? (
               <div className="space-y-4 animate-fade-in">
-                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 text-amber-900 text-xs shadow-2xs">
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-amber-300 text-xs shadow-2xs">
                   <div className="flex items-center gap-2.5">
-                    <Loader2 className="w-5 h-5 animate-spin text-amber-600 shrink-0" />
+                    <Loader2 className="w-5 h-5 animate-spin text-amber-300 shrink-0" />
                     <div>
-                      <strong className="text-slate-900 block text-sm font-bold">Generating Creator Assets with AI...</strong>
-                      <span className="text-[11px] text-slate-600">Drafting announcement posts, story sequences, newsletter, scripts & referral links</span>
+                      <strong className="text-[#FAFAFA] block text-sm font-bold">Generating Creator Assets with AI...</strong>
+                      <span className="text-[11px] text-[#A1A1AA]">Drafting announcement posts, story sequences, newsletter, scripts & referral links</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono text-amber-700 bg-white px-2.5 py-1 rounded-lg border border-amber-200 font-bold shrink-0 shadow-2xs">
+                  <span className="text-[10px] font-mono text-amber-300 bg-[#0C0C0E] px-2.5 py-1 rounded-lg border border-amber-500/30 font-bold shrink-0 shadow-2xs">
                     AI In Progress
                   </span>
                 </div>
                 <Phase3AssetsSkeleton />
               </div>
             ) : !creatorAssets ? (
-              <div className="p-8 sm:p-12 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 text-center space-y-4 shadow-2xs animate-fade-in">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-amber-600 mx-auto">
+              <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
+                <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-amber-300 mx-auto">
                   <Video className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-black text-slate-900">No Creator Launch Assets Generated Yet</h3>
-                  <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                  <h3 className="text-base font-black text-[#FAFAFA]">No Creator Launch Assets Generated Yet</h3>
+                  <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
                     Click below to generate high-converting social posts, Instagram story sequences, email newsletter broadcasts, and video scripts with AI.
                   </p>
                 </div>
@@ -1058,16 +1058,16 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   type="button"
                   onClick={handleGenerateAssets}
                   disabled={isGeneratingAssets}
-                  className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-amber-400" />
                   <span>Generate Assets with AI</span>
                 </button>
               </div>
             ) : (
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4 animate-fade-in">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                  <div className="p-1 rounded-xl bg-slate-100 border border-slate-200 flex items-center gap-1 overflow-x-auto">
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4 animate-fade-in">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1C1C20] pb-3">
+                  <div className="p-1 rounded-xl bg-[#18181C] border border-[#2a2a30] flex items-center gap-1 overflow-x-auto">
                     {[
                       { id: 'post', label: 'Announcement Post' },
                       { id: 'story', label: 'IG Stories Sequence' },
@@ -1083,8 +1083,8 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                         onClick={() => setAssetTab(tab.id)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                           assetTab === tab.id
-                            ? 'bg-white text-slate-900 border border-slate-200/80 shadow-2xs'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                            ? 'bg-[#0C0C0E] text-[#FAFAFA] border border-[#2a2a30]/80 shadow-2xs'
+                            : 'text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#0C0C0E]/50'
                         }`}
                       >
                         {tab.label}
@@ -1096,9 +1096,9 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                     type="button"
                     onClick={handleGenerateAssets}
                     disabled={isGeneratingAssets}
-                    className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-amber-700 border border-slate-200 font-bold text-xs flex items-center gap-1.5 shadow-2xs disabled:opacity-50 cursor-pointer shrink-0"
+                    className="px-3.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-amber-300 border border-[#2a2a30] font-bold text-xs flex items-center gap-1.5 shadow-2xs disabled:opacity-50 cursor-pointer shrink-0"
                   >
-                    {isGeneratingAssets ? <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" /> : <Sparkles className="w-3.5 h-3.5 text-amber-600" />}
+                    {isGeneratingAssets ? <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-300" /> : <Sparkles className="w-3.5 h-3.5 text-amber-300" />}
                     <span>Regenerate Assets with AI</span>
                   </button>
                 </div>
@@ -1107,20 +1107,20 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 {assetTab === 'post' && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-900">Social Media Launch Post (IG / Twitter / LinkedIn)</span>
+                      <span className="text-xs font-bold text-[#FAFAFA]">Social Media Launch Post (IG / Twitter / LinkedIn)</span>
                       <button
                         type="button"
                         onClick={() => {
                           navigator.clipboard?.writeText(creatorAssets.announcementPost || '')
                           showToast('Copied announcement post to clipboard!')
                         }}
-                        className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                        className="px-3 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs"
                       >
                         <Copy className="w-3.5 h-3.5" />
                         <span>Copy Text</span>
                       </button>
                     </div>
-                    <div className="keep-dark p-4 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs font-mono whitespace-pre-wrap leading-relaxed">
+                    <div className="keep-dark p-4 rounded-xl bg-[#030304] border border-[#2a2a30] text-[#E4E4E7] text-xs font-mono whitespace-pre-wrap leading-relaxed">
                       {creatorAssets.announcementPost}
                     </div>
                   </div>
@@ -1129,20 +1129,20 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 {/* Asset 2: Instagram Story Sequence */}
                 {assetTab === 'story' && (
                   <div className="space-y-3">
-                    <span className="text-xs font-bold text-slate-900 block">Multi-Slide Instagram / TikTok Story Sequence</span>
+                    <span className="text-xs font-bold text-[#FAFAFA] block">Multi-Slide Instagram / TikTok Story Sequence</span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                       {(creatorAssets.storySequence || []).map((slide, idx) => (
-                        <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2.5 text-xs flex flex-col justify-between">
+                        <div key={idx} className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2.5 text-xs flex flex-col justify-between">
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-amber-700">Slide {slide.slide || idx + 1}</span>
-                              <span className="text-[9px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-bold">{slide.type}</span>
+                              <span className="font-bold text-amber-300">Slide {slide.slide || idx + 1}</span>
+                              <span className="text-[9px] px-2 py-0.5 rounded bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45 font-bold">{slide.type}</span>
                             </div>
-                            <p className="text-slate-700 text-[11px] leading-relaxed">{slide.copy}</p>
+                            <p className="text-[#D4D4D8] text-[11px] leading-relaxed">{slide.copy}</p>
                           </div>
                           {slide.sticker && (
-                            <div className="p-2 rounded-lg bg-white border border-slate-200 text-[10px] text-amber-700 flex items-center gap-1.5 font-medium shadow-2xs">
-                              <Tag className="w-3 h-3 text-amber-600 shrink-0" />
+                            <div className="p-2 rounded-lg bg-[#0C0C0E] border border-[#2a2a30] text-[10px] text-amber-300 flex items-center gap-1.5 font-medium shadow-2xs">
+                              <Tag className="w-3 h-3 text-amber-300 shrink-0" />
                               <span>{slide.sticker}</span>
                             </div>
                           )}
@@ -1155,10 +1155,10 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 {/* Asset 3: Newsletter Broadcast */}
                 {assetTab === 'email' && (
                   <div className="space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1C1C20] pb-2.5">
                       <div>
-                        <span className="text-xs font-bold text-slate-900 block">Subject: {creatorAssets.newsletterBroadcast?.subject}</span>
-                        <span className="text-[11px] text-slate-500">Preview Hook: {creatorAssets.newsletterBroadcast?.preview}</span>
+                        <span className="text-xs font-bold text-[#FAFAFA] block">Subject: {creatorAssets.newsletterBroadcast?.subject}</span>
+                        <span className="text-[11px] text-[#A1A1AA]">Preview Hook: {creatorAssets.newsletterBroadcast?.preview}</span>
                       </div>
                       <button
                         type="button"
@@ -1166,13 +1166,13 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           navigator.clipboard?.writeText(creatorAssets.newsletterBroadcast?.body || '')
                           showToast('Copied email newsletter body!')
                         }}
-                        className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer self-start sm:self-auto shadow-2xs"
+                        className="px-3 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold flex items-center gap-1.5 cursor-pointer self-start sm:self-auto shadow-2xs"
                       >
                         <Copy className="w-3.5 h-3.5" />
                         <span>Copy Email Body</span>
                       </button>
                     </div>
-                    <div className="keep-dark p-4 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs font-mono whitespace-pre-wrap leading-relaxed">
+                    <div className="keep-dark p-4 rounded-xl bg-[#030304] border border-[#2a2a30] text-[#E4E4E7] text-xs font-mono whitespace-pre-wrap leading-relaxed">
                       {creatorAssets.newsletterBroadcast?.body}
                     </div>
                   </div>
@@ -1182,27 +1182,27 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 {assetTab === 'video' && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-900 block">Short-Form Video Demo Script (TikTok / Reels / Shorts)</span>
+                      <span className="text-xs font-bold text-[#FAFAFA] block">Short-Form Video Demo Script (TikTok / Reels / Shorts)</span>
                       {creatorAssets.videoScript?.filmingTips && (
-                        <span className="text-[10px] text-amber-700 font-medium">💡 {creatorAssets.videoScript.filmingTips}</span>
+                        <span className="text-[10px] text-amber-300 font-medium">💡 {creatorAssets.videoScript.filmingTips}</span>
                       )}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                        <span className="text-[10px] font-bold text-amber-700 uppercase">1. Video Hook (0-3s)</span>
-                        <p className="text-slate-900 font-semibold">{creatorAssets.videoScript?.hook}</p>
+                      <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
+                        <span className="text-[10px] font-bold text-amber-300 uppercase">1. Video Hook (0-3s)</span>
+                        <p className="text-[#FAFAFA] font-semibold">{creatorAssets.videoScript?.hook}</p>
                       </div>
-                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                        <span className="text-[10px] font-bold text-rose-700 uppercase">2. Problem Agitation (3-15s)</span>
-                        <p className="text-slate-600">{creatorAssets.videoScript?.problemSection}</p>
+                      <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
+                        <span className="text-[10px] font-bold text-rose-300 uppercase">2. Problem Agitation (3-15s)</span>
+                        <p className="text-[#A1A1AA]">{creatorAssets.videoScript?.problemSection}</p>
                       </div>
-                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                        <span className="text-[10px] font-bold text-emerald-700 uppercase">3. 1-Click Solution Demo (15-35s)</span>
-                        <p className="text-slate-600">{creatorAssets.videoScript?.solutionSection}</p>
+                      <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
+                        <span className="text-[10px] font-bold text-emerald-300 uppercase">3. 1-Click Solution Demo (15-35s)</span>
+                        <p className="text-[#A1A1AA]">{creatorAssets.videoScript?.solutionSection}</p>
                       </div>
-                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                        <span className="text-[10px] font-bold text-blue-700 uppercase">4. Urgent CTA & Bio Link (35-45s)</span>
-                        <p className="text-slate-900 font-semibold">{creatorAssets.videoScript?.cta}</p>
+                      <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
+                        <span className="text-[10px] font-bold text-[#FF8FA3] uppercase">4. Urgent CTA & Bio Link (35-45s)</span>
+                        <p className="text-[#FAFAFA] font-semibold">{creatorAssets.videoScript?.cta}</p>
                       </div>
                     </div>
                   </div>
@@ -1211,12 +1211,12 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 {/* Asset 5: Talking Points & DM Scripts */}
                 {assetTab === 'talking' && (
                   <div className="space-y-3">
-                    <span className="text-xs font-bold text-slate-900 block">Livestream Talking Points & DM Objection Handling</span>
+                    <span className="text-xs font-bold text-[#FAFAFA] block">Livestream Talking Points & DM Objection Handling</span>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {(creatorAssets.talkingPoints || []).map((tp, idx) => (
-                        <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
-                          <span className="font-bold text-amber-700 block">{tp.topic}</span>
-                          <p className="text-slate-700 text-[11px] leading-relaxed">"{tp.point}"</p>
+                        <div key={idx} className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2 text-xs">
+                          <span className="font-bold text-amber-300 block">{tp.topic}</span>
+                          <p className="text-[#D4D4D8] text-[11px] leading-relaxed">"{tp.point}"</p>
                         </div>
                       ))}
                     </div>
@@ -1226,7 +1226,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 {/* Asset 6: Mockups & Media Assets */}
                 {assetTab === 'media' && (
                   <div className="space-y-3">
-                    <span className="text-xs font-bold text-slate-900 block">Product Mockups, Story Banners & Visual Media Assets</span>
+                    <span className="text-xs font-bold text-[#FAFAFA] block">Product Mockups, Story Banners & Visual Media Assets</span>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {(creatorAssets.mockupsAndMedia || [
                         { name: 'Desktop Hero App Mockup', type: 'PNG / High-Res', url: `${origin}/assets/mockups/hero_desktop.png`, description: 'High-contrast dashboard on dark canvas' },
@@ -1239,23 +1239,23 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           displayUrl = `${origin}/assets/mockups/${safeName}.png`
                         }
                         return (
-                          <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs flex flex-col justify-between">
+                          <div key={idx} className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2 text-xs flex flex-col justify-between">
                             <div className="space-y-1.5">
                               <div className="flex items-center justify-between">
-                                <span className="font-bold text-slate-900">{m.name}</span>
-                                <span className="text-[9px] px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600 font-mono">{m.type}</span>
+                                <span className="font-bold text-[#FAFAFA]">{m.name}</span>
+                                <span className="text-[9px] px-2 py-0.5 rounded bg-[#0C0C0E] border border-[#2a2a30] text-[#A1A1AA] font-mono">{m.type}</span>
                               </div>
-                              <p className="text-[11px] text-slate-500">{m.description}</p>
+                              <p className="text-[11px] text-[#A1A1AA]">{m.description}</p>
                             </div>
-                            <div className="pt-2 border-t border-slate-200 flex items-center justify-between gap-2">
-                              <span className="text-[10px] text-amber-700 font-mono truncate max-w-[180px]">{displayUrl}</span>
+                            <div className="pt-2 border-t border-[#2a2a30] flex items-center justify-between gap-2">
+                              <span className="text-[10px] text-amber-300 font-mono truncate max-w-[180px]">{displayUrl}</span>
                               <button
                                 type="button"
                                 onClick={() => {
                                   navigator.clipboard?.writeText(displayUrl)
                                   showToast(`Copied ${m.name} URL!`)
                                 }}
-                                className="p-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer shrink-0 shadow-2xs"
+                                className="p-1.5 rounded-lg bg-[#0C0C0E] hover:bg-[#18181C] text-[#D4D4D8] border border-[#2a2a30] cursor-pointer shrink-0 shadow-2xs"
                                 title="Copy Asset Link"
                               >
                                 <Copy className="w-3.5 h-3.5" />
@@ -1271,7 +1271,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 {/* Asset 7: UTM Referral Links */}
                 {assetTab === 'links' && (
                   <div className="space-y-3">
-                    <span className="text-xs font-bold text-slate-900 block">UTM Channel Attribution Referral Links</span>
+                    <span className="text-xs font-bold text-[#FAFAFA] block">UTM Channel Attribution Referral Links</span>
                     <div className="space-y-2">
                       {(creatorAssets.referralLinks || []).map((link, idx) => {
                         let linkUrl = link.url || ''
@@ -1287,10 +1287,10 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           }
                         }
                         return (
-                          <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 text-xs">
+                          <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 flex items-center justify-between gap-3 text-xs">
                             <div className="min-w-0">
-                              <span className="font-bold text-slate-900 block">{link.channel}</span>
-                              <span className="text-[10px] text-amber-700 font-mono truncate block">{linkUrl}</span>
+                              <span className="font-bold text-[#FAFAFA] block">{link.channel}</span>
+                              <span className="text-[10px] text-amber-300 font-mono truncate block">{linkUrl}</span>
                             </div>
                             <button
                               type="button"
@@ -1298,7 +1298,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                 navigator.clipboard?.writeText(linkUrl)
                                 showToast(`Copied ${link.channel} tracking link!`)
                               }}
-                              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-[11px] flex items-center gap-1.5 cursor-pointer shrink-0 shadow-2xs"
+                              className="px-3.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#18181C] text-[#D4D4D8] border border-[#2a2a30] font-semibold text-[11px] flex items-center gap-1.5 cursor-pointer shrink-0 shadow-2xs"
                             >
                               <Copy className="w-3.5 h-3.5" />
                               <span>Copy Link</span>
@@ -1316,13 +1316,13 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           {/* SUBTAB 3: PRODUCT & INFRASTRUCTURE READINESS */}
           {prepSubtab === 'infra' && (
             !infra ? (
-              <div className="p-8 sm:p-12 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 text-center space-y-4 shadow-2xs animate-fade-in">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-blue-600 mx-auto">
+              <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
+                <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-[#FF8FA3] mx-auto">
                   <Server className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-black text-slate-900">Production Infrastructure Readiness</h3>
-                  <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                  <h3 className="text-base font-black text-[#FAFAFA]">Production Infrastructure Readiness</h3>
+                  <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
                     Generate the commercial launch strategy to initialize and verify the production CDN deployment, Stripe live billing webhooks, onboarding flows, and support FAQs.
                   </p>
                 </div>
@@ -1330,9 +1330,9 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   type="button"
                   onClick={handleGenerateStrategy}
                   disabled={isGeneratingStrategy}
-                  className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
                 >
-                  <Server className="w-4 h-4 text-blue-400" />
+                  <Server className="w-4 h-4 text-[#FF8FA3]" />
                   <span>Verify Infrastructure with AI</span>
                 </button>
               </div>
@@ -1373,16 +1373,16 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                         {/* Dynamic Phase 2 Header Banner */}
                         <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs transition-all ${
                           isPhase2FullyComplete
-                            ? 'bg-emerald-50/70 border-emerald-200'
-                            : 'bg-amber-50/70 border-amber-200'
+                            ? 'bg-emerald-500/10 border-emerald-500/30'
+                            : 'bg-amber-500/10 border-amber-500/30'
                         }`}>
-                          <div className="flex items-center gap-2.5 text-slate-800 font-semibold">
-                            <Sparkles className={`w-5 h-5 shrink-0 ${isPhase2FullyComplete ? 'text-emerald-600' : 'text-amber-600'}`} />
+                          <div className="flex items-center gap-2.5 text-[#E4E4E7] font-semibold">
+                            <Sparkles className={`w-5 h-5 shrink-0 ${isPhase2FullyComplete ? 'text-emerald-300' : 'text-amber-300'}`} />
                             <div>
-                              <strong className="text-slate-900 block text-sm font-bold">
+                              <strong className="text-[#FAFAFA] block text-sm font-bold">
                                 Phase 2 Technical Architecture & Codebase Status
                               </strong>
-                              <span className="text-[11px] text-slate-600">
+                              <span className="text-[11px] text-[#A1A1AA]">
                                 {isPhase2FullyComplete
                                   ? 'All core frameworks, database schemas, code modules, and test suites engineered in Phase 2 are verified for commercial launch.'
                                   : `Phase 2 MVP Build State: ${completedTasksCount} of ${totalTasks || 6} engineering tasks completed • QA test suite: ${isQaRun ? 'Verified' : 'Awaiting Execution in Section 2'}.`}
@@ -1391,8 +1391,8 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           </div>
                           <span className={`text-[10px] font-mono px-3 py-1 rounded-lg border font-bold shrink-0 ${
                             isPhase2FullyComplete
-                              ? 'text-emerald-800 bg-emerald-100 border-emerald-300'
-                              : 'text-amber-800 bg-amber-100 border-amber-300'
+                              ? 'text-emerald-300 bg-emerald-500/15 border-emerald-500/30'
+                              : 'text-amber-300 bg-amber-500/15 border-amber-500/30'
                           }`}>
                             {isPhase2FullyComplete
                               ? '100% Phase 2 Verified ✓'
@@ -1403,69 +1403,69 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                         {/* 6 Real Phase 2 Pillars */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
                           {/* 1. Architecture & Frameworks */}
-                          <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
+                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
                             <div className="space-y-1.5">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-slate-900 flex items-center gap-1.5 min-w-0">
-                                  <Layers className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
+                                  <Layers className="w-3.5 h-3.5 text-[#FF8FA3] shrink-0" />
                                   <span className="truncate">MVP Architecture</span>
                                 </span>
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-bold whitespace-nowrap shrink-0">
+                                <span className="text-[10px] px-2 py-0.5 rounded bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45 font-bold whitespace-nowrap shrink-0">
                                   Designed ✓
                                 </span>
                               </div>
-                              <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed min-h-[32px]">{p2Architecture}</p>
+                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">{p2Architecture}</p>
                             </div>
-                            <div className="pt-2 border-t border-slate-100 text-[10px] text-slate-500 font-mono flex items-center justify-between gap-2">
+                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
                               <span className="truncate">Frontend: {(p2Tech.frontend || 'React 18').replace(/\(.*\)/g, '').trim()}</span>
-                              <span className="text-blue-700 font-bold whitespace-nowrap shrink-0">API: {(p2Tech.backend || 'FastAPI').replace(/\(.*\)/g, '').trim()}</span>
+                              <span className="text-[#FF8FA3] font-bold whitespace-nowrap shrink-0">API: {(p2Tech.backend || 'FastAPI').replace(/\(.*\)/g, '').trim()}</span>
                             </div>
                           </div>
 
                           {/* 2. Database Schema & Tables */}
-                          <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
+                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
                             <div className="space-y-1.5">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-slate-900 flex items-center gap-1.5 min-w-0">
-                                  <Database className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
+                                  <Database className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
                                   <span className="truncate">Database Schema</span>
                                 </span>
                                 <span className={`text-[10px] px-2 py-0.5 rounded font-bold whitespace-nowrap shrink-0 ${
                                   hasDb
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                    : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
+                                    : 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
                                 }`}>
                                   {hasDb ? `${p2Db.length} Tables ✓` : 'Pending Schema'}
                                 </span>
                               </div>
-                              <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed min-h-[32px]">
+                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">
                                 {hasDb
                                   ? `${p2Db.length} relational entities defined in Phase 2 architecture.`
                                   : 'Database schema models not yet designed in Section 2.'}
                               </p>
                             </div>
-                            <div className="pt-2 border-t border-slate-100 text-[10px] text-slate-500 font-mono flex items-center justify-between gap-2">
+                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
                               <span className="truncate">Engine: {(p2Tech.database || 'PostgreSQL').replace(/\(.*\)/g, '').trim()}</span>
-                              <span className={`whitespace-nowrap shrink-0 ${hasDb ? 'text-emerald-700 font-bold' : 'text-slate-400'}`}>
+                              <span className={`whitespace-nowrap shrink-0 ${hasDb ? 'text-emerald-300 font-bold' : 'text-[#71717A]'}`}>
                                 {hasDb ? `${p2Db.length} Tables Active` : '0 Tables'}
                               </span>
                             </div>
                           </div>
 
                           {/* 3. Core Engineered Features */}
-                          <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
+                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
                             <div className="space-y-1.5">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-slate-900 flex items-center gap-1.5 min-w-0">
-                                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
+                                  <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
                                   <span className="truncate">Engineered Features</span>
                                 </span>
                                 <span className={`text-[10px] px-2 py-0.5 rounded font-bold whitespace-nowrap shrink-0 ${
                                   allTasksCompleted
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
                                     : completedTasksCount > 0
-                                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                                    : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    ? 'bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45'
+                                    : 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
                                 }`}>
                                   {allTasksCompleted
                                     ? 'All Built ✓'
@@ -1474,120 +1474,120 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                     : 'Awaiting Run'}
                                 </span>
                               </div>
-                              <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed min-h-[32px]">
+                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">
                                 {hasFeatures
                                   ? p2Features.map(f => f.name).slice(0, 2).join(', ')
                                   : '1-Click Automation, Cloud Sync, and Dashboard.'}
                               </p>
                             </div>
-                            <div className="pt-2 border-t border-slate-100 text-[10px] text-slate-500 font-mono flex items-center justify-between gap-2">
+                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
                               <span className="truncate">Scope: Must-Have MVP</span>
-                              <span className={`whitespace-nowrap shrink-0 ${completedTasksCount > 0 ? 'text-amber-700 font-bold' : 'text-slate-400'}`}>
+                              <span className={`whitespace-nowrap shrink-0 ${completedTasksCount > 0 ? 'text-amber-300 font-bold' : 'text-[#71717A]'}`}>
                                 {completedTasksCount > 0 ? `${completedTasksCount} Done` : 'Pending Sprint'}
                               </span>
                             </div>
                           </div>
 
                           {/* 4. Codebase Files & Modules */}
-                          <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
+                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
                             <div className="space-y-1.5">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-slate-900 flex items-center gap-1.5 min-w-0">
-                                  <FileText className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
+                                  <FileText className="w-3.5 h-3.5 text-amber-300 shrink-0" />
                                   <span className="truncate">Codebase Modules</span>
                                 </span>
                                 <span className={`text-[10px] px-2 py-0.5 rounded font-bold whitespace-nowrap shrink-0 ${
                                   hasCode && completedTasksCount > 0
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                    : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
+                                    : 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
                                 }`}>
                                   {hasCode && completedTasksCount > 0
                                     ? `${p2Files.length || completedTasksCount} Ready ✓`
                                     : 'Pending Code'}
                                 </span>
                               </div>
-                              <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed min-h-[32px]">
+                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">
                                 {hasCode && completedTasksCount > 0
                                   ? `${p2Files.length || completedTasksCount} source code files compiled and verified.`
                                   : 'Assigned to AI Agents / Human Engineers awaiting code run.'}
                               </p>
                             </div>
-                            <div className="pt-2 border-t border-slate-100 text-[10px] text-slate-500 font-mono flex items-center justify-between gap-2">
+                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
                               <span className="truncate">Tasks: {completedTasksCount}/{totalTasks || 6} Done</span>
-                              <span className={`whitespace-nowrap shrink-0 ${completedTasksCount > 0 ? 'text-amber-700 font-bold' : 'text-slate-400'}`}>
+                              <span className={`whitespace-nowrap shrink-0 ${completedTasksCount > 0 ? 'text-amber-300 font-bold' : 'text-[#71717A]'}`}>
                                 {completedTasksCount > 0 ? 'Production Build' : 'Awaiting Run'}
                               </span>
                             </div>
                           </div>
 
                           {/* 5. QA Test Suite & Readiness */}
-                          <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
+                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
                             <div className="space-y-1.5">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-slate-900 flex items-center gap-1.5 min-w-0">
-                                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
+                                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
                                   <span className="truncate">QA Test Suite</span>
                                 </span>
                                 <span className={`text-[10px] px-2 py-0.5 rounded font-bold whitespace-nowrap shrink-0 ${
                                   isQaRun
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                    : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
+                                    : 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
                                 }`}>
                                   {isQaRun ? `${qaPassedTests} Passed ✓` : 'Not Run Yet'}
                                 </span>
                               </div>
-                              <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed min-h-[32px]">
+                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">
                                 {isQaRun
                                   ? `Automated regression test suite executed in Phase 2 with ${qaPassedTests} test cases passing.`
                                   : 'Automated QA regression test suite has not been executed yet in Section 2.'}
                               </p>
                             </div>
-                            <div className="pt-2 border-t border-slate-100 text-[10px] text-slate-500 font-mono flex items-center justify-between gap-2">
+                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
                               <span className="truncate">Suite: {isQaRun ? `${qaPassedTests} Passed` : '0 Tests Run'}</span>
-                              <span className={`whitespace-nowrap shrink-0 ${isQaRun ? 'text-emerald-700 font-bold' : 'text-slate-400'}`}>
+                              <span className={`whitespace-nowrap shrink-0 ${isQaRun ? 'text-emerald-300 font-bold' : 'text-[#71717A]'}`}>
                                 Readiness: {readinessScore}
                               </span>
                             </div>
                           </div>
 
                           {/* 6. Commercial Pricing & Webhooks */}
-                          <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
+                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
                             <div className="space-y-1.5">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-slate-900 flex items-center gap-1.5 min-w-0">
-                                  <DollarSign className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
+                                  <DollarSign className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
                                   <span className="truncate">Stripe Live Billing</span>
                                 </span>
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold whitespace-nowrap shrink-0">
+                                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 font-bold whitespace-nowrap shrink-0">
                                   Active ✓
                                 </span>
                               </div>
-                              <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed min-h-[32px]">
+                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">
                                 Live webhook listener configured to provision Founding Pass memberships upon payment.
                               </p>
                             </div>
-                            <div className="pt-2 border-t border-slate-100 text-[10px] text-slate-500 font-mono flex items-center justify-between gap-2">
+                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
                               <span className="truncate">Tier: {(project?.pricing || strategy?.launchOffers?.[0]?.price || '$49/mo').split('•')[0].trim()}</span>
-                              <span className="text-emerald-700 font-bold whitespace-nowrap shrink-0">Webhooks: 200 OK</span>
+                              <span className="text-emerald-300 font-bold whitespace-nowrap shrink-0">Webhooks: 200 OK</span>
                             </div>
                           </div>
                         </div>
 
                         {/* Database Schema Tables Viewer if defined in Phase 2 */}
                         {hasDb && (
-                          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
-                            <span className="text-[11px] font-bold text-slate-900 block flex items-center gap-2">
-                              <Database className="w-3.5 h-3.5 text-emerald-600" />
+                          <div className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-2.5">
+                            <span className="text-[11px] font-bold text-[#FAFAFA] block flex items-center gap-2">
+                              <Database className="w-3.5 h-3.5 text-emerald-300" />
                               <span>Phase 2 Database Schema Architecture:</span>
                             </span>
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                               {p2Db.map((tbl, idx) => (
-                                <div key={idx} className="p-2.5 rounded-lg bg-white border border-slate-200 shadow-2xs space-y-1">
+                                <div key={idx} className="p-2.5 rounded-lg bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
                                   <div className="flex items-center gap-1.5">
-                                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 font-mono font-bold">TABLE</span>
-                                    <span className="font-mono font-bold text-slate-900 text-[11px]">{tbl.table}</span>
+                                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-300 font-mono font-bold">TABLE</span>
+                                    <span className="font-mono font-bold text-[#FAFAFA] text-[11px]">{tbl.table}</span>
                                   </div>
-                                  <div className="text-[10px] font-mono text-slate-500 truncate">{tbl.columns}</div>
+                                  <div className="text-[10px] font-mono text-[#A1A1AA] truncate">{tbl.columns}</div>
                                 </div>
                               ))}
                             </div>
@@ -1596,19 +1596,19 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
 
                         {/* Code Files & Modules from Phase 2 */}
                         {p2Files.length > 0 && (
-                          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
-                            <span className="text-[11px] font-bold text-slate-900 block flex items-center gap-2">
-                              <FileText className="w-3.5 h-3.5 text-blue-600" />
+                          <div className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-2.5">
+                            <span className="text-[11px] font-bold text-[#FAFAFA] block flex items-center gap-2">
+                              <FileText className="w-3.5 h-3.5 text-[#FF8FA3]" />
                               <span>Verified Phase 2 Source Code Modules:</span>
                             </span>
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                               {p2Files.map((file, idx) => (
-                                <div key={idx} className="p-2.5 rounded-lg bg-white border border-slate-200 shadow-2xs flex items-center justify-between gap-2 text-xs">
+                                <div key={idx} className="p-2.5 rounded-lg bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-between gap-2 text-xs">
                                   <div className="flex items-center gap-2 min-w-0">
-                                    <FileText className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                                    <span className="font-mono text-[11px] text-slate-900 truncate">{file.filename || file.name}</span>
+                                    <FileText className="w-3.5 h-3.5 text-[#FF8FA3] shrink-0" />
+                                    <span className="font-mono text-[11px] text-[#FAFAFA] truncate">{file.filename || file.name}</span>
                                   </div>
-                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono font-bold shrink-0">
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 font-mono font-bold shrink-0">
                                     Verified ✓
                                   </span>
                                 </div>
@@ -1621,28 +1621,28 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   })()}
 
                 {/* Published Self-Service FAQs Accordion */}
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                      <HelpCircle className="w-4 h-4 text-amber-600" />
+                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
+                    <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4 text-amber-300" />
                       <span>Published Customer Support FAQs (Live on Landing Page)</span>
                     </h3>
-                    <span className="text-[10px] font-mono text-amber-700 font-bold">Active Articles</span>
+                    <span className="text-[10px] font-mono text-amber-300 font-bold">Active Articles</span>
                   </div>
 
                   <div className="space-y-2">
                     {(infra.faqs || []).map((faq, idx) => (
-                      <div key={idx} className="rounded-xl bg-slate-50 border border-slate-200 overflow-hidden">
+                      <div key={idx} className="rounded-xl bg-[#111114] border border-[#2a2a30] overflow-hidden">
                         <button
                           type="button"
                           onClick={() => setExpandedFaqIndex(expandedFaqIndex === idx ? null : idx)}
-                          className="w-full p-3.5 flex items-center justify-between text-left text-xs font-bold text-slate-900 hover:text-amber-600 transition-colors cursor-pointer"
+                          className="w-full p-3.5 flex items-center justify-between text-left text-xs font-bold text-[#FAFAFA] hover:text-amber-300 transition-colors cursor-pointer"
                         >
                           <span>{faq.q}</span>
-                          {expandedFaqIndex === idx ? <ChevronUp className="w-4 h-4 text-amber-600" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                          {expandedFaqIndex === idx ? <ChevronUp className="w-4 h-4 text-amber-300" /> : <ChevronDown className="w-4 h-4 text-[#71717A]" />}
                         </button>
                         {expandedFaqIndex === idx && (
-                          <div className="p-3.5 pt-0 text-[11px] text-slate-600 leading-relaxed border-t border-slate-200">
+                          <div className="p-3.5 pt-0 text-[11px] text-[#A1A1AA] leading-relaxed border-t border-[#2a2a30]">
                             {faq.a}
                           </div>
                         )}
@@ -1657,13 +1657,13 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           {/* SUBTAB 4: AUTOMATED CHECKLISTS */}
           {prepSubtab === 'checklists' && (
             !strategy ? (
-              <div className="p-8 sm:p-12 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 text-center space-y-4 shadow-2xs animate-fade-in">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-amber-600 mx-auto">
+              <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
+                <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-amber-300 mx-auto">
                   <CheckSquare className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-black text-slate-900">Automated Launch Checklists</h3>
-                  <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                  <h3 className="text-base font-black text-[#FAFAFA]">Automated Launch Checklists</h3>
+                  <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
                     Generate the launch strategy to initialize the verified Creator and Co-Launch engineering checklists.
                   </p>
                 </div>
@@ -1671,7 +1671,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   type="button"
                   onClick={handleGenerateStrategy}
                   disabled={isGeneratingStrategy}
-                  className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-amber-400" />
                   <span>Generate Checklists with AI</span>
@@ -1681,15 +1681,15 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               <div className="space-y-4 animate-fade-in">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Creator Checklist */}
-                  <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3.5 flex flex-col justify-between">
+                  <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3.5 flex flex-col justify-between">
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                        <h3 className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                          <Video className="w-4 h-4 text-amber-600" />
+                      <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
+                        <h3 className="font-bold text-[#FAFAFA] text-xs flex items-center gap-2">
+                          <Video className="w-4 h-4 text-amber-300" />
                           <span>Creator Launch Checklist</span>
                         </h3>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono text-amber-700 font-bold">
+                          <span className="text-[10px] font-mono text-amber-300 font-bold">
                             {(strategy.creatorChecklist || []).filter(t => t.done).length}/{(strategy.creatorChecklist || []).length} Completed
                           </span>
                           {(strategy.creatorChecklist || []).some(t => t.done) && (
@@ -1701,7 +1701,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                 setStrategy(newStrat)
                                 handleSaveState({ launchStrategy: newStrat })
                               }}
-                              className="text-[10px] text-slate-400 hover:text-slate-700 cursor-pointer font-semibold"
+                              className="text-[10px] text-[#71717A] hover:text-[#D4D4D8] cursor-pointer font-semibold"
                             >
                               Reset
                             </button>
@@ -1715,20 +1715,20 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                             key={idx}
                             onClick={() => handleToggleChecklistItem('creator', idx)}
                             className={`p-3 rounded-xl border flex items-start gap-3 transition-colors cursor-pointer ${
-                              task.done ? 'bg-emerald-50/80 border-emerald-200' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                              task.done ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-[#111114] border-[#2a2a30] hover:bg-[#18181C]'
                             }`}
                           >
                             <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                              task.done ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-300 bg-white'
+                              task.done ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-[#3a3a42] bg-[#0C0C0E]'
                             }`}>
                               {task.done && <Check className="w-3 h-3 stroke-[3]" />}
                             </div>
                             <div className="space-y-0.5 flex-1 min-w-0">
-                              <span className={`text-xs block font-medium ${task.done ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                              <span className={`text-xs block font-medium ${task.done ? 'line-through text-[#71717A]' : 'text-[#E4E4E7]'}`}>
                                 {task.title}
                               </span>
                               {task.time && (
-                                <span className="text-[10px] font-mono text-amber-700 block">{task.time}</span>
+                                <span className="text-[10px] font-mono text-amber-300 block">{task.time}</span>
                               )}
                             </div>
                           </div>
@@ -1736,19 +1736,19 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
+                    <div className="pt-3 border-t border-[#1C1C20] flex items-center gap-2">
                       <input
                         type="text"
                         value={newCreatorTaskTitle}
                         onChange={(e) => setNewCreatorTaskTitle(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAddChecklistTask('creator')}
                         placeholder="Add custom creator task..."
-                        className="flex-1 bg-slate-50 border border-slate-200 focus:border-amber-500 text-slate-900 text-xs px-3 py-2 rounded-xl outline-none"
+                        className="flex-1 bg-[#111114] border border-[#2a2a30] focus:border-amber-500 text-[#FAFAFA] text-xs px-3 py-2 rounded-xl outline-none"
                       />
                       <button
                         type="button"
                         onClick={() => handleAddChecklistTask('creator')}
-                        className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold cursor-pointer shadow-xs"
+                        className="p-2 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white text-xs font-bold cursor-pointer shadow-xs"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -1756,15 +1756,15 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   </div>
 
                   {/* Ops & Engineering Checklist */}
-                  <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3.5 flex flex-col justify-between">
+                  <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3.5 flex flex-col justify-between">
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                        <h3 className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                          <Server className="w-4 h-4 text-emerald-600" />
+                      <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
+                        <h3 className="font-bold text-[#FAFAFA] text-xs flex items-center gap-2">
+                          <Server className="w-4 h-4 text-emerald-300" />
                           <span>Technical Ops Checklist</span>
                         </h3>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono text-emerald-700 font-bold">
+                          <span className="text-[10px] font-mono text-emerald-300 font-bold">
                             {(strategy.opsChecklist || []).filter(t => t.done).length}/{(strategy.opsChecklist || []).length} Completed
                           </span>
                           {(strategy.opsChecklist || []).some(t => t.done) && (
@@ -1776,7 +1776,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                 setStrategy(newStrat)
                                 handleSaveState({ launchStrategy: newStrat })
                               }}
-                              className="text-[10px] text-slate-400 hover:text-slate-700 cursor-pointer font-semibold"
+                              className="text-[10px] text-[#71717A] hover:text-[#D4D4D8] cursor-pointer font-semibold"
                             >
                               Reset
                             </button>
@@ -1790,20 +1790,20 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                             key={idx}
                             onClick={() => handleToggleChecklistItem('ops', idx)}
                             className={`p-3 rounded-xl border flex items-start gap-3 transition-colors cursor-pointer ${
-                              task.done ? 'bg-emerald-50/80 border-emerald-200' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                              task.done ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-[#111114] border-[#2a2a30] hover:bg-[#18181C]'
                             }`}
                           >
                             <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                              task.done ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-300 bg-white'
+                              task.done ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-[#3a3a42] bg-[#0C0C0E]'
                             }`}>
                               {task.done && <Check className="w-3 h-3 stroke-[3]" />}
                             </div>
                             <div className="space-y-0.5 flex-1 min-w-0">
-                              <span className={`text-xs block font-medium ${task.done ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                              <span className={`text-xs block font-medium ${task.done ? 'line-through text-[#71717A]' : 'text-[#E4E4E7]'}`}>
                                 {task.title}
                               </span>
                               {task.time && (
-                                <span className="text-[10px] font-mono text-emerald-700 block">{task.time}</span>
+                                <span className="text-[10px] font-mono text-emerald-300 block">{task.time}</span>
                               )}
                             </div>
                           </div>
@@ -1811,19 +1811,19 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
+                    <div className="pt-3 border-t border-[#1C1C20] flex items-center gap-2">
                       <input
                         type="text"
                         value={newOpsTaskTitle}
                         onChange={(e) => setNewOpsTaskTitle(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAddChecklistTask('ops')}
                         placeholder="Add custom engineering task..."
-                        className="flex-1 bg-slate-50 border border-slate-200 focus:border-amber-500 text-slate-900 text-xs px-3 py-2 rounded-xl outline-none"
+                        className="flex-1 bg-[#111114] border border-[#2a2a30] focus:border-amber-500 text-[#FAFAFA] text-xs px-3 py-2 rounded-xl outline-none"
                       />
                       <button
                         type="button"
                         onClick={() => handleAddChecklistTask('ops')}
-                        className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold cursor-pointer shadow-xs"
+                        className="p-2 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white text-xs font-bold cursor-pointer shadow-xs"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -1835,8 +1835,8 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           )}
 
           {/* Footer Step Action */}
-          <div className="flex items-center justify-between pt-3 border-t border-slate-200">
-            <span className="text-xs text-slate-500">
+          <div className="flex items-center justify-between pt-3 border-t border-[#2a2a30]">
+            <span className="text-xs text-[#A1A1AA]">
               Completed preparation unlocks Step 2 Live Production Monitoring.
             </span>
             <button
@@ -1848,11 +1848,11 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               }}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
                 p3Guards.canAccessStep2
-                  ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs cursor-pointer'
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                  ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-xs cursor-pointer'
+                  : 'bg-[#18181C] text-[#71717A] cursor-not-allowed border border-[#2a2a30]'
               }`}
             >
-              {!p3Guards.canAccessStep2 && <Lock className="w-3.5 h-3.5 text-slate-400" />}
+              {!p3Guards.canAccessStep2 && <Lock className="w-3.5 h-3.5 text-[#71717A]" />}
               <span>Proceed to 2. Launch + Monitor</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -1864,89 +1864,89 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
       {activeStep === 'monitor' && (
         <div className="space-y-5">
           {/* Live Status Control Header */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
-                <h3 className="text-sm font-bold text-slate-900 font-sans">Live Production Telemetry & Conversion Funnel</h3>
+                <h3 className="text-sm font-bold text-[#FAFAFA] font-sans">Live Production Telemetry & Conversion Funnel</h3>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">Real-time visitor tracking, conversion analytics & technical uptime.</p>
+              <p className="text-xs text-[#A1A1AA] mt-0.5">Real-time visitor tracking, conversion analytics & technical uptime.</p>
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-[11px] text-slate-600 font-mono bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">Uptime: <strong className="text-emerald-700">{telemetry.uptime}</strong></span>
-              <span className="text-[11px] text-slate-600 font-mono bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">Latency: <strong className="text-blue-700">{telemetry.avgLatency}</strong></span>
+              <span className="text-[11px] text-[#A1A1AA] font-mono bg-[#111114] px-2.5 py-1 rounded-lg border border-[#2a2a30]">Uptime: <strong className="text-emerald-300">{telemetry.uptime}</strong></span>
+              <span className="text-[11px] text-[#A1A1AA] font-mono bg-[#111114] px-2.5 py-1 rounded-lg border border-[#2a2a30]">Latency: <strong className="text-[#FF8FA3]">{telemetry.avgLatency}</strong></span>
             </div>
           </div>
 
           {/* Production Telemetry Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <Eye className="w-3.5 h-3.5 text-blue-600" />
+            <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
+              <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <Eye className="w-3.5 h-3.5 text-[#FF8FA3]" />
                 <span>Unique Visitors</span>
               </span>
-              <div className="text-xl sm:text-2xl font-black text-slate-900 font-mono">{telemetry.visitors.toLocaleString()}</div>
-              <span className="text-[10px] text-slate-400 block font-mono">Total tracked visits</span>
+              <div className="text-xl sm:text-2xl font-black text-[#FAFAFA] font-mono">{telemetry.visitors.toLocaleString()}</div>
+              <span className="text-[10px] text-[#71717A] block font-mono">Total tracked visits</span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-amber-600" />
+            <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
+              <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-amber-300" />
                 <span>Signups & Activation</span>
               </span>
-              <div className="text-xl sm:text-2xl font-black text-slate-900 font-mono">{telemetry.signups} Accounts</div>
-              <span className="text-[10px] text-slate-400 block font-mono">{telemetry.activatedUsers} active in workspace</span>
+              <div className="text-xl sm:text-2xl font-black text-[#FAFAFA] font-mono">{telemetry.signups} Accounts</div>
+              <span className="text-[10px] text-[#71717A] block font-mono">{telemetry.activatedUsers} active in workspace</span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+            <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
+              <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <DollarSign className="w-3.5 h-3.5 text-emerald-300" />
                 <span>Paying Customers</span>
               </span>
-              <div className="text-xl sm:text-2xl font-black text-emerald-700 font-mono">{telemetry.customers}</div>
-              <span className="text-[10px] text-emerald-600 font-bold block font-mono">${telemetry.revenue.toLocaleString()} Processed</span>
+              <div className="text-xl sm:text-2xl font-black text-emerald-300 font-mono">{telemetry.customers}</div>
+              <span className="text-[10px] text-emerald-300 font-bold block font-mono">${telemetry.revenue.toLocaleString()} Processed</span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <MousePointerClick className="w-3.5 h-3.5 text-amber-600" />
+            <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
+              <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <MousePointerClick className="w-3.5 h-3.5 text-amber-300" />
                 <span>Overall Paid Conversion</span>
               </span>
-              <div className="text-xl sm:text-2xl font-black text-amber-700 font-mono">{conversionRate}%</div>
-              <span className="text-[10px] text-slate-400 block font-mono">Visitor-to-paid ratio</span>
+              <div className="text-xl sm:text-2xl font-black text-amber-300 font-mono">{conversionRate}%</div>
+              <span className="text-[10px] text-[#71717A] block font-mono">Visitor-to-paid ratio</span>
             </div>
           </div>
 
           {/* Conversion Funnel Bar */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-blue-600" />
+          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+            <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2">
+              <span className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-[#FF8FA3]" />
                 <span>Commercial Conversion Funnel Breakdown</span>
               </span>
-              <span className="text-[10px] font-mono text-emerald-700 font-bold">Live Stream</span>
+              <span className="text-[10px] font-mono text-emerald-300 font-bold">Live Stream</span>
             </div>
 
             <div className="space-y-2 text-xs">
               <div className="space-y-1">
-                <div className="flex justify-between text-slate-600 font-medium">
+                <div className="flex justify-between text-[#A1A1AA] font-medium">
                   <span>1. Top of Funnel (Landing Page Visitors)</span>
-                  <span className="font-mono text-slate-900 font-bold">{telemetry.visitors.toLocaleString()} (100%)</span>
+                  <span className="font-mono text-[#FAFAFA] font-bold">{telemetry.visitors.toLocaleString()} (100%)</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                  <div className="bg-blue-500 h-full rounded-full" style={{ width: '100%' }} />
+                <div className="w-full bg-[#18181C] rounded-full h-2 overflow-hidden">
+                  <div className="bg-[#C81E3C] h-full rounded-full" style={{ width: '100%' }} />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <div className="flex justify-between text-slate-600 font-medium">
+                <div className="flex justify-between text-[#A1A1AA] font-medium">
                   <span>2. Product Signups & Active Trials</span>
-                  <span className="font-mono text-amber-700 font-bold">
+                  <span className="font-mono text-amber-300 font-bold">
                     {telemetry.signups} ({telemetry.visitors > 0 ? ((telemetry.signups / telemetry.visitors) * 100).toFixed(1) : '0.0'}%)
                   </span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-[#18181C] rounded-full h-2 overflow-hidden">
                   <div
                     className="bg-amber-500 h-full rounded-full"
                     style={{ width: `${Math.min(100, Math.max(8, telemetry.visitors > 0 ? (telemetry.signups / telemetry.visitors) * 100 : 0))}%` }}
@@ -1955,13 +1955,13 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               </div>
 
               <div className="space-y-1">
-                <div className="flex justify-between text-slate-600 font-medium">
+                <div className="flex justify-between text-[#A1A1AA] font-medium">
                   <span>3. Paid Customer Conversions</span>
-                  <span className="font-mono text-emerald-700 font-bold">
+                  <span className="font-mono text-emerald-300 font-bold">
                     {telemetry.customers} ({conversionRate}%)
                   </span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-[#18181C] rounded-full h-2 overflow-hidden">
                   <div
                     className="bg-emerald-500 h-full rounded-full"
                     style={{ width: `${Math.min(100, Math.max(5, Number(conversionRate)))}%` }}
@@ -1972,19 +1972,19 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           </div>
 
           {/* Multi-Channel Attribution Matrix */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <Radio className="w-4 h-4 text-emerald-600" />
+          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+            <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2">
+              <span className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                <Radio className="w-4 h-4 text-emerald-300" />
                 <span>Multi-Channel Attribution & Traffic ROI</span>
               </span>
-              <span className="text-[10px] font-mono text-slate-400">Attributed Channels</span>
+              <span className="text-[10px] font-mono text-[#71717A]">Attributed Channels</span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left">
                 <thead>
-                  <tr className="border-b border-slate-100 text-[10px] uppercase font-bold text-slate-500">
+                  <tr className="border-b border-[#1C1C20] text-[10px] uppercase font-bold text-[#A1A1AA]">
                     <th className="pb-2">Channel Source</th>
                     <th className="pb-2">Visitors</th>
                     <th className="pb-2">Customers</th>
@@ -1993,25 +1993,25 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                     <th className="pb-2">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#1C1C20]">
                   {(channelStats || [
                     { channel: 'Creator Instagram Stories', visitors: Math.round(telemetry.visitors * 0.45) || 45, customers: Math.round(telemetry.customers * 0.5) || 1, convRate: '3.8%', revenue: Math.round(telemetry.revenue * 0.5) || 99, status: 'Top ROI', topPerformer: true },
                     { channel: 'Creator YouTube Community', visitors: Math.round(telemetry.visitors * 0.3) || 30, customers: Math.round(telemetry.customers * 0.3) || 1, convRate: '2.9%', revenue: Math.round(telemetry.revenue * 0.3) || 49, status: 'Strong', topPerformer: false },
                     { channel: 'Email Newsletter Broadcast', visitors: Math.round(telemetry.visitors * 0.15) || 15, customers: Math.round(telemetry.customers * 0.15) || 0, convRate: '2.1%', revenue: Math.round(telemetry.revenue * 0.15) || 0, status: 'Active', topPerformer: false },
                     { channel: 'Direct / Word-of-Mouth', visitors: Math.round(telemetry.visitors * 0.1) || 10, customers: Math.round(telemetry.customers * 0.05) || 0, convRate: '1.2%', revenue: 0, status: 'Steady', topPerformer: false },
                   ]).map((cs, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/80">
-                      <td className="py-2.5 font-bold text-slate-900 flex items-center gap-1.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${cs.topPerformer ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                    <tr key={idx} className="hover:bg-[#111114]/80">
+                      <td className="py-2.5 font-bold text-[#FAFAFA] flex items-center gap-1.5">
+                        <span className={`w-1.5 h-1.5 rounded-full ${cs.topPerformer ? 'bg-emerald-500' : 'bg-[#3f3f46]'}`} />
                         <span>{cs.channel}</span>
                       </td>
-                      <td className="py-2.5 font-mono text-slate-600">{cs.visitors}</td>
-                      <td className="py-2.5 font-mono text-slate-900 font-semibold">{cs.customers}</td>
-                      <td className="py-2.5 font-mono font-bold text-emerald-700">{cs.convRate}</td>
-                      <td className="py-2.5 font-mono font-bold text-slate-900">${cs.revenue}</td>
+                      <td className="py-2.5 font-mono text-[#A1A1AA]">{cs.visitors}</td>
+                      <td className="py-2.5 font-mono text-[#FAFAFA] font-semibold">{cs.customers}</td>
+                      <td className="py-2.5 font-mono font-bold text-emerald-300">{cs.convRate}</td>
+                      <td className="py-2.5 font-mono font-bold text-[#FAFAFA]">${cs.revenue}</td>
                       <td className="py-2.5">
                         <span className={`text-[9px] px-2 py-0.5 rounded font-bold ${
-                          cs.topPerformer ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-600'
+                          cs.topPerformer ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-[#18181C] text-[#A1A1AA]'
                         }`}>
                           {cs.status}
                         </span>
@@ -2024,11 +2024,11 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           </div>
 
           {/* Footer Step Action */}
-          <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+          <div className="flex items-center justify-between pt-3 border-t border-[#2a2a30]">
             <button
               type="button"
               onClick={() => setActiveStep('prep')}
-              className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold cursor-pointer shadow-2xs transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold cursor-pointer shadow-2xs transition-colors"
             >
               ← Back to Step 1: Prepare
             </button>
@@ -2041,11 +2041,11 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               }}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
                 p3Guards.canAccessStep3
-                  ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs cursor-pointer'
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                  ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-xs cursor-pointer'
+                  : 'bg-[#18181C] text-[#71717A] cursor-not-allowed border border-[#2a2a30]'
               }`}
             >
-              {!p3Guards.canAccessStep3 && <Lock className="w-3.5 h-3.5 text-slate-400" />}
+              {!p3Guards.canAccessStep3 && <Lock className="w-3.5 h-3.5 text-[#71717A]" />}
               <span>Proceed to 3. AI Launch Manager</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -2057,14 +2057,14 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
       {activeStep === 'manager' && (
         <div className="space-y-5">
           {/* Header */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1C1C20] pb-3">
               <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
                   <span>Step 3: Autonomous AI Launch Manager</span>
                 </span>
-                <h3 className="text-base font-black text-slate-900">
+                <h3 className="text-base font-black text-[#FAFAFA]">
                   Continuous Telemetry Diagnostics & Growth Action Dispatcher
                 </h3>
               </div>
@@ -2074,43 +2074,43 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   type="button"
                   onClick={handleRunLaunchManager}
                   disabled={isRunningManager}
-                  className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer shrink-0"
+                  className="px-3.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#E4E4E7] border border-[#2a2a30] font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer shrink-0"
                 >
-                  {isRunningManager ? <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-600" /> : <RefreshCw className="w-3.5 h-3.5 text-slate-600" />}
+                  {isRunningManager ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#A1A1AA]" /> : <RefreshCw className="w-3.5 h-3.5 text-[#A1A1AA]" />}
                   <span>{isRunningManager ? 'Analyzing...' : 'Run Diagnostic Sweep'}</span>
                 </button>
               )}
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-[#A1A1AA] leading-relaxed">
               AI evaluates conversion disparity across creator channels, detects funnel bottlenecks, and writes actionable copy / engineering tasks.
             </p>
           </div>
 
           {isRunningManager ? (
             <div className="space-y-4 animate-fade-in">
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 text-amber-900 text-xs shadow-2xs">
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-amber-300 text-xs shadow-2xs">
                 <div className="flex items-center gap-2.5">
-                  <Loader2 className="w-5 h-5 animate-spin text-amber-600 shrink-0" />
+                  <Loader2 className="w-5 h-5 animate-spin text-amber-300 shrink-0" />
                   <div>
-                    <strong className="text-slate-900 block text-sm font-bold">AI Launch Manager Diagnostic Sweep Running...</strong>
-                    <span className="text-[11px] text-slate-600">Evaluating conversion bottlenecks, funnel leakages, and drafting automated actions</span>
+                    <strong className="text-[#FAFAFA] block text-sm font-bold">AI Launch Manager Diagnostic Sweep Running...</strong>
+                    <span className="text-[11px] text-[#A1A1AA]">Evaluating conversion bottlenecks, funnel leakages, and drafting automated actions</span>
                   </div>
                 </div>
-                <span className="text-[10px] font-mono text-amber-700 bg-white px-2.5 py-1 rounded-lg border border-amber-200 font-bold shrink-0 shadow-2xs">
+                <span className="text-[10px] font-mono text-amber-300 bg-[#0C0C0E] px-2.5 py-1 rounded-lg border border-amber-500/30 font-bold shrink-0 shadow-2xs">
                   Sweeping Telemetry
                 </span>
               </div>
               <Phase3LaunchSkeleton />
             </div>
           ) : !launchManager ? (
-            <div className="p-8 sm:p-12 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 text-center space-y-4 shadow-2xs animate-fade-in">
-              <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-amber-600 mx-auto">
+            <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
+              <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-amber-300 mx-auto">
                 <Zap className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-base font-black text-slate-900">Autonomous AI Launch Manager</h3>
-                <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                <h3 className="text-base font-black text-[#FAFAFA]">Autonomous AI Launch Manager</h3>
+                <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
                   Trigger an automated diagnostic sweep to analyze live visitor-to-paid conversion rates, identify highest-ROI channels, and auto-dispatch growth tasks.
                 </p>
               </div>
@@ -2118,7 +2118,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 type="button"
                 onClick={handleRunLaunchManager}
                 disabled={isRunningManager}
-                className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
               >
                 <Zap className="w-4 h-4 text-amber-400" />
                 <span>Run Diagnostic Sweep Now</span>
@@ -2127,26 +2127,26 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           ) : (
             <div className="space-y-4 animate-fade-in">
               {/* AI Executive Diagnosis Card */}
-              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs space-y-2.5">
+              <div className="p-5 rounded-2xl bg-[#111114] border border-[#2a2a30] shadow-2xs space-y-2.5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider block">
+                  <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
                     AI Real-Time Performance Diagnosis
                   </span>
                   {launchManager.overallHealth && (
-                    <span className="text-[10px] font-bold text-slate-700 bg-white px-2.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                    <span className="text-[10px] font-bold text-[#D4D4D8] bg-[#0C0C0E] px-2.5 py-0.5 rounded-full border border-[#2a2a30] shadow-2xs">
                       {launchManager.overallHealth}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-800 leading-relaxed font-semibold">
+                <p className="text-xs text-[#E4E4E7] leading-relaxed font-semibold">
                   "{launchManager.executiveSummary || launchManager.diagnosis || launchManager.overallHealth || 'Active launch telemetry analyzed. Automated optimization actions ready for execution.'}"
                 </p>
                 <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
+                  <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/30">
                     Highest-Converting: {launchManager.topPerformingChannel || 'Creator Stories'}
                   </span>
                   {launchManager.trafficSurgeDetected && (
-                    <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold border border-amber-200">
+                    <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 font-bold border border-amber-500/30">
                       🔥 Traffic Surge Detected
                     </span>
                   )}
@@ -2154,13 +2154,13 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               </div>
 
               {/* Automated Actions Dispatch Matrix */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-amber-600" />
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4">
+                <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
+                  <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-amber-300" />
                     <span>Autonomous AI Action Dispatcher</span>
                   </h3>
-                  <span className="text-[10px] font-mono text-emerald-700 font-bold">
+                  <span className="text-[10px] font-mono text-emerald-300 font-bold">
                     {dispatchedActions.length}/{(launchManager.automatedActions || []).length} Dispatched
                   </span>
                 </div>
@@ -2178,27 +2178,27 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                         key={idx}
                         className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-3.5 shadow-2xs ${
                           isDispatched
-                            ? 'bg-emerald-50/50 border-emerald-300 ring-1 ring-emerald-200'
-                            : 'bg-white border-slate-200 hover:border-slate-300'
+                            ? 'bg-emerald-500/10 border-emerald-500/30 ring-1 ring-emerald-500/30'
+                            : 'bg-[#0C0C0E] border-[#2a2a30] hover:border-[#3a3a42]'
                         }`}
                       >
                         <div className="space-y-2.5">
                           {/* Top Badges */}
                           <div className="flex items-start justify-between gap-2">
-                            <h4 className="font-bold text-slate-900 text-xs leading-snug">{action.title}</h4>
+                            <h4 className="font-bold text-[#FAFAFA] text-xs leading-snug">{action.title}</h4>
                             <div className="flex items-center gap-1 shrink-0">
                               <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                                 isCreatorTask
-                                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                                  : 'bg-blue-100 text-blue-800 border border-blue-200'
+                                  ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                                  : 'bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45'
                               }`}>
                                 {action.targetRole || (isCreatorTask ? 'Creator Marketing' : 'Technical CRO')}
                               </span>
                               {action.severity && (
                                 <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
                                   action.severity.toLowerCase().includes('critical') || action.severity.toLowerCase().includes('high')
-                                    ? 'bg-rose-100 text-rose-800'
-                                    : 'bg-slate-100 text-slate-700'
+                                    ? 'bg-rose-500/15 text-rose-300'
+                                    : 'bg-[#18181C] text-[#D4D4D8]'
                                 }`}>
                                   {action.severity}
                                 </span>
@@ -2208,15 +2208,15 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
 
                           {/* Insight / Rationale */}
                           {insightText && (
-                            <p className="text-[11px] text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                              <strong className="text-slate-800 font-bold">Telemetry Insight:</strong> {insightText}
+                            <p className="text-[11px] text-[#A1A1AA] leading-relaxed bg-[#111114] p-2.5 rounded-xl border border-[#1C1C20]">
+                              <strong className="text-[#E4E4E7] font-bold">Telemetry Insight:</strong> {insightText}
                             </p>
                           )}
 
                           {/* Ready-to-Use Content / Code Box */}
                           {contentText && (
                             <div className="space-y-1">
-                              <div className="flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                              <div className="flex items-center justify-between text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider">
                                 <span>{isCreatorTask ? 'Ready-To-Post Action Script' : 'Technical Sprint Implementation'}</span>
                                 <button
                                   type="button"
@@ -2224,13 +2224,13 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                     navigator.clipboard?.writeText(contentText)
                                     showToast('Copied action content to clipboard!')
                                   }}
-                                  className="text-amber-600 hover:text-amber-800 flex items-center gap-1 cursor-pointer font-bold lowercase"
+                                  className="text-amber-300 hover:text-amber-300 flex items-center gap-1 cursor-pointer font-bold lowercase"
                                 >
                                   <Copy className="w-3 h-3" />
                                   <span>copy</span>
                                 </button>
                               </div>
-                              <div className="p-3 rounded-xl bg-slate-950 text-slate-200 font-mono text-[11px] leading-relaxed break-words whitespace-pre-wrap max-h-36 overflow-y-auto border border-slate-800">
+                              <div className="p-3 rounded-xl bg-[#030304] text-[#E4E4E7] font-mono text-[11px] leading-relaxed break-words whitespace-pre-wrap max-h-36 overflow-y-auto border border-[#2a2a30]">
                                 {contentText}
                               </div>
                             </div>
@@ -2238,11 +2238,11 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                         </div>
 
                         {/* Card Footer with Functional Dispatch Button */}
-                        <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono">
+                        <div className="pt-2.5 border-t border-[#1C1C20] flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 text-[10px] text-[#A1A1AA] font-mono">
                             {isDispatched ? (
-                              <span className="text-emerald-700 font-bold flex items-center gap-1">
-                                <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <span className="text-emerald-300 font-bold flex items-center gap-1">
+                                <CheckCircle className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
                                 <span>Active in Step 1 Checklist</span>
                               </span>
                             ) : (
@@ -2256,18 +2256,18 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                             onClick={() => handleDispatchAction(action, idx)}
                             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs ${
                               isDispatched
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 cursor-default'
-                                : 'bg-slate-900 hover:bg-slate-800 text-white cursor-pointer active:scale-95'
+                                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 cursor-default'
+                                : 'bg-[#050506] hover:bg-[#1C1C20] text-white cursor-pointer active:scale-95'
                             }`}
                           >
                             {isDispatched ? (
                               <>
-                                <Check className="w-3.5 h-3.5 text-emerald-700" />
+                                <Check className="w-3.5 h-3.5 text-emerald-300" />
                                 <span>Dispatched to {isCreatorTask ? 'Creator' : 'Engineering'} ✓</span>
                               </>
                             ) : (
                               <>
-                                <Send className="w-3.5 h-3.5 text-slate-300" />
+                                <Send className="w-3.5 h-3.5 text-[#D4D4D8]" />
                                 <span>{action.actionLabel || (isCreatorTask ? 'Assign to Creator Task Roster' : 'Deploy Engineering Task')}</span>
                               </>
                             )}
@@ -2281,11 +2281,11 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
 
               {/* Bot Auto-Refined Marketing Copy */}
               {launchManager.marketingRefinement && (
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2.5">
-                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">
+                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2.5">
+                  <span className="text-[10px] font-bold text-[#FF8FA3] uppercase tracking-wider block">
                     AI Auto-Refined Social Hook (Adjusted for Real Conversion Drop-Off)
                   </span>
-                  <div className="keep-dark p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 leading-relaxed">
+                  <div className="keep-dark p-4 rounded-xl bg-[#030304] border border-[#2a2a30] text-xs font-mono text-[#E4E4E7] leading-relaxed">
                     {launchManager.marketingRefinement}
                   </div>
                   <button
@@ -2294,7 +2294,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                       navigator.clipboard?.writeText(launchManager.marketingRefinement)
                       showToast('Copied refined social copy!')
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs self-start"
+                    className="px-3 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs self-start"
                   >
                     <Copy className="w-3.5 h-3.5" />
                     <span>Copy Refined Copy</span>
@@ -2305,11 +2305,11 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           )}
 
           {/* Footer Step Action */}
-          <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+          <div className="flex items-center justify-between pt-3 border-t border-[#2a2a30]">
             <button
               type="button"
               onClick={() => setActiveStep('monitor')}
-              className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold cursor-pointer shadow-2xs transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold cursor-pointer shadow-2xs transition-colors"
             >
               ← Back to Step 2: Monitor
             </button>
@@ -2322,11 +2322,11 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               }}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
                 p3Guards.canAccessStep4
-                  ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs cursor-pointer'
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                  ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-xs cursor-pointer'
+                  : 'bg-[#18181C] text-[#71717A] cursor-not-allowed border border-[#2a2a30]'
               }`}
             >
-              {!p3Guards.canAccessStep4 && <Lock className="w-3.5 h-3.5 text-slate-400" />}
+              {!p3Guards.canAccessStep4 && <Lock className="w-3.5 h-3.5 text-[#71717A]" />}
               <span>Proceed to 4. Launch Report + Decision</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -2339,12 +2339,12 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
         <div className="space-y-5">
           {/* Prerequisite Check Banner if prior steps are incomplete */}
           {!p3Guards.allPriorStepsDone && (
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-2.5 animate-fade-in shadow-2xs">
-              <div className="flex items-center gap-2 font-bold text-amber-900">
-                <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-2.5 animate-fade-in shadow-2xs">
+              <div className="flex items-center gap-2 font-bold text-amber-300">
+                <Lock className="w-4 h-4 text-amber-300 shrink-0" />
                 <span>Phase 3 Launch Gate is Locked: Prerequisite Steps Incomplete</span>
               </div>
-              <p className="text-[11px] text-slate-600 leading-relaxed">
+              <p className="text-[11px] text-[#A1A1AA] leading-relaxed">
                 The Launch Report and Strategic Decision Gate require completing launch preparation checklists, going live with telemetry monitoring, and running the AI Launch Manager sweeps first.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
@@ -2352,7 +2352,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   type="button"
                   onClick={() => setActiveStep('prep')}
                   className={`p-2 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all cursor-pointer ${
-                    p3Guards.isStep1Done ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800 hover:bg-red-100'
+                    p3Guards.isStep1Done ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15'
                   }`}
                 >
                   <span>1. Prepare Launch</span>
@@ -2364,10 +2364,10 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   disabled={!p3Guards.canAccessStep2}
                   className={`p-2 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all ${
                     p3Guards.isStep2Done
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800 cursor-pointer'
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 cursor-pointer'
                       : p3Guards.canAccessStep2
-                      ? 'bg-red-50 border-red-200 text-red-800 hover:bg-red-100 cursor-pointer'
-                      : 'opacity-50 bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+                      ? 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15 cursor-pointer'
+                      : 'opacity-50 bg-[#18181C] border-[#2a2a30] text-[#71717A] cursor-not-allowed'
                   }`}
                 >
                   <span>2. Launch + Monitor</span>
@@ -2379,10 +2379,10 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   disabled={!p3Guards.canAccessStep3}
                   className={`p-2 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all ${
                     p3Guards.isStep3Done
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800 cursor-pointer'
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 cursor-pointer'
                       : p3Guards.canAccessStep3
-                      ? 'bg-red-50 border-red-200 text-red-800 hover:bg-red-100 cursor-pointer'
-                      : 'opacity-50 bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+                      ? 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15 cursor-pointer'
+                      : 'opacity-50 bg-[#18181C] border-[#2a2a30] text-[#71717A] cursor-not-allowed'
                   }`}
                 >
                   <span>3. AI Launch Manager</span>
@@ -2393,14 +2393,14 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           )}
 
           {/* Header */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1C1C20] pb-3">
               <div>
-                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <Award className="w-3.5 h-3.5 text-emerald-300" />
                   <span>Step 4: Commercial Report & Strategic Milestone</span>
                 </span>
-                <h3 className="text-base font-black text-slate-900">
+                <h3 className="text-base font-black text-[#FAFAFA]">
                   Executive Launch Report & Strategic Decision Gate
                 </h3>
               </div>
@@ -2410,23 +2410,23 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   type="button"
                   onClick={handleGenerateLaunchReport}
                   disabled={isGeneratingReport}
-                  className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-2xs"
+                  className="px-3.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-2xs"
                 >
-                  {isGeneratingReport ? <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-600" /> : <RefreshCw className="w-3.5 h-3.5 text-slate-600" />}
+                  {isGeneratingReport ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#A1A1AA]" /> : <RefreshCw className="w-3.5 h-3.5 text-[#A1A1AA]" />}
                   <span>Refresh Report</span>
                 </button>
               )}
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-[#A1A1AA] leading-relaxed">
               Synthesizes processed revenue, customer unit economics, creator performance, technical health, and strategic growth next steps.
             </p>
           </div>
 
           {/* Decision Notice */}
           {decisionNotice && (
-            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 font-medium">
-              <Compass className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 font-medium">
+              <Compass className="w-4 h-4 text-emerald-300 shrink-0" />
               <span>{decisionNotice}</span>
             </div>
           )}
@@ -2434,28 +2434,28 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           {/* 1. Executive Score & Summary */}
           {isGeneratingReport ? (
             <div className="space-y-4 animate-fade-in">
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3 text-emerald-900 text-xs shadow-2xs">
+              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-3 text-emerald-300 text-xs shadow-2xs">
                 <div className="flex items-center gap-2.5">
-                  <Loader2 className="w-5 h-5 animate-spin text-emerald-600 shrink-0" />
+                  <Loader2 className="w-5 h-5 animate-spin text-emerald-300 shrink-0" />
                   <div>
-                    <strong className="text-slate-900 block text-sm font-bold">Synthesizing Milestone Launch Report...</strong>
-                    <span className="text-[11px] text-slate-600">Aggregating unit economics, CAC, channel performance, and strategic verdict</span>
+                    <strong className="text-[#FAFAFA] block text-sm font-bold">Synthesizing Milestone Launch Report...</strong>
+                    <span className="text-[11px] text-[#A1A1AA]">Aggregating unit economics, CAC, channel performance, and strategic verdict</span>
                   </div>
                 </div>
-                <span className="text-[10px] font-mono text-emerald-700 bg-white px-2.5 py-1 rounded-lg border border-emerald-200 font-bold shrink-0 shadow-2xs">
+                <span className="text-[10px] font-mono text-emerald-300 bg-[#0C0C0E] px-2.5 py-1 rounded-lg border border-emerald-500/30 font-bold shrink-0 shadow-2xs">
                   Generating
                 </span>
               </div>
               <LaunchReportSkeleton />
             </div>
           ) : !launchReport ? (
-            <div className="p-8 sm:p-12 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 text-center space-y-4 shadow-2xs animate-fade-in">
-              <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-emerald-600 mx-auto">
+            <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
+              <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-emerald-300 mx-auto">
                 <Award className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-base font-black text-slate-900">Commercial Launch Report & Decision Gate</h3>
-                <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                <h3 className="text-base font-black text-[#FAFAFA]">Commercial Launch Report & Decision Gate</h3>
+                <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
                   Generate the commercial launch score, customer CAC analysis, channel rankings, and strategic scaling recommendations with AI.
                 </p>
               </div>
@@ -2463,7 +2463,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 type="button"
                 onClick={handleGenerateLaunchReport}
                 disabled={isGeneratingReport}
-                className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
               >
                 <Award className="w-4 h-4 text-emerald-400" />
                 <span>Generate Launch Report with AI</span>
@@ -2471,44 +2471,44 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
             </div>
           ) : (
             <div className="space-y-4 animate-fade-in">
-              <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-2xs space-y-4">
+              <div className="p-5 rounded-3xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                    <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">
                       Commercial Launch Score
                     </span>
                     <div className="flex items-baseline gap-3">
-                      <span className="text-3xl sm:text-4xl font-black text-slate-900 font-mono">
-                        {launchReport.score}<span className="text-slate-400 text-xl font-normal">/100</span>
+                      <span className="text-3xl sm:text-4xl font-black text-[#FAFAFA] font-mono">
+                        {launchReport.score}<span className="text-[#71717A] text-xl font-normal">/100</span>
                       </span>
-                      <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-black uppercase tracking-wider">
+                      <span className="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-black uppercase tracking-wider">
                         {launchReport.verdict}
                       </span>
                     </div>
                   </div>
 
-                  <div className="text-xs text-slate-500 text-left sm:text-right space-y-0.5">
-                    <div>AI Recommendation: <strong className="text-emerald-700">{launchReport.recommendation}</strong></div>
-                    <div>Customer CAC: <strong className="text-slate-900 font-mono">{launchReport.metricsSummary?.customerCAC || '$0.00 Organic'}</strong></div>
+                  <div className="text-xs text-[#A1A1AA] text-left sm:text-right space-y-0.5">
+                    <div>AI Recommendation: <strong className="text-emerald-300">{launchReport.recommendation}</strong></div>
+                    <div>Customer CAC: <strong className="text-[#FAFAFA] font-mono">{launchReport.metricsSummary?.customerCAC || '$0.00 Organic'}</strong></div>
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-700 leading-relaxed font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <p className="text-xs text-[#D4D4D8] leading-relaxed font-medium bg-[#111114] p-3 rounded-xl border border-[#2a2a30]">
                   "{launchReport.executiveSummary}"
                 </p>
 
                 {/* 4 Pillars Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                   {(launchReport.pillars || []).map((p, idx) => (
-                    <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1 text-xs">
+                    <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1 text-xs">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
                           <span>{p.name}</span>
                         </span>
-                        <span className="font-mono text-emerald-700 font-bold">{p.rating}</span>
+                        <span className="font-mono text-emerald-300 font-bold">{p.rating}</span>
                       </div>
-                      <p className="text-[11px] text-slate-500 leading-relaxed">{p.detail}</p>
+                      <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{p.detail}</p>
                     </div>
                   ))}
                 </div>
@@ -2516,30 +2516,30 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
 
               {/* Strategic Learnings & Next Steps */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-blue-600" />
+                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                  <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#FF8FA3]" />
                     <span>Strategic Campaign Learnings</span>
                   </h3>
                   <div className="space-y-2">
                     {(launchReport.strategicLearnings || []).map((lrn, idx) => (
-                      <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-700 flex items-start gap-2">
-                        <span className="text-blue-600 font-bold shrink-0">•</span>
+                      <div key={idx} className="p-3 rounded-xl bg-[#111114] border border-[#1C1C20] text-xs text-[#D4D4D8] flex items-start gap-2">
+                        <span className="text-[#FF8FA3] font-bold shrink-0">•</span>
                         <span>{lrn}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-emerald-600" />
+                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                  <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-emerald-300" />
                     <span>Recommended Scaling Next Steps</span>
                   </h3>
                   <div className="space-y-2">
                     {(launchReport.nextStepsRecommendation || []).map((step, idx) => (
-                      <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-700 flex items-start gap-2">
-                        <span className="text-emerald-600 font-bold shrink-0">→</span>
+                      <div key={idx} className="p-3 rounded-xl bg-[#111114] border border-[#1C1C20] text-xs text-[#D4D4D8] flex items-start gap-2">
+                        <span className="text-emerald-300 font-bold shrink-0">→</span>
                         <span>{step}</span>
                       </div>
                     ))}
@@ -2548,15 +2548,15 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               </div>
 
               {/* 4. Human Executive Milestone Decision Gate */}
-              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-2xs space-y-4">
+              <div className="p-6 rounded-3xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4">
                 <div>
-                  <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest block">
+                  <span className="text-[10px] font-black text-emerald-300 uppercase tracking-widest block">
                     Human Executive Milestone Decision
                   </span>
-                  <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                  <h3 className="text-lg font-black text-[#FAFAFA] tracking-tight">
                     Select the Ongoing Operational Direction
                   </h3>
-                  <p className="text-xs text-slate-600 mt-1">
+                  <p className="text-xs text-[#A1A1AA] mt-1">
                     Choose the strategic path for the business following the initial launch campaign.
                   </p>
                 </div>
@@ -2584,31 +2584,31 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           }}
                           className={`p-5 rounded-2xl text-left space-y-3 transition-all group border flex flex-col justify-between ${
                             !p3Guards.allPriorStepsDone
-                              ? 'bg-slate-100 text-slate-400 border-slate-200 shadow-none cursor-not-allowed opacity-60'
+                              ? 'bg-[#18181C] text-[#71717A] border-[#2a2a30] shadow-none cursor-not-allowed opacity-60'
                               : isScaleActive || !hasSelectedAny
-                                ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-lg active:scale-[0.98] border-slate-700 cursor-pointer ring-2 ring-emerald-500'
-                                : 'bg-white hover:bg-slate-50 text-slate-900 border-slate-200 hover:border-slate-300 active:scale-[0.98] cursor-pointer shadow-xs'
+                                ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-lg active:scale-[0.98] border-[#2a2a30] cursor-pointer ring-2 ring-emerald-500'
+                                : 'bg-[#0C0C0E] hover:bg-[#111114] text-[#FAFAFA] border-[#2a2a30] hover:border-[#3a3a42] active:scale-[0.98] cursor-pointer shadow-xs'
                           }`}
                           title={!p3Guards.allPriorStepsDone ? 'Complete Steps 1–3 before scaling' : 'Activate Scale Mode'}
                         >
                           <div className="flex items-center justify-between">
                             <div className={`p-2.5 rounded-xl ${
                               !p3Guards.allPriorStepsDone
-                                ? 'bg-slate-200 text-slate-400'
+                                ? 'bg-[#222227] text-[#71717A]'
                                 : isScaleActive || !hasSelectedAny
                                   ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                  : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                                  : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
                             }`}>
                               {!p3Guards.allPriorStepsDone ? <Lock className="w-5 h-5" /> : <Rocket className="w-5 h-5" />}
                             </div>
                             <span className={`text-[9px] font-mono font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
                               !p3Guards.allPriorStepsDone
-                                ? 'bg-slate-200 text-slate-500'
+                                ? 'bg-[#222227] text-[#A1A1AA]'
                                 : isScaleActive
-                                  ? 'bg-emerald-400 text-slate-950 font-black shadow-xs'
+                                  ? 'bg-emerald-400 text-[#FAFAFA] font-black shadow-xs'
                                   : !hasSelectedAny
-                                    ? 'bg-emerald-400 text-slate-950 font-black shadow-xs'
-                                    : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    ? 'bg-emerald-400 text-[#FAFAFA] font-black shadow-xs'
+                                    : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
                             }`}>
                               {!p3Guards.allPriorStepsDone ? 'Locked' : isScaleActive ? 'Active Mode ✓' : 'Recommended'}
                             </span>
@@ -2616,19 +2616,19 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           <div>
                             <h4 className={`text-sm font-black tracking-tight transition-colors ${
                               !p3Guards.allPriorStepsDone
-                                ? 'text-slate-400'
+                                ? 'text-[#71717A]'
                                 : isScaleActive || !hasSelectedAny
                                   ? 'text-white'
-                                  : 'text-slate-900'
+                                  : 'text-[#FAFAFA]'
                             }`}>
                               1. SCALE & EXPAND
                             </h4>
                             <p className={`text-[11px] leading-relaxed mt-1 ${
                               !p3Guards.allPriorStepsDone
-                                ? 'text-slate-400'
+                                ? 'text-[#71717A]'
                                 : isScaleActive || !hasSelectedAny
-                                  ? 'text-slate-300'
-                                  : 'text-slate-600'
+                                  ? 'text-[#D4D4D8]'
+                                  : 'text-[#A1A1AA]'
                             }`}>
                               {p3Guards.allPriorStepsDone
                                 ? 'Double down on top converting channels, increase creator posting cadence & unlock viral referral loops.'
@@ -2637,8 +2637,8 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           </div>
                           <div className={`pt-2 border-t text-[10px] font-mono font-bold ${
                             isScaleActive || !hasSelectedAny
-                              ? 'border-slate-800/80 text-emerald-400'
-                              : 'border-slate-100 text-emerald-600'
+                              ? 'border-[#2a2a30]/80 text-emerald-400'
+                              : 'border-[#1C1C20] text-emerald-300'
                           }`}>
                             {isScaleActive ? '✓ Active Direction' : '→ Accelerate Production'}
                           </div>
@@ -2657,26 +2657,26 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           }}
                           className={`p-5 rounded-2xl text-left space-y-3 border transition-all flex flex-col justify-between ${
                             !p3Guards.allPriorStepsDone
-                              ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
+                              ? 'bg-[#18181C] text-[#71717A] border-[#2a2a30] cursor-not-allowed opacity-60'
                               : isIterateActive
-                                ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-lg active:scale-[0.98] border-slate-700 cursor-pointer ring-2 ring-amber-500'
-                                : 'bg-white hover:bg-slate-50 text-slate-900 border-slate-200 hover:border-slate-300 active:scale-[0.98] group cursor-pointer shadow-xs'
+                                ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-lg active:scale-[0.98] border-[#2a2a30] cursor-pointer ring-2 ring-amber-500'
+                                : 'bg-[#0C0C0E] hover:bg-[#111114] text-[#FAFAFA] border-[#2a2a30] hover:border-[#3a3a42] active:scale-[0.98] group cursor-pointer shadow-xs'
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className={`p-2.5 rounded-xl ${
                               !p3Guards.allPriorStepsDone
-                                ? 'bg-slate-200 text-slate-400'
+                                ? 'bg-[#222227] text-[#71717A]'
                                 : isIterateActive
                                   ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                                  : 'bg-amber-50 border border-amber-200 text-amber-600'
+                                  : 'bg-amber-500/10 border border-amber-500/30 text-amber-300'
                             }`}>
                               {!p3Guards.allPriorStepsDone ? <Lock className="w-5 h-5" /> : <RefreshCw className="w-5 h-5" />}
                             </div>
                             <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
                               isIterateActive
-                                ? 'bg-amber-400 text-slate-950 border-amber-300 font-black'
-                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                                ? 'bg-amber-400 text-[#FAFAFA] border-amber-500/30 font-black'
+                                : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
                             }`}>
                               {isIterateActive ? 'Active Mode ✓' : 'Optimize'}
                             </span>
@@ -2684,19 +2684,19 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           <div>
                             <h4 className={`text-sm font-bold tracking-tight transition-colors ${
                               !p3Guards.allPriorStepsDone
-                                ? 'text-slate-400'
+                                ? 'text-[#71717A]'
                                 : isIterateActive
                                   ? 'text-white'
-                                  : 'text-slate-900'
+                                  : 'text-[#FAFAFA]'
                             }`}>
                               2. ITERATE & REFINE
                             </h4>
                             <p className={`text-[11px] leading-relaxed mt-1 ${
                               !p3Guards.allPriorStepsDone
-                                ? 'text-slate-400'
+                                ? 'text-[#71717A]'
                                 : isIterateActive
-                                  ? 'text-slate-300'
-                                  : 'text-slate-600'
+                                  ? 'text-[#D4D4D8]'
+                                  : 'text-[#A1A1AA]'
                             }`}>
                               {p3Guards.allPriorStepsDone
                                 ? 'Optimize lower-converting channels, polish mobile checkout friction, and refine onboarding hooks.'
@@ -2705,8 +2705,8 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           </div>
                           <div className={`pt-2 border-t text-[10px] font-mono font-bold ${
                             isIterateActive
-                              ? 'border-slate-800/80 text-amber-400'
-                              : 'border-slate-100 text-amber-600'
+                              ? 'border-[#2a2a30]/80 text-amber-400'
+                              : 'border-[#1C1C20] text-amber-300'
                           }`}>
                             {isIterateActive ? '✓ Active Direction' : '→ Patch Bottlenecks'}
                           </div>
@@ -2725,26 +2725,26 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           }}
                           className={`p-5 rounded-2xl text-left space-y-3 border transition-all flex flex-col justify-between ${
                             !p3Guards.allPriorStepsDone
-                              ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
+                              ? 'bg-[#18181C] text-[#71717A] border-[#2a2a30] cursor-not-allowed opacity-60'
                               : isMaintainActive
-                                ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-lg active:scale-[0.98] border-slate-700 cursor-pointer ring-2 ring-emerald-500'
-                                : 'bg-white hover:bg-slate-50 text-slate-900 border-slate-200 hover:border-slate-300 active:scale-[0.98] group cursor-pointer shadow-xs'
+                                ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-lg active:scale-[0.98] border-[#2a2a30] cursor-pointer ring-2 ring-emerald-500'
+                                : 'bg-[#0C0C0E] hover:bg-[#111114] text-[#FAFAFA] border-[#2a2a30] hover:border-[#3a3a42] active:scale-[0.98] group cursor-pointer shadow-xs'
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className={`p-2.5 rounded-xl ${
                               !p3Guards.allPriorStepsDone
-                                ? 'bg-slate-200 text-slate-400'
+                                ? 'bg-[#222227] text-[#71717A]'
                                 : isMaintainActive
                                   ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                  : 'bg-emerald-50 border border-emerald-200 text-emerald-600'
+                                  : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
                             }`}>
                               {!p3Guards.allPriorStepsDone ? <Lock className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
                             </div>
                             <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
                               isMaintainActive
-                                ? 'bg-emerald-400 text-slate-950 border-emerald-300 font-black'
-                                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                ? 'bg-emerald-400 text-[#FAFAFA] border-emerald-500/30 font-black'
+                                : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
                             }`}>
                               {isMaintainActive ? 'Active Mode ✓' : 'Steady-State'}
                             </span>
@@ -2752,19 +2752,19 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           <div>
                             <h4 className={`text-sm font-bold tracking-tight transition-colors ${
                               !p3Guards.allPriorStepsDone
-                                ? 'text-slate-400'
+                                ? 'text-[#71717A]'
                                 : isMaintainActive
                                   ? 'text-white'
-                                  : 'text-slate-900'
+                                  : 'text-[#FAFAFA]'
                             }`}>
                               3. MAINTAIN & HARVEST
                             </h4>
                             <p className={`text-[11px] leading-relaxed mt-1 ${
                               !p3Guards.allPriorStepsDone
-                                ? 'text-slate-400'
+                                ? 'text-[#71717A]'
                                 : isMaintainActive
-                                  ? 'text-slate-300'
-                                  : 'text-slate-600'
+                                  ? 'text-[#D4D4D8]'
+                                  : 'text-[#A1A1AA]'
                             }`}>
                               {p3Guards.allPriorStepsDone
                                 ? 'Preserve organic creator posting rhythm, maintain high customer retention and steady MRR deposits.'
@@ -2773,8 +2773,8 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           </div>
                           <div className={`pt-2 border-t text-[10px] font-mono font-bold ${
                             isMaintainActive
-                              ? 'border-slate-800/80 text-emerald-400'
-                              : 'border-slate-100 text-emerald-700'
+                              ? 'border-[#2a2a30]/80 text-emerald-400'
+                              : 'border-[#1C1C20] text-emerald-300'
                           }`}>
                             {isMaintainActive ? '✓ Active Direction' : '→ Organic Retention'}
                           </div>
@@ -2787,35 +2787,35 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           className={`p-5 rounded-2xl text-left space-y-3 border transition-all active:scale-[0.98] group cursor-pointer shadow-xs flex flex-col justify-between ${
                             isSunsetActive
                               ? 'bg-rose-950 text-white border-rose-600 ring-2 ring-rose-500 shadow-lg'
-                              : 'bg-rose-50/40 hover:bg-rose-50 text-rose-900 border-rose-200 hover:border-rose-300'
+                              : 'bg-rose-500/10 hover:bg-rose-500/10 text-rose-300 border-rose-500/30 hover:border-rose-500/30'
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <div className={`p-2.5 rounded-xl ${isSunsetActive ? 'bg-rose-900 text-rose-200' : 'bg-rose-100 text-rose-700'}`}>
+                            <div className={`p-2.5 rounded-xl ${isSunsetActive ? 'bg-rose-900 text-rose-200' : 'bg-rose-500/15 text-rose-300'}`}>
                               <XCircle className="w-5 h-5" />
                             </div>
                             <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
                               isSunsetActive
                                 ? 'bg-rose-500 text-white border-rose-400'
-                                : 'bg-white text-rose-700 border-rose-200'
+                                : 'bg-[#0C0C0E] text-rose-300 border-rose-500/30'
                             }`}>
                               {isSunsetActive ? 'Archived ✓' : 'Sunset'}
                             </span>
                           </div>
                           <div>
                             <h4 className={`text-sm font-bold tracking-tight transition-colors ${
-                              isSunsetActive ? 'text-white' : 'text-rose-800'
+                              isSunsetActive ? 'text-white' : 'text-rose-300'
                             }`}>
                               4. ARCHIVE / SUNSET
                             </h4>
                             <p className={`text-[11px] leading-relaxed mt-1 ${
-                              isSunsetActive ? 'text-rose-200' : 'text-rose-600'
+                              isSunsetActive ? 'text-rose-200' : 'text-rose-300'
                             }`}>
                               Gracefully sunset product, refund active subscriptions, or pivot to a new validated problem space.
                             </p>
                           </div>
                           <div className={`pt-2 border-t text-[10px] font-mono font-bold ${
-                            isSunsetActive ? 'border-rose-800 text-rose-300' : 'border-rose-200 text-rose-700'
+                            isSunsetActive ? 'border-rose-800 text-rose-300' : 'border-rose-500/30 text-rose-300'
                           }`}>
                             {isSunsetActive ? '✓ Product Archived' : '→ Sunset Protocol'}
                           </div>
@@ -2827,11 +2827,11 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               </div>
 
               {/* Step 4 Footer */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+              <div className="flex items-center justify-between pt-2 border-t border-[#2a2a30]">
                 <button
                   type="button"
                   onClick={() => setActiveStep('manager')}
-                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold cursor-pointer shadow-2xs transition-colors"
+                  className="px-3.5 py-2 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold cursor-pointer shadow-2xs transition-colors"
                 >
                   ← Back to AI Launch Manager
                 </button>

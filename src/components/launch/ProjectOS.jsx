@@ -2884,18 +2884,18 @@ partnerships@colaunch.com`
 
       {/* PHASE EXECUTION MODAL (PHASE 1 / PHASE 2 / PHASE 3) - CLEAN WHITE THEME */}
       {showPhaseExecutionModal && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[9999] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-hidden">
-          <div className="max-w-5xl w-full max-h-[92vh] overflow-y-auto rounded-3xl bg-white border border-slate-200 p-6 pb-12 space-y-6 shadow-2xl overscroll-contain text-slate-900 phase-modal-white-theme">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="fixed inset-0 z-[9999] bg-[#050506]/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-hidden">
+          <div className="max-w-5xl w-full max-h-[92vh] overflow-y-auto rounded-3xl bg-[#0C0C0E] border border-[#2a2a30] p-6 pb-12 space-y-6 shadow-2xl overscroll-contain text-[#FAFAFA] phase-modal-white-theme">
+            <div className="flex items-center justify-between border-b border-[#2a2a30] pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-10 h-10 rounded-xl bg-[#18181C] border border-[#2a2a30] flex items-center justify-center shrink-0 shadow-2xs">
                   <CoLaunchLogo size={20} showText={false} theme="light" />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  <h2 className="text-base sm:text-lg font-extrabold text-[#FAFAFA]">
                     Phase {currentPhase}: {currentPhase === 2 ? 'Build MVP Execution Workspace' : currentPhase === 3 ? 'Launch Execution Workspace' : 'Validation Execution Workspace'}
                   </h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#A1A1AA]">
                     {project.productName} × {project.creatorName}
                   </p>
                 </div>
@@ -2903,7 +2903,7 @@ partnerships@colaunch.com`
 
               <button
                 onClick={closePhaseModal}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="p-2 rounded-xl text-[#71717A] hover:text-[#D4D4D8] hover:bg-[#18181C] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>

@@ -938,9 +938,9 @@ export default function CloudCodeStudio({
     }, {})
 
   return (
-    <div className="keep-dark cloud-code-studio rounded-3xl bg-[#090b0e] border border-slate-800 shadow-2xl overflow-hidden flex flex-col h-[820px] max-h-[calc(100vh-140px)] min-h-[680px]">
+    <div className="keep-dark cloud-code-studio rounded-3xl bg-[#090b0e] border border-[#2a2a30] shadow-2xl overflow-hidden flex flex-col h-[820px] max-h-[calc(100vh-140px)] min-h-[680px]">
       {/* Top Studio Unified Toolbar */}
-      <div className="h-10 bg-[#0c0e14] border-b border-white/[0.08] px-3 flex items-center justify-between gap-2.5 overflow-x-auto shrink-0 select-none">
+      <div className="h-10 bg-[#0c0e14] border-b border-[#2a2a30]/[0.08] px-3 flex items-center justify-between gap-2.5 overflow-x-auto shrink-0 select-none">
         {/* Left: macOS Traffic Lights & File Count */}
         <div className="flex items-center gap-2 shrink-0">
           <div className="flex items-center gap-1.5">
@@ -948,13 +948,13 @@ export default function CloudCodeStudio({
             <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80 inline-block"></span>
             <span className="w-2.5 h-2.5 rounded-full bg-green-500/80 inline-block"></span>
           </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06] font-mono whitespace-nowrap">
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#0C0C0E]/[0.04] text-[#71717A] border border-[#2a2a30]/[0.06] font-mono whitespace-nowrap">
             {files.length} {files.length === 1 ? 'file' : 'files'}
           </span>
         </div>
 
         {/* Center: Integrated View Switchers */}
-        <div className="flex items-center gap-0.5 bg-[#08090d] p-0.5 rounded-lg border border-white/[0.08] text-xs shrink-0">
+        <div className="flex items-center gap-0.5 bg-[#08090d] p-0.5 rounded-lg border border-[#2a2a30]/[0.08] text-xs shrink-0">
           {[
             { id: 'editor', label: 'Code Editor', icon: Code },
             { id: 'qa', label: 'QA Testing', icon: Activity },
@@ -968,8 +968,8 @@ export default function CloudCodeStudio({
                 onClick={() => setActiveView(view.id)}
                 className={`px-2.5 py-1 rounded-md font-medium flex items-center gap-1.5 transition-colors cursor-pointer text-xs whitespace-nowrap shrink-0 ${
                   isActive
-                    ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30 shadow-xs'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-[#C81E3C]/20 text-[#FF8FA3] border border-[#C81E3C]/30 shadow-xs'
+                    : 'text-[#71717A] hover:text-white'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -984,17 +984,17 @@ export default function CloudCodeStudio({
           <button
             onClick={handleGenerateFullCodebaseWithAI}
             disabled={isGeneratingAll || isUploadingCloudinary}
-            className="px-2.5 py-1 rounded-md bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 hover:text-white border border-blue-500/40 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 shadow-xs"
+            className="px-2.5 py-1 rounded-md bg-[#C81E3C]/20 hover:bg-[#C81E3C]/30 text-[#FF8FA3] hover:text-white border border-[#C81E3C]/40 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 shadow-xs"
             title="Synthesize and scaffold complete multi-file MVP codebase with AI and sync to Cloudinary"
           >
             {isGeneratingAll ? (
               <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF8FA3]" />
                 <span>Synthesizing...</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                <Sparkles className="w-3.5 h-3.5 text-[#FF8FA3]" />
                 <span>AI Scaffold Codebase</span>
               </>
             )}
@@ -1002,10 +1002,10 @@ export default function CloudCodeStudio({
 
           <button
             onClick={() => setIsNewFileModalOpen(true)}
-            className="px-2.5 py-1 rounded-md bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.08] text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            className="px-2.5 py-1 rounded-md bg-[#0C0C0E]/[0.04] hover:bg-[#0C0C0E]/[0.08] text-[#D4D4D8] hover:text-white border border-[#2a2a30]/[0.08] text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap shrink-0"
             title="Create new file manually (Human Engineer)"
           >
-            <Plus className="w-3.5 h-3.5 text-blue-400" />
+            <Plus className="w-3.5 h-3.5 text-[#FF8FA3]" />
             <span>New File</span>
           </button>
 
@@ -1039,15 +1039,15 @@ export default function CloudCodeStudio({
       {/* New File Modal */}
       {isNewFileModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-md w-full p-6 rounded-3xl bg-[#0e1117] border border-white/[0.1] shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+          <div className="max-w-md w-full p-6 rounded-3xl bg-[#0e1117] border border-[#2a2a30]/[0.1] shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.06] pb-3">
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <FileCode className="w-4 h-4 text-blue-400" />
+                <FileCode className="w-4 h-4 text-[#FF8FA3]" />
                 <span>Create New Codebase File</span>
               </h3>
               <button
                 onClick={() => setIsNewFileModalOpen(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-[#71717A] hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1055,7 +1055,7 @@ export default function CloudCodeStudio({
 
             <form onSubmit={handleCreateNewFile} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[11px] font-bold text-[#71717A] uppercase tracking-wider">
                   File Path (with extension)
                 </label>
                 <input
@@ -1064,18 +1064,18 @@ export default function CloudCodeStudio({
                   placeholder="e.g. backend/script.js or src/components/NewFeature.jsx"
                   value={newFilePath}
                   onChange={e => setNewFilePath(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-[#090b0e] border border-white/[0.1] text-xs text-white outline-none focus:border-blue-500/50 font-mono"
+                  className="w-full px-3 py-2 rounded-xl bg-[#090b0e] border border-[#2a2a30]/[0.1] text-xs text-white outline-none focus:border-[#C81E3C]/50 font-mono"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[11px] font-bold text-[#71717A] uppercase tracking-wider">
                   Created By / Mode
                 </label>
                 <select
                   value={newFileAuthor}
                   onChange={e => setNewFileAuthor(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-[#090b0e] border border-white/[0.1] text-xs text-slate-200 outline-none"
+                  className="w-full px-3 py-2 rounded-xl bg-[#090b0e] border border-[#2a2a30]/[0.1] text-xs text-[#E4E4E7] outline-none"
                 >
                   <option value="Human Engineer">👤 Human Engineer (Custom)</option>
                   <option value="AI Agent">🤖 AI Coding Agent</option>
@@ -1086,13 +1086,13 @@ export default function CloudCodeStudio({
                 <button
                   type="button"
                   onClick={() => setIsNewFileModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-white/[0.04] text-slate-300 hover:text-white text-xs font-semibold"
+                  className="px-4 py-2 rounded-xl bg-[#0C0C0E]/[0.04] text-[#D4D4D8] hover:text-white text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-950/40"
+                  className="px-5 py-2 rounded-xl bg-[#C81E3C] hover:bg-[#C81E3C] text-white text-xs font-bold shadow-md shadow-blue-950/40"
                 >
                   Create & Sync
                 </button>
@@ -1105,11 +1105,11 @@ export default function CloudCodeStudio({
       {/* Main Studio Body Layout */}
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {/* Left Activity Bar */}
-        <div className="w-11 bg-[#08090d] border-r border-white/[0.06] flex flex-col items-center py-2.5 gap-2 shrink-0 select-none h-full">
+        <div className="w-11 bg-[#08090d] border-r border-[#2a2a30]/[0.06] flex flex-col items-center py-2.5 gap-2 shrink-0 select-none h-full">
           <button
             onClick={() => setActiveActivityTab('explorer')}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              activeActivityTab === 'explorer' ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : 'text-slate-500 hover:text-white'
+              activeActivityTab === 'explorer' ? 'bg-[#C81E3C]/20 text-[#FF8FA3] border border-[#C81E3C]/30' : 'text-[#A1A1AA] hover:text-white'
             }`}
             title="File Explorer"
           >
@@ -1119,7 +1119,7 @@ export default function CloudCodeStudio({
           <button
             onClick={() => setActiveActivityTab('tasks')}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              activeActivityTab === 'tasks' ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30' : 'text-slate-500 hover:text-white'
+              activeActivityTab === 'tasks' ? 'bg-[#C81E3C]/20 text-[#FF8FA3] border border-[#C81E3C]/30' : 'text-[#A1A1AA] hover:text-white'
             }`}
             title="Sprint Tasks & Division of Labor"
           >
@@ -1129,7 +1129,7 @@ export default function CloudCodeStudio({
           <button
             onClick={() => setActiveActivityTab('testing')}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              activeActivityTab === 'testing' ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-500 hover:text-white'
+              activeActivityTab === 'testing' ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30' : 'text-[#A1A1AA] hover:text-white'
             }`}
             title="QA Test Runner"
           >
@@ -1138,19 +1138,19 @@ export default function CloudCodeStudio({
         </div>
 
         {/* Left Explorer / Task Sidebar */}
-        <div className="w-60 bg-[#0c0e14] border-r border-white/[0.08] flex flex-col shrink-0 h-full overflow-hidden">
+        <div className="w-60 bg-[#0c0e14] border-r border-[#2a2a30]/[0.08] flex flex-col shrink-0 h-full overflow-hidden">
           {activeActivityTab === 'explorer' && (
             <>
               {/* Explorer Header */}
-              <div className="p-2.5 border-b border-white/[0.06] space-y-1.5">
+              <div className="p-2.5 border-b border-[#2a2a30]/[0.06] space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Folder className="w-3.5 h-3.5 text-blue-400" />
+                  <span className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider flex items-center gap-1.5">
+                    <Folder className="w-3.5 h-3.5 text-[#FF8FA3]" />
                     <span>EXPLORER</span>
                   </span>
                   <button
                     onClick={() => setIsNewFileModalOpen(true)}
-                    className="p-1 rounded hover:bg-white/[0.08] text-slate-400 hover:text-white"
+                    className="p-1 rounded hover:bg-[#0C0C0E]/[0.08] text-[#71717A] hover:text-white"
                     title="New File"
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -1158,13 +1158,13 @@ export default function CloudCodeStudio({
                 </div>
 
                 <div className="relative">
-                  <Search className="w-3 h-3 text-slate-500 absolute left-2.5 top-2.5" />
+                  <Search className="w-3 h-3 text-[#A1A1AA] absolute left-2.5 top-2.5" />
                   <input
                     type="text"
                     value={fileSearch}
                     onChange={e => setFileSearch(e.target.value)}
                     placeholder="Search files..."
-                    className="w-full pl-7 pr-3 py-1 rounded-md bg-[#090b0e] border border-white/[0.06] text-[11px] text-slate-300 outline-none focus:border-blue-500/40 font-mono"
+                    className="w-full pl-7 pr-3 py-1 rounded-md bg-[#090b0e] border border-[#2a2a30]/[0.06] text-[11px] text-[#D4D4D8] outline-none focus:border-[#C81E3C]/40 font-mono"
                   />
                 </div>
               </div>
@@ -1172,14 +1172,14 @@ export default function CloudCodeStudio({
               {/* Tree View */}
               <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5 font-mono text-xs">
                 {files.length === 0 ? (
-                  <div className="p-4 text-center space-y-2 text-slate-500">
+                  <div className="p-4 text-center space-y-2 text-[#A1A1AA]">
                     <p className="text-[11px]">No files created yet.</p>
                     <button
                       onClick={handleGenerateFullCodebaseWithAI}
                       disabled={isGeneratingAll}
-                      className="w-full py-1.5 rounded-md bg-blue-600/15 hover:bg-blue-600/25 text-blue-300 border border-blue-500/30 text-[11px] font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      className="w-full py-1.5 rounded-md bg-[#C81E3C]/15 hover:bg-[#C81E3C]/25 text-[#FF8FA3] border border-[#C81E3C]/30 text-[11px] font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
-                      <Code className="w-3 h-3 text-blue-400" />
+                      <Code className="w-3 h-3 text-[#FF8FA3]" />
                       <span>Scaffold Codebase</span>
                     </button>
                   </div>
@@ -1190,15 +1190,15 @@ export default function CloudCodeStudio({
                       <div key={folder} className="space-y-0.5">
                         <button
                           onClick={() => toggleFolder(folder)}
-                          className="w-full flex items-center gap-1.5 px-2 py-1 rounded text-slate-400 hover:text-white hover:bg-white/[0.03] text-[11px] font-bold text-left transition-colors cursor-pointer"
+                          className="w-full flex items-center gap-1.5 px-2 py-1 rounded text-[#71717A] hover:text-white hover:bg-[#0C0C0E]/[0.03] text-[11px] font-bold text-left transition-colors cursor-pointer"
                         >
-                          {isCollapsed ? <ChevronRight className="w-3 h-3 text-slate-500" /> : <ChevronDown className="w-3 h-3 text-slate-500" />}
-                          {isCollapsed ? <Folder className="w-3.5 h-3.5 text-blue-400" /> : <FolderOpen className="w-3.5 h-3.5 text-blue-400" />}
+                          {isCollapsed ? <ChevronRight className="w-3 h-3 text-[#A1A1AA]" /> : <ChevronDown className="w-3 h-3 text-[#A1A1AA]" />}
+                          {isCollapsed ? <Folder className="w-3.5 h-3.5 text-[#FF8FA3]" /> : <FolderOpen className="w-3.5 h-3.5 text-[#FF8FA3]" />}
                           <span className="truncate">{folder === 'root' ? prodSlug : folder}</span>
                         </button>
 
                         {!isCollapsed && (
-                          <div className="pl-4 space-y-0.5 border-l border-white/[0.04] ml-3">
+                          <div className="pl-4 space-y-0.5 border-l border-[#2a2a30]/[0.04] ml-3">
                             {folderFiles.map(file => {
                               const isActive = file.id === activeFileId
                               return (
@@ -1207,8 +1207,8 @@ export default function CloudCodeStudio({
                                   onClick={() => handleOpenFile(file)}
                                   className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-[11px] text-left transition-colors cursor-pointer group ${
                                     isActive
-                                      ? 'bg-blue-600/20 text-blue-300 font-bold border border-blue-500/30'
-                                      : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]'
+                                      ? 'bg-[#C81E3C]/20 text-[#FF8FA3] font-bold border border-[#C81E3C]/30'
+                                      : 'text-[#71717A] hover:text-[#E4E4E7] hover:bg-[#0C0C0E]/[0.03]'
                                   }`}
                                 >
                                   <div className="flex items-center gap-1.5 min-w-0">
@@ -1221,7 +1221,7 @@ export default function CloudCodeStudio({
                                         file.name.endsWith('.jsx') || file.name.endsWith('.js')
                                           ? 'text-yellow-400'
                                           : file.name.endsWith('.py')
-                                          ? 'text-blue-400'
+                                          ? 'text-[#FF8FA3]'
                                           : file.name.endsWith('.json')
                                           ? 'text-emerald-400'
                                           : file.name.endsWith('.html')
@@ -1229,8 +1229,8 @@ export default function CloudCodeStudio({
                                           : file.name.endsWith('.css')
                                           ? 'text-cyan-400'
                                           : file.name.endsWith('.md')
-                                          ? 'text-indigo-400'
-                                          : 'text-slate-400'
+                                          ? 'text-[#FF8FA3]'
+                                          : 'text-[#71717A]'
                                       }`} />
                                     )}
                                     <span className="truncate">{file.name}</span>
@@ -1241,11 +1241,11 @@ export default function CloudCodeStudio({
                                       <Cloud className="w-3 h-3 text-emerald-400/80" title="Synced to Cloudinary" />
                                     )}
                                     {file.modified && (
-                                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></span>
+                                      <span className="w-1.5 h-1.5 rounded-full bg-[#C81E3C]/20 shrink-0"></span>
                                     )}
                                     <button
                                       onClick={(e) => handleDeleteFile(e, file.id)}
-                                      className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-400 text-slate-500 transition-opacity"
+                                      className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-400 text-[#A1A1AA] transition-opacity"
                                       title="Delete file"
                                     >
                                       <Trash2 className="w-3 h-3" />
@@ -1266,18 +1266,18 @@ export default function CloudCodeStudio({
 
           {activeActivityTab === 'tasks' && (
             <div className="flex-1 flex flex-col p-2.5 space-y-2 overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.06] pb-2">
+                <span className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">
                   SPRINT TASKS
                 </span>
-                <span className="text-[10px] font-mono text-slate-400 font-semibold">
+                <span className="text-[10px] font-mono text-[#71717A] font-semibold">
                   {engineeringTasks.length} Tasks
                 </span>
               </div>
 
               <div className="space-y-1.5">
                 {engineeringTasks.map(task => (
-                  <div key={task.id} className="p-2 rounded-lg bg-[#090b0e] border border-white/[0.06] text-[11px] space-y-1.5">
+                  <div key={task.id} className="p-2 rounded-lg bg-[#090b0e] border border-[#2a2a30]/[0.06] text-[11px] space-y-1.5">
                     <div className="flex items-start justify-between gap-1.5">
                       <span className="font-bold text-white leading-tight">{task.title}</span>
                     </div>
@@ -1285,12 +1285,12 @@ export default function CloudCodeStudio({
                       <select
                         value={task.assignedTo || 'AI Agent'}
                         onChange={e => handleReassignTask(task.id, e.target.value)}
-                        className="px-1.5 py-0.5 rounded bg-white/[0.06] text-slate-300 border border-white/[0.08] text-[9px] font-medium outline-none"
+                        className="px-1.5 py-0.5 rounded bg-[#0C0C0E]/[0.06] text-[#D4D4D8] border border-[#2a2a30]/[0.08] text-[9px] font-medium outline-none"
                       >
                         <option value="AI Agent">🤖 AI Agent</option>
                         <option value="Human Engineer">👤 Human</option>
                       </select>
-                      <span className="text-slate-500">{task.category}</span>
+                      <span className="text-[#A1A1AA]">{task.category}</span>
                     </div>
                   </div>
                 ))}
@@ -1300,13 +1300,13 @@ export default function CloudCodeStudio({
 
           {activeActivityTab === 'testing' && (
             <div className="flex-1 p-3 space-y-2.5 font-mono text-xs">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider block">
                 TEST SUITE QUICK STATUS
               </span>
-              <div className="p-2.5 rounded-xl bg-[#090b0e] border border-white/[0.06] space-y-1">
+              <div className="p-2.5 rounded-xl bg-[#090b0e] border border-[#2a2a30]/[0.06] space-y-1">
                 <div className="text-emerald-400 font-semibold">{qaResults?.unitTests?.passed || 0} / 34 Unit Tests</div>
-                <div className="text-blue-400 font-semibold">{qaResults?.integrationTests?.passed || 0} / 18 Integration</div>
-                <div className="text-indigo-400 font-semibold">{qaResults?.e2eWorkflows?.passed || 0} / 8 E2E Journeys</div>
+                <div className="text-[#FF8FA3] font-semibold">{qaResults?.integrationTests?.passed || 0} / 18 Integration</div>
+                <div className="text-[#FF8FA3] font-semibold">{qaResults?.e2eWorkflows?.passed || 0} / 8 E2E Journeys</div>
               </div>
               <button
                 onClick={() => setActiveView('qa')}
@@ -1325,7 +1325,7 @@ export default function CloudCodeStudio({
           {activeView === 'editor' && (
             <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
               {/* Editor Tabs & HTML Mode Switcher */}
-              <div className="h-9 bg-[#0c0e14] border-b border-white/[0.08] flex items-center justify-between px-1 shrink-0">
+              <div className="h-9 bg-[#0c0e14] border-b border-[#2a2a30]/[0.08] flex items-center justify-between px-1 shrink-0">
                 <div className="flex items-center h-full overflow-x-auto no-scrollbar">
                   {openTabIds.map(tabId => {
                     const file = files.find(f => f.id === tabId)
@@ -1337,16 +1337,16 @@ export default function CloudCodeStudio({
                       <div
                         key={file.id}
                         onClick={() => setActiveFileId(file.id)}
-                        className={`relative h-full px-3 flex items-center gap-1.5 border-r border-white/[0.06] text-xs font-mono cursor-pointer transition-colors shrink-0 max-w-[200px] ${
+                        className={`relative h-full px-3 flex items-center gap-1.5 border-r border-[#2a2a30]/[0.06] text-xs font-mono cursor-pointer transition-colors shrink-0 max-w-[200px] ${
                           isActive
                             ? 'bg-[#06080a] text-white font-semibold'
-                            : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.02]'
+                            : 'text-[#71717A] hover:text-[#E4E4E7] hover:bg-[#0C0C0E]/[0.02]'
                         }`}
                         title={file.name}
                       >
                         {/* Active Accent Top Line with clean offset */}
                         {isActive && (
-                          <div className="absolute top-0 left-0 right-0 h-[2px] bg-blue-500"></div>
+                          <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#C81E3C]"></div>
                         )}
 
                         {isVid ? (
@@ -1354,13 +1354,13 @@ export default function CloudCodeStudio({
                         ) : isImg ? (
                           <ImageIcon className="w-3.5 h-3.5 text-pink-400 shrink-0" />
                         ) : (
-                          <FileCode className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                          <FileCode className="w-3.5 h-3.5 text-[#FF8FA3] shrink-0" />
                         )}
                         <span className="truncate">{file.name}</span>
-                        {file.modified && <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></span>}
+                        {file.modified && <span className="w-1.5 h-1.5 rounded-full bg-[#C81E3C]/20 shrink-0"></span>}
                         <button
                           onClick={(e) => handleCloseTab(e, file.id)}
-                          className="p-0.5 rounded hover:bg-white/[0.1] text-slate-500 hover:text-white shrink-0 ml-0.5"
+                          className="p-0.5 rounded hover:bg-[#0C0C0E]/[0.1] text-[#A1A1AA] hover:text-white shrink-0 ml-0.5"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -1371,11 +1371,11 @@ export default function CloudCodeStudio({
 
                 {/* Live Web Sandbox Preview Mode Toggle (Visible for HTML, JS, JSX, CSS, JSON files) */}
                 {isWebPreviewable && (
-                  <div className="flex items-center gap-0.5 bg-[#090b0e] p-0.5 rounded-md border border-white/[0.08] shrink-0 mr-1">
+                  <div className="flex items-center gap-0.5 bg-[#090b0e] p-0.5 rounded-md border border-[#2a2a30]/[0.08] shrink-0 mr-1">
                     <button
                       onClick={() => handleSetHtmlViewMode('code')}
                       className={`px-2 py-0.5 rounded text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer ${
-                        htmlViewMode === 'code' ? 'bg-[#C8FF3D]/20 text-[#C8FF3D] border border-[#C8FF3D]/40 font-bold' : 'text-slate-400 hover:text-white'
+                        htmlViewMode === 'code' ? 'bg-[#C81E3C]/20 text-[#FF4D6D] border border-[#C81E3C]/40 font-bold' : 'text-[#71717A] hover:text-white'
                       }`}
                       title="Show Code Only"
                     >
@@ -1385,7 +1385,7 @@ export default function CloudCodeStudio({
                     <button
                       onClick={() => handleSetHtmlViewMode('split')}
                       className={`px-2 py-0.5 rounded text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer ${
-                        htmlViewMode === 'split' ? 'bg-[#C8FF3D]/20 text-[#C8FF3D] border border-[#C8FF3D]/40 font-bold' : 'text-slate-400 hover:text-white'
+                        htmlViewMode === 'split' ? 'bg-[#C81E3C]/20 text-[#FF4D6D] border border-[#C81E3C]/40 font-bold' : 'text-[#71717A] hover:text-white'
                       }`}
                       title="Split Code & Live Sandbox Preview"
                     >
@@ -1395,7 +1395,7 @@ export default function CloudCodeStudio({
                     <button
                       onClick={() => handleSetHtmlViewMode('preview')}
                       className={`px-2 py-0.5 rounded text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer ${
-                        htmlViewMode === 'preview' ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 font-bold' : 'text-slate-400 hover:text-white'
+                        htmlViewMode === 'preview' ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 font-bold' : 'text-[#71717A] hover:text-white'
                       }`}
                       title="Live Web Sandbox Preview Only"
                     >
@@ -1410,12 +1410,12 @@ export default function CloudCodeStudio({
               {files.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center p-8">
                   <div className="max-w-md text-center space-y-4">
-                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto shadow-xs">
+                    <div className="w-12 h-12 rounded-xl bg-[#C81E3C]/10 border border-[#C81E3C]/20 text-[#FF8FA3] flex items-center justify-center mx-auto shadow-xs">
                       <Code className="w-6 h-6" />
                     </div>
                     <div className="space-y-1">
                       <h3 className="text-sm font-semibold text-white">No Codebase Files Yet</h3>
-                      <p className="text-xs text-slate-400 leading-relaxed">
+                      <p className="text-xs text-[#71717A] leading-relaxed">
                         Start your MVP build by synthesizing a production-grade codebase or create files manually as a human engineer.
                       </p>
                     </div>
@@ -1424,7 +1424,7 @@ export default function CloudCodeStudio({
                       <button
                         onClick={handleGenerateFullCodebaseWithAI}
                         disabled={isGeneratingAll}
-                        className="w-full sm:w-auto px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95 transition-all"
+                        className="w-full sm:w-auto px-4 py-2 rounded-lg bg-[#C81E3C] hover:bg-[#C81E3C] text-white font-medium text-xs flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95 transition-all"
                       >
                         {isGeneratingAll ? (
                           <>
@@ -1441,7 +1441,7 @@ export default function CloudCodeStudio({
 
                       <button
                         onClick={() => setIsNewFileModalOpen(true)}
-                        className="w-full sm:w-auto px-3.5 py-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 hover:text-white font-medium text-xs flex items-center justify-center gap-1.5 border border-white/[0.08] cursor-pointer"
+                        className="w-full sm:w-auto px-3.5 py-2 rounded-lg bg-[#0C0C0E]/[0.06] hover:bg-[#0C0C0E]/[0.1] text-[#E4E4E7] hover:text-white font-medium text-xs flex items-center justify-center gap-1.5 border border-[#2a2a30]/[0.08] cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Create File Manually</span>
@@ -1453,10 +1453,10 @@ export default function CloudCodeStudio({
                 <>
                   {/* Code Assistant Bar (Only for Code / Text / Script files) */}
                   {!isImageFile && !isVideoFile && (
-                    <div className="px-3 py-1.5 bg-[#0b0d13] border-b border-white/[0.08] shrink-0">
+                    <div className="px-3 py-1.5 bg-[#0b0d13] border-b border-[#2a2a30]/[0.08] shrink-0">
                       <form onSubmit={handleAiRefactorActiveFile} className="flex items-center gap-2">
-                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/[0.06] border border-white/[0.08] text-slate-300 text-[11px] font-medium shrink-0">
-                          <Terminal className="w-3 h-3 text-blue-400" />
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#0C0C0E]/[0.06] border border-[#2a2a30]/[0.08] text-[#D4D4D8] text-[11px] font-medium shrink-0">
+                          <Terminal className="w-3 h-3 text-[#FF8FA3]" />
                           <span>Assistant</span>
                         </div>
 
@@ -1465,13 +1465,13 @@ export default function CloudCodeStudio({
                           value={aiPromptText}
                           onChange={e => setAiPromptText(e.target.value)}
                           placeholder={`Generate, edit, or refactor code for ${activeFile?.name || 'file'}...`}
-                          className="flex-1 px-2.5 py-1 rounded-md bg-[#06080a] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-blue-500/50 font-mono"
+                          className="flex-1 px-2.5 py-1 rounded-md bg-[#06080a] border border-[#2a2a30]/[0.08] text-xs text-white placeholder-[#A1A1AA] outline-none focus:border-[#C81E3C]/50 font-mono"
                         />
 
                         <button
                           type="button"
                           onClick={handleFormatActiveFile}
-                          className="px-2.5 py-1 rounded-md bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.08] text-[11px] font-medium transition-colors cursor-pointer shrink-0"
+                          className="px-2.5 py-1 rounded-md bg-[#0C0C0E]/[0.04] hover:bg-[#0C0C0E]/[0.08] text-[#D4D4D8] hover:text-white border border-[#2a2a30]/[0.08] text-[11px] font-medium transition-colors cursor-pointer shrink-0"
                           title="Auto-format and pretty-print code"
                         >
                           Format
@@ -1480,7 +1480,7 @@ export default function CloudCodeStudio({
                         <button
                           type="submit"
                           disabled={isAiPrompting || !aiPromptText.trim()}
-                          className="px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs flex items-center gap-1 transition-all disabled:opacity-40 cursor-pointer shrink-0 shadow-xs"
+                          className="px-2.5 py-1 rounded-md bg-[#C81E3C] hover:bg-[#C81E3C] text-white font-medium text-xs flex items-center gap-1 transition-all disabled:opacity-40 cursor-pointer shrink-0 shadow-xs"
                         >
                           {isAiPrompting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3 fill-current" />}
                           <span>Generate</span>
@@ -1493,7 +1493,7 @@ export default function CloudCodeStudio({
                   {isVideoFile ? (
                     <div className="flex-1 flex flex-col bg-[#06080a] overflow-hidden relative">
                       {/* Video Viewer Toolbar */}
-                      <div className="h-10 bg-[#0c0e14] border-b border-white/[0.06] px-3 flex items-center justify-between text-xs shrink-0 select-none gap-2">
+                      <div className="h-10 bg-[#0c0e14] border-b border-[#2a2a30]/[0.06] px-3 flex items-center justify-between text-xs shrink-0 select-none gap-2">
                         <div className="flex items-center gap-2 font-mono min-w-0">
                           <VideoIcon className="w-4 h-4 text-purple-400 shrink-0" />
                           <span className="text-white font-bold text-xs truncate max-w-[200px] sm:max-w-xs md:max-w-md" title={activeFile.name}>
@@ -1516,7 +1516,7 @@ export default function CloudCodeStudio({
                               href={getFileVideoSrc(activeFile)}
                               target="_blank"
                               rel="noreferrer"
-                              className="px-2.5 py-1 rounded bg-white/[0.06] hover:bg-white/[0.1] text-slate-300 hover:text-white flex items-center gap-1.5 text-xs font-medium cursor-pointer"
+                              className="px-2.5 py-1 rounded bg-[#0C0C0E]/[0.06] hover:bg-[#0C0C0E]/[0.1] text-[#D4D4D8] hover:text-white flex items-center gap-1.5 text-xs font-medium cursor-pointer"
                             >
                               <span>Open in Cloudinary CDN</span>
                               <ExternalLink className="w-3.5 h-3.5 text-purple-400" />
@@ -1527,16 +1527,16 @@ export default function CloudCodeStudio({
 
                       {/* Video Player Canvas */}
                       <div className="flex-1 overflow-auto flex items-center justify-center p-6 bg-[#06080a]">
-                        <div className="max-w-3xl w-full bg-[#0c0e14] rounded-2xl border border-white/[0.08] p-4 flex flex-col items-center gap-4 shadow-2xl">
+                        <div className="max-w-3xl w-full bg-[#0c0e14] rounded-2xl border border-[#2a2a30]/[0.08] p-4 flex flex-col items-center gap-4 shadow-2xl">
                           <video
                             controls
                             autoPlay={false}
                             playsInline
                             src={getFileVideoSrc(activeFile)}
-                            className="w-full max-h-[460px] rounded-xl bg-black border border-white/[0.06] shadow-xl"
+                            className="w-full max-h-[460px] rounded-xl bg-black border border-[#2a2a30]/[0.06] shadow-xl"
                           />
-                          <div className="w-full flex items-center justify-between text-xs text-slate-400 font-mono pt-1 border-t border-white/[0.04]">
-                            <span className="text-slate-300 font-semibold">{activeFile.name}</span>
+                          <div className="w-full flex items-center justify-between text-xs text-[#71717A] font-mono pt-1 border-t border-[#2a2a30]/[0.04]">
+                            <span className="text-[#D4D4D8] font-semibold">{activeFile.name}</span>
                             <span className="text-purple-400 font-semibold">Phase 1 Campaign Video Teaser</span>
                           </div>
                         </div>
@@ -1545,13 +1545,13 @@ export default function CloudCodeStudio({
                   ) : isImageFile && (svgViewMode === 'preview' || !activeFile?.name?.toLowerCase().endsWith('.svg')) ? (
                     <div className="flex-1 flex flex-col bg-[#06080a] overflow-hidden relative">
                       {/* Image Viewer Toolbar */}
-                      <div className="h-10 bg-[#0c0e14] border-b border-white/[0.06] px-3 flex items-center justify-between text-xs shrink-0 select-none gap-2">
+                      <div className="h-10 bg-[#0c0e14] border-b border-[#2a2a30]/[0.06] px-3 flex items-center justify-between text-xs shrink-0 select-none gap-2">
                         <div className="flex items-center gap-2 font-mono min-w-0">
                           <ImageIcon className="w-4 h-4 text-pink-400 shrink-0" />
                           <span className="text-white font-bold text-xs truncate max-w-[200px] sm:max-w-xs md:max-w-md" title={activeFile.name}>
                             {activeFile.name}
                           </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-slate-400 uppercase font-mono shrink-0">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#0C0C0E]/[0.06] text-[#71717A] uppercase font-mono shrink-0">
                             {activeFile.name.split('.').pop()}
                           </span>
                           {activeFile.cloudinaryUrl && (
@@ -1565,11 +1565,11 @@ export default function CloudCodeStudio({
                         <div className="flex items-center gap-2 shrink-0">
                           {/* SVG toggle */}
                           {activeFile.name?.toLowerCase().endsWith('.svg') && (
-                            <div className="flex items-center bg-[#090b0e] p-0.5 rounded-lg border border-white/[0.08]">
+                            <div className="flex items-center bg-[#090b0e] p-0.5 rounded-lg border border-[#2a2a30]/[0.08]">
                               <button
                                 onClick={() => setSvgViewMode('preview')}
                                 className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 ${
-                                  svgViewMode === 'preview' ? 'bg-pink-600/20 text-pink-300 border border-pink-500/30' : 'text-slate-400 hover:text-white'
+                                  svgViewMode === 'preview' ? 'bg-pink-600/20 text-pink-300 border border-pink-500/30' : 'text-[#71717A] hover:text-white'
                                 }`}
                               >
                                 <Eye className="w-3 h-3" />
@@ -1578,7 +1578,7 @@ export default function CloudCodeStudio({
                               <button
                                 onClick={() => setSvgViewMode('code')}
                                 className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 ${
-                                  svgViewMode === 'code' ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30' : 'text-slate-400 hover:text-white'
+                                  svgViewMode === 'code' ? 'bg-[#C81E3C]/20 text-[#FF8FA3] border border-[#C81E3C]/30' : 'text-[#71717A] hover:text-white'
                                 }`}
                               >
                                 <Code className="w-3 h-3" />
@@ -1588,25 +1588,25 @@ export default function CloudCodeStudio({
                           )}
 
                           {/* Zoom controls */}
-                          <div className="flex items-center bg-[#090b0e] p-0.5 rounded-lg border border-white/[0.08] text-[11px] font-mono">
+                          <div className="flex items-center bg-[#090b0e] p-0.5 rounded-lg border border-[#2a2a30]/[0.08] text-[11px] font-mono">
                             <button
                               onClick={() => setImageZoom(prev => Math.max(25, prev - 25))}
-                              className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/[0.06]"
+                              className="p-1 rounded text-[#71717A] hover:text-white hover:bg-[#0C0C0E]/[0.06]"
                               title="Zoom Out"
                             >
                               <ZoomOut className="w-3.5 h-3.5" />
                             </button>
-                            <span className="px-2 text-[10px] text-slate-300 font-bold min-w-[36px] text-center">{imageZoom}%</span>
+                            <span className="px-2 text-[10px] text-[#D4D4D8] font-bold min-w-[36px] text-center">{imageZoom}%</span>
                             <button
                               onClick={() => setImageZoom(prev => Math.min(400, prev + 25))}
-                              className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/[0.06]"
+                              className="p-1 rounded text-[#71717A] hover:text-white hover:bg-[#0C0C0E]/[0.06]"
                               title="Zoom In"
                             >
                               <ZoomIn className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => setImageZoom(100)}
-                              className="px-1.5 py-0.5 text-[10px] text-slate-400 hover:text-white rounded hover:bg-white/[0.06]"
+                              className="px-1.5 py-0.5 text-[10px] text-[#71717A] hover:text-white rounded hover:bg-[#0C0C0E]/[0.06]"
                               title="Reset Zoom"
                             >
                               Reset
@@ -1616,7 +1616,7 @@ export default function CloudCodeStudio({
                           {getFileImageSrc(activeFile) && (
                             <button
                               onClick={() => window.open(getFileImageSrc(activeFile), '_blank')}
-                              className="p-1.5 rounded hover:bg-white/[0.08] text-slate-400 hover:text-white"
+                              className="p-1.5 rounded hover:bg-[#0C0C0E]/[0.08] text-[#71717A] hover:text-white"
                               title="Open image in new tab"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
@@ -1632,15 +1632,15 @@ export default function CloudCodeStudio({
                             <img
                               src={getFileImageSrc(activeFile)}
                               alt={activeFile.name}
-                              className="max-h-[520px] max-w-full rounded-2xl shadow-2xl object-contain border border-white/[0.1] bg-black/40 backdrop-blur-sm p-2"
+                              className="max-h-[520px] max-w-full rounded-2xl shadow-2xl object-contain border border-[#2a2a30]/[0.1] bg-black/40 backdrop-blur-sm p-2"
                             />
                           </div>
                         ) : (
-                          <div className="text-center p-8 border border-dashed border-white/[0.1] rounded-2xl max-w-sm space-y-3">
-                            <ImageIcon className="w-10 h-10 text-slate-600 mx-auto" />
+                          <div className="text-center p-8 border border-dashed border-[#2a2a30]/[0.1] rounded-2xl max-w-sm space-y-3">
+                            <ImageIcon className="w-10 h-10 text-[#A1A1AA] mx-auto" />
                             <div className="space-y-1">
                               <p className="text-xs font-bold text-white">No Image Data</p>
-                              <p className="text-[11px] text-slate-400">Provide an image URL, Cloudinary asset, or SVG markup to preview.</p>
+                              <p className="text-[11px] text-[#71717A]">Provide an image URL, Cloudinary asset, or SVG markup to preview.</p>
                             </div>
                           </div>
                         )}
@@ -1651,14 +1651,14 @@ export default function CloudCodeStudio({
                     <div className="flex-1 flex overflow-hidden relative">
                       {/* Left: Code Editor (Rendered in 'code' or 'split' mode) */}
                       {(!isWebPreviewable || htmlViewMode === 'code' || htmlViewMode === 'split') && (
-                        <div className={`flex font-mono text-xs bg-[#06080a] ${isWebPreviewable && htmlViewMode === 'split' ? 'w-1/2 border-r border-white/[0.08]' : 'w-full'}`}>
+                        <div className={`flex font-mono text-xs bg-[#06080a] ${isWebPreviewable && htmlViewMode === 'split' ? 'w-1/2 border-r border-[#2a2a30]/[0.08]' : 'w-full'}`}>
                           {/* Line Numbers Column */}
                           <div
                             ref={lineNumbersRef}
-                            className="w-10 bg-[#090b0e] text-slate-600 select-none py-3 pr-2 text-right font-mono text-xs border-r border-white/[0.04] overflow-hidden shrink-0"
+                            className="w-10 bg-[#090b0e] text-[#A1A1AA] select-none py-3 pr-2 text-right font-mono text-xs border-r border-[#2a2a30]/[0.04] overflow-hidden shrink-0"
                           >
                             {(activeFile?.content || '').split('\n').map((_, idx) => (
-                              <div key={idx} className="h-6 leading-6 text-[11px] text-slate-600 font-mono select-none">
+                              <div key={idx} className="h-6 leading-6 text-[11px] text-[#A1A1AA] font-mono select-none">
                                 {idx + 1}
                               </div>
                             ))}
@@ -1672,7 +1672,7 @@ export default function CloudCodeStudio({
                               value={activeFile?.content || ''}
                               onChange={(e) => handleContentChange(e.target.value)}
                               spellCheck={false}
-                              className="w-full h-full bg-[#06080a] text-slate-100 font-mono text-xs leading-6 outline-none resize-none border-0 p-3 whitespace-pre overflow-auto font-mono focus:ring-0"
+                              className="w-full h-full bg-[#06080a] text-[#F4F4F5] font-mono text-xs leading-6 outline-none resize-none border-0 p-3 whitespace-pre overflow-auto font-mono focus:ring-0"
                               style={{ backgroundColor: '#06080a', color: '#f1f5f9' }}
                             />
                           </div>
@@ -1683,32 +1683,32 @@ export default function CloudCodeStudio({
                       {isWebPreviewable && (htmlViewMode === 'preview' || htmlViewMode === 'split') && (
                         <div className={`flex flex-col bg-[#080a0e] ${htmlViewMode === 'preview' ? 'w-full' : 'w-1/2'}`}>
                           {/* Preview Mini Toolbar */}
-                          <div className="h-8 bg-[#0c0e14] border-b border-white/[0.06] px-3 flex items-center justify-between text-[11px] font-mono shrink-0">
+                          <div className="h-8 bg-[#0c0e14] border-b border-[#2a2a30]/[0.06] px-3 flex items-center justify-between text-[11px] font-mono shrink-0">
                             <div className="flex items-center gap-2 min-w-0">
                               <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
-                              <span className="text-slate-300 font-bold truncate">Live Sandbox: {activeFile.name}</span>
+                              <span className="text-[#D4D4D8] font-bold truncate">Live Sandbox: {activeFile.name}</span>
                             </div>
 
                             <div className="flex items-center gap-2 shrink-0">
                               {/* Viewport switcher */}
-                              <div className="flex items-center bg-[#090b0e] p-0.5 rounded border border-white/[0.06] text-[10px]">
+                              <div className="flex items-center bg-[#090b0e] p-0.5 rounded border border-[#2a2a30]/[0.06] text-[10px]">
                                 <button
                                   onClick={() => setPreviewViewport('desktop')}
-                                  className={`p-1 rounded ${previewViewport === 'desktop' ? 'bg-blue-600/20 text-blue-300' : 'text-slate-500 hover:text-white'}`}
+                                  className={`p-1 rounded ${previewViewport === 'desktop' ? 'bg-[#C81E3C]/20 text-[#FF8FA3]' : 'text-[#A1A1AA] hover:text-white'}`}
                                   title="Desktop (100%)"
                                 >
                                   <Monitor className="w-3 h-3" />
                                 </button>
                                 <button
                                   onClick={() => setPreviewViewport('tablet')}
-                                  className={`p-1 rounded ${previewViewport === 'tablet' ? 'bg-blue-600/20 text-blue-300' : 'text-slate-500 hover:text-white'}`}
+                                  className={`p-1 rounded ${previewViewport === 'tablet' ? 'bg-[#C81E3C]/20 text-[#FF8FA3]' : 'text-[#A1A1AA] hover:text-white'}`}
                                   title="Tablet (768px)"
                                 >
                                   <Tablet className="w-3 h-3" />
                                 </button>
                                 <button
                                   onClick={() => setPreviewViewport('mobile')}
-                                  className={`p-1 rounded ${previewViewport === 'mobile' ? 'bg-blue-600/20 text-blue-300' : 'text-slate-500 hover:text-white'}`}
+                                  className={`p-1 rounded ${previewViewport === 'mobile' ? 'bg-[#C81E3C]/20 text-[#FF8FA3]' : 'text-[#A1A1AA] hover:text-white'}`}
                                   title="Mobile (375px)"
                                 >
                                   <Smartphone className="w-3 h-3" />
@@ -1722,7 +1722,7 @@ export default function CloudCodeStudio({
                                   const url = URL.createObjectURL(blob)
                                   window.open(url, '_blank')
                                 }}
-                                className="p-1 rounded hover:bg-white/[0.06] text-slate-400 hover:text-white"
+                                className="p-1 rounded hover:bg-[#0C0C0E]/[0.06] text-[#71717A] hover:text-white"
                                 title="Open in external browser window"
                               >
                                 <ExternalLink className="w-3 h-3" />
@@ -1733,7 +1733,7 @@ export default function CloudCodeStudio({
                           {/* Iframe Sandbox Canvas */}
                           <div className="flex-1 p-3 flex items-center justify-center overflow-auto bg-[#040608]">
                             <div
-                              className="h-full bg-white rounded-xl shadow-2xl overflow-hidden transition-all duration-300 border border-white/[0.1] relative"
+                              className="h-full bg-[#0C0C0E] rounded-xl shadow-2xl overflow-hidden transition-all duration-300 border border-[#2a2a30]/[0.1] relative"
                               style={{
                                 width: previewViewport === 'mobile' ? '375px' : previewViewport === 'tablet' ? '768px' : '100%',
                                 maxWidth: '100%'
@@ -1744,7 +1744,7 @@ export default function CloudCodeStudio({
                                 title={`Preview - ${activeFile.name}`}
                                 srcDoc={compileSandboxPreviewDocument(activeFile, files)}
                                 sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups"
-                                className="w-full h-full border-0 bg-white"
+                                className="w-full h-full border-0 bg-[#0C0C0E]"
                               />
                             </div>
                           </div>
@@ -1774,26 +1774,26 @@ export default function CloudCodeStudio({
           {/* 4. SPRINT TASKS (DIVISION OF LABOR) VIEW */}
           {activeView === 'tasks' && (
             <div className="p-5 space-y-4 flex-1 overflow-y-auto min-h-0">
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.08] pb-3">
                 <div>
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-blue-400" />
+                    <Layers className="w-4 h-4 text-[#FF8FA3]" />
                     <span>Sprint Engineering Tasks & Division of Labor</span>
                   </h3>
-                  <p className="text-xs text-slate-400">Reassign tasks between AI coding agents and human engineers.</p>
+                  <p className="text-xs text-[#71717A]">Reassign tasks between AI coding agents and human engineers.</p>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleSwitchAllToAI}
-                    className="px-2.5 py-1 rounded-md bg-white/[0.05] hover:bg-white/[0.09] text-slate-200 border border-white/[0.08] text-xs font-medium flex items-center gap-1.5 cursor-pointer"
+                    className="px-2.5 py-1 rounded-md bg-[#0C0C0E]/[0.05] hover:bg-[#0C0C0E]/[0.09] text-[#E4E4E7] border border-[#2a2a30]/[0.08] text-xs font-medium flex items-center gap-1.5 cursor-pointer"
                   >
                     <Bot className="w-3.5 h-3.5" />
                     <span>Switch All to AI</span>
                   </button>
                   <button
                     onClick={handleAutoDistributeDivisionOfLabor}
-                    className="px-2.5 py-1 rounded-md bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 text-xs font-medium flex items-center gap-1.5 cursor-pointer"
+                    className="px-2.5 py-1 rounded-md bg-[#C81E3C]/20 hover:bg-[#C81E3C]/30 text-[#FF8FA3] border border-[#C81E3C]/30 text-xs font-medium flex items-center gap-1.5 cursor-pointer"
                   >
                     <Sliders className="w-3.5 h-3.5" />
                     <span>Auto-Balance</span>
@@ -1803,71 +1803,71 @@ export default function CloudCodeStudio({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* AI Agents Column */}
-                <div className="p-3.5 rounded-xl bg-[#0b0d13] border border-white/[0.08] space-y-2.5">
-                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+                <div className="p-3.5 rounded-xl bg-[#0b0d13] border border-[#2a2a30]/[0.08] space-y-2.5">
+                  <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.06] pb-2">
                     <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                      <Bot className="w-3.5 h-3.5 text-blue-400" />
+                      <Bot className="w-3.5 h-3.5 text-[#FF8FA3]" />
                       <span>AI Coding Agents</span>
                     </span>
-                    <span className="text-[10px] font-mono text-slate-400 font-semibold">
+                    <span className="text-[10px] font-mono text-[#71717A] font-semibold">
                       {engineeringTasks.filter(t => t.assignedTo === 'AI Agent').length} Tasks
                     </span>
                   </div>
 
                   <div className="space-y-2">
                     {engineeringTasks.filter(t => t.assignedTo === 'AI Agent').map(task => (
-                      <div key={task.id} className="p-3 rounded-xl bg-[#141720] border border-white/[0.06] text-xs space-y-2">
+                      <div key={task.id} className="p-3 rounded-xl bg-[#141720] border border-[#2a2a30]/[0.06] text-xs space-y-2">
                         <div className="flex items-start justify-between gap-2">
                           <span className="font-bold text-white">{task.title}</span>
                           <select
                             value={task.assignedTo || 'AI Agent'}
                             onChange={e => handleReassignTask(task.id, e.target.value)}
-                            className="px-2 py-0.5 rounded bg-white/[0.06] text-slate-200 border border-white/[0.08] text-[9px] font-medium"
+                            className="px-2 py-0.5 rounded bg-[#0C0C0E]/[0.06] text-[#E4E4E7] border border-[#2a2a30]/[0.08] text-[9px] font-medium"
                           >
                             <option value="AI Agent">🤖 AI Agent</option>
                             <option value="Human Engineer">👤 Human</option>
                           </select>
                         </div>
-                        <p className="text-[11px] text-slate-400 font-mono">{task.notes}</p>
+                        <p className="text-[11px] text-[#71717A] font-mono">{task.notes}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Human Engineers Column */}
-                <div className="p-3.5 rounded-xl bg-[#0b0d13] border border-white/[0.08] space-y-2.5">
-                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+                <div className="p-3.5 rounded-xl bg-[#0b0d13] border border-[#2a2a30]/[0.08] space-y-2.5">
+                  <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.06] pb-2">
                     <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-blue-400" />
+                      <User className="w-3.5 h-3.5 text-[#FF8FA3]" />
                       <span>Human Engineering Tasks</span>
                     </span>
-                    <span className="text-[10px] font-mono text-blue-300 font-bold">
+                    <span className="text-[10px] font-mono text-[#FF8FA3] font-bold">
                       {engineeringTasks.filter(t => t.assignedTo === 'Human Engineer').length} Tasks
                     </span>
                   </div>
 
                   <div className="space-y-2">
                     {engineeringTasks.filter(t => t.assignedTo === 'Human Engineer').map(task => (
-                      <div key={task.id} className="p-3 rounded-xl bg-[#141720] border border-white/[0.06] text-xs space-y-2">
+                      <div key={task.id} className="p-3 rounded-xl bg-[#141720] border border-[#2a2a30]/[0.06] text-xs space-y-2">
                         <div className="flex items-start justify-between gap-2">
                           <span className="font-bold text-white">{task.title}</span>
                           <select
                             value={task.assignedTo || 'Human Engineer'}
                             onChange={e => handleReassignTask(task.id, e.target.value)}
-                            className="px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 text-[9px] font-bold"
+                            className="px-2 py-0.5 rounded bg-[#C81E3C]/15 text-[#FF8FA3] border border-[#C81E3C]/30 text-[9px] font-bold"
                           >
                             <option value="Human Engineer">👤 Human</option>
                             <option value="AI Agent">🤖 AI Agent</option>
                           </select>
                         </div>
-                        <p className="text-[11px] text-slate-400 font-mono">{task.notes}</p>
+                        <p className="text-[11px] text-[#71717A] font-mono">{task.notes}</p>
                         <div className="flex items-center gap-2 pt-1">
                           <button
                             onClick={() => handleSwitchToAIAndDispatch(task)}
                             disabled={executingTaskId === task.id}
-                            className="px-2.5 py-1 rounded-md bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 font-medium text-[10px] flex items-center gap-1 transition-colors cursor-pointer"
+                            className="px-2.5 py-1 rounded-md bg-[#C81E3C]/20 hover:bg-[#C81E3C]/30 text-[#FF8FA3] border border-[#C81E3C]/30 font-medium text-[10px] flex items-center gap-1 transition-colors cursor-pointer"
                           >
-                            <Play className="w-3 h-3 fill-current text-blue-400" />
+                            <Play className="w-3 h-3 fill-current text-[#FF8FA3]" />
                             <span>Switch to AI & Run</span>
                           </button>
                         </div>

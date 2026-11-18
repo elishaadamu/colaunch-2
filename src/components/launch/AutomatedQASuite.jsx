@@ -137,7 +137,7 @@ export default function AutomatedQASuite({
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-8">
       {/* QA Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 px-6 py-5 rounded-2xl bg-gradient-to-r from-[#0c0e14] via-[#10141e] to-[#0c0e14] border border-white/[0.08] shadow-lg shadow-black/30">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 px-6 py-5 rounded-2xl bg-gradient-to-r from-[#0c0e14] via-[#10141e] to-[#0c0e14] border border-[#2a2a30]/[0.08] shadow-lg shadow-black/30">
         <div className="flex items-center gap-3.5 min-w-0">
           <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
             <ShieldCheck className="w-5 h-5" />
@@ -145,11 +145,11 @@ export default function AutomatedQASuite({
           <div className="min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h2 className="text-sm sm:text-base font-bold text-white whitespace-nowrap">AI Task & Code QA</h2>
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/[0.06] text-slate-300 border border-white/[0.1] font-mono whitespace-nowrap">
+              <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#0C0C0E]/[0.06] text-[#D4D4D8] border border-[#2a2a30]/[0.1] font-mono whitespace-nowrap">
                 Automated QA Engine
               </span>
             </div>
-            <p className="text-xs text-slate-400 truncate mt-0.5">
+            <p className="text-xs text-[#71717A] truncate mt-0.5">
               Auditing project code files against sprint tasks & custom testing prompts.
             </p>
           </div>
@@ -186,13 +186,13 @@ export default function AutomatedQASuite({
       </div>
 
       {/* 1. Custom Test Prompt Runner */}
-      <div className="px-5 py-4 rounded-xl bg-[#090b0e] border border-white/[0.08] space-y-3">
+      <div className="px-5 py-4 rounded-xl bg-[#090b0e] border border-[#2a2a30]/[0.08] space-y-3">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-bold text-slate-200 flex items-center gap-2">
-            <Terminal className="w-3.5 h-3.5 text-blue-400" />
+          <label className="text-xs font-bold text-[#E4E4E7] flex items-center gap-2">
+            <Terminal className="w-3.5 h-3.5 text-[#FF8FA3]" />
             <span>Run Custom Code Verification Prompt</span>
           </label>
-          <span className="text-[11px] text-slate-500 font-mono">
+          <span className="text-[11px] text-[#A1A1AA] font-mono">
             Tests {files.length} active code files
           </span>
         </div>
@@ -203,13 +203,13 @@ export default function AutomatedQASuite({
             value={customPrompt}
             onChange={e => setCustomPrompt(e.target.value)}
             placeholder="e.g. Test that index.html has a working hero section, responsive layout, and dark theme..."
-            className="flex-1 px-3 py-1.5 rounded-lg bg-[#06080a] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none focus:border-blue-500/50 font-mono"
+            className="flex-1 px-3 py-1.5 rounded-lg bg-[#06080a] border border-[#2a2a30]/[0.08] text-xs text-white placeholder-[#A1A1AA] outline-none focus:border-[#C81E3C]/50 font-mono"
           />
 
           <button
             type="submit"
             disabled={isVerifyingCustom || !customPrompt.trim()}
-            className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 cursor-pointer shadow-xs shrink-0"
+            className="px-3.5 py-1.5 rounded-lg bg-[#C81E3C] hover:bg-[#C81E3C] text-white text-xs font-medium flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 cursor-pointer shadow-xs shrink-0"
           >
             {isVerifyingCustom ? (
               <>
@@ -227,7 +227,7 @@ export default function AutomatedQASuite({
 
         {/* Quick prompt chips */}
         <div className="flex items-center gap-2 flex-wrap pt-1">
-          <span className="text-[10px] text-slate-500">Quick tests:</span>
+          <span className="text-[10px] text-[#A1A1AA]">Quick tests:</span>
           {[
             'Verify HTML & modern responsive styling',
             'Check JavaScript event listeners & state interactivity',
@@ -238,7 +238,7 @@ export default function AutomatedQASuite({
               key={i}
               type="button"
               onClick={() => setCustomPrompt(promptText)}
-              className="text-[10px] px-2.5 py-1 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 hover:text-slate-200 border border-white/[0.04] transition-colors"
+              className="text-[10px] px-2.5 py-1 rounded-lg bg-[#0C0C0E]/[0.03] hover:bg-[#0C0C0E]/[0.08] text-[#71717A] hover:text-[#E4E4E7] border border-[#2a2a30]/[0.04] transition-colors"
             >
               {promptText}
             </button>
@@ -262,18 +262,18 @@ export default function AutomatedQASuite({
                 <div>
                   <div className="text-xs font-bold text-white flex items-center gap-2">
                     <span>{customResult.passed ? 'Test Passed' : 'Action Required'}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.1] font-mono">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#0C0C0E]/[0.1] font-mono">
                       Score: {customResult.score}%
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 mt-0.5">{customResult.summary}</p>
+                  <p className="text-xs text-[#D4D4D8] mt-0.5">{customResult.summary}</p>
                 </div>
               </div>
             </div>
 
             {/* Checks list */}
             {Array.isArray(customResult.checks) && customResult.checks.length > 0 && (
-              <div className="space-y-1.5 pt-2 border-t border-white/[0.08]">
+              <div className="space-y-1.5 pt-2 border-t border-[#2a2a30]/[0.08]">
                 {customResult.checks.map((check, idx) => (
                   <div key={idx} className="flex items-start gap-2 text-[11px]">
                     <span className={`mt-0.5 shrink-0 ${check.status === 'Passed' ? 'text-emerald-400' : 'text-amber-400'}`}>
@@ -281,7 +281,7 @@ export default function AutomatedQASuite({
                     </span>
                     <div>
                       <span className="font-bold text-white">{check.name}: </span>
-                      <span className="text-slate-300">{check.detail}</span>
+                      <span className="text-[#D4D4D8]">{check.detail}</span>
                     </div>
                   </div>
                 ))}
@@ -292,28 +292,28 @@ export default function AutomatedQASuite({
       </div>
 
       {/* 2. Sprint Tasks Real QA Table */}
-      <div className="p-5 rounded-2xl bg-[#090b0e] border border-white/[0.08] space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.06] pb-3">
+      <div className="p-5 rounded-2xl bg-[#090b0e] border border-[#2a2a30]/[0.08] space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2a2a30]/[0.06] pb-3">
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-blue-400" />
+            <Layers className="w-4 h-4 text-[#FF8FA3]" />
             <h3 className="text-sm font-bold text-white">Sprint Tasks Verification Matrix</h3>
-            <span className="text-xs text-slate-400">({engineeringTasks.length} tasks)</span>
+            <span className="text-xs text-[#71717A]">({engineeringTasks.length} tasks)</span>
           </div>
 
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-[#A1A1AA] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search sprint tasks..."
               value={searchFilter}
               onChange={e => setSearchFilter(e.target.value)}
-              className="pl-8 pr-3 py-1 rounded-lg bg-[#06080a] border border-white/[0.08] text-xs text-white placeholder-slate-500 outline-none w-48 font-mono"
+              className="pl-8 pr-3 py-1 rounded-lg bg-[#06080a] border border-[#2a2a30]/[0.08] text-xs text-white placeholder-[#A1A1AA] outline-none w-48 font-mono"
             />
           </div>
         </div>
 
         {filteredTasks.length === 0 ? (
-          <div className="text-center py-10 text-slate-500 text-xs">
+          <div className="text-center py-10 text-[#A1A1AA] text-xs">
             No sprint engineering tasks match your search.
           </div>
         ) : (
@@ -331,7 +331,7 @@ export default function AutomatedQASuite({
                       ? 'bg-emerald-950/10 border-emerald-500/20'
                       : result && !result.passed
                       ? 'bg-amber-950/10 border-amber-500/20'
-                      : 'bg-[#0c0e14] border-white/[0.06]'
+                      : 'bg-[#0c0e14] border-[#2a2a30]/[0.06]'
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -340,13 +340,13 @@ export default function AutomatedQASuite({
                         <span className={`w-2 h-2 rounded-full shrink-0 ${isDone ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
                         <h4 className="text-xs font-bold text-white truncate">{task.title}</h4>
                       </div>
-                      <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                        <span className="px-2 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06] flex items-center gap-1">
-                          {task.assignedTo === 'AI Agent' ? <Bot className="w-3 h-3 text-blue-400" /> : <User className="w-3 h-3 text-emerald-400" />}
+                      <div className="flex items-center gap-2 text-[10px] text-[#71717A]">
+                        <span className="px-2 py-0.5 rounded bg-[#0C0C0E]/[0.04] text-[#71717A] border border-[#2a2a30]/[0.06] flex items-center gap-1">
+                          {task.assignedTo === 'AI Agent' ? <Bot className="w-3 h-3 text-[#FF8FA3]" /> : <User className="w-3 h-3 text-emerald-400" />}
                           <span>{task.assignedTo || 'AI Agent'}</span>
                         </span>
                         {task.category && (
-                          <span className="px-2 py-0.5 rounded bg-white/[0.04] text-slate-400 font-mono">
+                          <span className="px-2 py-0.5 rounded bg-[#0C0C0E]/[0.04] text-[#71717A] font-mono">
                             {task.category}
                           </span>
                         )}
@@ -362,7 +362,7 @@ export default function AutomatedQASuite({
                       <button
                         onClick={() => handleVerifySingleTask(task)}
                         disabled={isChecking || isVerifyingAll}
-                        className="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-40"
+                        className="px-3 py-1.5 rounded-lg bg-[#C81E3C]/20 hover:bg-[#C81E3C]/30 text-[#FF8FA3] border border-[#C81E3C]/30 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-40"
                       >
                         {isChecking ? (
                           <>
@@ -381,14 +381,14 @@ export default function AutomatedQASuite({
 
                   {/* Task Evaluation Details */}
                   {result && (
-                    <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2 text-xs">
+                    <div className="mt-3 pt-3 border-t border-[#2a2a30]/[0.06] space-y-2 text-xs">
                       <div className="flex items-center justify-between">
                         <span className={`font-bold ${result.passed ? 'text-emerald-400' : 'text-amber-400'}`}>
                           {result.passed ? '✓ Requirements Satisfied' : '⚠️ Action Needed'}
                         </span>
-                        <span className="text-[10px] font-mono text-slate-400">Match Score: {result.score}%</span>
+                        <span className="text-[10px] font-mono text-[#71717A]">Match Score: {result.score}%</span>
                       </div>
-                      <p className="text-[11px] text-slate-300">{result.summary}</p>
+                      <p className="text-[11px] text-[#D4D4D8]">{result.summary}</p>
 
                       {Array.isArray(result.checks) && result.checks.length > 0 && (
                         <div className="space-y-1 pt-1">
@@ -397,8 +397,8 @@ export default function AutomatedQASuite({
                               <span className={c.status === 'Passed' ? 'text-emerald-400' : 'text-amber-400'}>
                                 {c.status === 'Passed' ? '✓' : '•'}
                               </span>
-                              <span className="text-slate-400 font-mono">{c.name}:</span>
-                              <span className="text-slate-200">{c.detail}</span>
+                              <span className="text-[#71717A] font-mono">{c.name}:</span>
+                              <span className="text-[#E4E4E7]">{c.detail}</span>
                             </div>
                           ))}
                         </div>

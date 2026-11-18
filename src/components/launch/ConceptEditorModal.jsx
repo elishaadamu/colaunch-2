@@ -120,10 +120,10 @@ export default function ConceptEditorModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden text-slate-900">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#030304]/75 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-[#0C0C0E] rounded-2xl border border-[#2a2a30] shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden text-[#FAFAFA]">
         {/* Header */}
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+        <div className="p-4 border-b border-[#1C1C20] flex items-center justify-between bg-[#111114]/80">
           <div className="flex items-center gap-2.5">
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-xs"
@@ -132,10 +132,10 @@ export default function ConceptEditorModal({
               #{conceptIndex + 1}
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 font-display">
+              <h3 className="text-sm font-bold text-[#FAFAFA] font-display">
                 Edit Concept #{conceptIndex + 1}: {formData.name || "Untitled"}
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#A1A1AA]">
                 Customize deck properties, brand colors, features & revenue metrics
               </p>
             </div>
@@ -143,7 +143,7 @@ export default function ConceptEditorModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#71717A] hover:text-[#D4D4D8] hover:bg-[#18181C] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -154,49 +154,49 @@ export default function ConceptEditorModal({
           {/* Row 1: Concept Name & Score */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2 space-y-1">
-              <label className="font-bold text-slate-700 block">SaaS Concept Name</label>
+              <label className="font-bold text-[#D4D4D8] block">SaaS Concept Name</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleTextChange("name", e.target.value)}
                 placeholder="e.g. Actionable OS"
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs font-semibold"
+                className="w-full px-3 py-2 rounded-xl border border-[#2a2a30] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs font-semibold"
                 required
               />
             </div>
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 block">Score (0-100)</label>
+              <label className="font-bold text-[#D4D4D8] block">Score (0-100)</label>
               <input
                 type="number"
                 min="60"
                 max="100"
                 value={formData.opportunityScore}
                 onChange={(e) => handleTextChange("opportunityScore", Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl border border-[#2a2a30] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs font-mono font-bold"
               />
             </div>
           </div>
 
           {/* Tagline */}
           <div className="space-y-1">
-            <label className="font-bold text-slate-700 block">Value Proposition / Tagline</label>
+            <label className="font-bold text-[#D4D4D8] block">Value Proposition / Tagline</label>
             <input
               type="text"
               value={formData.tagline}
               onChange={(e) => handleTextChange("tagline", e.target.value)}
               placeholder="e.g. The all-in-one execution dashboard for creators"
-              className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs"
+              className="w-full px-3 py-2 rounded-xl border border-[#2a2a30] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs"
             />
           </div>
 
           {/* Brand Color Theme Palette */}
-          <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
-            <label className="font-bold text-slate-700 flex items-center justify-between">
+          <div className="space-y-1.5 p-3 rounded-xl bg-[#111114] border border-[#2a2a30]">
+            <label className="font-bold text-[#D4D4D8] flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <Palette className="w-3.5 h-3.5 text-slate-700" />
+                <Palette className="w-3.5 h-3.5 text-[#D4D4D8]" />
                 <span>Custom Brand Accent Color</span>
               </span>
-              <span className="font-mono text-[10px] text-slate-500">{formData.brandColor}</span>
+              <span className="font-mono text-[10px] text-[#A1A1AA]">{formData.brandColor}</span>
             </label>
             <div className="flex items-center gap-2 flex-wrap pt-1">
               {BRAND_COLORS.map((bc) => (
@@ -206,8 +206,8 @@ export default function ConceptEditorModal({
                   onClick={() => handleTextChange("brandColor", bc.hex)}
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold transition-all cursor-pointer ${
                     formData.brandColor.toLowerCase() === bc.hex.toLowerCase()
-                      ? "border-slate-900 bg-white shadow-xs ring-2 ring-slate-900/10"
-                      : "border-slate-200 bg-white hover:border-slate-300"
+                      ? "border-[#222227] bg-[#0C0C0E] shadow-xs ring-2 ring-[#222227]/10"
+                      : "border-[#2a2a30] bg-[#0C0C0E] hover:border-[#3a3a42]"
                   }`}
                 >
                   <span className="w-3 h-3 rounded-full" style={{ backgroundColor: bc.hex }} />
@@ -227,14 +227,14 @@ export default function ConceptEditorModal({
           </div>
 
           {/* Mockup Canvas Style & Concept Image Designed by AI / Admin */}
-          <div className="space-y-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
+          <div className="space-y-2.5 p-3 rounded-xl bg-[#111114] border border-[#2a2a30]">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="font-bold text-slate-700 block">Landing Page Visual Style</label>
+                <label className="font-bold text-[#D4D4D8] block">Landing Page Visual Style</label>
                 <select
                   value={formData.mockupType}
                   onChange={(e) => handleTextChange("mockupType", e.target.value)}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium cursor-pointer"
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-[#2a2a30] bg-[#0C0C0E] text-xs font-medium cursor-pointer"
                 >
                   <option value="saas_os">Modern Dark SaaS Landing Page (Coachly Style)</option>
                   <option value="ai_copilot">Editorial AI Copilot Landing Page (study100 Style)</option>
@@ -243,12 +243,12 @@ export default function ConceptEditorModal({
               </div>
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="font-bold text-slate-700 block">Concept Image URL</label>
+                  <label className="font-bold text-[#D4D4D8] block">Concept Image URL</label>
                   {formData.customImageUrl && (
                     <button
                       type="button"
                       onClick={() => handleTextChange("customImageUrl", "")}
-                      className="text-[10px] text-slate-400 hover:text-slate-600 underline cursor-pointer"
+                      className="text-[10px] text-[#71717A] hover:text-[#A1A1AA] underline cursor-pointer"
                     >
                       Reset to default
                     </button>
@@ -259,14 +259,14 @@ export default function ConceptEditorModal({
                   value={formData.customImageUrl}
                   onChange={(e) => handleTextChange("customImageUrl", e.target.value)}
                   placeholder="https://... (override with custom screenshot or image URL)"
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-mono"
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-[#2a2a30] bg-[#0C0C0E] text-xs font-mono"
                 />
               </div>
             </div>
 
             {/* Quick 1-Click AI Image Presets */}
-            <div className="pt-1 border-t border-slate-200/70 space-y-1">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+            <div className="pt-1 border-t border-[#2a2a30]/70 space-y-1">
+              <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider block">
                 Quick AI Mockup Image Presets:
               </span>
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -283,8 +283,8 @@ export default function ConceptEditorModal({
                     onClick={() => handleTextChange("customImageUrl", preset.url)}
                     className={`px-2 py-0.5 rounded-md border text-[10px] font-semibold transition-all cursor-pointer ${
                       formData.customImageUrl === preset.url
-                        ? "bg-slate-900 text-white border-slate-900 shadow-2xs"
-                        : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                        ? "bg-[#050506] text-white border-[#222227] shadow-2xs"
+                        : "bg-[#0C0C0E] text-[#D4D4D8] border-[#2a2a30] hover:border-[#3a3a42] hover:bg-[#111114]"
                     }`}
                   >
                     {preset.label}
@@ -296,7 +296,7 @@ export default function ConceptEditorModal({
             {/* Thumbnail Preview */}
             {(formData.customImageUrl || formData.imageUrl) && (
               <div className="flex items-center gap-3 pt-1">
-                <div className="w-16 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-900 flex-shrink-0">
+                <div className="w-16 h-10 rounded-lg overflow-hidden border border-[#2a2a30] bg-[#050506] flex-shrink-0">
                   <img
                     src={formData.customImageUrl || formData.imageUrl}
                     alt="Concept preview"
@@ -304,8 +304,8 @@ export default function ConceptEditorModal({
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
                 </div>
-                <div className="text-[11px] text-slate-500">
-                  <span className="font-semibold text-slate-700 block">Outbound Email Visual:</span>
+                <div className="text-[11px] text-[#A1A1AA]">
+                  <span className="font-semibold text-[#D4D4D8] block">Outbound Email Visual:</span>
                   This image will be rendered on the concept card in the Step 5 proposal email.
                 </div>
               </div>
@@ -313,30 +313,30 @@ export default function ConceptEditorModal({
           </div>
 
           {/* Demographic & Audience Research Linkage */}
-          <div className="space-y-2 p-3 rounded-xl bg-slate-50 border border-slate-200">
-            <span className="font-bold text-slate-900 block flex items-center gap-1.5">
-              <Target className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="space-y-2 p-3 rounded-xl bg-[#111114] border border-[#2a2a30]">
+            <span className="font-bold text-[#FAFAFA] block flex items-center gap-1.5">
+              <Target className="w-3.5 h-3.5 text-emerald-300" />
               <span>Audience & Demographic Research Alignment</span>
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
-                <label className="text-[10px] font-bold text-slate-600 block">Target Customer Persona</label>
+                <label className="text-[10px] font-bold text-[#A1A1AA] block">Target Customer Persona</label>
                 <input
                   type="text"
                   value={formData.customer}
                   onChange={(e) => handleTextChange("customer", e.target.value)}
                   placeholder="e.g. Knowledge workers, agency founders"
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-900"
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-[#2a2a30] bg-[#0C0C0E] text-xs text-[#FAFAFA]"
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-slate-600 block">Demographic Match</label>
+                <label className="text-[10px] font-bold text-[#A1A1AA] block">Demographic Match</label>
                 <input
                   type="text"
                   value={formData.demographicAlignment}
                   onChange={(e) => handleTextChange("demographicAlignment", e.target.value)}
                   placeholder="e.g. 24-42 Yrs • High digital budget"
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-900"
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-[#2a2a30] bg-[#0C0C0E] text-xs text-[#FAFAFA]"
                 />
               </div>
             </div>
@@ -345,32 +345,32 @@ export default function ConceptEditorModal({
           {/* Problem Statement & Audience Evidence */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 block">Core Problem Solved</label>
+              <label className="font-bold text-[#D4D4D8] block">Core Problem Solved</label>
               <textarea
                 rows={2}
                 value={formData.problem}
                 onChange={(e) => handleTextChange("problem", e.target.value)}
                 placeholder="What friction in the audience's workflow does this eliminate?"
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs leading-relaxed"
+                className="w-full p-2.5 rounded-xl border border-[#2a2a30] text-xs leading-relaxed"
               />
             </div>
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 block">Audience Evidence / Quote</label>
+              <label className="font-bold text-[#D4D4D8] block">Audience Evidence / Quote</label>
               <textarea
                 rows={2}
                 value={formData.audienceEvidence}
                 onChange={(e) => handleTextChange("audienceEvidence", e.target.value)}
                 placeholder="e.g. 450+ recurring community questions asking for this tool"
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs leading-relaxed italic"
+                className="w-full p-2.5 rounded-xl border border-[#2a2a30] text-xs leading-relaxed italic"
               />
             </div>
           </div>
 
           {/* Key Features List (Dynamic) */}
-          <div className="space-y-2 p-3 rounded-xl bg-slate-50 border border-slate-200">
+          <div className="space-y-2 p-3 rounded-xl bg-[#111114] border border-[#2a2a30]">
             <div className="flex items-center justify-between">
-              <label className="font-bold text-slate-700 flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-emerald-600" />
+              <label className="font-bold text-[#D4D4D8] flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-emerald-300" />
                 <span>Key MVP Features ({formData.keyFeatures.length})</span>
               </label>
             </div>
@@ -381,12 +381,12 @@ export default function ConceptEditorModal({
                     type="text"
                     value={feat}
                     onChange={(e) => handleUpdateFeature(idx, e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs"
+                    className="flex-1 px-2.5 py-1.5 rounded-lg border border-[#2a2a30] bg-[#0C0C0E] text-xs"
                   />
                   <button
                     type="button"
                     onClick={() => handleRemoveFeature(idx)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                    className="p-1.5 rounded-lg text-[#71717A] hover:text-rose-300 hover:bg-rose-500/10 transition-colors cursor-pointer"
                     title="Remove feature"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -406,12 +406,12 @@ export default function ConceptEditorModal({
                   }
                 }}
                 placeholder="Add a new feature..."
-                className="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs"
+                className="flex-1 px-2.5 py-1.5 rounded-lg border border-[#2a2a30] bg-[#0C0C0E] text-xs"
               />
               <button
                 type="button"
                 onClick={handleAddFeature}
-                className="px-3 py-1.5 rounded-lg bg-slate-900 text-white font-bold text-xs flex items-center gap-1 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-[#050506] text-white font-bold text-xs flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" /> Add
               </button>
@@ -421,61 +421,61 @@ export default function ConceptEditorModal({
           {/* Pricing & Commercial Projections */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 block">Pricing Tiers</label>
+              <label className="font-bold text-[#D4D4D8] block">Pricing Tiers</label>
               <input
                 type="text"
                 value={formData.pricing}
                 onChange={(e) => handleTextChange("pricing", e.target.value)}
                 placeholder="$49/mo Starter / $99/mo Pro"
-                className="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-mono font-bold text-emerald-700"
+                className="w-full px-2.5 py-1.5 rounded-xl border border-[#2a2a30] text-xs font-mono font-bold text-emerald-300"
               />
             </div>
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 block">MRR Projected</label>
+              <label className="font-bold text-[#D4D4D8] block">MRR Projected</label>
               <input
                 type="text"
                 value={formData.mockup.primaryMetric}
                 onChange={(e) => handleMockupChange("primaryMetric", e.target.value)}
                 placeholder="$22.4K MRR"
-                className="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-mono font-bold text-emerald-700"
+                className="w-full px-2.5 py-1.5 rounded-xl border border-[#2a2a30] text-xs font-mono font-bold text-emerald-300"
               />
             </div>
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 block">Active Users Target</label>
+              <label className="font-bold text-[#D4D4D8] block">Active Users Target</label>
               <input
                 type="text"
                 value={formData.mockup.activeMetric}
                 onChange={(e) => handleMockupChange("activeMetric", e.target.value)}
                 placeholder="1,200"
-                className="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-800"
+                className="w-full px-2.5 py-1.5 rounded-xl border border-[#2a2a30] text-xs font-mono font-bold text-[#E4E4E7]"
               />
             </div>
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 block">Retention / Performance</label>
+              <label className="font-bold text-[#D4D4D8] block">Retention / Performance</label>
               <input
                 type="text"
                 value={formData.mockup.efficiencyMetric}
                 onChange={(e) => handleMockupChange("efficiencyMetric", e.target.value)}
                 placeholder="91%"
-                className="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-mono font-bold text-cyan-700"
+                className="w-full px-2.5 py-1.5 rounded-xl border border-[#2a2a30] text-xs font-mono font-bold text-cyan-700"
               />
             </div>
           </div>
         </form>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/80">
+        <div className="p-4 border-t border-[#1C1C20] flex items-center justify-between bg-[#111114]/80">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors cursor-pointer text-xs"
+            className="px-4 py-2 rounded-xl border border-[#2a2a30] text-[#A1A1AA] font-bold hover:bg-[#18181C] transition-colors cursor-pointer text-xs"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSubmit}
-            className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all shadow-md active:scale-98 flex items-center gap-1.5 cursor-pointer text-xs"
+            className="px-5 py-2 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold transition-all shadow-md active:scale-98 flex items-center gap-1.5 cursor-pointer text-xs"
           >
             <Check className="w-4 h-4 text-emerald-400" />
             <span>Save Concept Changes</span>

@@ -1279,12 +1279,12 @@ export default function CreatorLaunchLayout({
             <button
               type="button"
               onClick={() => setShowSection1Sidebar(!showSection1Sidebar)}
-              className="flex sm:hidden items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-900 shadow-2xs"
+              className="flex sm:hidden items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] text-xs font-semibold text-[#FAFAFA] shadow-2xs"
               title="Open Section 1 Steps Sidebar"
             >
-              <Target className="w-3.5 h-3.5 text-emerald-600" />
+              <Target className="w-3.5 h-3.5 text-emerald-300" />
               <span className="text-[11px] font-bold">Step {section1ActiveStep}</span>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
+              <ChevronDown className="w-3 h-3 text-[#71717A]" />
             </button>
           )}
 
@@ -1292,13 +1292,13 @@ export default function CreatorLaunchLayout({
             <button
               type="button"
               onClick={() => setShowPartnerMenu(!showPartnerMenu)}
-              className="flex sm:hidden items-center gap-1 px-2 py-1 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-900 shadow-2xs"
+              className="flex sm:hidden items-center gap-1 px-2 py-1 rounded-lg bg-[#0C0C0E] border border-[#2a2a30] text-xs font-semibold text-[#FAFAFA] shadow-2xs"
               title="Switch Partner"
             >
-              <div className="w-5 h-5 rounded-full overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-800">
+              <div className="w-5 h-5 rounded-full overflow-hidden bg-[#18181C] border border-[#2a2a30] flex items-center justify-center text-[10px] font-bold text-[#E4E4E7]">
                 {(activeProject?.creatorName || activeProject?.creatorHandle || 'P').charAt(0).toUpperCase()}
               </div>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
+              <ChevronDown className="w-3 h-3 text-[#71717A]" />
             </button>
           )}
 
@@ -1493,7 +1493,7 @@ export default function CreatorLaunchLayout({
                         </div>
                       </div>
                       {isCur ? (
-                        <span className="w-2 h-2 rounded-full bg-white mt-1.5 shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-[#0C0C0E] mt-1.5 shrink-0" />
                       ) : isDone ? (
                         <span className="w-4 h-4 rounded-lg bg-[#C81E3C] text-white flex items-center justify-center mt-1 shrink-0">
                           <Check className="w-2.5 h-2.5 stroke-[3]" />
@@ -1550,7 +1550,7 @@ export default function CreatorLaunchLayout({
           >
             <Zap className="w-3.5 h-3.5 text-amber-400" />
             <span>Co-Builders</span>
-            <ExternalLink className="w-2.5 h-2.5 text-slate-400" />
+            <ExternalLink className="w-2.5 h-2.5 text-[#71717A]" />
           </a>
         </div>
 
@@ -1581,18 +1581,18 @@ export default function CreatorLaunchLayout({
         ) : isSwitchingCreator ? (
           <div className="space-y-6 w-full max-w-full animate-fade-in">
             {/* Minimalist Linear-style workspace switching indicator */}
-            <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs shadow-2xs">
+            <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] text-xs shadow-2xs">
               <div className="flex items-center gap-2.5">
-                <Loader2 className="w-3.5 h-3.5 text-emerald-600 animate-spin flex-shrink-0" />
-                <span className="text-slate-600">
-                  Switching workspace to <span className="text-slate-900 font-semibold">{switchingTarget?.name || 'Partner'}</span>
+                <Loader2 className="w-3.5 h-3.5 text-emerald-300 animate-spin flex-shrink-0" />
+                <span className="text-[#A1A1AA]">
+                  Switching workspace to <span className="text-[#FAFAFA] font-semibold">{switchingTarget?.name || 'Partner'}</span>
                 </span>
-                <span className="text-slate-300">•</span>
-                <span className="text-slate-500 font-mono text-[11px] truncate max-w-[240px]">
+                <span className="text-[#D4D4D8]">•</span>
+                <span className="text-[#A1A1AA] font-mono text-[11px] truncate max-w-[240px]">
                   {switchingTarget?.productName || 'Project OS'}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500">
+              <div className="flex items-center gap-2 text-[11px] font-mono text-[#A1A1AA]">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                 <span>Syncing Workspace</span>
               </div>
@@ -1613,13 +1613,13 @@ export default function CreatorLaunchLayout({
             isDIY={Boolean(activeProject?.isDIY || activeProject?.diySubscription?.active)}
           />
         ) : (
-          <div className="p-10 rounded-2xl bg-white border border-slate-200/90 text-center space-y-5 max-w-lg mx-auto my-12 shadow-sm">
-            <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto text-slate-900">
-              <Layers className="w-6 h-6 text-emerald-600" />
+          <div className="p-10 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30]/90 text-center space-y-5 max-w-lg mx-auto my-12 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-[#18181C] border border-[#2a2a30] flex items-center justify-center mx-auto text-[#FAFAFA]">
+              <Layers className="w-6 h-6 text-emerald-300" />
             </div>
             <div className="space-y-1.5">
-              <h2 className="text-base font-bold text-slate-900 font-display">No Active Co-Launch Project</h2>
-              <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
+              <h2 className="text-base font-bold text-[#FAFAFA] font-display">No Active Co-Launch Project</h2>
+              <p className="text-xs text-[#A1A1AA] leading-relaxed max-w-md mx-auto">
                 You haven't partnered with a creator yet. Qualify and pitch a lead in Section 1 to launch a live project, or initialize a demo venture below.
               </p>
             </div>
@@ -1627,7 +1627,7 @@ export default function CreatorLaunchLayout({
               <button
                 type="button"
                 onClick={() => setActiveSection('section1')}
-                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors cursor-pointer shadow-2xs"
+                className="px-4 py-2 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] font-semibold text-xs border border-[#2a2a30] transition-colors cursor-pointer shadow-2xs"
               >
                 Go to Section 1: Acquisition
               </button>
@@ -1648,7 +1648,7 @@ export default function CreatorLaunchLayout({
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200/80 py-4 text-center text-xs text-slate-500 bg-white">
+      <footer className="border-t border-[#2a2a30]/80 py-4 text-center text-xs text-[#A1A1AA] bg-[#0C0C0E]">
         <p>CoLaunch Launch Engine OS &copy; {new Date().getFullYear()}</p>
       </footer>
 

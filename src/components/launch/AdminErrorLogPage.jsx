@@ -100,9 +100,9 @@ export default function AdminErrorLogPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090b0e] text-slate-100 font-sans flex flex-col">
+    <div className="min-h-screen bg-[#090b0e] text-[#F4F4F5] font-sans flex flex-col">
       {/* Top Navbar */}
-      <header className="h-14 border-b border-white/[0.08] bg-[#0d0f14]/95 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6">
+      <header className="h-14 border-b border-[#2a2a30]/[0.08] bg-[#0d0f14]/95 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-3 sm:gap-4">
           <div
             className="flex items-center gap-2.5 cursor-pointer group"
@@ -124,7 +124,7 @@ export default function AdminErrorLogPage() {
           <div className="h-4 w-px bg-white/10 hidden sm:block" />
 
           <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-300">
+            <span className="text-xs font-semibold text-[#D4D4D8]">
               Pipeline Intelligence & Exception Dashboard
             </span>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30 font-mono">
@@ -148,10 +148,10 @@ export default function AdminErrorLogPage() {
           <button
             type="button"
             onClick={() => window.open("/launch", "_blank")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0C0C0E]/[0.04] hover:bg-[#0C0C0E]/[0.08] border border-[#2a2a30]/[0.08] text-[#D4D4D8] hover:text-white text-xs font-bold transition-all cursor-pointer"
           >
             <span>Open Launch OS</span>
-            <ExternalLink className="w-3 h-3 text-slate-400" />
+            <ExternalLink className="w-3 h-3 text-[#71717A]" />
           </button>
         </div>
       </header>
@@ -161,7 +161,7 @@ export default function AdminErrorLogPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-4">
             <RefreshCw className="w-8 h-8 text-rose-400 animate-spin" />
-            <p className="text-sm font-semibold text-slate-400 font-mono">
+            <p className="text-sm font-semibold text-[#71717A] font-mono">
               Auditing Pipeline & Exception Logs in PostgreSQL...
             </p>
           </div>
@@ -189,7 +189,7 @@ export default function AdminErrorLogPage() {
                 ? "bg-[#0b1b13]/95 border-emerald-500/30 text-emerald-300"
                 : toast.type === "error"
                   ? "bg-[#1f0e12]/95 border-rose-500/30 text-rose-300"
-                  : "bg-[#0f1422]/95 border-blue-500/30 text-blue-300"
+                  : "bg-[#0f1422]/95 border-[#C81E3C]/30 text-[#FF8FA3]"
               }`}
           >
             {toast.type === "success" ? (
@@ -203,7 +203,7 @@ export default function AdminErrorLogPage() {
             </div>
             <button
               onClick={() => setToast(null)}
-              className="text-slate-400 hover:text-white p-1 ml-2"
+              className="text-[#71717A] hover:text-white p-1 ml-2"
             >
               <X className="w-3.5 h-3.5" />
             </button>

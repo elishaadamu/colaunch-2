@@ -347,9 +347,9 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
   const meetingNotesList = Array.isArray(project?.meetingNotes) ? project.meetingNotes : []
 
   return (
-    <div className="rounded-2xl bg-[#0b141a] border border-white/[0.1] shadow-2xl overflow-hidden flex flex-col h-[650px] relative font-sans">
+    <div className="rounded-2xl bg-[#0b141a] border border-[#2a2a30]/[0.1] shadow-2xl overflow-hidden flex flex-col h-[650px] relative font-sans">
       {/* ── 1. WHATSAPP APP BAR HEADER ── */}
-      <div className="bg-[#1f2c34] px-4 py-3 border-b border-white/[0.08] flex items-center justify-between text-white z-10 shrink-0">
+      <div className="bg-[#1f2c34] px-4 py-3 border-b border-[#2a2a30]/[0.08] flex items-center justify-between text-white z-10 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <div className="relative shrink-0">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-emerald-500 p-0.5 shadow-md">
@@ -376,10 +376,10 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
                 <span>Co-Founder</span>
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 flex items-center gap-1.5 truncate">
+            <p className="text-[11px] text-[#71717A] flex items-center gap-1.5 truncate">
               <span className="text-emerald-400 font-medium">Verified Partner</span>
               <span>•</span>
-              <span className="text-slate-300">{niche} ({creatorHandle})</span>
+              <span className="text-[#D4D4D8]">{niche} ({creatorHandle})</span>
             </p>
           </div>
         </div>
@@ -401,9 +401,9 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
       </div>
 
       {/* Recipient Email & Direct Inbox Delivery Bar */}
-      <div className="px-4 py-2 bg-[#111b21] border-b border-white/[0.06] flex items-center justify-between gap-3 text-xs flex-wrap">
+      <div className="px-4 py-2 bg-[#111b21] border-b border-[#2a2a30]/[0.06] flex items-center justify-between gap-3 text-xs flex-wrap">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-[11px] text-slate-400 font-medium">Delivering messages to:</span>
+          <span className="text-[11px] text-[#71717A] font-medium">Delivering messages to:</span>
           {isEditingEmail ? (
             <div className="flex items-center gap-1.5">
               <input
@@ -432,7 +432,7 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
           <button
             type="button"
             onClick={() => setIsEditingEmail(!isEditingEmail)}
-            className="text-[10px] text-slate-400 hover:text-white underline cursor-pointer"
+            className="text-[10px] text-[#71717A] hover:text-white underline cursor-pointer"
           >
             {isEditingEmail ? 'Cancel' : 'Change'}
           </button>
@@ -455,7 +455,7 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
       <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-[#0b141a] bg-[radial-gradient(#1f2c34_1px,transparent_1px)] [background-size:16px_16px]">
         {/* Date / Channel Badge */}
         <div className="flex justify-center">
-          <span className="px-3 py-1 rounded-lg bg-[#182229] border border-white/[0.06] text-[10px] font-bold text-slate-400 uppercase tracking-wider shadow-xs">
+          <span className="px-3 py-1 rounded-lg bg-[#182229] border border-[#2a2a30]/[0.06] text-[10px] font-bold text-[#71717A] uppercase tracking-wider shadow-xs">
             Section 1 Acquisition & Direct Dialogue
           </span>
         </div>
@@ -463,28 +463,28 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
         {/* ── RECORDED MEETING NOTES LIST (IF RECORDED) ── */}
         {meetingNotesList.map((m) => (
           <div key={m.id} className="max-w-xl mx-auto rounded-2xl bg-[#111b21] border border-purple-500/40 p-4 space-y-2.5 shadow-xl relative overflow-hidden text-xs">
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+            <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.06] pb-2">
               <div className="flex items-center gap-2">
                 <Volume2 className="w-4 h-4 text-purple-400" />
                 <span className="font-bold text-white text-xs">{m.title}</span>
               </div>
-              <span className="text-[10px] text-slate-400 font-mono">{m.recordedAt}</span>
+              <span className="text-[10px] text-[#71717A] font-mono">{m.recordedAt}</span>
             </div>
-            <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">{m.notes}</p>
+            <p className="text-[#E4E4E7] leading-relaxed whitespace-pre-wrap">{m.notes}</p>
           </div>
         ))}
 
         {/* ── ACTUAL MESSAGES STREAM ── */}
         {isLoadingThreads ? (
-          <div className="py-12 text-center text-slate-400 text-xs space-y-2">
+          <div className="py-12 text-center text-[#71717A] text-xs space-y-2">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto text-emerald-400" />
             <p>Syncing communication threads with {creatorName}...</p>
           </div>
         ) : allDisplayMessages.length === 0 ? (
-          <div className="py-12 px-6 max-w-md mx-auto text-center space-y-3 rounded-2xl bg-[#111b21] border border-white/[0.06]">
-            <MessageSquare className="w-8 h-8 text-slate-500 mx-auto" />
+          <div className="py-12 px-6 max-w-md mx-auto text-center space-y-3 rounded-2xl bg-[#111b21] border border-[#2a2a30]/[0.06]">
+            <MessageSquare className="w-8 h-8 text-[#A1A1AA] mx-auto" />
             <h4 className="font-bold text-white text-sm">No Messages Exchanged Yet</h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-[#71717A] leading-relaxed">
               No email outreach or replies were logged in Section 1 for {creatorName}. You can start a direct conversation or share project links using the composer below.
             </p>
           </div>
@@ -500,8 +500,8 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
                   <div
                     className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-3.5 text-xs shadow-md space-y-1.5 relative ${
                       isOutgoing
-                        ? 'bg-[#005c4b] text-slate-100 rounded-tr-xs border border-emerald-500/20'
-                        : 'bg-[#202c33] text-slate-200 rounded-tl-xs border border-white/[0.06]'
+                        ? 'bg-[#005c4b] text-[#F4F4F5] rounded-tr-xs border border-emerald-500/20'
+                        : 'bg-[#202c33] text-[#E4E4E7] rounded-tl-xs border border-[#2a2a30]/[0.06]'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2 pb-0.5 text-[11px]">
@@ -509,14 +509,14 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
                         {isOutgoing ? 'CoLaunch Studio' : (msg.senderName || creatorName)}
                       </span>
                       {msg.isSection1 && (
-                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-black/20 text-slate-300 font-mono">
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-black/20 text-[#D4D4D8] font-mono">
                           Section 1 Outreach
                         </span>
                       )}
                     </div>
 
                     {msg.subject && (
-                      <div className="font-bold text-white border-b border-white/[0.08] pb-1 text-[11px]">
+                      <div className="font-bold text-white border-b border-[#2a2a30]/[0.08] pb-1 text-[11px]">
                         {msg.subject}
                       </div>
                     )}
@@ -526,7 +526,7 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
                     </p>
 
                     <div className={`flex items-center justify-end gap-1.5 text-[10px] ${
-                      isOutgoing ? 'text-emerald-200/70' : 'text-slate-400'
+                      isOutgoing ? 'text-emerald-200/70' : 'text-[#71717A]'
                     }`}>
                       {isOutgoing && msg.emailedTo && (
                         <span className="text-[9px] text-emerald-300/80 font-mono">
@@ -551,8 +551,8 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
       </div>
 
       {/* ── 3. QUICK SUGGESTIONS STRIP ── */}
-      <div className="bg-[#111b21] px-3 py-2 border-t border-white/[0.06] flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
-        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider shrink-0 mr-1">
+      <div className="bg-[#111b21] px-3 py-2 border-t border-[#2a2a30]/[0.06] flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+        <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider shrink-0 mr-1">
           Quick Message:
         </span>
         {[
@@ -565,7 +565,7 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
             key={idx}
             type="button"
             onClick={() => handleSendMessage(quickText)}
-            className="px-2.5 py-1 rounded-lg bg-[#202c33] hover:bg-[#2a3942] text-slate-300 hover:text-white text-[11px] font-medium border border-white/[0.06] whitespace-nowrap transition-all active:scale-95 shrink-0 cursor-pointer"
+            className="px-2.5 py-1 rounded-lg bg-[#202c33] hover:bg-[#2a3942] text-[#D4D4D8] hover:text-white text-[11px] font-medium border border-[#2a2a30]/[0.06] whitespace-nowrap transition-all active:scale-95 shrink-0 cursor-pointer"
           >
             {quickText}
           </button>
@@ -573,33 +573,33 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
       </div>
 
       {/* ── 4. CHAT COMPOSER BAR ── */}
-      <div className="bg-[#202c33] p-3 border-t border-white/[0.08] flex items-center gap-2 relative z-10 shrink-0">
+      <div className="bg-[#202c33] p-3 border-t border-[#2a2a30]/[0.08] flex items-center gap-2 relative z-10 shrink-0">
         {/* Attachment Menu */}
         <div className="relative">
           <button
             type="button"
             onClick={() => setShowAttachMenu(!showAttachMenu)}
-            className="p-2.5 rounded-full text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+            className="p-2.5 rounded-full text-[#71717A] hover:text-white hover:bg-[#0C0C0E]/[0.06] transition-colors cursor-pointer"
             title="Attach Link or Document"
           >
             <Paperclip className="w-5 h-5" />
           </button>
 
           {showAttachMenu && (
-            <div className="absolute bottom-12 left-0 w-64 rounded-2xl bg-[#1f2c34] border border-white/[0.1] p-2 shadow-2xl space-y-1 text-xs animate-in fade-in z-30">
+            <div className="absolute bottom-12 left-0 w-64 rounded-2xl bg-[#1f2c34] border border-[#2a2a30]/[0.1] p-2 shadow-2xl space-y-1 text-xs animate-in fade-in z-30">
               <button
                 type="button"
                 onClick={() => {
                   handleSendMessage(`Here is our live Pre-Order link for your community: ${preorderUrl}`)
                 }}
-                className="w-full p-2 rounded-xl hover:bg-white/[0.06] text-left flex items-center gap-2.5 text-slate-200 cursor-pointer"
+                className="w-full p-2 rounded-xl hover:bg-[#0C0C0E]/[0.06] text-left flex items-center gap-2.5 text-[#E4E4E7] cursor-pointer"
               >
                 <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400">
                   <Flame className="w-4 h-4" />
                 </div>
                 <div>
                   <span className="font-bold block text-white">Share Pre-Order URL</span>
-                  <span className="text-[10px] text-slate-400">Insert public landing page link</span>
+                  <span className="text-[10px] text-[#71717A]">Insert public landing page link</span>
                 </div>
               </button>
 
@@ -608,14 +608,14 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
                 onClick={() => {
                   handleSendMessage(`Your private Co-Founder portal is ready: ${portalUrl}`)
                 }}
-                className="w-full p-2 rounded-xl hover:bg-white/[0.06] text-left flex items-center gap-2.5 text-slate-200 cursor-pointer"
+                className="w-full p-2 rounded-xl hover:bg-[#0C0C0E]/[0.06] text-left flex items-center gap-2.5 text-[#E4E4E7] cursor-pointer"
               >
                 <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-400">
                   <Rocket className="w-4 h-4" />
                 </div>
                 <div>
                   <span className="font-bold block text-white">Share Co-Founder Portal</span>
-                  <span className="text-[10px] text-slate-400">Insert private token access link</span>
+                  <span className="text-[10px] text-[#71717A]">Insert private token access link</span>
                 </div>
               </button>
             </div>
@@ -635,7 +635,7 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
               }
             }}
             placeholder={`Type a message to ${creatorFirstName}...`}
-            className="w-full bg-[#2a3942] text-white placeholder-slate-400 text-xs rounded-xl px-4 py-2.5 border border-transparent focus:border-emerald-500/50 focus:outline-none transition-colors"
+            className="w-full bg-[#2a3942] text-white placeholder-[#71717A] text-xs rounded-xl px-4 py-2.5 border border-transparent focus:border-emerald-500/50 focus:outline-none transition-colors"
           />
         </div>
 
@@ -654,15 +654,15 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
       {/* ── 5. ADD MEETING NOTES MODAL ── */}
       {showAddMeetingModal && (
         <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-          <div className="max-w-md w-full rounded-2xl bg-[#0e1117] border border-white/[0.1] p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+          <div className="max-w-md w-full rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.1] p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.08] pb-3">
               <div className="flex items-center gap-2">
                 <Volume2 className="w-4 h-4 text-emerald-400" />
                 <h4 className="font-bold text-white text-sm">Log Meeting Notes with {creatorFirstName}</h4>
               </div>
               <button
                 onClick={() => setShowAddMeetingModal(false)}
-                className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white"
+                className="p-1 rounded-lg hover:bg-white/10 text-[#71717A] hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -670,7 +670,7 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
 
             <div className="space-y-3 text-xs">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[11px] font-bold text-[#71717A] uppercase tracking-wider">
                   Meeting Title / Purpose
                 </label>
                 <input
@@ -678,12 +678,12 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
                   value={newMeetingTitle}
                   onChange={(e) => setNewMeetingTitle(e.target.value)}
                   placeholder={`e.g. Discovery & Concept Alignment Call with ${creatorFirstName}`}
-                  className="w-full bg-[#141720] border border-white/[0.08] rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                  className="w-full bg-[#141720] border border-[#2a2a30]/[0.08] rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[11px] font-bold text-[#71717A] uppercase tracking-wider">
                   Meeting Notes & Agreed Takeaways
                 </label>
                 <textarea
@@ -691,15 +691,15 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
                   value={newMeetingNotes}
                   onChange={(e) => setNewMeetingNotes(e.target.value)}
                   placeholder="Record key decisions, agreed revenue split, launch commitments, or quotes from the call..."
-                  className="w-full bg-[#141720] border border-white/[0.08] rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-emerald-500/50 resize-none leading-relaxed"
+                  className="w-full bg-[#141720] border border-[#2a2a30]/[0.08] rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-emerald-500/50 resize-none leading-relaxed"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/[0.06]">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#2a2a30]/[0.06]">
               <button
                 onClick={() => setShowAddMeetingModal(false)}
-                className="px-3.5 py-1.5 rounded-xl bg-white/[0.04] text-slate-300 text-xs font-semibold"
+                className="px-3.5 py-1.5 rounded-xl bg-[#0C0C0E]/[0.04] text-[#D4D4D8] text-xs font-semibold"
               >
                 Cancel
               </button>
@@ -723,7 +723,7 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
               {callType === 'video' ? 'CoLaunch Video Meeting' : 'WhatsApp Audio Call'}
             </span>
             <h3 className="text-xl font-black">{creatorName}</h3>
-            <p className="text-xs text-slate-400 font-mono">{creatorHandle} • {niche}</p>
+            <p className="text-xs text-[#71717A] font-mono">{creatorHandle} • {niche}</p>
           </div>
 
           <div className="relative">
@@ -745,7 +745,7 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
             >
               <Phone className="w-6 h-6 rotate-[135deg]" />
             </button>
-            <span className="text-[11px] text-slate-400 block text-center">Click to dismiss call overlay</span>
+            <span className="text-[11px] text-[#71717A] block text-center">Click to dismiss call overlay</span>
           </div>
         </div>
       )}

@@ -1941,29 +1941,29 @@ export default function Phase1Validate({
   return (
     <div className="p1-validate-dark space-y-5 w-full max-w-full overflow-hidden" style={{ color: C.text }}>
       <style>{`
-        .p1-validate-dark .bg-white { background-color: ${C.sheet} !important; color: ${C.text} !important; border-color: ${C.line} !important; }
-        .p1-validate-dark .bg-slate-50, .p1-validate-dark .bg-slate-50\/70 { background-color: ${C.row} !important; color: ${C.body} !important; border-color: ${C.line} !important; }
-        .p1-validate-dark .bg-slate-100, .p1-validate-dark .bg-slate-100\/90 { background-color: ${C.sheet} !important; border-color: ${C.line} !important; }
-        .p1-validate-dark .bg-slate-200, .p1-validate-dark .bg-slate-200\/50, .p1-validate-dark .bg-slate-200\/80 { background-color: ${C.raised} !important; border-color: ${C.line} !important; }
-        .p1-validate-dark .border-slate-200, .p1-validate-dark .border-slate-200\/70, .p1-validate-dark .border-slate-200\/80, .p1-validate-dark .border-slate-200\/90, .p1-validate-dark .border-slate-300 { border-color: ${C.line} !important; }
-        .p1-validate-dark .border-slate-700 { border-color: ${C.lineStrong} !important; }
-        .p1-validate-dark .text-slate-900, .p1-validate-dark .text-slate-950, .p1-validate-dark .text-slate-800 { color: ${C.text} !important; }
-        .p1-validate-dark .text-slate-700, .p1-validate-dark .text-slate-600 { color: ${C.body} !important; }
-        .p1-validate-dark .text-slate-500, .p1-validate-dark .text-slate-400 { color: ${C.muted} !important; }
+        .p1-validate-dark .bg-[#0C0C0E] { background-color: ${C.sheet} !important; color: ${C.text} !important; border-color: ${C.line} !important; }
+        .p1-validate-dark .bg-[#111114], .p1-validate-dark .bg-[#111114]\/70 { background-color: ${C.row} !important; color: ${C.body} !important; border-color: ${C.line} !important; }
+        .p1-validate-dark .bg-[#18181C], .p1-validate-dark .bg-[#18181C]\/90 { background-color: ${C.sheet} !important; border-color: ${C.line} !important; }
+        .p1-validate-dark .bg-[#222227], .p1-validate-dark .bg-[#222227]\/50, .p1-validate-dark .bg-[#222227]\/80 { background-color: ${C.raised} !important; border-color: ${C.line} !important; }
+        .p1-validate-dark .border-[#2a2a30], .p1-validate-dark .border-[#2a2a30]\/70, .p1-validate-dark .border-[#2a2a30]\/80, .p1-validate-dark .border-[#2a2a30]\/90, .p1-validate-dark .border-[#3a3a42] { border-color: ${C.line} !important; }
+        .p1-validate-dark .border-[#2a2a30] { border-color: ${C.lineStrong} !important; }
+        .p1-validate-dark .text-[#FAFAFA], .p1-validate-dark .text-[#FAFAFA], .p1-validate-dark .text-[#E4E4E7] { color: ${C.text} !important; }
+        .p1-validate-dark .text-[#D4D4D8], .p1-validate-dark .text-[#A1A1AA] { color: ${C.body} !important; }
+        .p1-validate-dark .text-[#A1A1AA], .p1-validate-dark .text-[#71717A] { color: ${C.muted} !important; }
         .p1-validate-dark input, .p1-validate-dark textarea, .p1-validate-dark select { background-color: ${C.row} !important; color: ${C.text} !important; border-color: ${C.lineStrong} !important; }
         .p1-validate-dark input::placeholder, .p1-validate-dark textarea::placeholder { color: ${C.faint} !important; }
-        .p1-validate-dark .bg-emerald-50 { background-color: ${C.okSoft} !important; color: ${C.ok} !important; border-color: ${C.okLine} !important; }
-        .p1-validate-dark .text-emerald-800, .p1-validate-dark .text-emerald-700 { color: ${C.ok} !important; }
-        .p1-validate-dark .border-emerald-300, .p1-validate-dark .border-emerald-200 { border-color: ${C.okLine} !important; }
-        .p1-validate-dark .bg-amber-50 { background-color: ${C.warnSoft} !important; color: ${C.warn} !important; border-color: ${C.warnLine} !important; }
-        .p1-validate-dark .text-amber-800, .p1-validate-dark .text-amber-700 { color: ${C.warn} !important; }
-        .p1-validate-dark .border-amber-300, .p1-validate-dark .border-amber-200 { border-color: ${C.warnLine} !important; }
-        .p1-validate-dark .bg-sky-50 { background-color: ${C.skySoft} !important; color: ${C.skyText} !important; border-color: ${C.skyLine} !important; }
-        .p1-validate-dark .text-sky-800, .p1-validate-dark .text-sky-700 { color: ${C.skyText} !important; }
-        .p1-validate-dark .border-sky-300, .p1-validate-dark .border-sky-200 { border-color: ${C.skyLine} !important; }
-        .p1-validate-dark .bg-amber-50 { background-color: ${C.violetSoft} !important; color: ${C.violetText} !important; border-color: ${C.violetLine} !important; }
-        .p1-validate-dark .text-amber-800, .p1-validate-dark .text-amber-700 { color: ${C.violetText} !important; }
-        .p1-validate-dark .border-amber-300, .p1-validate-dark .border-amber-200 { border-color: ${C.violetLine} !important; }
+        .p1-validate-dark .bg-emerald-500/10 { background-color: ${C.okSoft} !important; color: ${C.ok} !important; border-color: ${C.okLine} !important; }
+        .p1-validate-dark .text-emerald-300, .p1-validate-dark .text-emerald-300 { color: ${C.ok} !important; }
+        .p1-validate-dark .border-emerald-500/30, .p1-validate-dark .border-emerald-500/30 { border-color: ${C.okLine} !important; }
+        .p1-validate-dark .bg-amber-500/10 { background-color: ${C.warnSoft} !important; color: ${C.warn} !important; border-color: ${C.warnLine} !important; }
+        .p1-validate-dark .text-amber-300, .p1-validate-dark .text-amber-300 { color: ${C.warn} !important; }
+        .p1-validate-dark .border-amber-500/30, .p1-validate-dark .border-amber-500/30 { border-color: ${C.warnLine} !important; }
+        .p1-validate-dark .bg-[#C81E3C]/10 { background-color: ${C.skySoft} !important; color: ${C.skyText} !important; border-color: ${C.skyLine} !important; }
+        .p1-validate-dark .text-[#FF8FA3], .p1-validate-dark .text-[#FF8FA3] { color: ${C.skyText} !important; }
+        .p1-validate-dark .border-[#C81E3C]/45, .p1-validate-dark .border-[#C81E3C]/45 { border-color: ${C.skyLine} !important; }
+        .p1-validate-dark .bg-amber-500/10 { background-color: ${C.violetSoft} !important; color: ${C.violetText} !important; border-color: ${C.violetLine} !important; }
+        .p1-validate-dark .text-amber-300, .p1-validate-dark .text-amber-300 { color: ${C.violetText} !important; }
+        .p1-validate-dark .border-amber-500/30, .p1-validate-dark .border-amber-500/30 { border-color: ${C.violetLine} !important; }
       `}</style>
       {/* 5-Step Phase 1 Progress Nav */}
       <div className="p-3.5 rounded-2xl border shadow-sm space-y-2.5" style={{ background: C.sheet, borderColor: C.line }}>
@@ -2094,7 +2094,7 @@ export default function Phase1Validate({
 
       {/* Floating Notification Toast */}
       {feedbackNotice && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-md p-3.5 rounded-2xl bg-slate-900 border border-slate-700 text-white text-xs shadow-2xl flex items-center justify-between gap-3 animate-slide-up backdrop-blur-md">
+        <div className="fixed bottom-6 right-6 z-50 max-w-md p-3.5 rounded-2xl bg-[#050506] border border-[#2a2a30] text-white text-xs shadow-2xl flex items-center justify-between gap-3 animate-slide-up backdrop-blur-md">
           <div className="flex items-center gap-2.5 font-medium">
             <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="leading-snug">{feedbackNotice}</span>
@@ -2102,7 +2102,7 @@ export default function Phase1Validate({
           <button
             type="button"
             onClick={() => setFeedbackNotice('')}
-            className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors cursor-pointer shrink-0"
+            className="text-[#71717A] hover:text-white p-1 rounded-lg transition-colors cursor-pointer shrink-0"
           >
             <X className="w-3.5 h-3.5" />
           </button>

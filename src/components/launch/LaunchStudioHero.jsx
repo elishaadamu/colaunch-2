@@ -52,7 +52,7 @@ export default function LaunchStudioHero({
   return (
     <div className="w-full space-y-4">
       {/* ── Top Hero Card with S1 Organic Mask & S2/S3 Studio Aesthetic ── */}
-      <div className="relative rounded-3xl bg-white border border-slate-200/90 p-5 sm:p-7 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.03)] overflow-hidden">
+      <div className="relative rounded-3xl bg-[#0C0C0E] border border-[#2a2a30]/90 p-5 sm:p-7 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.03)] overflow-hidden">
         {/* Subtle Ambient Conic Glow */}
         <div
           className="absolute -top-32 -right-32 w-96 h-96 rounded-full pointer-events-none opacity-25 blur-3xl -z-10"
@@ -78,36 +78,36 @@ export default function LaunchStudioHero({
           {/* Left Column: Greeting, Title, Description, Landing Page Buttons */}
           <div className="lg:col-span-7 flex flex-col items-start text-left space-y-4">
             {/* S2-style Greeting & Date Bar */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 shadow-2xs">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#111114] border border-[#2a2a30] text-xs font-medium text-[#D4D4D8] shadow-2xs">
               <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span className="font-semibold text-slate-900">Good morning, Operator</span>
-              <span className="text-slate-300">•</span>
-              <span className="text-slate-500 font-mono text-[11px]">{currentDateStr}</span>
+              <span className="font-semibold text-[#FAFAFA]">Good morning, Operator</span>
+              <span className="text-[#D4D4D8]">•</span>
+              <span className="text-[#A1A1AA] font-mono text-[11px]">{currentDateStr}</span>
             </div>
 
             {/* Main Headline */}
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-extrabold text-slate-950 tracking-tight leading-[1.1]">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-extrabold text-[#FAFAFA] tracking-tight leading-[1.1]">
                 Turn Creator Audiences into Production Software Products
               </h1>
-              <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
+              <p className="mt-2 text-xs sm:text-sm text-[#A1A1AA] leading-relaxed max-w-xl">
                 Identify top creators, synthesize high-retention software opportunities, and launch real SaaS products.
-                We engineer, host, and scale the apps. Creators split net profits <strong className="text-slate-900">50/50</strong> with <strong className="text-slate-900">$0 upfront cost</strong>.
+                We engineer, host, and scale the apps. Creators split net profits <strong className="text-[#FAFAFA]">50/50</strong> with <strong className="text-[#FAFAFA]">$0 upfront cost</strong>.
               </p>
             </div>
 
             {/* Quick Feature Badges (Human, Less AI) */}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-semibold font-mono text-[11px]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 font-semibold font-mono text-[11px]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
                 <span>14-Day Delivery SLA</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200 font-semibold font-mono text-[11px]">
-                <ShieldCheck className="w-3.5 h-3.5 text-slate-700" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#18181C] text-[#E4E4E7] border border-[#2a2a30] font-semibold font-mono text-[11px]">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#D4D4D8]" />
                 <span>Creator 100% IP Ownership</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200 font-semibold font-mono text-[11px]">
-                <Zap className="w-3.5 h-3.5 text-amber-600" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#18181C] text-[#E4E4E7] border border-[#2a2a30] font-semibold font-mono text-[11px]">
+                <Zap className="w-3.5 h-3.5 text-amber-300" />
                 <span>Automated Stripe 50/50 Split</span>
               </span>
             </div>
@@ -124,7 +124,7 @@ export default function LaunchStudioHero({
                 <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                 {/* Signature Top-Right Accent Beacon Dot */}
                 <span className="absolute -top-1 -right-1 flex h-2 w-2 pointer-events-none items-center justify-center">
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 border border-white" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 border border-[#2a2a30]" />
                 </span>
               </button>
 
@@ -132,9 +132,9 @@ export default function LaunchStudioHero({
               <button
                 type="button"
                 onClick={() => setShowArtifactModal(true)}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs hover:border-slate-400"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] border border-[#3a3a42] text-[#E4E4E7] text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs hover:border-[#52525b]"
               >
-                <FileText className="w-3.5 h-3.5 text-slate-600" />
+                <FileText className="w-3.5 h-3.5 text-[#A1A1AA]" />
                 <span>View Co-Launch Artifacts</span>
               </button>
 
@@ -142,11 +142,11 @@ export default function LaunchStudioHero({
               <button
                 type="button"
                 onClick={onOpenCRM}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-950 text-xs font-semibold hover:bg-slate-100 transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[#A1A1AA] hover:text-[#FAFAFA] text-xs font-semibold hover:bg-[#18181C] transition-colors cursor-pointer"
               >
-                <Users className="w-3.5 h-3.5 text-slate-500" />
+                <Users className="w-3.5 h-3.5 text-[#A1A1AA]" />
                 <span>Open CRM</span>
-                <ExternalLink className="w-3 h-3 text-slate-400" />
+                <ExternalLink className="w-3 h-3 text-[#71717A]" />
               </button>
             </div>
           </div>
@@ -163,27 +163,27 @@ export default function LaunchStudioHero({
                 />
 
                 {/* S2/S3 Telemetry Badge 1: Top Right */}
-                <div className="absolute -top-2 -right-2 sm:-right-4 p-2.5 sm:p-3 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xl text-left hidden sm:block animate-float-gentle z-20">
-                  <div className="flex items-center gap-1.5 text-[9px] font-mono text-slate-500 mb-0.5 font-bold uppercase tracking-wider">
+                <div className="absolute -top-2 -right-2 sm:-right-4 p-2.5 sm:p-3 rounded-2xl bg-[#0C0C0E]/95 backdrop-blur-md border border-[#2a2a30]/90 shadow-xl text-left hidden sm:block animate-float-gentle z-20">
+                  <div className="flex items-center gap-1.5 text-[9px] font-mono text-[#A1A1AA] mb-0.5 font-bold uppercase tracking-wider">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     <span>MONTHLY CREATOR REVENUE</span>
                   </div>
-                  <div className="text-sm sm:text-base font-display font-extrabold text-slate-950 font-mono">
-                    $38,400 <span className="text-[11px] text-emerald-600 font-semibold font-sans">+18.4% MoM</span>
+                  <div className="text-sm sm:text-base font-display font-extrabold text-[#FAFAFA] font-mono">
+                    $38,400 <span className="text-[11px] text-emerald-300 font-semibold font-sans">+18.4% MoM</span>
                   </div>
-                  <span className="text-[9px] font-mono text-slate-500 block mt-0.5">Automated 50/50 Stripe Split</span>
+                  <span className="text-[9px] font-mono text-[#A1A1AA] block mt-0.5">Automated 50/50 Stripe Split</span>
                 </div>
 
                 {/* S2/S3 Telemetry Badge 2: Bottom Left */}
-                <div className="absolute -bottom-2 -left-2 sm:-left-4 p-2.5 sm:p-3 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xl text-left hidden sm:block animate-float-reverse z-20">
-                  <div className="flex items-center gap-1.5 text-[9px] font-mono text-slate-500 mb-0.5 font-bold uppercase tracking-wider">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                <div className="absolute -bottom-2 -left-2 sm:-left-4 p-2.5 sm:p-3 rounded-2xl bg-[#0C0C0E]/95 backdrop-blur-md border border-[#2a2a30]/90 shadow-xl text-left hidden sm:block animate-float-reverse z-20">
+                  <div className="flex items-center gap-1.5 text-[9px] font-mono text-[#A1A1AA] mb-0.5 font-bold uppercase tracking-wider">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-300 shrink-0" />
                     <span>14-DAY CO-LAUNCH SLA</span>
                   </div>
-                  <div className="text-xs sm:text-sm font-display font-bold text-slate-900">
+                  <div className="text-xs sm:text-sm font-display font-bold text-[#FAFAFA]">
                     Production SaaS Deployed
                   </div>
-                  <span className="text-[9px] font-mono text-slate-500 block mt-0.5">$0 Engineering Cost to Creator</span>
+                  <span className="text-[9px] font-mono text-[#A1A1AA] block mt-0.5">$0 Engineering Cost to Creator</span>
                 </div>
               </div>
             </div>
@@ -194,67 +194,67 @@ export default function LaunchStudioHero({
       {/* ── S2 & S3 Style 4-Metric Stats Cards Grid ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Metric 1: Total Leads Discovered */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all text-left">
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30]/90 shadow-2xs hover:shadow-sm transition-all text-left">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-slate-500">Total Leads Discovered</span>
+            <span className="text-xs font-semibold text-[#A1A1AA]">Total Leads Discovered</span>
             <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-display font-extrabold text-slate-950 font-mono">
+          <div className="text-2xl sm:text-3xl font-display font-extrabold text-[#FAFAFA] font-mono">
             {creatorsCount}
           </div>
-          <div className="mt-1 flex items-center gap-1.5 text-xs text-emerald-600 font-semibold font-mono">
+          <div className="mt-1 flex items-center gap-1.5 text-xs text-emerald-300 font-semibold font-mono">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>↑ 3 new this cycle</span>
           </div>
         </div>
 
         {/* Metric 2: AI Qualified & Interested */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all text-left">
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30]/90 shadow-2xs hover:shadow-sm transition-all text-left">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-slate-500">Qualified & Interested</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center">
+            <span className="text-xs font-semibold text-[#A1A1AA]">Qualified & Interested</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-display font-extrabold text-slate-950 font-mono">
+          <div className="text-2xl sm:text-3xl font-display font-extrabold text-[#FAFAFA] font-mono">
             {qualifiedCount}
           </div>
-          <div className="mt-1 flex items-center gap-1.5 text-xs text-emerald-700 font-medium font-mono">
+          <div className="mt-1 flex items-center gap-1.5 text-xs text-emerald-300 font-medium font-mono">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>Step 5 Synthesized</span>
           </div>
         </div>
 
         {/* Metric 3: Outreach Messages Dispatched */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all text-left">
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30]/90 shadow-2xs hover:shadow-sm transition-all text-left">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-slate-500">Outreach Dispatched</span>
-            <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center">
+            <span className="text-xs font-semibold text-[#A1A1AA]">Outreach Dispatched</span>
+            <div className="w-8 h-8 rounded-xl bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45 flex items-center justify-center">
               <Send className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-display font-extrabold text-slate-950 font-mono">
+          <div className="text-2xl sm:text-3xl font-display font-extrabold text-[#FAFAFA] font-mono">
             {outreachCount}
           </div>
-          <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-500 font-mono">
+          <div className="mt-1 flex items-center gap-1.5 text-xs text-[#A1A1AA] font-mono">
             <span>Inbound replies synced</span>
           </div>
         </div>
 
         {/* Metric 4: Active 50/50 Co-Launches */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all text-left">
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30]/90 shadow-2xs hover:shadow-sm transition-all text-left">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-slate-500">50/50 Co-Launches</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center">
+            <span className="text-xs font-semibold text-[#A1A1AA]">50/50 Co-Launches</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center justify-center">
               <Rocket className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-display font-extrabold text-slate-950 font-mono">
+          <div className="text-2xl sm:text-3xl font-display font-extrabold text-[#FAFAFA] font-mono">
             {activeProjectsCount}
           </div>
-          <div className="mt-1 flex items-center gap-1.5 text-xs text-amber-700 font-semibold font-mono">
+          <div className="mt-1 flex items-center gap-1.5 text-xs text-amber-300 font-semibold font-mono">
             <span>Phase 1: Validation live</span>
           </div>
         </div>
@@ -262,34 +262,34 @@ export default function LaunchStudioHero({
 
       {/* ── Co-Launch Artifacts Modal ── */}
       {showArtifactModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#050506]/60 backdrop-blur-sm animate-in fade-in">
           <div
             className="fixed inset-0"
             onClick={() => setShowArtifactModal(false)}
           />
-          <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl border border-slate-200 shadow-2xl flex flex-col overflow-hidden z-10 animate-in zoom-in-95">
+          <div className="relative w-full max-w-4xl max-h-[90vh] bg-[#0C0C0E] rounded-3xl border border-[#2a2a30] shadow-2xl flex flex-col overflow-hidden z-10 animate-in zoom-in-95">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div className="px-6 py-4 border-b border-[#1C1C20] flex items-center justify-between bg-[#111114]/50">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-[#0F172A] text-white flex items-center justify-center">
                   <FileText className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-950">CoLaunch Co-Launch Artifacts</h3>
-                  <p className="text-xs text-slate-500">Tangible deliverables, partnership contracts & software blueprints</p>
+                  <h3 className="text-sm font-bold text-[#FAFAFA]">CoLaunch Co-Launch Artifacts</h3>
+                  <p className="text-xs text-[#A1A1AA]">Tangible deliverables, partnership contracts & software blueprints</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowArtifactModal(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl text-[#71717A] hover:text-[#E4E4E7] hover:bg-[#18181C] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* S2/S3 Pill Navigation Bar */}
-            <div className="px-6 py-3 border-b border-slate-100 flex items-center gap-2 bg-white overflow-x-auto">
+            <div className="px-6 py-3 border-b border-[#1C1C20] flex items-center gap-2 bg-[#0C0C0E] overflow-x-auto">
               {[
                 { id: 'agreement', label: '1. 50/50 Venture Agreement', icon: ShieldCheck },
                 { id: 'blueprint', label: '2. Software Architecture Blueprint', icon: Layers },
@@ -305,7 +305,7 @@ export default function LaunchStudioHero({
                     className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                       isActive
                         ? 'bg-[#0F172A] text-white shadow-xs'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        : 'bg-[#18181C] text-[#A1A1AA] hover:bg-[#222227]'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -320,58 +320,58 @@ export default function LaunchStudioHero({
               {/* TAB 1: 50/50 Venture Agreement */}
               {selectedArtifactTab === 'agreement' && (
                 <div className="space-y-4">
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="p-4 rounded-2xl bg-[#111114] border border-[#2a2a30] space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
                         LEGAL CO-FOUNDER CONTRACT TEMPLATE
                       </span>
-                      <span className="text-xs font-mono text-slate-500 font-bold">Standard Form CF-5050-v3</span>
+                      <span className="text-xs font-mono text-[#A1A1AA] font-bold">Standard Form CF-5050-v3</span>
                     </div>
-                    <h4 className="text-base font-bold text-slate-900 font-display">
+                    <h4 className="text-base font-bold text-[#FAFAFA] font-display">
                       50/50 Creator Software Partnership & Revenue Split Agreement
                     </h4>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                    <p className="text-xs text-[#A1A1AA] leading-relaxed">
                       Binding venture studio terms between CoLaunch (Engineering Co-Founder) and the Partner Creator (Distribution Co-Founder).
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                    <div className="p-3.5 rounded-xl bg-white border border-slate-200 space-y-1">
-                      <span className="font-bold text-slate-900 block flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <div className="p-3.5 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] space-y-1">
+                      <span className="font-bold text-[#FAFAFA] block flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
                         <span>Term 1: Zero Upfront Cost ($0)</span>
                       </span>
-                      <p className="text-slate-600 text-[11px] leading-relaxed">
+                      <p className="text-[#A1A1AA] text-[11px] leading-relaxed">
                         CoLaunch covers 100% of engineering development, server hosting, databases, AI inference, and maintenance costs.
                       </p>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-white border border-slate-200 space-y-1">
-                      <span className="font-bold text-slate-900 block flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <div className="p-3.5 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] space-y-1">
+                      <span className="font-bold text-[#FAFAFA] block flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
                         <span>Term 2: 50/50 Automated Revenue Split</span>
                       </span>
-                      <p className="text-slate-600 text-[11px] leading-relaxed">
+                      <p className="text-[#A1A1AA] text-[11px] leading-relaxed">
                         Every dollar paid by subscribers is split 50/50 instantly at the Stripe Connect payment gateway level on the 1st of every month.
                       </p>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-white border border-slate-200 space-y-1">
-                      <span className="font-bold text-slate-900 block flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <div className="p-3.5 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] space-y-1">
+                      <span className="font-bold text-[#FAFAFA] block flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
                         <span>Term 3: 100% Creator IP Ownership</span>
                       </span>
-                      <p className="text-slate-600 text-[11px] leading-relaxed">
+                      <p className="text-[#A1A1AA] text-[11px] leading-relaxed">
                         The creator retains full 100% ownership of their brand, likeness, subscriber email lists, and audience relationship forever.
                       </p>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-white border border-slate-200 space-y-1">
-                      <span className="font-bold text-slate-900 block flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <div className="p-3.5 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] space-y-1">
+                      <span className="font-bold text-[#FAFAFA] block flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
                         <span>Term 4: 14-Day Delivery SLA</span>
                       </span>
-                      <p className="text-slate-600 text-[11px] leading-relaxed">
+                      <p className="text-[#A1A1AA] text-[11px] leading-relaxed">
                         From proposal confirmation to production launch with live payment checkout takes no more than 14 calendar days.
                       </p>
                     </div>
@@ -382,30 +382,30 @@ export default function LaunchStudioHero({
               {/* TAB 2: Software Architecture Blueprint */}
               {selectedArtifactTab === 'blueprint' && (
                 <div className="space-y-4">
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="p-4 rounded-2xl bg-[#111114] border border-[#2a2a30] space-y-2">
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-800 bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-full">
                       FULL-STACK PRODUCTION BLUEPRINT
                     </span>
-                    <h4 className="text-base font-bold text-slate-900 font-display">
+                    <h4 className="text-base font-bold text-[#FAFAFA] font-display">
                       Autonomous Production SaaS Stack
                     </h4>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                    <p className="text-xs text-[#A1A1AA] leading-relaxed">
                       Every creator software product is generated with a production architecture ready for thousands of paying monthly users.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                    <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-1">
-                      <span className="font-bold text-slate-900 font-mono text-[11px] block">Frontend Client</span>
-                      <p className="text-slate-600 text-[11px]">Next.js / React 19 with Tailwind CSS, Mobile-Responsive Viewports, and WebP asset optimization.</p>
+                    <div className="p-3 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] space-y-1">
+                      <span className="font-bold text-[#FAFAFA] font-mono text-[11px] block">Frontend Client</span>
+                      <p className="text-[#A1A1AA] text-[11px]">Next.js / React 19 with Tailwind CSS, Mobile-Responsive Viewports, and WebP asset optimization.</p>
                     </div>
-                    <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-1">
-                      <span className="font-bold text-slate-900 font-mono text-[11px] block">Backend Engine</span>
-                      <p className="text-slate-600 text-[11px]">Python FastAPI with async endpoints, rate limiting, and SQLite/PostgreSQL cloud syncing.</p>
+                    <div className="p-3 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] space-y-1">
+                      <span className="font-bold text-[#FAFAFA] font-mono text-[11px] block">Backend Engine</span>
+                      <p className="text-[#A1A1AA] text-[11px]">Python FastAPI with async endpoints, rate limiting, and SQLite/PostgreSQL cloud syncing.</p>
                     </div>
-                    <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-1">
-                      <span className="font-bold text-slate-900 font-mono text-[11px] block">Billing & Payouts</span>
-                      <p className="text-slate-600 text-[11px]">Stripe Checkout, Customer Portal, Webhook listeners, and automated 50/50 Stripe Connect transfers.</p>
+                    <div className="p-3 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] space-y-1">
+                      <span className="font-bold text-[#FAFAFA] font-mono text-[11px] block">Billing & Payouts</span>
+                      <p className="text-[#A1A1AA] text-[11px]">Stripe Checkout, Customer Portal, Webhook listeners, and automated 50/50 Stripe Connect transfers.</p>
                     </div>
                   </div>
                 </div>
@@ -414,14 +414,14 @@ export default function LaunchStudioHero({
               {/* TAB 3: Audience Signal Synthesis */}
               {selectedArtifactTab === 'demand' && (
                 <div className="space-y-4">
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
+                  <div className="p-4 rounded-2xl bg-[#111114] border border-[#2a2a30] space-y-2">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
                       AUDIENCE PROBLEM MINING ENGINE
                     </span>
-                    <h4 className="text-base font-bold text-slate-900 font-display">
+                    <h4 className="text-base font-bold text-[#FAFAFA] font-display">
                       Audience Signal & Willingness-to-Pay Extraction
                     </h4>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                    <p className="text-xs text-[#A1A1AA] leading-relaxed">
                       We analyze comments, community questions, and recurring inquiries to build apps that fans already want to buy.
                     </p>
                   </div>
@@ -432,12 +432,12 @@ export default function LaunchStudioHero({
                       { problem: "Hundreds of sponsor emails with low offers or messy tracking", app: "SponsorFlow CRM (Automated Rate Calculator & Contract Signing)", creator: "Productivity & Lifestyle Creators" },
                       { problem: "Long 3-hour podcast episodes where fans can't find specific discussions", app: "Podcast Semantics Search (Instant Timestamp & Audio Quote Match)", creator: "Interview & Science Podcasters" }
                     ].map((item, idx) => (
-                      <div key={idx} className="p-3 rounded-xl bg-white border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div key={idx} className="p-3 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div className="space-y-0.5">
-                          <span className="text-[10px] font-mono text-slate-400 uppercase font-semibold">{item.creator}</span>
-                          <p className="font-semibold text-slate-900">{item.problem}</p>
+                          <span className="text-[10px] font-mono text-[#71717A] uppercase font-semibold">{item.creator}</span>
+                          <p className="font-semibold text-[#FAFAFA]">{item.problem}</p>
                         </div>
-                        <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/80 whitespace-nowrap shrink-0">
+                        <span className="font-mono text-xs font-bold text-emerald-300 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/30 whitespace-nowrap shrink-0">
                           → {item.app}
                         </span>
                       </div>
@@ -448,8 +448,8 @@ export default function LaunchStudioHero({
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-3.5 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <span className="text-xs text-slate-500 font-mono">
+            <div className="px-6 py-3.5 border-t border-[#1C1C20] flex items-center justify-between bg-[#111114]/50">
+              <span className="text-xs text-[#A1A1AA] font-mono">
                 CoLaunch Studio OS • 100% Managed Co-Launch
               </span>
               <button

@@ -14,13 +14,13 @@ export function Skeleton({
   ...props
 }) {
   const variantStyles = {
-    default: 'bg-white/[0.04] border-white/[0.06]',
-    purple: 'bg-slate-100 border-slate-200',
+    default: 'bg-[#0C0C0E]/[0.04] border-[#2a2a30]/[0.06]',
+    purple: 'bg-[#18181C] border-[#2a2a30]',
     emerald: 'bg-cyan-500/[0.05] border-cyan-500/20',
     cyan: 'bg-cyan-500/[0.05] border-cyan-500/20',
-    blue: 'bg-blue-500/[0.05] border-blue-500/20',
+    blue: 'bg-[#C81E3C]/[0.05] border-[#C81E3C]/20',
     amber: 'bg-amber-500/[0.05] border-amber-500/20',
-    dark: 'bg-[#0a0c10]/80 border-white/[0.04]'
+    dark: 'bg-[#0a0c10]/80 border-[#2a2a30]/[0.04]'
   }
 
   const baseStyle = {
@@ -116,7 +116,7 @@ export function SkeletonCard({
 }) {
   return (
     <div
-      className={`p-4 rounded-2xl bg-[#0e1117]/90 border border-white/[0.08] space-y-3 relative overflow-hidden ${className}`}
+      className={`p-4 rounded-2xl bg-[#0e1117]/90 border border-[#2a2a30]/[0.08] space-y-3 relative overflow-hidden ${className}`}
     >
       {hasHeader && (
         <div className="flex items-center justify-between gap-3">
@@ -134,7 +134,7 @@ export function SkeletonCard({
       <SkeletonText lines={lines} variant={variant} />
 
       {hasFooter && (
-        <div className="pt-2 border-t border-white/[0.04] flex items-center justify-between">
+        <div className="pt-2 border-t border-[#2a2a30]/[0.04] flex items-center justify-between">
           <Skeleton variant={variant} rounded="rounded-full" className="w-20 h-2.5" />
           <Skeleton variant={variant} rounded="rounded-full" className="w-14 h-5" />
         </div>

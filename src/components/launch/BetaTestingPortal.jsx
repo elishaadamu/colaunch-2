@@ -434,7 +434,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
     return (
       <div className="min-h-screen bg-[#080A0C] flex flex-col items-center justify-center text-[#F5F3EA] space-y-3 font-sans">
         <div className="w-10 h-10 rounded-xl bg-[#0D1014] border border-[#252B32] flex items-center justify-center">
-          <Terminal className="w-5 h-5 text-[#C8FF3D]" />
+          <Terminal className="w-5 h-5 text-[#FF4D6D]" />
         </div>
         <p className="text-xs text-[#969DA6] font-mono tracking-wider uppercase">
           Loading Beta Testing Workspace...
@@ -444,12 +444,12 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
   }
 
   return (
-    <div className="min-h-screen bg-[#080A0C] text-[#F5F3EA] font-sans selection:bg-[#C8FF3D] selection:text-[#080A0C] pb-24">
+    <div className="min-h-screen bg-[#080A0C] text-[#F5F3EA] font-sans selection:bg-[#C81E3C] selection:text-white pb-24">
       
       {/* Toast Notification (Flat, Clean, No Box Shadow) */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-[#0D1014] border border-[#C8FF3D] text-[#F5F3EA] font-semibold text-xs flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-[#C8FF3D] shrink-0" />
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-[#0D1014] border border-[#C81E3C] text-[#F5F3EA] font-semibold text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-[#FF4D6D] shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -461,12 +461,12 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
           {/* Brand Info */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-[#0D1014] border border-[#252B32] flex items-center justify-center">
-              <Terminal className="w-4 h-4 text-[#C8FF3D]" />
+              <Terminal className="w-4 h-4 text-[#FF4D6D]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-bold text-sm tracking-tight text-white">{productName}</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#101419] text-[#C8FF3D] border border-[#252B32] font-mono uppercase">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#101419] text-[#FF4D6D] border border-[#252B32] font-mono uppercase">
                   BETA TESTING WORKSPACE
                 </span>
               </div>
@@ -516,7 +516,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
             <div className="p-3 rounded-xl bg-[#080A0C] border border-[#252B32] space-y-1">
               <span className="text-[10px] font-mono uppercase text-[#969DA6] block">Architecture Profile</span>
               <span className="text-xs font-bold text-white block flex items-center gap-1.5">
-                <techProfile.icon className="w-3.5 h-3.5 text-[#C8FF3D]" />
+                <techProfile.icon className="w-3.5 h-3.5 text-[#FF4D6D]" />
                 <span>{techProfile.framework}</span>
               </span>
             </div>
@@ -555,7 +555,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap select-none ${
                   isActive
-                    ? 'bg-[#C8FF3D] text-[#080A0C]'
+                    ? 'bg-[#C81E3C] text-white'
                     : 'text-[#969DA6] hover:text-white hover:bg-[#0D1014]'
                 }`}
               >
@@ -583,7 +583,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                 <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                   <button
                     onClick={() => setActiveTab('human_build')}
-                    className="px-4 py-2 rounded-xl bg-[#C8FF3D] hover:bg-[#b5ee2e] text-[#080A0C] font-black text-xs transition-colors cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-[#C81E3C] hover:bg-[#b5ee2e] text-white font-black text-xs transition-colors cursor-pointer"
                   >
                     Open Human Engineering Studio →
                   </button>
@@ -607,7 +607,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                         onClick={() => setSelectedFileIdx(idx)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
                           selectedFileIdx === idx
-                            ? 'bg-[#080A0C] text-[#C8FF3D] border border-[#252B32]'
+                            ? 'bg-[#080A0C] text-[#FF4D6D] border border-[#252B32]'
                             : 'text-[#969DA6] hover:text-white hover:bg-[#080A0C]/50'
                         }`}
                       >
@@ -646,7 +646,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
 
                     <button
                       onClick={() => setIsAddingFile(true)}
-                      className="px-3 py-1.5 rounded-lg bg-[#C8FF3D] hover:bg-[#b5ee2e] text-[#080A0C] font-black text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg bg-[#C81E3C] hover:bg-[#b5ee2e] text-white font-black text-xs flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Add File</span>
@@ -694,7 +694,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                         value={newFilePath}
                         onChange={e => setNewFilePath(e.target.value)}
                         required
-                        className="w-full px-3 py-2 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C8FF3D] font-mono"
+                        className="w-full px-3 py-2 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C81E3C] font-mono"
                       />
                     </div>
                     <div className="space-y-1">
@@ -702,7 +702,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                       <select
                         value={newFileCategory}
                         onChange={e => setNewFileCategory(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C8FF3D]"
+                        className="w-full px-3 py-2 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C81E3C]"
                       >
                         <option value="Frontend">Frontend Component</option>
                         <option value="Backend">Backend / API Route</option>
@@ -720,7 +720,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                       value={newFileContent}
                       onChange={e => setNewFileContent(e.target.value)}
                       required
-                      className="w-full p-3 rounded-xl bg-[#040608] border border-[#252B32] text-xs text-slate-200 outline-none focus:border-[#C8FF3D] font-mono leading-relaxed resize-none"
+                      className="w-full p-3 rounded-xl bg-[#040608] border border-[#252B32] text-xs text-slate-200 outline-none focus:border-[#C81E3C] font-mono leading-relaxed resize-none"
                     />
                   </div>
 
@@ -735,7 +735,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                     <button
                       type="submit"
                       disabled={isSavingCode}
-                      className="px-5 py-2 rounded-xl bg-[#C8FF3D] hover:bg-[#b5ee2e] text-[#080A0C] font-black text-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                      className="px-5 py-2 rounded-xl bg-[#C81E3C] hover:bg-[#b5ee2e] text-white font-black text-xs transition-colors cursor-pointer flex items-center gap-1.5"
                     >
                       <Save className="w-3.5 h-3.5" />
                       <span>{isSavingCode ? 'Saving File...' : 'Save File to MVP'}</span>
@@ -753,7 +753,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
             <div className="p-6 rounded-2xl bg-[#0D1014] border border-[#252B32] space-y-5">
               <div className="space-y-1">
                 <h3 className="text-sm font-black text-white flex items-center gap-2">
-                  <Laptop className="w-4 h-4 text-[#C8FF3D]" />
+                  <Laptop className="w-4 h-4 text-[#FF4D6D]" />
                   <span>AI Recommended Testing Strategy for {techProfile.framework}</span>
                 </h3>
                 <p className="text-xs text-[#969DA6]">
@@ -781,7 +781,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                       href={techProfile.browserTestingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C8FF3D] hover:bg-[#b5ee2e] text-[#080A0C] font-black text-[11px] transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C81E3C] hover:bg-[#b5ee2e] text-white font-black text-[11px] transition-colors cursor-pointer"
                     >
                       <span>Open Browser Sandbox</span>
                       <ExternalLink className="w-3 h-3 text-[#080A0C]" />
@@ -792,7 +792,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                 {/* Method B: In a Local Code Editor */}
                 <div className="p-4 rounded-xl bg-[#080A0C] border border-[#252B32] space-y-3">
                   <div className="flex items-center gap-2">
-                    <Code2 className="w-4 h-4 text-[#C8FF3D]" />
+                    <Code2 className="w-4 h-4 text-[#FF4D6D]" />
                     <h4 className="text-xs font-bold text-white">Option 2: In a Code Editor (VS Code / Cursor)</h4>
                   </div>
                   <p className="text-xs text-[#969DA6] leading-relaxed">
@@ -813,7 +813,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                 </h4>
                 <div className="p-4 rounded-xl bg-[#040608] border border-[#252B32] font-mono text-xs text-slate-300 space-y-1.5 overflow-x-auto">
                   {techProfile.localCommands.map((cmd, idx) => (
-                    <div key={idx} className={cmd.startsWith('#') ? 'text-[#969DA6] italic' : 'text-[#C8FF3D]'}>
+                    <div key={idx} className={cmd.startsWith('#') ? 'text-[#969DA6] italic' : 'text-[#FF4D6D]'}>
                       {cmd}
                     </div>
                   ))}
@@ -850,12 +850,12 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-black text-white flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-[#C8FF3D]" />
+                    <BookOpen className="w-4 h-4 text-[#FF4D6D]" />
                     <span>Human Engineering Handoff & Architecture Prompt</span>
                   </h3>
                   <button
                     onClick={handleCopyPrompt}
-                    className="px-3 py-1.5 rounded-lg bg-[#C8FF3D] hover:bg-[#b5ee2e] text-[#080A0C] font-black text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg bg-[#C81E3C] hover:bg-[#b5ee2e] text-white font-black text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     {copiedPrompt ? (
                       <>
@@ -888,7 +888,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {techProfile.recommendedToolkits.map((tool, idx) => (
                     <div key={idx} className="p-3.5 rounded-xl bg-[#080A0C] border border-[#252B32] space-y-1">
-                      <span className="font-mono font-bold text-xs text-[#C8FF3D]">{tool.name}</span>
+                      <span className="font-mono font-bold text-xs text-[#FF4D6D]">{tool.name}</span>
                       <p className="text-[11px] text-[#969DA6]">{tool.purpose}</p>
                     </div>
                   ))}
@@ -906,7 +906,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
             <div className="p-6 rounded-2xl bg-[#0D1014] border border-[#252B32] space-y-4">
               <div className="space-y-1">
                 <h3 className="text-sm font-black text-white flex items-center gap-2">
-                  <Send className="w-4 h-4 text-[#C8FF3D]" />
+                  <Send className="w-4 h-4 text-[#FF4D6D]" />
                   <span>Submit Tester Feedback or Bug Report</span>
                 </h3>
                 <p className="text-xs text-[#969DA6]">
@@ -921,7 +921,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                     <select
                       value={feedbackCategory}
                       onChange={e => setFeedbackCategory(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C8FF3D]"
+                      className="w-full px-3 py-2 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C81E3C]"
                     >
                       <option value="UX / Onboarding">UX / Onboarding</option>
                       <option value="Bug / Error">Bug / Friction Point</option>
@@ -961,7 +961,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                       value={authorName}
                       onChange={e => setAuthorName(e.target.value)}
                       placeholder="Your name..."
-                      className="w-full px-3 py-2 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C8FF3D]"
+                      className="w-full px-3 py-2 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C81E3C]"
                     />
                   </div>
                   <div className="space-y-1">
@@ -971,7 +971,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                       value={authorEmail}
                       onChange={e => setAuthorEmail(e.target.value)}
                       placeholder="Your email..."
-                      className="w-full px-3 py-2 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C8FF3D]"
+                      className="w-full px-3 py-2 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C81E3C]"
                     />
                   </div>
                 </div>
@@ -984,14 +984,14 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                     onChange={e => setFeedbackMessage(e.target.value)}
                     placeholder="Describe any confusing friction points, broken workflows, or feature wishes..."
                     required
-                    className="w-full px-3 py-2.5 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C8FF3D] resize-none leading-relaxed"
+                    className="w-full px-3 py-2.5 rounded-xl bg-[#080A0C] border border-[#252B32] text-xs text-white outline-none focus:border-[#C81E3C] resize-none leading-relaxed"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmittingFeedback || !feedbackMessage.trim()}
-                  className="w-full py-2.5 rounded-xl bg-[#C8FF3D] hover:bg-[#b5ee2e] text-[#080A0C] font-black text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 rounded-xl bg-[#C81E3C] hover:bg-[#b5ee2e] text-white font-black text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{isSubmittingFeedback ? 'Submitting...' : 'Submit Feedback'}</span>
@@ -1021,7 +1021,7 @@ ${techProfile.recommendedToolkits.map(t => `- **${t.name}**: ${t.purpose}`).join
                     <div key={fb.id || idx} className="p-3 rounded-xl bg-[#080A0C] border border-[#252B32] space-y-1.5">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-bold text-white">{fb.author}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-[#101419] text-[#C8FF3D] border border-[#252B32] font-mono">
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-[#101419] text-[#FF4D6D] border border-[#252B32] font-mono">
                           {fb.category || fb.type || 'Feedback'}
                         </span>
                       </div>

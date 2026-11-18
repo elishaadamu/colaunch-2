@@ -267,46 +267,46 @@ export function ProjectOSSkeleton() {
  */
 export function Phase1ValidateSkeleton() {
   return (
-    <div className="space-y-5 w-full max-w-full overflow-hidden animate-fade-in text-slate-900">
+    <div className="space-y-5 w-full max-w-full overflow-hidden animate-fade-in text-[#FAFAFA]">
       {/* 5-Step Progress Nav Skeleton */}
-      <div className="p-2 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-between overflow-x-auto gap-2">
+      <div className="p-2 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30]/90 shadow-2xs flex items-center justify-between overflow-x-auto gap-2">
         <div className="flex items-center gap-2 min-w-max">
           {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="w-24 h-7 rounded-xl bg-slate-100 border border-slate-200 animate-pulse" />
+            <div key={i} className="w-24 h-7 rounded-xl bg-[#18181C] border border-[#2a2a30] animate-pulse" />
           ))}
         </div>
-        <div className="w-32 h-7 rounded-xl bg-emerald-50 border border-emerald-300 animate-pulse shrink-0" />
+        <div className="w-32 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/30 animate-pulse shrink-0" />
       </div>
 
       {/* Main Spec Card Skeleton */}
-      <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-200/80 pb-4">
+      <div className="p-6 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30]/90 shadow-sm space-y-6">
+        <div className="flex items-center justify-between border-b border-[#2a2a30]/80 pb-4">
           <div className="space-y-1.5">
-            <div className="w-48 h-4 rounded-full bg-slate-200 animate-pulse" />
-            <div className="w-72 h-3 rounded-full bg-slate-100 animate-pulse" />
+            <div className="w-48 h-4 rounded-full bg-[#222227] animate-pulse" />
+            <div className="w-72 h-3 rounded-full bg-[#18181C] animate-pulse" />
           </div>
-          <div className="w-28 h-8 rounded-xl bg-slate-100 border border-slate-200 animate-pulse" />
+          <div className="w-28 h-8 rounded-xl bg-[#18181C] border border-[#2a2a30] animate-pulse" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
-            <div className="w-24 h-4 rounded bg-slate-200 animate-pulse" />
-            <div className="w-full h-3 rounded bg-slate-100 animate-pulse" />
-            <div className="w-3/4 h-3 rounded bg-slate-100 animate-pulse" />
+          <div className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2">
+            <div className="w-24 h-4 rounded bg-[#222227] animate-pulse" />
+            <div className="w-full h-3 rounded bg-[#18181C] animate-pulse" />
+            <div className="w-3/4 h-3 rounded bg-[#18181C] animate-pulse" />
           </div>
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
-            <div className="w-24 h-4 rounded bg-slate-200 animate-pulse" />
-            <div className="w-full h-3 rounded bg-slate-100 animate-pulse" />
-            <div className="w-3/4 h-3 rounded bg-slate-100 animate-pulse" />
+          <div className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2">
+            <div className="w-24 h-4 rounded bg-[#222227] animate-pulse" />
+            <div className="w-full h-3 rounded bg-[#18181C] animate-pulse" />
+            <div className="w-3/4 h-3 rounded bg-[#18181C] animate-pulse" />
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-3 pt-2">
           {[1, 2, 3].map(i => (
-            <div key={i} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
-              <div className="w-20 h-3 rounded-full bg-slate-200 animate-pulse" />
-              <div className="w-16 h-5 rounded-lg bg-slate-300 animate-pulse" />
-              <div className="w-full h-2 rounded-full bg-slate-100 animate-pulse" />
+            <div key={i} className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2">
+              <div className="w-20 h-3 rounded-full bg-[#222227] animate-pulse" />
+              <div className="w-16 h-5 rounded-lg bg-[#2a2a30] animate-pulse" />
+              <div className="w-full h-2 rounded-full bg-[#18181C] animate-pulse" />
             </div>
           ))}
         </div>
@@ -320,18 +320,18 @@ export function Phase1ValidateSkeleton() {
  */
 export function Phase1CampaignGenSkeleton() {
   return (
-    <div className="space-y-4 p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs animate-fade-in">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+    <div className="space-y-4 p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30]/90 shadow-2xs animate-fade-in">
+      <div className="flex items-center justify-between border-b border-[#1C1C20] pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700">
+          <div className="p-2 rounded-xl bg-[#18181C] border border-[#2a2a30] text-[#D4D4D8]">
             <Sparkles className="w-4 h-4 animate-spin" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-slate-900 flex items-center gap-2">
+            <h4 className="text-xs font-bold text-[#FAFAFA] flex items-center gap-2">
               <span>Generating 7-Day Campaign Kit with AI...</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-700 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2a2a30] animate-pulse" />
             </h4>
-            <p className="text-[10px] text-slate-500">
+            <p className="text-[10px] text-[#A1A1AA]">
               Synthesizing Instagram Stories, TikTok scripts, VIP email newsletter, and 1-on-1 DM sequences.
             </p>
           </div>
@@ -342,9 +342,9 @@ export function Phase1CampaignGenSkeleton() {
       {/* Shimmer Schedule Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-7 gap-2">
         {['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'].map((day, i) => (
-          <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+          <div key={i} className="p-3 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold text-slate-500">{day}</span>
+              <span className="text-[10px] font-mono font-bold text-[#A1A1AA]">{day}</span>
               <SkeletonCircle size={10} variant="default" />
             </div>
             <Skeleton rounded="rounded-full" className="w-full h-2.5" />
@@ -355,14 +355,14 @@ export function Phase1CampaignGenSkeleton() {
 
       {/* Shimmer Copy Previews */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+        <div className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2.5">
           <div className="flex items-center gap-2">
             <SkeletonCircle size={18} variant="default" />
             <Skeleton rounded="rounded-full" className="w-32 h-3" />
           </div>
           <SkeletonText lines={3} />
         </div>
-        <div className="p-4 rounded-xl bg-[#141720] border border-white/[0.06] space-y-2.5">
+        <div className="p-4 rounded-xl bg-[#141720] border border-[#2a2a30]/[0.06] space-y-2.5">
           <div className="flex items-center gap-2">
             <SkeletonCircle size={18} variant="blue" />
             <Skeleton rounded="rounded-full" className="w-36 h-3" />
@@ -380,7 +380,7 @@ export function Phase1CampaignGenSkeleton() {
 export function Phase1ExperimentsGenSkeleton() {
   return (
     <div className="space-y-4 p-5 rounded-2xl bg-[#0e1117] border border-emerald-500/20 shadow-lg shadow-emerald-950/20 animate-fade-in">
-      <div className="flex items-center justify-between border-b border-white/[0.07] pb-3">
+      <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.07] pb-3">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
             <TrendingUp className="w-4 h-4 animate-bounce" />
@@ -390,7 +390,7 @@ export function Phase1ExperimentsGenSkeleton() {
               <span>Formulating CRO Experiments with AI...</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             </h4>
-            <p className="text-[10px] text-slate-400">
+            <p className="text-[10px] text-[#71717A]">
               Evaluating telemetry, drop-off rates, and generating high-impact A/B variants.
             </p>
           </div>
@@ -400,7 +400,7 @@ export function Phase1ExperimentsGenSkeleton() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {[1, 2, 3, 4].map(i => (
-          <div key={i} className="p-4 rounded-xl bg-[#141720] border border-white/[0.06] space-y-3">
+          <div key={i} className="p-4 rounded-xl bg-[#141720] border border-[#2a2a30]/[0.06] space-y-3">
             <div className="flex items-center justify-between">
               <Skeleton rounded="rounded-full" className="w-36 h-3.5" />
               <Skeleton variant="emerald" rounded="rounded-full" className="w-16 h-4" />
@@ -422,52 +422,52 @@ export function Phase1ExperimentsGenSkeleton() {
  */
 export function Phase2BuildMVPSkeleton() {
   return (
-    <div className="space-y-5 w-full max-w-full overflow-hidden animate-fade-in text-slate-900">
+    <div className="space-y-5 w-full max-w-full overflow-hidden animate-fade-in text-[#FAFAFA]">
       {/* Subtab Bar Skeleton */}
-      <div className="p-1.5 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-between shadow-2xs">
+      <div className="p-1.5 rounded-2xl bg-[#18181C] border border-[#2a2a30] flex items-center justify-between shadow-2xs">
         <div className="flex items-center gap-2">
           {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} rounded="rounded-xl" className="w-28 h-7 bg-slate-200/80" />
+            <Skeleton key={i} rounded="rounded-xl" className="w-28 h-7 bg-[#222227]/80" />
           ))}
         </div>
-        <div className="w-32 h-7 rounded-xl bg-slate-200/80 animate-pulse" />
+        <div className="w-32 h-7 rounded-xl bg-[#222227]/80 animate-pulse" />
       </div>
 
       {/* Main PRD Spec Card */}
-      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-5">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="p-6 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-5">
+        <div className="flex items-center justify-between border-b border-[#1C1C20] pb-3">
           <div className="space-y-1">
-            <Skeleton rounded="rounded-full" className="w-60 h-4 bg-slate-200" />
-            <Skeleton rounded="rounded-full" className="w-40 h-2.5 bg-slate-200/70" />
+            <Skeleton rounded="rounded-full" className="w-60 h-4 bg-[#222227]" />
+            <Skeleton rounded="rounded-full" className="w-40 h-2.5 bg-[#222227]/70" />
           </div>
-          <Skeleton rounded="rounded-full" className="w-20 h-5 bg-slate-200/80" />
+          <Skeleton rounded="rounded-full" className="w-20 h-5 bg-[#222227]/80" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
-            <Skeleton rounded="rounded-full" className="w-28 h-3 bg-slate-200" />
+          <div className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2">
+            <Skeleton rounded="rounded-full" className="w-28 h-3 bg-[#222227]" />
             <SkeletonText lines={3} />
           </div>
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
-            <Skeleton rounded="rounded-full" className="w-32 h-3 bg-slate-200" />
+          <div className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2">
+            <Skeleton rounded="rounded-full" className="w-32 h-3 bg-[#222227]" />
             <SkeletonText lines={3} />
           </div>
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
-            <Skeleton rounded="rounded-full" className="w-36 h-3 bg-slate-200" />
+          <div className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2">
+            <Skeleton rounded="rounded-full" className="w-36 h-3 bg-[#222227]" />
             <SkeletonText lines={3} />
           </div>
         </div>
 
         {/* Division of Labor Tasks Shimmer */}
         <div className="space-y-2 pt-2">
-          <Skeleton rounded="rounded-full" className="w-44 h-3.5 bg-slate-200" />
+          <Skeleton rounded="rounded-full" className="w-44 h-3.5 bg-[#222227]" />
           {[1, 2, 3].map(i => (
-            <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-between">
+            <div key={i} className="p-3 rounded-xl bg-[#111114] border border-[#2a2a30]/60 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <SkeletonCircle size={18} variant="blue" />
-                <Skeleton rounded="rounded-full" className="w-64 h-3 bg-slate-200" />
+                <Skeleton rounded="rounded-full" className="w-64 h-3 bg-[#222227]" />
               </div>
-              <Skeleton rounded="rounded-full" className="w-20 h-4 bg-slate-200" />
+              <Skeleton rounded="rounded-full" className="w-20 h-4 bg-[#222227]" />
             </div>
           ))}
         </div>
@@ -481,15 +481,15 @@ export function Phase2BuildMVPSkeleton() {
  */
 export function FeedbackClusterSkeleton() {
   return (
-    <div className="space-y-3 p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs animate-fade-in text-slate-900">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-        <Skeleton rounded="rounded-full" className="w-48 h-3.5 bg-slate-200" />
+    <div className="space-y-3 p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs animate-fade-in text-[#FAFAFA]">
+      <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2">
+        <Skeleton rounded="rounded-full" className="w-48 h-3.5 bg-[#222227]" />
         <SkeletonCircle size={16} />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
         {[1, 2, 3].map(i => (
-          <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
-            <Skeleton rounded="rounded-full" className="w-24 h-3 bg-slate-200" />
+          <div key={i} className="p-3 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2">
+            <Skeleton rounded="rounded-full" className="w-24 h-3 bg-[#222227]" />
             <SkeletonText lines={2} />
           </div>
         ))}
@@ -504,7 +504,7 @@ export function FeedbackClusterSkeleton() {
 export function Phase3LaunchSkeleton() {
   return (
     <div className="space-y-5 w-full max-w-full overflow-hidden animate-fade-in">
-      <div className="p-1.5 rounded-2xl bg-[#0e1117] border border-white/[0.08] flex items-center justify-between">
+      <div className="p-1.5 rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.08] flex items-center justify-between">
         <div className="flex items-center gap-2">
           {[1, 2, 3, 4].map(i => (
             <Skeleton key={i} rounded="rounded-xl" className="w-28 h-7" />
@@ -515,7 +515,7 @@ export function Phase3LaunchSkeleton() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[1, 2, 3, 4].map(i => (
-          <div key={i} className="p-4 rounded-2xl bg-[#0e1117] border border-white/[0.08] space-y-2">
+          <div key={i} className="p-4 rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.08] space-y-2">
             <Skeleton rounded="rounded-full" className="w-16 h-3" />
             <Skeleton rounded="rounded-lg" className="w-20 h-6" />
             <Skeleton rounded="rounded-full" className="w-28 h-2" />
@@ -523,7 +523,7 @@ export function Phase3LaunchSkeleton() {
         ))}
       </div>
 
-      <div className="p-6 rounded-2xl bg-[#0e1117] border border-white/[0.08] space-y-4">
+      <div className="p-6 rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.08] space-y-4">
         <Skeleton rounded="rounded-full" className="w-52 h-4" />
         <SkeletonText lines={4} />
       </div>
@@ -536,14 +536,14 @@ export function Phase3LaunchSkeleton() {
  */
 export function LaunchReportSkeleton() {
   return (
-    <div className="p-6 rounded-2xl bg-[#0e1117] border border-white/[0.08] space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+    <div className="p-6 rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.08] space-y-4 animate-fade-in">
+      <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.06] pb-3">
         <Skeleton rounded="rounded-full" className="w-64 h-5" />
         <SkeletonButton width={110} height={30} variant="emerald" />
       </div>
       <div className="grid grid-cols-3 gap-3">
         {[1, 2, 3].map(i => (
-          <div key={i} className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] space-y-1">
+          <div key={i} className="p-3 rounded-xl bg-[#0C0C0E]/[0.02] border border-[#2a2a30]/[0.05] space-y-1">
             <Skeleton rounded="rounded-full" className="w-16 h-2.5" />
             <Skeleton rounded="rounded-lg" className="w-20 h-5" />
           </div>
@@ -709,36 +709,36 @@ export function CreatorPortalSkeleton() {
 export function PreorderLandingSkeleton({ slug }) {
   const displaySlug = slug ? `@${slug.replace(/^@/, '')}` : 'Active Co-Launch Project'
   return (
-    <div className="min-h-screen bg-[#080A0C] text-white flex flex-col animate-fade-in relative selection:bg-[#C8FF3D]">
+    <div className="min-h-screen bg-[#080A0C] text-white flex flex-col animate-fade-in relative selection:bg-[#C81E3C]">
       {/* Top Animated Progress Bar */}
-      <div className="fixed top-0 left-0 right-0 z-[9999] h-1.5 bg-gradient-to-r from-[#C8FF3D] via-[#78E08F] to-[#C8FF3D] animate-pulse shadow-md shadow-[#C8FF3D]/20" />
+      <div className="fixed top-0 left-0 right-0 z-[9999] h-1.5 bg-gradient-to-r from-[#C81E3C] via-[#78E08F] to-[#C81E3C] animate-pulse shadow-md shadow-[#C81E3C]/20" />
 
       {/* Top Navbar Skeleton */}
       <div className="p-4 sm:p-5 border-b border-[#334155] flex items-center justify-between max-w-6xl w-full mx-auto">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#171C22] border border-[#334155] flex items-center justify-center text-[#C8FF3D] text-xs font-bold font-mono animate-pulse">
+          <div className="w-9 h-9 rounded-xl bg-[#171C22] border border-[#334155] flex items-center justify-center text-[#FF4D6D] text-xs font-bold font-mono animate-pulse">
             CF
           </div>
           <div className="space-y-1">
-            <div className="w-36 h-4 rounded-full bg-slate-800 animate-pulse" />
-            <div className="w-24 h-2.5 rounded-full bg-slate-800/60 animate-pulse" />
+            <div className="w-36 h-4 rounded-full bg-[#1C1C20] animate-pulse" />
+            <div className="w-24 h-2.5 rounded-full bg-[#1C1C20]/60 animate-pulse" />
           </div>
         </div>
-        <div className="w-32 h-9 rounded-xl bg-[#C8FF3D]/20 border border-[#C8FF3D]/30 animate-pulse flex items-center justify-center">
-          <Loader2 className="w-4 h-4 animate-spin text-[#C8FF3D]" />
+        <div className="w-32 h-9 rounded-xl bg-[#C81E3C]/20 border border-[#C81E3C]/30 animate-pulse flex items-center justify-center">
+          <Loader2 className="w-4 h-4 animate-spin text-[#FF4D6D]" />
         </div>
       </div>
 
       {/* Hero Body Skeleton with Animated Spinner & Status Badges */}
       <main className="flex-1 max-w-4xl w-full mx-auto p-6 sm:p-12 text-center space-y-7 flex flex-col items-center justify-center my-auto">
-        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#101419] border border-[#C8FF3D]/30 text-[#C8FF3D] text-xs font-mono font-bold shadow-lg shadow-[#C8FF3D]/5">
-          <Loader2 className="w-4 h-4 animate-spin text-[#C8FF3D]" />
+        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#101419] border border-[#C81E3C]/30 text-[#FF4D6D] text-xs font-mono font-bold shadow-lg shadow-[#C81E3C]/5">
+          <Loader2 className="w-4 h-4 animate-spin text-[#FF4D6D]" />
           <span>Connecting to CoLaunch Registry for {displaySlug}...</span>
         </div>
 
         <div className="space-y-3 w-full max-w-2xl mx-auto">
           <div className="w-full h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-[#171C22] via-[#252B32] to-[#171C22] animate-pulse mx-auto border border-[#334155]" />
-          <div className="w-3/4 max-w-md h-4 rounded-full bg-slate-800/80 animate-pulse mx-auto" />
+          <div className="w-3/4 max-w-md h-4 rounded-full bg-[#1C1C20]/80 animate-pulse mx-auto" />
         </div>
 
         {/* Live Loading Steps Pill */}
@@ -753,11 +753,11 @@ export function PreorderLandingSkeleton({ slug }) {
               <span>Fetching verified creator concept & dynamic pricing</span>
             </div>
             <div className="flex items-center gap-2 text-[#969DA6]">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2a2a30]" />
               <span>Building customized product mockup canvas</span>
             </div>
             <div className="flex items-center gap-2 text-[#969DA6]">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2a2a30]" />
               <span>Mounting Stripe & PayPal secure reservation gateway</span>
             </div>
           </div>
@@ -766,16 +766,16 @@ export function PreorderLandingSkeleton({ slug }) {
         {/* Pricing pass cards skeleton */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 max-w-xl w-full mx-auto">
           <div className="p-5 rounded-2xl bg-[#101419] border border-[#334155] space-y-3 text-left">
-            <div className="w-28 h-3.5 rounded bg-slate-800 animate-pulse" />
-            <div className="w-24 h-7 rounded bg-[#C8FF3D]/20 animate-pulse" />
-            <div className="w-full h-3 rounded bg-slate-800/60 animate-pulse" />
-            <div className="w-full h-10 rounded-xl bg-[#C8FF3D]/20 animate-pulse mt-2" />
+            <div className="w-28 h-3.5 rounded bg-[#1C1C20] animate-pulse" />
+            <div className="w-24 h-7 rounded bg-[#C81E3C]/20 animate-pulse" />
+            <div className="w-full h-3 rounded bg-[#1C1C20]/60 animate-pulse" />
+            <div className="w-full h-10 rounded-xl bg-[#C81E3C]/20 animate-pulse mt-2" />
           </div>
           <div className="p-5 rounded-2xl bg-[#101419] border border-[#334155] space-y-3 text-left">
-            <div className="w-24 h-3.5 rounded bg-slate-800 animate-pulse" />
-            <div className="w-20 h-7 rounded bg-slate-800 animate-pulse" />
-            <div className="w-full h-3 rounded bg-slate-800/60 animate-pulse" />
-            <div className="w-full h-10 rounded-xl bg-slate-800/60 animate-pulse mt-2" />
+            <div className="w-24 h-3.5 rounded bg-[#1C1C20] animate-pulse" />
+            <div className="w-20 h-7 rounded bg-[#1C1C20] animate-pulse" />
+            <div className="w-full h-3 rounded bg-[#1C1C20]/60 animate-pulse" />
+            <div className="w-full h-10 rounded-xl bg-[#1C1C20]/60 animate-pulse mt-2" />
           </div>
         </div>
       </main>
@@ -947,20 +947,20 @@ export function Phase3StrategySkeleton() {
   return (
     <div className="space-y-4 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-[#0e1117] border border-white/[0.08] space-y-3">
+        <div className="p-5 rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.08] space-y-3">
           <Skeleton rounded="rounded-full" className="w-32 h-3" variant="emerald" />
           <Skeleton rounded="rounded-lg" className="w-40 h-7" />
           <Skeleton rounded="rounded-full" className="w-full h-3" />
           <Skeleton rounded="rounded-xl" className="w-full h-10" variant="default" />
         </div>
-        <div className="md:col-span-2 p-5 rounded-2xl bg-[#0e1117] border border-white/[0.08] space-y-3">
-          <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+        <div className="md:col-span-2 p-5 rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.08] space-y-3">
+          <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.06] pb-2">
             <Skeleton rounded="rounded-full" className="w-44 h-3.5" variant="blue" />
             <Skeleton rounded="rounded-full" className="w-28 h-3" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="p-3.5 rounded-xl bg-[#141720] border border-white/[0.06] space-y-2">
+              <div key={i} className="p-3.5 rounded-xl bg-[#141720] border border-[#2a2a30]/[0.06] space-y-2">
                 <div className="flex items-center justify-between">
                   <Skeleton rounded="rounded-full" className="w-28 h-3.5" />
                   <Skeleton rounded="rounded" className="w-12 h-4" variant="default" />
@@ -973,11 +973,11 @@ export function Phase3StrategySkeleton() {
         </div>
       </div>
 
-      <div className="p-5 rounded-2xl bg-[#0e1117] border border-white/[0.08] space-y-3">
+      <div className="p-5 rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.08] space-y-3">
         <Skeleton rounded="rounded-full" className="w-56 h-3.5" variant="emerald" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           {[1, 2].map(i => (
-            <div key={i} className="p-4 rounded-xl bg-[#141720] border border-white/[0.06] space-y-2.5">
+            <div key={i} className="p-4 rounded-xl bg-[#141720] border border-[#2a2a30]/[0.06] space-y-2.5">
               <div className="flex items-center justify-between">
                 <Skeleton rounded="rounded-full" className="w-32 h-4" />
                 <Skeleton rounded="rounded-lg" className="w-20 h-6" variant="emerald" />
@@ -997,8 +997,8 @@ export function Phase3StrategySkeleton() {
  */
 export function Phase3AssetsSkeleton() {
   return (
-    <div className="p-5 rounded-2xl bg-[#0e1117] border border-white/[0.08] space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between border-b border-white/[0.07] pb-3">
+    <div className="p-5 rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.08] space-y-4 animate-fade-in">
+      <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.07] pb-3">
         <div className="flex items-center gap-2">
           {[1, 2, 3, 4, 5].map(i => (
             <Skeleton key={i} rounded="rounded-xl" className="w-24 h-7" />
@@ -1011,7 +1011,7 @@ export function Phase3AssetsSkeleton() {
           <Skeleton rounded="rounded-full" className="w-48 h-4" />
           <Skeleton rounded="rounded-lg" className="w-20 h-7" />
         </div>
-        <div className="p-5 rounded-xl bg-[#090b0e] border border-white/[0.06] space-y-2">
+        <div className="p-5 rounded-xl bg-[#090b0e] border border-[#2a2a30]/[0.06] space-y-2">
           <Skeleton rounded="rounded-full" className="w-full h-3" />
           <Skeleton rounded="rounded-full" className="w-4/5 h-3" />
           <Skeleton rounded="rounded-full" className="w-3/5 h-3" />
@@ -1027,14 +1027,14 @@ export function Phase3AssetsSkeleton() {
  */
 export function Phase3InfraSkeleton() {
   return (
-    <div className="p-5 rounded-2xl bg-[#0e1117] border border-white/[0.08] space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
+    <div className="p-5 rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.08] space-y-4 animate-fade-in">
+      <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.06] pb-2.5">
         <Skeleton rounded="rounded-full" className="w-64 h-4" variant="emerald" />
         <Skeleton rounded="rounded-full" className="w-24 h-3.5" variant="emerald" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[1, 2, 3, 4, 5, 6].map(i => (
-          <div key={i} className="p-4 rounded-xl bg-[#141720] border border-white/[0.06] space-y-2">
+          <div key={i} className="p-4 rounded-xl bg-[#141720] border border-[#2a2a30]/[0.06] space-y-2">
             <div className="flex items-center justify-between">
               <Skeleton rounded="rounded-full" className="w-28 h-3.5" />
               <Skeleton rounded="rounded" className="w-14 h-4" variant="emerald" />
@@ -1055,14 +1055,14 @@ export function Phase3ChecklistsSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
       {[1, 2].map(col => (
-        <div key={col} className="p-5 rounded-2xl bg-[#0e1117] border border-white/[0.08] space-y-3">
-          <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
+        <div key={col} className="p-5 rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.08] space-y-3">
+          <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.06] pb-2.5">
             <Skeleton rounded="rounded-full" className="w-40 h-4" variant={col === 1 ? 'emerald' : 'blue'} />
             <Skeleton rounded="rounded-full" className="w-24 h-3" />
           </div>
           <div className="space-y-2">
             {[1, 2, 3, 4, 5].map(i => (
-              <div key={i} className="p-3 rounded-xl bg-[#141720] border border-white/[0.06] flex items-center justify-between gap-3">
+              <div key={i} className="p-3 rounded-xl bg-[#141720] border border-[#2a2a30]/[0.06] flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 w-full">
                   <SkeletonCircle size={16} />
                   <Skeleton rounded="rounded-full" className="w-4/5 h-3" />
@@ -1154,27 +1154,27 @@ export function ConceptCardSkeleton({ count = 3 }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="p-5 rounded-2xl border border-slate-200/90 bg-white space-y-4 relative overflow-hidden shadow-2xs animate-fade-in"
+          className="p-5 rounded-2xl border border-[#2a2a30]/90 bg-[#0C0C0E] space-y-4 relative overflow-hidden shadow-2xs animate-fade-in"
         >
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="h-6 w-28 bg-slate-100 border border-slate-200/70 rounded-lg animate-pulse" />
-            <div className="h-5 w-16 bg-emerald-50 border border-emerald-200/70 rounded-full animate-pulse" />
+          <div className="flex items-center justify-between border-b border-[#1C1C20] pb-3">
+            <div className="h-6 w-28 bg-[#18181C] border border-[#2a2a30]/70 rounded-lg animate-pulse" />
+            <div className="h-5 w-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full animate-pulse" />
           </div>
           <div className="space-y-2">
-            <div className="h-4 w-4/5 bg-slate-200/80 rounded-full animate-pulse" />
-            <div className="h-3 w-full bg-slate-100 rounded-full animate-pulse" />
-            <div className="h-3 w-2/3 bg-slate-100 rounded-full animate-pulse" />
+            <div className="h-4 w-4/5 bg-[#222227]/80 rounded-full animate-pulse" />
+            <div className="h-3 w-full bg-[#18181C] rounded-full animate-pulse" />
+            <div className="h-3 w-2/3 bg-[#18181C] rounded-full animate-pulse" />
           </div>
-          <div className="space-y-2 pt-2 border-t border-slate-100">
+          <div className="space-y-2 pt-2 border-t border-[#1C1C20]">
             {[1, 2, 3].map(f => (
               <div key={f} className="flex items-center gap-2">
-                <div className="w-3.5 h-3.5 rounded-full bg-slate-200 shrink-0 animate-pulse" />
-                <div className="h-3 w-3/4 bg-slate-100 rounded-full animate-pulse" />
+                <div className="w-3.5 h-3.5 rounded-full bg-[#222227] shrink-0 animate-pulse" />
+                <div className="h-3 w-3/4 bg-[#18181C] rounded-full animate-pulse" />
               </div>
             ))}
           </div>
           <div className="pt-2">
-            <div className="h-10 w-full bg-slate-100 border border-slate-200/80 rounded-xl animate-pulse" />
+            <div className="h-10 w-full bg-[#18181C] border border-[#2a2a30]/80 rounded-xl animate-pulse" />
           </div>
         </div>
       ))}
@@ -1187,22 +1187,22 @@ export function ConceptCardSkeleton({ count = 3 }) {
  */
 export function OutreachQueueSkeleton() {
   return (
-    <div className="p-5 rounded-2xl bg-white border border-slate-200/90 space-y-4 animate-fade-in w-full shadow-2xs">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div className="h-4 w-48 bg-slate-200/80 rounded-full animate-pulse" />
-        <div className="h-6 w-24 bg-slate-100 border border-slate-200/60 rounded-full animate-pulse" />
+    <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30]/90 space-y-4 animate-fade-in w-full shadow-2xs">
+      <div className="flex items-center justify-between border-b border-[#1C1C20] pb-3">
+        <div className="h-4 w-48 bg-[#222227]/80 rounded-full animate-pulse" />
+        <div className="h-6 w-24 bg-[#18181C] border border-[#2a2a30]/60 rounded-full animate-pulse" />
       </div>
       <div className="space-y-3">
         {[1, 2, 3].map(i => (
-          <div key={i} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3">
+          <div key={i} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-8 h-8 rounded-full bg-slate-200 animate-pulse shrink-0" />
+              <div className="w-8 h-8 rounded-full bg-[#222227] animate-pulse shrink-0" />
               <div className="space-y-1.5 flex-1">
-                <div className="h-3.5 w-36 bg-slate-200/80 rounded-full animate-pulse" />
-                <div className="h-2.5 w-56 bg-slate-100 rounded-full animate-pulse" />
+                <div className="h-3.5 w-36 bg-[#222227]/80 rounded-full animate-pulse" />
+                <div className="h-2.5 w-56 bg-[#18181C] rounded-full animate-pulse" />
               </div>
             </div>
-            <div className="h-5 w-20 bg-emerald-50 border border-emerald-200/60 rounded-full shrink-0 animate-pulse" />
+            <div className="h-5 w-20 bg-emerald-500/10 border border-emerald-500/30 rounded-full shrink-0 animate-pulse" />
           </div>
         ))}
       </div>
@@ -1215,23 +1215,23 @@ export function OutreachQueueSkeleton() {
  */
 export function ReplyInboxSkeleton() {
   return (
-    <div className="p-5 rounded-2xl bg-white border border-slate-200/90 space-y-4 animate-fade-in w-full shadow-2xs">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div className="h-4 w-44 bg-slate-200/80 rounded-full animate-pulse" />
-        <div className="h-6 w-28 bg-emerald-50 border border-emerald-200/60 rounded-full animate-pulse" />
+    <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30]/90 space-y-4 animate-fade-in w-full shadow-2xs">
+      <div className="flex items-center justify-between border-b border-[#1C1C20] pb-3">
+        <div className="h-4 w-44 bg-[#222227]/80 rounded-full animate-pulse" />
+        <div className="h-6 w-28 bg-emerald-500/10 border border-emerald-500/30 rounded-full animate-pulse" />
       </div>
       <div className="space-y-3">
         {[1, 2, 3].map(i => (
-          <div key={i} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+          <div key={i} className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-slate-200 animate-pulse shrink-0" />
-                <div className="h-3.5 w-32 bg-slate-200/80 rounded-full animate-pulse" />
+                <div className="w-6 h-6 rounded-full bg-[#222227] animate-pulse shrink-0" />
+                <div className="h-3.5 w-32 bg-[#222227]/80 rounded-full animate-pulse" />
               </div>
-              <div className="h-4 w-16 bg-emerald-50 border border-emerald-200/60 rounded-full animate-pulse" />
+              <div className="h-4 w-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full animate-pulse" />
             </div>
-            <div className="h-3 w-4/5 bg-slate-200/70 rounded-full animate-pulse" />
-            <div className="h-2.5 w-1/2 bg-slate-100 rounded-full animate-pulse" />
+            <div className="h-3 w-4/5 bg-[#222227]/70 rounded-full animate-pulse" />
+            <div className="h-2.5 w-1/2 bg-[#18181C] rounded-full animate-pulse" />
           </div>
         ))}
       </div>

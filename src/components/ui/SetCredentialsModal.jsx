@@ -43,7 +43,7 @@ export default function SetCredentialsModal({
 
   // Password strength calculation
   const getStrength = (pass) => {
-    if (!pass) return { score: 0, label: 'Empty', color: 'bg-slate-700', text: 'Enter at least 6 characters' }
+    if (!pass) return { score: 0, label: 'Empty', color: 'bg-[#2a2a30]', text: 'Enter at least 6 characters' }
     let score = 0
     if (pass.length >= 6) score++
     if (pass.length >= 8) score++
@@ -153,7 +153,7 @@ export default function SetCredentialsModal({
                   Required
                 </span>
               </div>
-              <p className="text-[12px] text-slate-400 mt-0.5">
+              <p className="text-[12px] text-[#71717A] mt-0.5">
                 Set your real login email and password to secure your dashboard.
               </p>
             </div>
@@ -161,7 +161,7 @@ export default function SetCredentialsModal({
           <button
             onClick={onClose}
             disabled={loading || success}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer disabled:opacity-40"
+            className="p-1.5 rounded-xl text-[#71717A] hover:text-white hover:bg-[#0C0C0E]/[0.08] transition-colors cursor-pointer disabled:opacity-40"
           >
             <X className="w-4 h-4" />
           </button>
@@ -174,7 +174,7 @@ export default function SetCredentialsModal({
               <CheckCircle2 className="w-7 h-7" />
             </div>
             <h4 className="text-base font-bold text-white">Credentials Saved!</h4>
-            <p className="text-xs text-slate-300 max-w-xs">
+            <p className="text-xs text-[#D4D4D8] max-w-xs">
               Your account is now secured with your email <span className="text-cyan-400 font-mono font-medium">{email}</span>. You can use it to log in anytime.
             </p>
           </div>
@@ -189,11 +189,11 @@ export default function SetCredentialsModal({
 
             {/* Email input */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
+              <label className="block text-[11px] font-semibold text-[#D4D4D8] uppercase tracking-wider">
                 Real Login Email
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Mail className="w-4 h-4 text-[#A1A1AA] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   value={email}
@@ -204,21 +204,21 @@ export default function SetCredentialsModal({
                   placeholder="e.g. yourname@brand.com"
                   autoFocus
                   required
-                  className="w-full bg-[#121826] border border-white/[0.1] focus:border-amber-400/80 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-400/50"
+                  className="w-full bg-[#121826] border border-[#2a2a30]/[0.1] focus:border-amber-400/80 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-[#A1A1AA] outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-400/50"
                 />
               </div>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-[10px] text-[#71717A]">
                 You will use this email address to sign in to your dashboard.
               </p>
             </div>
 
             {/* Password input */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
+              <label className="block text-[11px] font-semibold text-[#D4D4D8] uppercase tracking-wider">
                 New Password
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-[#A1A1AA] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
@@ -228,12 +228,12 @@ export default function SetCredentialsModal({
                   }}
                   placeholder="Create a strong password (min 6 chars)"
                   required
-                  className="w-full bg-[#121826] border border-white/[0.1] focus:border-amber-400/80 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-400/50"
+                  className="w-full bg-[#121826] border border-[#2a2a30]/[0.1] focus:border-amber-400/80 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-[#A1A1AA] outline-none transition-all shadow-inner focus:ring-1 focus:ring-amber-400/50"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-white transition-colors cursor-pointer"
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
@@ -247,13 +247,13 @@ export default function SetCredentialsModal({
                       <div
                         key={step}
                         className={`flex-1 rounded-full h-full transition-all duration-300 ${
-                          strength.score >= step ? strength.color : 'bg-slate-700/50'
+                          strength.score >= step ? strength.color : 'bg-[#2a2a30]/50'
                         }`}
                       />
                     ))}
                   </div>
                   <div className="flex justify-between items-center text-[10px]">
-                    <span className="text-slate-400">{strength.text}</span>
+                    <span className="text-[#71717A]">{strength.text}</span>
                     <span className={`font-semibold ${strength.score >= 3 ? 'text-emerald-400' : 'text-amber-400'}`}>
                       {strength.label}
                     </span>
@@ -264,11 +264,11 @@ export default function SetCredentialsModal({
 
             {/* Confirm password input */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
+              <label className="block text-[11px] font-semibold text-[#D4D4D8] uppercase tracking-wider">
                 Confirm Password
               </label>
               <div className="relative">
-                <KeyRound className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <KeyRound className="w-4 h-4 text-[#A1A1AA] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type={showConfirm ? 'text' : 'password'}
                   value={confirmPassword}
@@ -278,18 +278,18 @@ export default function SetCredentialsModal({
                   }}
                   placeholder="Re-enter password to verify"
                   required
-                  className={`w-full bg-[#121826] border rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 outline-none transition-all shadow-inner ${
+                  className={`w-full bg-[#121826] border rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-[#A1A1AA] outline-none transition-all shadow-inner ${
                     confirmPassword && !passwordsMatch
                       ? 'border-rose-500/70 focus:border-rose-500'
                       : confirmPassword && passwordsMatch
                       ? 'border-emerald-500/70 focus:border-emerald-500'
-                      : 'border-white/[0.1] focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50'
+                      : 'border-[#2a2a30]/[0.1] focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50'
                   }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-white transition-colors cursor-pointer"
                 >
                   {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
@@ -315,24 +315,24 @@ export default function SetCredentialsModal({
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#71717A] hover:text-white hover:bg-[#0C0C0E]/[0.06] transition-colors cursor-pointer"
               >
                 Remind Me Later
               </button>
               <button
                 type="submit"
                 disabled={loading || !isValidEmail(email) || password.length < 6 || !passwordsMatch}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-lg shadow-amber-500/25 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-[#FAFAFA] bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-lg shadow-amber-500/25 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 {loading ? (
                   <>
-                    <Loader2 size={13} className="animate-spin text-slate-950" />
+                    <Loader2 size={13} className="animate-spin text-[#FAFAFA]" />
                     <span>Saving...</span>
                   </>
                 ) : (
                   <>
                     <span>Save & Secure Account</span>
-                    <ArrowRight size={13} className="text-slate-950" />
+                    <ArrowRight size={13} className="text-[#FAFAFA]" />
                   </>
                 )}
               </button>

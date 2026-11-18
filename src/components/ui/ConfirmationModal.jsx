@@ -17,7 +17,7 @@ export default function ConfirmationModal({
 
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="relative w-full max-w-md bg-[#0e1117] border border-white/[0.1] rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-md bg-[#0e1117] border border-[#2a2a30]/[0.1] rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -40,26 +40,26 @@ export default function ConfirmationModal({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-[#71717A] hover:text-white hover:bg-[#0C0C0E]/[0.08] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Message body */}
-        <p className="text-xs text-slate-300 leading-relaxed">{message}</p>
+        <p className="text-xs text-[#D4D4D8] leading-relaxed">{message}</p>
 
         {/* Stats Pill Breakdown (if provided) */}
         {stats && stats.length > 0 && (
-          <div className="p-3 rounded-2xl bg-black/40 border border-white/[0.06] space-y-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+          <div className="p-3 rounded-2xl bg-black/40 border border-[#2a2a30]/[0.06] space-y-2">
+            <span className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider block">
               Items Affected:
             </span>
             <div className="flex flex-wrap gap-2">
               {stats.map((s, idx) => (
                 <span
                   key={idx}
-                  className="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-white/[0.04] border border-white/[0.08] text-slate-300"
+                  className="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-[#0C0C0E]/[0.04] border border-[#2a2a30]/[0.08] text-[#D4D4D8]"
                 >
                   {s}
                 </span>
@@ -74,7 +74,7 @@ export default function ConfirmationModal({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.1] transition-all cursor-pointer disabled:opacity-50"
+            className="px-4 py-2.5 rounded-xl text-xs font-bold text-[#D4D4D8] hover:text-white bg-[#0C0C0E]/[0.06] hover:bg-[#0C0C0E]/[0.1] transition-all cursor-pointer disabled:opacity-50"
           >
             {cancelText}
           </button>

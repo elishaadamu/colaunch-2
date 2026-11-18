@@ -463,7 +463,7 @@ export default function CreatorFollowUpCRM({
 
   // ── 2. Helper to resolve creator pipeline stage & status badge ───────────────
   const getCreatorPipelineStage = (c, extra = {}) => {
-    if (!c) return { stageId: "unknown", stageName: "Unknown", badgeClass: "bg-slate-100 text-slate-700 border-slate-200", dotClass: "bg-slate-400", description: "" };
+    if (!c) return { stageId: "unknown", stageName: "Unknown", badgeClass: "bg-[#18181C] text-[#D4D4D8] border-[#2a2a30]", dotClass: "bg-[#3f3f46]", description: "" };
 
     const cleanH = (c.handle || "").toLowerCase().replace(/^@/, "");
     const cCleanName = (c.name || c.display_name || "").toLowerCase().trim();
@@ -479,7 +479,7 @@ export default function CreatorFollowUpCRM({
       return {
         stageId: "rejected",
         stageName: "Rejected by Studio",
-        badgeClass: "bg-rose-50 text-rose-700 border-rose-200 font-semibold",
+        badgeClass: "bg-rose-500/10 text-rose-300 border-rose-500/30 font-semibold",
         dotClass: "bg-rose-500",
         description: "Lead archived by studio admin",
       };
@@ -520,7 +520,7 @@ export default function CreatorFollowUpCRM({
       return {
         stageId: "section2",
         stageName: "Active Co-Launch Venture",
-        badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold shadow-2xs",
+        badgeClass: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30 font-semibold shadow-2xs",
         dotClass: "bg-emerald-500",
         description: "Venture greenlit & active in Section 2 (Phase 1: Validation)",
       };
@@ -555,8 +555,8 @@ export default function CreatorFollowUpCRM({
       return {
         stageId: "studio_replied",
         stageName: "Studio Replied • In Discussion",
-        badgeClass: "bg-indigo-50 text-indigo-700 border-indigo-200 font-semibold shadow-2xs",
-        dotClass: "bg-indigo-500",
+        badgeClass: "bg-[#C81E3C]/10 text-[#FF8FA3] border-[#C81E3C]/45 font-semibold shadow-2xs",
+        dotClass: "bg-[#C81E3C]",
         description: "Studio responded to creator's interest. Active dialogue in progress.",
       };
     }
@@ -567,7 +567,7 @@ export default function CreatorFollowUpCRM({
       return {
         stageId: "approved",
         stageName: "Step 5: Approved • In Product Review",
-        badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold shadow-2xs",
+        badgeClass: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30 font-semibold shadow-2xs",
         dotClass: "bg-emerald-500",
         description: "Qualified & approved by studio for Step 5 Audience & Product Synthesis",
       };
@@ -579,7 +579,7 @@ export default function CreatorFollowUpCRM({
         return {
           stageId: "interested",
           stageName: "AI: Interested Reply Received",
-          badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold shadow-2xs",
+          badgeClass: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30 font-semibold shadow-2xs",
           dotClass: "bg-emerald-500",
           description: "Creator replied positively with interest",
         };
@@ -589,7 +589,7 @@ export default function CreatorFollowUpCRM({
         return {
           stageId: "question",
           stageName: "Questions / Clarification",
-          badgeClass: "bg-amber-50 text-amber-700 border-amber-200 font-semibold shadow-2xs",
+          badgeClass: "bg-amber-500/10 text-amber-300 border-amber-500/30 font-semibold shadow-2xs",
           dotClass: "bg-amber-500",
           description: "Creator asked questions about revenue or tech stack",
         };
@@ -599,7 +599,7 @@ export default function CreatorFollowUpCRM({
         return {
           stageId: "not_interested",
           stageName: "Hesitant / Uninterested",
-          badgeClass: "bg-orange-50 text-orange-700 border-orange-200 font-semibold shadow-2xs",
+          badgeClass: "bg-orange-500/10 text-orange-300 border-orange-500/30 font-semibold shadow-2xs",
           dotClass: "bg-orange-500",
           description: "Creator expressed hesitation or soft pass",
         };
@@ -609,8 +609,8 @@ export default function CreatorFollowUpCRM({
         return {
           stageId: "unsubscribe",
           stageName: "Unsubscribed",
-          badgeClass: "bg-slate-100 text-slate-700 border-slate-200 font-semibold",
-          dotClass: "bg-slate-400",
+          badgeClass: "bg-[#18181C] text-[#D4D4D8] border-[#2a2a30] font-semibold",
+          dotClass: "bg-[#3f3f46]",
           description: "Creator opted out of outreach",
         };
       }
@@ -629,7 +629,7 @@ export default function CreatorFollowUpCRM({
       return {
         stageId: "no_email",
         stageName: "Missing Contact Email",
-        badgeClass: "bg-amber-50 text-amber-700 border-amber-200 font-semibold",
+        badgeClass: "bg-amber-500/10 text-amber-300 border-amber-500/30 font-semibold",
         dotClass: "bg-amber-500",
         description: "No verified email address found",
       };
@@ -638,8 +638,8 @@ export default function CreatorFollowUpCRM({
     return {
       stageId: "awaiting_reply",
       stageName: "Outreach Sent • Awaiting Reply",
-      badgeClass: "bg-blue-50 text-blue-700 border-blue-200 font-semibold",
-      dotClass: "bg-blue-500",
+      badgeClass: "bg-[#C81E3C]/10 text-[#FF8FA3] border-[#C81E3C]/45 font-semibold",
+      dotClass: "bg-[#C81E3C]",
       description: "Initial outreach sent, waiting for creator response",
     };
   };
@@ -830,7 +830,7 @@ export default function CreatorFollowUpCRM({
   ];
 
   const getCreatorCurrentStepInfo = (c) => {
-    if (!c) return { stepNumber: 1, stepKey: "step1", stepName: "Step 1: Campaign Setup", badgeClass: "bg-slate-500/20 text-slate-300 border-slate-500/40", buttonLabel: "Step 1 Setup →", targetStep: 1 };
+    if (!c) return { stepNumber: 1, stepKey: "step1", stepName: "Step 1: Campaign Setup", badgeClass: "bg-[#52525b]/20 text-[#D4D4D8] border-[#52525b]/40", buttonLabel: "Step 1 Setup →", targetStep: 1 };
 
     const explicitTracked = stageMap[c.id] || stageMap[(c.handle || "").replace(/^@/, "").toLowerCase()];
     const isPitched = Boolean(pitchSentMap[c.id]) || Boolean(c.pitch_sent) || c.status === "pitched";
@@ -903,7 +903,7 @@ export default function CreatorFollowUpCRM({
         stepKey: "rejected",
         stepName: "Rejected / Archived",
         badgeText: "Lead Archived",
-        badgeClass: "bg-rose-50 text-rose-700 border-rose-200 font-semibold",
+        badgeClass: "bg-rose-500/10 text-rose-300 border-rose-500/30 font-semibold",
         buttonLabel: "Lead Archived",
         targetStep: 4,
       };
@@ -915,7 +915,7 @@ export default function CreatorFollowUpCRM({
         stepKey: "section2",
         stepName: "Section 2: Active Project OS",
         badgeText: "Project Launched 🚀",
-        badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold shadow-2xs",
+        badgeClass: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30 font-semibold shadow-2xs",
         buttonLabel: "Open Project OS 🚀",
         targetStep: "section2",
         matchedProject: matchedDbProj || null,
@@ -943,7 +943,7 @@ export default function CreatorFollowUpCRM({
         stepKey: "step5",
         stepName: "Step 5: Audience & 3 Product Ideas",
         badgeText: "Step 5: 3 Ideas Ready",
-        badgeClass: "bg-amber-50 text-amber-700 border-amber-200 font-semibold",
+        badgeClass: "bg-amber-500/10 text-amber-300 border-amber-500/30 font-semibold",
         buttonLabel: "Step 5 Product Studio →",
         targetStep: 5,
       };
@@ -955,7 +955,7 @@ export default function CreatorFollowUpCRM({
         stepKey: "step4",
         stepName: "Step 4: Interested Reply Received",
         badgeText: "Step 4: Reply Review",
-        badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold",
+        badgeClass: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30 font-semibold",
         buttonLabel: "Step 4 Review Reply →",
         targetStep: 4,
       };
@@ -967,7 +967,7 @@ export default function CreatorFollowUpCRM({
         stepKey: "step3",
         stepName: "Step 3: Autonomous Outreach Sent",
         badgeText: "Step 3: Outreach Sent",
-        badgeClass: "bg-blue-50 text-blue-700 border-blue-200 font-semibold",
+        badgeClass: "bg-[#C81E3C]/10 text-[#FF8FA3] border-[#C81E3C]/45 font-semibold",
         buttonLabel: "Step 4 Review →",
         targetStep: 4,
       };
@@ -978,7 +978,7 @@ export default function CreatorFollowUpCRM({
       stepKey: "step2",
       stepName: "Step 2: Discovered & Qualified",
       badgeText: "Step 2: Qualified Lead",
-      badgeClass: "bg-slate-100 text-slate-700 border-slate-200 font-semibold",
+      badgeClass: "bg-[#18181C] text-[#D4D4D8] border-[#2a2a30] font-semibold",
       buttonLabel: "Step 3 Outreach →",
       targetStep: 3,
     };

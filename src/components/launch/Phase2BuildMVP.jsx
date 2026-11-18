@@ -556,19 +556,19 @@ export default function ${name}View({ onAction, settings }) {
   }, []);
 
   return (
-    <div className="p-6 rounded-2xl bg-[#0e1117] border border-white/[0.08] space-y-4 font-sans">
-      <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+    <div className="p-6 rounded-2xl bg-[#0e1117] border border-[#2a2a30]/[0.08] space-y-4 font-sans">
+      <div className="flex items-center justify-between border-b border-[#2a2a30]/[0.06] pb-3">
         <div>
           <h2 className="text-base font-bold text-white">${task.title}</h2>
-          <p className="text-xs text-slate-400">Production frontend module for ${prod}.</p>
+          <p className="text-xs text-[#71717A]">Production frontend module for ${prod}.</p>
         </div>
         <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold">
           Verified Active
         </span>
       </div>
 
-      <div className="p-4 rounded-xl bg-[#141720] border border-white/[0.04]">
-        <p className="text-xs text-slate-300 leading-relaxed">
+      <div className="p-4 rounded-xl bg-[#141720] border border-[#2a2a30]/[0.04]">
+        <p className="text-xs text-[#D4D4D8] leading-relaxed">
           Interactive view and client sandbox initialized for ${task.title}.
         </p>
       </div>
@@ -1502,22 +1502,22 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
   let dynamicVerdict = 'BUILD IN PROGRESS'
   let dynamicConfidence = 'Preliminary'
-  let verdictBadgeClass = 'text-amber-800 bg-amber-50 border-amber-300'
-  let textVerdictClass = 'text-amber-700'
-  let cardBorderClass = 'border-amber-200'
+  let verdictBadgeClass = 'text-amber-300 bg-amber-500/10 border-amber-500/30'
+  let textVerdictClass = 'text-amber-300'
+  let cardBorderClass = 'border-amber-500/30'
 
   if (dynamicReadinessScore >= 85) {
     dynamicVerdict = 'READY FOR GENERAL LAUNCH'
     dynamicConfidence = 'High'
-    verdictBadgeClass = 'text-emerald-800 bg-emerald-50 border-emerald-300'
-    textVerdictClass = 'text-emerald-700'
-    cardBorderClass = 'border-emerald-200'
+    verdictBadgeClass = 'text-emerald-300 bg-emerald-500/10 border-emerald-500/30'
+    textVerdictClass = 'text-emerald-300'
+    cardBorderClass = 'border-emerald-500/30'
   } else if (dynamicReadinessScore >= 50) {
     dynamicVerdict = 'IN ACTIVE BETA & QA'
     dynamicConfidence = 'Moderate'
-    verdictBadgeClass = 'text-blue-800 bg-blue-50 border-blue-300'
-    textVerdictClass = 'text-blue-700'
-    cardBorderClass = 'border-blue-200'
+    verdictBadgeClass = 'text-[#FF8FA3] bg-[#C81E3C]/10 border-[#C81E3C]/45'
+    textVerdictClass = 'text-[#FF8FA3]'
+    cardBorderClass = 'border-[#C81E3C]/45'
   }
 
   const activeReadiness = {
@@ -1546,14 +1546,14 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           data-toast="true"
           className={`toast-notification keep-dark fixed bottom-6 right-6 z-[99999] max-w-md p-4 rounded-2xl shadow-2xl flex items-start gap-3 border backdrop-blur-md animate-slide-up transition-all ${
             toastNotification.type === 'error'
-              ? 'bg-slate-900/95 border-rose-500/50 text-white shadow-rose-950/50'
+              ? 'bg-[#050506]/95 border-rose-500/50 text-white shadow-rose-950/50'
               : toastNotification.type === 'warning'
-              ? 'bg-slate-900/95 border-amber-500/50 text-white shadow-amber-950/50'
+              ? 'bg-[#050506]/95 border-amber-500/50 text-white shadow-amber-950/50'
               : toastNotification.type === 'info'
-              ? 'bg-slate-900/95 border-blue-500/50 text-white shadow-blue-950/50'
-              : 'bg-slate-900/95 border-emerald-500/50 text-white shadow-emerald-950/50'
+              ? 'bg-[#050506]/95 border-[#C81E3C]/50 text-white shadow-blue-950/50'
+              : 'bg-[#050506]/95 border-emerald-500/50 text-white shadow-emerald-950/50'
           }`}
-          style={{ backgroundColor: '#0f172a', color: '#ffffff' }}
+          style={{ backgroundColor: '#111114', color: '#ffffff', border: '1px solid #2a2a30' }}
         >
           <div className="shrink-0 mt-0.5">
             {toastNotification.type === 'error' ? (
@@ -1561,7 +1561,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
             ) : toastNotification.type === 'warning' ? (
               <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
             ) : toastNotification.type === 'info' ? (
-              <Loader2 className="w-5 h-5 text-blue-400 animate-spin shrink-0" />
+              <Loader2 className="w-5 h-5 text-[#FF8FA3] animate-spin shrink-0" />
             ) : (
               <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
             )}
@@ -1571,7 +1571,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               className={`text-[10px] font-black uppercase tracking-wider ${
                 toastNotification.type === 'error' ? 'text-rose-400' :
                 toastNotification.type === 'warning' ? 'text-amber-400' :
-                toastNotification.type === 'info' ? 'text-blue-400' : 'text-emerald-400'
+                toastNotification.type === 'info' ? 'text-[#FF8FA3]' : 'text-emerald-400'
               }`}
               style={{
                 color: toastNotification.type === 'error' ? '#fb7185' :
@@ -1593,8 +1593,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           <button
             type="button"
             onClick={() => setToastNotification(null)}
-            className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors cursor-pointer shrink-0"
-            style={{ color: '#94a3b8' }}
+            className="text-[#71717A] hover:text-white p-1 rounded-lg transition-colors cursor-pointer shrink-0"
+            style={{ color: '#a1a1aa' }}
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -1604,22 +1604,22 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
       {/* Kill Confirmation Modal */}
       {showKillModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="max-w-md w-full p-6 rounded-3xl bg-white border border-red-200 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-red-600">
+        <div className="fixed inset-0 z-50 bg-[#050506]/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="max-w-md w-full p-6 rounded-3xl bg-[#0C0C0E] border border-red-500/30 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-red-300">
               <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h3 className="text-base font-black text-slate-950">Confirm Kill / Pivot Decision</h3>
+              <h3 className="text-base font-black text-[#FAFAFA]">Confirm Kill / Pivot Decision</h3>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Are you sure you want to stop development for <strong className="text-slate-900">{project?.productName || 'this product'}</strong>? You can choose to archive the project and refund presale founding backers, or pivot to a new product hypothesis.
+            <p className="text-xs text-[#A1A1AA] leading-relaxed">
+              Are you sure you want to stop development for <strong className="text-[#FAFAFA]">{project?.productName || 'this product'}</strong>? You can choose to archive the project and refund presale founding backers, or pivot to a new product hypothesis.
             </p>
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-[11px] text-red-700 font-medium">
-              Validated Presales to Refund: <strong className="text-red-900">${presalesRevenue.toLocaleString()}</strong> across <strong className="text-red-900">{backersCount}</strong> backers.
+            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-[11px] text-red-300 font-medium">
+              Validated Presales to Refund: <strong className="text-red-300">${presalesRevenue.toLocaleString()}</strong> across <strong className="text-red-300">{backersCount}</strong> backers.
             </div>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowKillModal(false)}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#18181C] hover:bg-[#222227] text-[#D4D4D8] text-xs font-semibold transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -1639,19 +1639,19 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
       )}
 
       {/* Header Banner with Validated Demand Telemetry */}
-      <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-2xs space-y-4">
+      <div className="p-6 rounded-3xl bg-[#0C0C0E] border border-[#2a2a30]/90 shadow-2xs space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-wider border border-blue-200">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#C81E3C]/10 text-[#FF8FA3] text-[10px] font-black uppercase tracking-wider border border-[#C81E3C]/45">
                 Phase 2 Checkpoint
               </span>
-              <span className="text-xs font-semibold text-slate-500">Build MVP</span>
+              <span className="text-xs font-semibold text-[#A1A1AA]">Build MVP</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-[#FAFAFA] tracking-tight">
               Turn Validated Demand into the Smallest Usable Version
             </h1>
-            <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+            <p className="text-xs text-[#A1A1AA] max-w-2xl leading-relaxed">
               Division of labor between AI Coding Agents & Human Engineering with automated testing, beta cohort validation, and readiness audit.
             </p>
           </div>
@@ -1665,18 +1665,18 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 }}
                 className={`px-3.5 py-2.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
                   isEditingSpec
-                    ? 'bg-amber-50 text-amber-800 border-amber-300 shadow-2xs'
-                    : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-2xs'
+                    ? 'bg-amber-500/10 text-amber-300 border-amber-500/30 shadow-2xs'
+                    : 'bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border-[#3a3a42] shadow-2xs'
                 }`}
               >
                 {isEditingSpec ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-amber-700" />
+                    <Check className="w-3.5 h-3.5 text-amber-300" />
                     <span>Done Editing</span>
                   </>
                 ) : (
                   <>
-                    <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+                    <Edit3 className="w-3.5 h-3.5 text-[#A1A1AA]" />
                     <span>Edit Spec</span>
                   </>
                 )}
@@ -1686,16 +1686,16 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
             <button
               onClick={handleGenerateAIPlan}
               disabled={isGenerating}
-              className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="px-3.5 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               {isGenerating ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-300" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#D4D4D8]" />
                   <span>AI Generating...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-3.5 h-3.5 text-slate-300" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#D4D4D8]" />
                   <span>AI Generate Build Plan</span>
                 </>
               )}
@@ -1712,7 +1712,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
             <button
               onClick={handleExportMarkdown}
-              className="p-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-2xs text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer"
+              className="p-2.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#3a3a42] shadow-2xs text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer"
               title="Download Markdown Spec"
             >
               <Download className="w-4 h-4" />
@@ -1722,34 +1722,34 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
         {/* Validated Demand Telemetry Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Validated Presales</span>
-            <div className="text-base sm:text-lg font-black text-emerald-600 font-mono">
+          <div className="p-3.5 rounded-2xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
+            <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider">Validated Presales</span>
+            <div className="text-base sm:text-lg font-black text-emerald-300 font-mono">
               ${presalesRevenue.toLocaleString()}
             </div>
-            <span className="text-[10px] text-slate-400 block">Collected in Phase 1</span>
+            <span className="text-[10px] text-[#71717A] block">Collected in Phase 1</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Founding Backers</span>
-            <div className="text-base sm:text-lg font-black text-slate-900 font-mono">
+          <div className="p-3.5 rounded-2xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
+            <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider">Founding Backers</span>
+            <div className="text-base sm:text-lg font-black text-[#FAFAFA] font-mono">
               {backersCount} Cohort Members
             </div>
-            <span className="text-[10px] text-slate-400 block">Awaiting private beta access</span>
+            <span className="text-[10px] text-[#71717A] block">Awaiting private beta access</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">MVP Engineering Build</span>
-            <div className="text-base sm:text-lg font-black text-blue-600 font-mono">
+          <div className="p-3.5 rounded-2xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
+            <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider">MVP Engineering Build</span>
+            <div className="text-base sm:text-lg font-black text-[#FF8FA3] font-mono">
               {progressPercent}% Complete
             </div>
-            <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden mt-1">
-              <div className="bg-blue-600 h-full rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }} />
+            <div className="w-full bg-[#222227] rounded-full h-1.5 overflow-hidden mt-1">
+              <div className="bg-[#C81E3C] h-full rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }} />
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Product Readiness</span>
+          <div className="p-3.5 rounded-2xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
+            <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider">Product Readiness</span>
             <div className={`text-base sm:text-lg font-black font-mono ${activeReadiness.textVerdictClass}`}>
               {activeReadiness.score}/100
             </div>
@@ -1759,7 +1759,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
       </div>
 
       {/* Main 4 Steps Stepper Navigation */}
-      <div className="flex items-center justify-between p-1.5 rounded-2xl bg-slate-100 border border-slate-200/90 shadow-2xs overflow-x-auto">
+      <div className="flex items-center justify-between p-1.5 rounded-2xl bg-[#18181C] border border-[#2a2a30]/90 shadow-2xs overflow-x-auto">
         <div className="flex items-center gap-1.5 min-w-max">
           {[
             {
@@ -1809,25 +1809,25 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 title={isLocked ? getP2StepMissingPrerequisiteText(tab.id) : tab.label}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap shrink-0 transition-all ${
                   isLocked
-                    ? 'opacity-40 cursor-not-allowed text-slate-400 bg-transparent'
+                    ? 'opacity-40 cursor-not-allowed text-[#71717A] bg-transparent'
                     : isActive
-                    ? 'bg-blue-600 text-white shadow-xs font-black cursor-pointer'
+                    ? 'bg-[#C81E3C] text-white shadow-xs font-black cursor-pointer'
                     : isDone
-                    ? 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200 shadow-2xs cursor-pointer'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/80 cursor-pointer'
+                    ? 'bg-[#0C0C0E] text-emerald-300 hover:bg-emerald-500/10 border border-emerald-500/30 shadow-2xs cursor-pointer'
+                    : 'text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#0C0C0E]/80 cursor-pointer'
                 }`}
               >
                 {isLocked ? (
-                  <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <Lock className="w-3.5 h-3.5 text-[#71717A] shrink-0" />
                 ) : isDone ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
                 ) : (
                   <Icon className="w-3.5 h-3.5 shrink-0" />
                 )}
                 <span className="whitespace-nowrap">{tab.label}</span>
                 {isDone && !isLocked && (
                   <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                    isActive ? 'bg-blue-700 text-white' : 'bg-emerald-100 text-emerald-800'
+                    isActive ? 'bg-[#B01732] text-white' : 'bg-emerald-500/15 text-emerald-300'
                   }`}>
                     Done
                   </span>
@@ -1840,17 +1840,17 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
       {/* Dynamic In-Page AI Error Banner */}
       {aiError && (
-        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-xs shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-xs shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-xl bg-red-100 text-red-600 shrink-0 mt-0.5 sm:mt-0">
+            <div className="p-2 rounded-xl bg-red-500/15 text-red-300 shrink-0 mt-0.5 sm:mt-0">
               <AlertTriangle className="w-4 h-4" />
             </div>
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
-                <strong className="text-red-900 font-bold">{aiError.source || 'AI Service Notice'}</strong>
-                <span className="text-[10px] text-red-600 font-mono">Error Details</span>
+                <strong className="text-red-300 font-bold">{aiError.source || 'AI Service Notice'}</strong>
+                <span className="text-[10px] text-red-300 font-mono">Error Details</span>
               </div>
-              <p className="text-red-800 text-[11px] leading-relaxed">
+              <p className="text-red-300 text-[11px] leading-relaxed">
                 {aiError.message}
               </p>
             </div>
@@ -1895,7 +1895,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
             )}
             <button
               onClick={() => setAiError(null)}
-              className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-semibold text-xs shadow-2xs transition-colors cursor-pointer"
+              className="px-2.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#18181C] text-[#D4D4D8] border border-[#3a3a42] font-semibold text-xs shadow-2xs transition-colors cursor-pointer"
             >
               Dismiss
             </button>
@@ -1910,8 +1910,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
         ) : (
         <div className="space-y-5">
           {/* Subtabs for Step 1 + Unified Single-Go AI Action Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-200 pb-3">
-            <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-slate-100 border border-slate-200/80 max-w-full overflow-x-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-[#2a2a30] pb-3">
+            <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-[#18181C] border border-[#2a2a30]/80 max-w-full overflow-x-auto">
               {[
                 { id: 'spec', label: 'Product Spec', isDone: Boolean(buildPlan?.productSpec?.coreValueProp || buildPlan?.productSpec?.targetUser || buildPlan?.productSpec?.targetCustomer || buildPlan?.productSpec?.features?.length > 0) },
                 { id: 'technical', label: 'Technical Plan', isDone: Boolean(buildPlan?.technicalPlan?.architecture || buildPlan?.technicalPlan?.databaseSchema || buildPlan?.technicalPlan?.techStack || buildPlan?.technicalPlan?.database?.length > 0) },
@@ -1923,13 +1923,13 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   onClick={() => setSpecSubtab(sub.id)}
                   className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all cursor-pointer flex items-center gap-1.5 ${
                     specSubtab === sub.id
-                      ? 'bg-white text-slate-900 border border-slate-200/80 shadow-2xs font-bold'
+                      ? 'bg-[#0C0C0E] text-[#FAFAFA] border border-[#2a2a30]/80 shadow-2xs font-bold'
                       : sub.isDone
-                      ? 'text-emerald-700 hover:text-emerald-800 hover:bg-white/60'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                      ? 'text-emerald-300 hover:text-emerald-300 hover:bg-[#0C0C0E]/60'
+                      : 'text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#0C0C0E]/60'
                   }`}
                 >
-                  {sub.isDone && <Check className="w-3 h-3 text-emerald-600 shrink-0" />}
+                  {sub.isDone && <Check className="w-3 h-3 text-emerald-300 shrink-0" />}
                   <span className="whitespace-nowrap">{sub.label}</span>
                 </button>
               ))}
@@ -1939,17 +1939,17 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               <button
                 onClick={handleGenerateAIPlan}
                 disabled={isGenerating}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50 active:scale-95 cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50 active:scale-95 cursor-pointer whitespace-nowrap"
                 title="Synthesizes Product Spec, Technical Plan, Scope Boundaries & Sprint Tasks in 1 go"
               >
                 {isGenerating ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-300" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#D4D4D8]" />
                     <span>Synthesizing...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-3.5 h-3.5 text-slate-300" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#D4D4D8]" />
                     <span>AI Generate Build Plan</span>
                   </>
                 )}
@@ -1959,8 +1959,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 onClick={() => setIsEditingSpec(!isEditingSpec)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors cursor-pointer whitespace-nowrap ${
                   isEditingSpec
-                    ? 'bg-amber-50 text-amber-800 border-amber-300 shadow-2xs font-bold'
-                    : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-2xs'
+                    ? 'bg-amber-500/10 text-amber-300 border-amber-500/30 shadow-2xs font-bold'
+                    : 'bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border-[#3a3a42] shadow-2xs'
                 }`}
               >
                 {isEditingSpec ? 'Done Editing' : 'Edit Spec'}
@@ -1978,13 +1978,13 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
           {/* SUBTABS CONTENT */}
           {!buildPlan ? (
-            <div className="p-10 sm:p-14 rounded-3xl bg-white border border-slate-200 shadow-2xs text-center space-y-5 my-2">
-              <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center mx-auto shadow-2xs">
-                <Sparkles className="w-8 h-8 text-slate-700" />
+            <div className="p-10 sm:p-14 rounded-3xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs text-center space-y-5 my-2">
+              <div className="w-16 h-16 rounded-2xl bg-[#18181C] border border-[#2a2a30] text-[#D4D4D8] flex items-center justify-center mx-auto shadow-2xs">
+                <Sparkles className="w-8 h-8 text-[#D4D4D8]" />
               </div>
               <div className="space-y-2 max-w-lg mx-auto">
-                <h3 className="text-base sm:text-lg font-black text-slate-900">No MVP Build Plan Generated Yet</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <h3 className="text-base sm:text-lg font-black text-[#FAFAFA]">No MVP Build Plan Generated Yet</h3>
+                <p className="text-xs text-[#A1A1AA] leading-relaxed">
                   Click below to synthesize your Product Spec, Technical Architecture, Scope Boundaries & Sprint Tasks with AI.
                 </p>
               </div>
@@ -1992,16 +1992,16 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 <button
                   onClick={handleGenerateAIPlan}
                   disabled={isGenerating}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50 active:scale-95 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50 active:scale-95 cursor-pointer"
                 >
                   {isGenerating ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin text-slate-300" />
+                      <Loader2 className="w-4 h-4 animate-spin text-[#D4D4D8]" />
                       <span>Synthesizing Full Build Plan with AI...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-4 h-4 text-slate-300" />
+                      <Sparkles className="w-4 h-4 text-[#D4D4D8]" />
                       <span>Generate Full Build Plan with AI</span>
                     </>
                   )}
@@ -2015,13 +2015,13 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
             <div className="space-y-4">
               {/* Target Customer, Core Problem & Value Proposition Grid (Direct from Phase 1) */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-                <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
+                <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-[#FF8FA3] uppercase tracking-wider flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5" />
                       <span>Target Customer</span>
                     </span>
-                    <span className="text-[9px] font-mono text-slate-400">Phase 1</span>
+                    <span className="text-[9px] font-mono text-[#71717A]">Phase 1</span>
                   </div>
                   {isEditingSpec ? (
                     <textarea
@@ -2029,22 +2029,22 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                       onChange={e => updateSpecField('targetCustomer', e.target.value)}
                       placeholder="Describe target customer segment..."
                       rows={3}
-                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 outline-none focus:border-blue-600 shadow-2xs"
+                      className="w-full px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none focus:border-[#C81E3C] shadow-2xs"
                     />
                   ) : (
-                    <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                    <p className="text-xs text-[#D4D4D8] leading-relaxed font-medium">
                       {buildPlan.productSpec?.targetCustomer || project?.validationPlan?.customer || project?.campaignKit?.targetAudience || project?.targetAudience || 'No target customer defined yet. Click AI Generate Build Plan.'}
                     </p>
                   )}
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
+                <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-red-300 uppercase tracking-wider flex items-center gap-1.5">
                       <AlertCircle className="w-3.5 h-3.5" />
                       <span>Core Problem Validated</span>
                     </span>
-                    <span className="text-[9px] font-mono text-slate-400">Phase 1</span>
+                    <span className="text-[9px] font-mono text-[#71717A]">Phase 1</span>
                   </div>
                   {isEditingSpec ? (
                     <textarea
@@ -2052,22 +2052,22 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                       onChange={e => updateSpecField('coreProblem', e.target.value)}
                       placeholder="Describe core problem validated in Phase 1..."
                       rows={3}
-                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 outline-none focus:border-blue-600 shadow-2xs"
+                      className="w-full px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none focus:border-[#C81E3C] shadow-2xs"
                     />
                   ) : (
-                    <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                    <p className="text-xs text-[#D4D4D8] leading-relaxed font-medium">
                       {buildPlan.productSpec?.coreProblem || project?.validationPlan?.problem || project?.campaignKit?.problemAgitation || project?.problemStatement || 'No core problem defined yet. Click AI Generate Build Plan.'}
                     </p>
                   )}
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
+                <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" />
                       <span>Value Prop / Solution</span>
                     </span>
-                    <span className="text-[9px] font-mono text-slate-400">Phase 1</span>
+                    <span className="text-[9px] font-mono text-[#71717A]">Phase 1</span>
                   </div>
                   {isEditingSpec ? (
                     <textarea
@@ -2075,10 +2075,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                       onChange={e => updateSpecField('valueProposition', e.target.value)}
                       placeholder="Describe validated value proposition..."
                       rows={3}
-                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 outline-none focus:border-blue-600 shadow-2xs"
+                      className="w-full px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none focus:border-[#C81E3C] shadow-2xs"
                     />
                   ) : (
-                    <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                    <p className="text-xs text-[#D4D4D8] leading-relaxed font-medium">
                       {buildPlan.productSpec?.valueProposition || project?.validationPlan?.solution || project?.campaignKit?.headline || project?.productTagline || 'No value proposition defined yet. Click AI Generate Build Plan.'}
                     </p>
                   )}
@@ -2086,71 +2086,71 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               </div>
 
               {/* Core MVP Features */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-blue-600" />
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
+                  <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-[#FF8FA3]" />
                     <span>Core MVP Features</span>
                   </h3>
-                  <span className="text-[10px] font-mono text-slate-500 font-semibold">Strict P0 / P1 Focus</span>
+                  <span className="text-[10px] font-mono text-[#A1A1AA] font-semibold">Strict P0 / P1 Focus</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {(buildPlan.productSpec?.features || []).map((feat, idx) => (
-                    <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1 relative group">
+                    <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1 relative group">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900 text-xs">{feat.name}</span>
+                        <span className="font-bold text-[#FAFAFA] text-xs">{feat.name}</span>
                         <div className="flex items-center gap-2">
                           <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
                             feat.priority?.includes('P0')
-                              ? 'bg-red-50 text-red-700 border border-red-200'
-                              : 'bg-blue-50 text-blue-700 border border-blue-200'
+                              ? 'bg-red-500/10 text-red-300 border border-red-500/30'
+                              : 'bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45'
                           }`}>
                             {feat.priority}
                           </span>
                           {isEditingSpec && (
-                            <button onClick={() => handleDeleteFeature(idx)} className="text-slate-400 hover:text-red-600 cursor-pointer">
+                            <button onClick={() => handleDeleteFeature(idx)} className="text-[#71717A] hover:text-red-300 cursor-pointer">
                               <Trash2 className="w-3 h-3" />
                             </button>
                           )}
                         </div>
                       </div>
-                      <p className="text-[11px] text-slate-600 leading-relaxed">{feat.description}</p>
+                      <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{feat.description}</p>
                     </div>
                   ))}
                 </div>
 
                 {/* Add Feature Form */}
                 {isEditingSpec && (
-                  <form onSubmit={handleAddFeature} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2 mt-2">
-                    <span className="text-xs font-bold text-slate-900 block">Add Core MVP Feature</span>
+                  <form onSubmit={handleAddFeature} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-2 mt-2">
+                    <span className="text-xs font-bold text-[#FAFAFA] block">Add Core MVP Feature</span>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <input
                         type="text"
                         placeholder="Feature name..."
                         value={newFeatureName}
                         onChange={e => setNewFeatureName(e.target.value)}
-                        className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs text-slate-900 outline-none shadow-2xs"
+                        className="px-3 py-1.5 rounded-lg bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none shadow-2xs"
                       />
                       <input
                         type="text"
                         placeholder="Feature description..."
                         value={newFeatureDesc}
                         onChange={e => setNewFeatureDesc(e.target.value)}
-                        className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs text-slate-900 outline-none shadow-2xs"
+                        className="px-3 py-1.5 rounded-lg bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none shadow-2xs"
                       />
                       <div className="flex items-center gap-2">
                         <select
                           value={newFeaturePriority}
                           onChange={e => setNewFeaturePriority(e.target.value)}
-                          className="px-2 py-1.5 rounded-lg bg-white border border-slate-300 text-xs text-slate-700 outline-none shadow-2xs"
+                          className="px-2 py-1.5 rounded-lg bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#D4D4D8] outline-none shadow-2xs"
                         >
                           <option value="P0 - Must Have">P0 - Must Have</option>
                           <option value="P1 - High Priority">P1 - High Priority</option>
                         </select>
                         <button
                           type="submit"
-                          className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1 shadow-xs cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg bg-[#C81E3C] hover:bg-[#B01732] text-white font-bold text-xs flex items-center gap-1 shadow-xs cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Add</span>
@@ -2162,24 +2162,24 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               </div>
 
               {/* End-to-End User Flow */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <Workflow className="w-4 h-4 text-emerald-600" />
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
+                  <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <Workflow className="w-4 h-4 text-emerald-300" />
                     <span>End-to-End User Flow</span>
                   </h3>
-                  <span className="text-[10px] font-mono text-slate-500 font-semibold">Step-by-Step Experience</span>
+                  <span className="text-[10px] font-mono text-[#A1A1AA] font-semibold">Step-by-Step Experience</span>
                 </div>
 
                 <div className="space-y-2">
                   {(buildPlan.productSpec?.userFlows || []).map((flow, idx) => (
-                    <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3 text-xs">
-                      <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-[11px] flex items-center justify-center shrink-0">
+                    <div key={idx} className="p-3 rounded-xl bg-[#111114] border border-[#2a2a30] flex items-start gap-3 text-xs">
+                      <div className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-300 font-bold text-[11px] flex items-center justify-center shrink-0">
                         {idx + 1}
                       </div>
                       <div>
-                        <span className="font-bold text-slate-900 block">{flow.step}</span>
-                        <p className="text-[11px] text-slate-600 leading-relaxed">{flow.action}</p>
+                        <span className="font-bold text-[#FAFAFA] block">{flow.step}</span>
+                        <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{flow.action}</p>
                       </div>
                     </div>
                   ))}
@@ -2187,19 +2187,19 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               </div>
 
               {/* Key Screens */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <Laptop className="w-4 h-4 text-slate-700" />
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
+                  <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <Laptop className="w-4 h-4 text-[#D4D4D8]" />
                     <span>Core MVP Screens & UI Canvas</span>
                   </h3>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {(buildPlan.productSpec?.screens || []).map((screen, idx) => (
-                    <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                      <span className="font-bold text-slate-900 text-xs block">{screen.name}</span>
-                      <p className="text-[11px] text-slate-600 leading-relaxed">{screen.description}</p>
+                    <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1">
+                      <span className="font-bold text-[#FAFAFA] text-xs block">{screen.name}</span>
+                      <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{screen.description}</p>
                     </div>
                   ))}
                 </div>
@@ -2207,43 +2207,43 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
               {/* Integrations, Payments & Auth */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-700">
+                <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-300">
                     <CreditCard className="w-4 h-4" />
                     <span>Payments & Billing</span>
                   </div>
                   <div className="space-y-1 text-[11px]">
-                    <div className="text-slate-900 font-semibold">{buildPlan.productSpec?.payments?.provider || 'Stripe Billing'}</div>
-                    <div className="text-slate-600">
+                    <div className="text-[#FAFAFA] font-semibold">{buildPlan.productSpec?.payments?.provider || 'Stripe Billing'}</div>
+                    <div className="text-[#A1A1AA]">
                       {buildPlan.productSpec?.payments?.model || (
                         projectPricingTiers.length > 0
                           ? projectPricingTiers.map(t => t.label).join(' • ')
                           : 'Founding Member Access'
                       )}
                     </div>
-                    <div className="text-slate-400 text-[10px]">{buildPlan.productSpec?.payments?.flow || 'Customer checkout flow'}</div>
+                    <div className="text-[#71717A] text-[10px]">{buildPlan.productSpec?.payments?.flow || 'Customer checkout flow'}</div>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold text-blue-700">
+                <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#FF8FA3]">
                     <Lock className="w-4 h-4" />
                     <span>Authentication & Security</span>
                   </div>
                   <div className="space-y-1 text-[11px]">
-                    <div className="text-slate-900 font-semibold">{buildPlan.productSpec?.authentication?.method || 'Google OAuth + Magic Link'}</div>
-                    <div className="text-slate-600">{buildPlan.productSpec?.authentication?.security || 'JWT Sessions + RBAC'}</div>
+                    <div className="text-[#FAFAFA] font-semibold">{buildPlan.productSpec?.authentication?.method || 'Google OAuth + Magic Link'}</div>
+                    <div className="text-[#A1A1AA]">{buildPlan.productSpec?.authentication?.security || 'JWT Sessions + RBAC'}</div>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#E4E4E7]">
                     <BarChart3 className="w-4 h-4" />
                     <span>Telemetry & Analytics</span>
                   </div>
                   <div className="space-y-1 text-[11px]">
-                    <div className="text-slate-900 font-semibold">{buildPlan.productSpec?.analytics?.engine || 'Built-in Telemetry'}</div>
-                    <div className="text-slate-600">
+                    <div className="text-[#FAFAFA] font-semibold">{buildPlan.productSpec?.analytics?.engine || 'Built-in Telemetry'}</div>
+                    <div className="text-[#A1A1AA]">
                       {(buildPlan.productSpec?.analytics?.trackedEvents || []).slice(0, 3).join(', ')}
                     </div>
                   </div>
@@ -2256,60 +2256,60 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           {specSubtab === 'technical' && (
             <div className="space-y-4">
               {/* Architecture Overview */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2.5">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <Server className="w-4 h-4 text-blue-600" />
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2.5">
+                <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2">
+                  <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <Server className="w-4 h-4 text-[#FF8FA3]" />
                     <span>System Architecture Overview</span>
                   </h3>
-                  <span className="text-[10px] font-mono text-emerald-700 font-bold">Decoupled Full-Stack Architecture</span>
+                  <span className="text-[10px] font-mono text-emerald-300 font-bold">Decoupled Full-Stack Architecture</span>
                 </div>
-                <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                <p className="text-xs text-[#D4D4D8] leading-relaxed font-medium">
                   {buildPlan.technicalPlan?.architecture || 'Modern decoupled SPA with Vite + React Frontend, FastAPI Python REST/WebSocket Backend, and Redis background queues.'}
                 </p>
               </div>
 
               {/* Tech Stack Matrix */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Frontend</span>
-                  <div className="text-xs font-black text-slate-900">{buildPlan.technicalPlan?.techStack?.frontend || 'React 18 + Vite'}</div>
+                <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1">
+                  <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider">Frontend</span>
+                  <div className="text-xs font-black text-[#FAFAFA]">{buildPlan.technicalPlan?.techStack?.frontend || 'React 18 + Vite'}</div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Backend API</span>
-                  <div className="text-xs font-black text-slate-900">{buildPlan.technicalPlan?.techStack?.backend || 'FastAPI Python'}</div>
+                <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1">
+                  <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider">Backend API</span>
+                  <div className="text-xs font-black text-[#FAFAFA]">{buildPlan.technicalPlan?.techStack?.backend || 'FastAPI Python'}</div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Database</span>
-                  <div className="text-xs font-black text-slate-900">{buildPlan.technicalPlan?.techStack?.database || 'PostgreSQL + Redis'}</div>
+                <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1">
+                  <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider">Database</span>
+                  <div className="text-xs font-black text-[#FAFAFA]">{buildPlan.technicalPlan?.techStack?.database || 'PostgreSQL + Redis'}</div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">AI Inference</span>
-                  <div className="text-xs font-black text-slate-900">{buildPlan.technicalPlan?.techStack?.aiInference || 'Adaptive AI Engine / Full-Stack LLM'}</div>
+                <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1">
+                  <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider">AI Inference</span>
+                  <div className="text-xs font-black text-[#FAFAFA]">{buildPlan.technicalPlan?.techStack?.aiInference || 'Adaptive AI Engine / Full-Stack LLM'}</div>
                 </div>
               </div>
 
               {/* Database Schema */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <Database className="w-4 h-4 text-emerald-600" />
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
+                  <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <Database className="w-4 h-4 text-emerald-300" />
                     <span>Database Schema Design</span>
                   </h3>
-                  <span className="text-[10px] font-mono text-slate-500 font-semibold">PostgreSQL Relational Entities</span>
+                  <span className="text-[10px] font-mono text-[#A1A1AA] font-semibold">PostgreSQL Relational Entities</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {(buildPlan.technicalPlan?.database || []).map((tbl, idx) => (
-                    <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 font-mono text-xs">
+                    <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1.5 font-mono text-xs">
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">TABLE</span>
-                        <span className="font-bold text-slate-900">{tbl.table}</span>
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-bold text-[10px]">TABLE</span>
+                        <span className="font-bold text-[#FAFAFA]">{tbl.table}</span>
                       </div>
-                      <div className="text-[11px] text-slate-600 break-words leading-relaxed pl-2 border-l border-slate-300">
+                      <div className="text-[11px] text-[#A1A1AA] break-words leading-relaxed pl-2 border-l border-[#3a3a42]">
                         {tbl.columns}
                       </div>
                     </div>
@@ -2318,18 +2318,18 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               </div>
 
               {/* Acceptance Criteria */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-blue-600" />
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
+                  <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#FF8FA3]" />
                     <span>Acceptance Criteria (Definition of Done)</span>
                   </h3>
                 </div>
 
                 <div className="space-y-1.5">
                   {(buildPlan.technicalPlan?.acceptanceCriteria || []).map((crit, idx) => (
-                    <div key={idx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-2.5 text-xs text-slate-800 font-medium">
-                      <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <div key={idx} className="p-2.5 rounded-xl bg-[#111114] border border-[#2a2a30] flex items-center gap-2.5 text-xs text-[#E4E4E7] font-medium">
+                      <Check className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
                       <span>{crit}</span>
                     </div>
                   ))}
@@ -2337,22 +2337,22 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               </div>
 
               {/* Sprints & Milestones */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <Milestone className="w-4 h-4 text-slate-700" />
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
+                  <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <Milestone className="w-4 h-4 text-[#D4D4D8]" />
                     <span>Sprints & Milestones</span>
                   </h3>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {(buildPlan.technicalPlan?.milestones || []).map((m, idx) => (
-                    <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+                    <div key={idx} className="p-3 rounded-xl bg-[#111114] border border-[#2a2a30] flex items-center justify-between text-xs">
                       <div>
-                        <span className="font-bold text-slate-900 block">{m.name}</span>
-                        <span className="text-[10px] text-slate-500">{m.duration}</span>
+                        <span className="font-bold text-[#FAFAFA] block">{m.name}</span>
+                        <span className="text-[10px] text-[#A1A1AA]">{m.duration}</span>
                       </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45">
                         {m.status || 'Ready'}
                       </span>
                     </div>
@@ -2367,28 +2367,28 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* What IS Included */}
-                <div className="p-5 rounded-2xl bg-white border border-emerald-200 shadow-2xs space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-emerald-500/30 shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
                     <div className="flex items-center gap-2">
-                      <div className="p-1 rounded-lg bg-emerald-100 text-emerald-700">
+                      <div className="p-1 rounded-lg bg-emerald-500/15 text-emerald-300">
                         <CheckCircle2 className="w-4 h-4" />
                       </div>
-                      <h3 className="font-bold text-slate-900 text-xs">What IS Included in MVP</h3>
+                      <h3 className="font-bold text-[#FAFAFA] text-xs">What IS Included in MVP</h3>
                     </div>
-                    <span className="text-[10px] font-mono text-emerald-700 font-bold">
+                    <span className="text-[10px] font-mono text-emerald-300 font-bold">
                       {(buildPlan.scopeBoundaries?.includedInMVP || []).length} Items
                     </span>
                   </div>
 
                   <div className="space-y-2 pt-1">
                     {(buildPlan.scopeBoundaries?.includedInMVP || []).map((inc, idx) => (
-                      <div key={idx} className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100 flex items-center justify-between gap-2.5 text-xs text-slate-800">
+                      <div key={idx} className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-2.5 text-xs text-[#E4E4E7]">
                         <div className="flex items-start gap-2.5">
-                          <span className="text-emerald-600 font-bold shrink-0">✓</span>
+                          <span className="text-emerald-300 font-bold shrink-0">✓</span>
                           <span>{inc}</span>
                         </div>
                         {isEditingSpec && (
-                          <button onClick={() => handleDeleteIncluded(idx)} className="text-slate-400 hover:text-red-600 cursor-pointer">
+                          <button onClick={() => handleDeleteIncluded(idx)} className="text-[#71717A] hover:text-red-300 cursor-pointer">
                             <Trash2 className="w-3 h-3" />
                           </button>
                         )}
@@ -2403,7 +2403,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                         placeholder="Add included MVP item..."
                         value={newIncludedItem}
                         onChange={e => setNewIncludedItem(e.target.value)}
-                        className="flex-1 px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs text-slate-900 outline-none shadow-2xs"
+                        className="flex-1 px-3 py-1.5 rounded-lg bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none shadow-2xs"
                       />
                       <button type="submit" className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs cursor-pointer">
                         Add
@@ -2413,28 +2413,28 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 </div>
 
                 {/* What IS NOT Included */}
-                <div className="p-5 rounded-2xl bg-white border border-red-200 shadow-2xs space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-red-500/30 shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
                     <div className="flex items-center gap-2">
-                      <div className="p-1 rounded-lg bg-red-100 text-red-700">
+                      <div className="p-1 rounded-lg bg-red-500/15 text-red-300">
                         <ShieldAlert className="w-4 h-4" />
                       </div>
-                      <h3 className="font-bold text-slate-900 text-xs">What is NOT Included (Post-MVP)</h3>
+                      <h3 className="font-bold text-[#FAFAFA] text-xs">What is NOT Included (Post-MVP)</h3>
                     </div>
-                    <span className="text-[10px] font-mono text-red-700 font-bold">
+                    <span className="text-[10px] font-mono text-red-300 font-bold">
                       {(buildPlan.scopeBoundaries?.excludedFromMVP || []).length} Excluded
                     </span>
                   </div>
 
                   <div className="space-y-2 pt-1">
                     {(buildPlan.scopeBoundaries?.excludedFromMVP || []).map((exc, idx) => (
-                      <div key={idx} className="p-3 rounded-xl bg-red-50/60 border border-red-100 flex items-center justify-between gap-2.5 text-xs text-slate-800">
+                      <div key={idx} className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-between gap-2.5 text-xs text-[#E4E4E7]">
                         <div className="flex items-start gap-2.5">
-                          <span className="text-red-600 font-bold shrink-0">✕</span>
+                          <span className="text-red-300 font-bold shrink-0">✕</span>
                           <span>{exc}</span>
                         </div>
                         {isEditingSpec && (
-                          <button onClick={() => handleDeleteExcluded(idx)} className="text-slate-400 hover:text-red-600 cursor-pointer">
+                          <button onClick={() => handleDeleteExcluded(idx)} className="text-[#71717A] hover:text-red-300 cursor-pointer">
                             <Trash2 className="w-3 h-3" />
                           </button>
                         )}
@@ -2449,7 +2449,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                         placeholder="Add excluded post-MVP item..."
                         value={newExcludedItem}
                         onChange={e => setNewExcludedItem(e.target.value)}
-                        className="flex-1 px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs text-slate-900 outline-none shadow-2xs"
+                        className="flex-1 px-3 py-1.5 rounded-lg bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none shadow-2xs"
                       />
                       <button type="submit" className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-xs cursor-pointer">
                         Add
@@ -2464,14 +2464,14 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           {/* SUBTAB D: ENGINEERING TASK MATRIX */}
           {specSubtab === 'tasks' && (
             <div className="space-y-4">
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <Code className="w-4 h-4 text-blue-600" />
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4">
+                <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
+                  <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <Code className="w-4 h-4 text-[#FF8FA3]" />
                     <span>Sprint Engineering Tasks ({engineeringTasks.length})</span>
                   </h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono text-slate-500 font-medium">Click status to toggle</span>
+                    <span className="text-[10px] font-mono text-[#A1A1AA] font-medium">Click status to toggle</span>
                     {completedCount > 0 && (
                       <button
                         onClick={() => {
@@ -2480,10 +2480,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                           handleSavePlan(buildPlan, resetTasks)
                           showToast('Reset all sprint tasks to Ready (0% Complete).')
                         }}
-                        className="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-[10px] text-slate-600 hover:text-slate-900 border border-slate-200 flex items-center gap-1 transition-colors cursor-pointer"
+                        className="px-2 py-0.5 rounded-lg bg-[#18181C] hover:bg-[#222227] text-[10px] text-[#A1A1AA] hover:text-[#FAFAFA] border border-[#2a2a30] flex items-center gap-1 transition-colors cursor-pointer"
                         title="Reset sprint tasks to Ready"
                       >
-                        <RotateCcw className="w-3 h-3 text-slate-500" />
+                        <RotateCcw className="w-3 h-3 text-[#A1A1AA]" />
                         <span>Reset to 0%</span>
                       </button>
                     )}
@@ -2495,7 +2495,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   {engineeringTasks.map(task => (
                     <div
                       key={task.id}
-                      className="rounded-2xl bg-slate-50 border border-slate-200 overflow-hidden transition-all duration-200 shadow-2xs"
+                      className="rounded-2xl bg-[#111114] border border-[#2a2a30] overflow-hidden transition-all duration-200 shadow-2xs"
                     >
                       <div className="p-3.5 flex items-center justify-between gap-3 text-xs">
                         <div className="flex items-center gap-3">
@@ -2504,25 +2504,25 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                             className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors cursor-pointer ${
                               task.status === 'Completed'
                                 ? 'bg-emerald-600 text-white font-black'
-                                : 'bg-white border border-slate-300 hover:border-blue-500'
+                                : 'bg-[#0C0C0E] border border-[#3a3a42] hover:border-[#C81E3C]'
                             }`}
                           >
                             {task.status === 'Completed' && <Check className="w-3.5 h-3.5 text-white" />}
                           </button>
                           <div>
-                            <span className={`font-bold block ${task.status === 'Completed' || task.status === 'done' ? 'line-through text-slate-400 font-medium' : 'text-slate-900'}`}>
+                            <span className={`font-bold block ${task.status === 'Completed' || task.status === 'done' ? 'line-through text-[#71717A] font-medium' : 'text-[#FAFAFA]'}`}>
                               {task.title}
                             </span>
-                            <span className="text-[10px] text-slate-500 flex items-center gap-2">
+                            <span className="text-[10px] text-[#A1A1AA] flex items-center gap-2">
                               <span>{task.category}</span>
                               <span>•</span>
-                              <span>Assigned: <strong className={task.assignedTo === 'AI Agent' ? 'text-slate-800 font-bold' : 'text-blue-700 font-bold'}>{task.assignedTo}</strong></span>
+                              <span>Assigned: <strong className={task.assignedTo === 'AI Agent' ? 'text-[#E4E4E7] font-bold' : 'text-[#FF8FA3] font-bold'}>{task.assignedTo}</strong></span>
                               <span>•</span>
                               <span>{task.estimate}</span>
                               {task.status === 'Completed' && (
                                 <>
                                   <span>•</span>
-                                  <span className="text-emerald-700 font-bold">✓ Code Ready</span>
+                                  <span className="text-emerald-300 font-bold">✓ Code Ready</span>
                                 </>
                               )}
                             </span>
@@ -2535,8 +2535,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                             onChange={e => handleReassignTask(task.id, e.target.value)}
                             className={`px-2 py-1 rounded-lg text-[10px] font-bold border outline-none cursor-pointer transition-colors shadow-2xs ${
                               task.assignedTo === 'Human Engineer'
-                                ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                : 'bg-white text-slate-800 border-slate-300'
+                                ? 'bg-[#C81E3C]/10 text-[#FF8FA3] border-[#C81E3C]/45'
+                                : 'bg-[#0C0C0E] text-[#E4E4E7] border-[#3a3a42]'
                             }`}
                             title="Switch task assignment between AI Agent and Human Engineer"
                           >
@@ -2548,12 +2548,12 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                             onClick={() => setExpandedTaskId(expandedTaskId === task.id ? null : task.id)}
                             className={`px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer border ${
                               expandedTaskId === task.id
-                                ? 'bg-slate-900 text-white border-slate-800 shadow-xs'
-                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300 shadow-2xs'
+                                ? 'bg-[#050506] text-white border-[#2a2a30] shadow-xs'
+                                : 'bg-[#0C0C0E] hover:bg-[#18181C] text-[#D4D4D8] border-[#3a3a42] shadow-2xs'
                             }`}
                             title="Inspect scaffolded code & files"
                           >
-                            <Code2 className="w-3 h-3 text-blue-600" />
+                            <Code2 className="w-3 h-3 text-[#FF8FA3]" />
                             <span>{expandedTaskId === task.id ? 'Hide Code' : 'View Code'}</span>
                           </button>
 
@@ -2561,17 +2561,17 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                             <button
                               onClick={() => handleDispatchAIAgent(task)}
                               disabled={executingTaskId === task.id}
-                              className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-[10px] flex items-center gap-1 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                              className="px-2.5 py-1 rounded-lg bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-[10px] flex items-center gap-1 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                               title="Dispatch AI Coding Agent to write code and tests"
                             >
                               {executingTaskId === task.id ? (
                                 <>
-                                  <Loader2 className="w-3 h-3 animate-spin text-slate-300" />
+                                  <Loader2 className="w-3 h-3 animate-spin text-[#D4D4D8]" />
                                   <span>Coding...</span>
                                 </>
                               ) : (
                                 <>
-                                  <Bot className="w-3 h-3 text-slate-300" />
+                                  <Bot className="w-3 h-3 text-[#D4D4D8]" />
                                   <span>Dispatch AI</span>
                                 </>
                               )}
@@ -2582,10 +2582,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                             onClick={() => handleToggleTaskStatus(task.id)}
                             className={`text-[10px] font-bold px-2 py-0.5 rounded-full cursor-pointer transition-colors ${
                               task.status === 'Completed'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
                                 : task.status === 'In Progress'
-                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                : 'bg-blue-50 text-blue-700 border border-blue-200'
+                                ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
+                                : 'bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45'
                             }`}
                           >
                             {task.status}
@@ -2593,7 +2593,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
                           <button
                             onClick={() => handleDeleteTask(task.id)}
-                            className="p-1 rounded text-slate-400 hover:text-red-600 cursor-pointer"
+                            className="p-1 rounded text-[#71717A] hover:text-red-300 cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -2602,36 +2602,36 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
                       {/* Expanded Code & Files Inspector */}
                       {expandedTaskId === task.id && (
-                        <div className="keep-dark cloud-code-studio p-4 bg-slate-950 border-t border-slate-800 space-y-3 font-mono text-xs animate-in fade-in duration-150 text-slate-200">
+                        <div className="keep-dark cloud-code-studio p-4 bg-[#030304] border-t border-[#2a2a30] space-y-3 font-mono text-xs animate-in fade-in duration-150 text-[#E4E4E7]">
                           {/* Sleek Toolbar Header */}
                           <div className="flex flex-wrap items-center justify-between gap-2.5 pb-1">
                             <div className="flex items-center gap-2 min-w-0">
-                              <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 shrink-0">
+                              <div className="p-1.5 rounded-lg bg-[#C81E3C]/20 text-[#FF8FA3] shrink-0">
                                 <FileCode className="w-3.5 h-3.5" />
                               </div>
                               <span className="text-white font-bold text-xs truncate">
                                 {task.aiOutput?.filesScaffolded?.[0]?.filePath || (task.category === 'Frontend' ? `src/components/${(task.title || 'Component').replace(/[^a-zA-Z0-9]/g, '')}.jsx` : `app/routers/${(task.category || 'backend').toLowerCase().replace(/[^a-z0-9]/g, '_')}.py`)}
                               </span>
-                              <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-sans font-semibold shrink-0">
+                              <span className="px-2 py-0.5 rounded-md bg-[#1C1C20] text-[#D4D4D8] text-[10px] font-sans font-semibold shrink-0">
                                 {task.category}
                               </span>
                             </div>
 
                             <div className="flex items-center gap-2 shrink-0">
                               {task.aiOutput ? (
-                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-sans font-semibold border border-slate-700 whitespace-nowrap shrink-0">
-                                  <Sparkles className="w-3 h-3 text-slate-300 shrink-0" />
+                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#1C1C20] text-[#D4D4D8] text-[10px] font-sans font-semibold border border-[#2a2a30] whitespace-nowrap shrink-0">
+                                  <Sparkles className="w-3 h-3 text-[#D4D4D8] shrink-0" />
                                   <span>AI Architecture</span>
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 text-[10px] font-sans font-semibold whitespace-nowrap shrink-0">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-[#1C1C20] text-[#71717A] text-[10px] font-sans font-semibold whitespace-nowrap shrink-0">
                                   Scaffolded Spec
                                 </span>
                               )}
 
                               <button
                                 onClick={() => handleCopyCode(task.aiOutput?.filesScaffolded?.[0]?.codeSnippet || getTaskDefaultCode(task), task.id)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer whitespace-nowrap border border-slate-700 shrink-0"
+                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#1C1C20] hover:bg-[#2a2a30] text-[#E4E4E7] hover:text-white text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer whitespace-nowrap border border-[#2a2a30] shrink-0"
                               >
                                 {copiedCodeId === task.id ? (
                                   <>
@@ -2640,7 +2640,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                                   </>
                                 ) : (
                                   <>
-                                    <Copy className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                    <Copy className="w-3.5 h-3.5 text-[#71717A] shrink-0" />
                                     <span>Copy File</span>
                                   </>
                                 )}
@@ -2649,7 +2649,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                           </div>
 
                           {/* Code Viewer Container */}
-                          <div className="p-3 rounded-xl bg-black border border-slate-800 text-[11px] text-slate-200 overflow-x-auto max-h-72 overflow-y-auto leading-relaxed">
+                          <div className="p-3 rounded-xl bg-black border border-[#2a2a30] text-[11px] text-[#E4E4E7] overflow-x-auto max-h-72 overflow-y-auto leading-relaxed">
                             <pre className="font-mono">
                               <code>{task.aiOutput?.filesScaffolded?.[0]?.codeSnippet || getTaskDefaultCode(task)}</code>
                             </pre>
@@ -2669,11 +2669,11 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                               </div>
                             </div>
 
-                            <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2">
-                              <Info className="w-4 h-4 text-blue-400 shrink-0" />
+                            <div className="p-2.5 rounded-xl bg-[#050506] border border-[#2a2a30] flex items-center gap-2">
+                              <Info className="w-4 h-4 text-[#FF8FA3] shrink-0" />
                               <div className="overflow-hidden">
-                                <span className="font-bold text-slate-200 block text-[11px]">Architecture Notes</span>
-                                <p className="text-[10px] text-slate-400 truncate">
+                                <span className="font-bold text-[#E4E4E7] block text-[11px]">Architecture Notes</span>
+                                <p className="text-[10px] text-[#71717A] truncate">
                                   {task.aiOutput?.implementationNotes || task.notes || `Scaffolded for ${project?.productName || 'MVP'}`}
                                 </p>
                               </div>
@@ -2692,12 +2692,12 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                     placeholder="New engineering sprint task..."
                     value={newTaskTitle}
                     onChange={e => setNewTaskTitle(e.target.value)}
-                    className="flex-1 px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 outline-none focus:border-blue-600 shadow-2xs"
+                    className="flex-1 px-3.5 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none focus:border-[#C81E3C] shadow-2xs"
                   />
                   <select
                     value={newTaskAssigned}
                     onChange={e => setNewTaskAssigned(e.target.value)}
-                    className="px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-700 outline-none font-bold shadow-2xs"
+                    className="px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#D4D4D8] outline-none font-bold shadow-2xs"
                   >
                     <option value="AI Agent">🤖 AI Agent</option>
                     <option value="Human Engineer">👤 Human Engineer</option>
@@ -2705,7 +2705,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   <select
                     value={newTaskCategory}
                     onChange={e => setNewTaskCategory(e.target.value)}
-                    className="px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-700 outline-none shadow-2xs"
+                    className="px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#D4D4D8] outline-none shadow-2xs"
                   >
                     <option value="Backend">Backend</option>
                     <option value="Frontend">Frontend</option>
@@ -2716,7 +2716,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   </select>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-[#C81E3C] hover:bg-[#B01732] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add</span>
@@ -2729,7 +2729,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           )}
 
           {/* Step 1 Footer Action */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[#2a2a30]">
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 onClick={handleSaveToProjectFiles}
@@ -2741,7 +2741,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
               <button
                 onClick={handleExportMarkdown}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-2xs text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#3a3a42] shadow-2xs text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Export Spec (.md)</span>
@@ -2794,7 +2794,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   console.warn('[Phase2BuildMVP] Background plan save warning:', err)
                 })
               }}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#C81E3C] hover:bg-[#B01732] text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
             >
               <span>Proceed to 2. Build MVP</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -2807,7 +2807,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
       {/* STEP 2: BUILD MVP (CLOUD CODEBASE STUDIO & IDE) */}
       {activeStep === 'build' && (
         <div className="space-y-5">
-          <div className="keep-dark cloud-code-studio rounded-3xl overflow-hidden shadow-xl border border-slate-800">
+          <div className="keep-dark cloud-code-studio rounded-3xl overflow-hidden shadow-xl border border-[#2a2a30]">
             <CloudCodeStudio
               project={project}
               engineeringTasks={engineeringTasks}
@@ -2835,10 +2835,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           </div>
 
           {/* Step 2 Footer */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[#2a2a30]">
             <button
               onClick={() => setActiveStep('plan')}
-              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-2xs text-xs font-semibold cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#3a3a42] shadow-2xs text-xs font-semibold cursor-pointer"
             >
               ← Back to Product Plan
             </button>
@@ -2874,7 +2874,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   current_step: 'beta'
                 }).catch(err => console.warn('[Phase2BuildMVP] Background save beta warning:', err))
               }}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#C81E3C] hover:bg-[#B01732] text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
             >
               <span>Proceed to 3. Beta Test</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -2887,8 +2887,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
       {activeStep === 'beta' && (
         <div className="space-y-5">
           {/* Subtabs for Step 3 */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-200 pb-3">
-            <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-slate-100 border border-slate-200/80 max-w-full overflow-x-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-[#2a2a30] pb-3">
+            <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-[#18181C] border border-[#2a2a30]/80 max-w-full overflow-x-auto">
               {[
                 { id: 'clusters', label: '1. AI Recurring Feedback Clusters' },
                 { id: 'cohort', label: `2. Beta Cohort Invites (${betaCohort.length})` },
@@ -2899,8 +2899,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   onClick={() => setBetaSubtab(sub.id)}
                   className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                     betaSubtab === sub.id
-                      ? 'bg-white text-slate-900 border border-slate-200/80 shadow-2xs font-bold'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                      ? 'bg-[#0C0C0E] text-[#FAFAFA] border border-[#2a2a30]/80 shadow-2xs font-bold'
+                      : 'text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#0C0C0E]/60'
                   }`}
                 >
                   <span className="whitespace-nowrap">{sub.label}</span>
@@ -2912,10 +2912,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               {feedbackClusters && (
                 <button
                   onClick={handleClearClusters}
-                  className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs flex items-center gap-1.5 border border-rose-200 transition-all active:scale-95 cursor-pointer whitespace-nowrap"
+                  className="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/15 text-rose-300 font-bold text-xs flex items-center gap-1.5 border border-rose-500/30 transition-all active:scale-95 cursor-pointer whitespace-nowrap"
                   title="Clear current feedback clusters"
                 >
-                  <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                  <Trash2 className="w-3.5 h-3.5 text-rose-300" />
                   <span>Clear Clusters</span>
                 </button>
               )}
@@ -2923,16 +2923,16 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               <button
                 onClick={handleClusterFeedbackAI}
                 disabled={isClusteringAI}
-                className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                className="px-3 py-1.5 rounded-lg bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer whitespace-nowrap"
               >
                 {isClusteringAI ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-300" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#D4D4D8]" />
                     <span>AI Grouping Feedback...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-3.5 h-3.5 text-slate-300" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#D4D4D8]" />
                     <span>AI Cluster & Group Feedback ({rawFeedback.length})</span>
                   </>
                 )}
@@ -2945,13 +2945,13 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
             isClusteringAI ? (
               <FeedbackClusterSkeleton />
             ) : !feedbackClusters ? (
-              <div className="p-10 sm:p-14 rounded-3xl bg-white border border-slate-200 shadow-2xs text-center space-y-4 my-2">
-                <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center mx-auto shadow-2xs">
+              <div className="p-10 sm:p-14 rounded-3xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs text-center space-y-4 my-2">
+                <div className="w-14 h-14 rounded-2xl bg-[#18181C] border border-[#2a2a30] text-[#D4D4D8] flex items-center justify-center mx-auto shadow-2xs">
                   <Sparkles className="w-7 h-7" />
                 </div>
                 <div className="space-y-1.5 max-w-md mx-auto">
-                  <h4 className="text-sm font-black text-slate-900">No Feedback Clusters Generated Yet</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed">
+                  <h4 className="text-sm font-black text-[#FAFAFA]">No Feedback Clusters Generated Yet</h4>
+                  <p className="text-xs text-[#A1A1AA] leading-relaxed">
                     {rawFeedback.length === 0
                       ? 'No customer feedback has been collected yet. Collect issues from beta testers via the Beta Testing Portal or log feedback manually in Subtab 3.'
                       : `${rawFeedback.length} customer feedback items are logged and ready. Click "AI Cluster & Group Feedback" to synthesize recurring issue clusters.`}
@@ -2961,9 +2961,9 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   <button
                     onClick={handleClusterFeedbackAI}
                     disabled={isClusteringAI || rawFeedback.length === 0}
-                    className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-5 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-slate-300" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#D4D4D8]" />
                     <span>AI Cluster & Group Feedback ({rawFeedback.length} items)</span>
                   </button>
                 </div>
@@ -2972,22 +2972,22 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-600" />
+                  <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-300" />
                     <span>AI Recurring Issue Summaries & Quantified Clusters</span>
                   </h3>
-                  <p className="text-xs text-slate-600">
+                  <p className="text-xs text-[#A1A1AA]">
                     AI analyzes support conversations, bug reports, and objections into prioritized resolution tasks.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
-                    <Bot className="w-3 h-3 text-amber-600" />
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                    <Bot className="w-3 h-3 text-amber-300" />
                     AI Synthesized ({feedbackClusters.length} clusters)
                   </span>
                   <button
                     onClick={handleClearClusters}
-                    className="text-[11px] font-bold text-rose-600 hover:text-rose-700 hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] font-bold text-rose-300 hover:text-rose-300 hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <Trash2 className="w-3 h-3" />
                     Reset
@@ -3011,48 +3011,48 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   return (
                     <div
                       key={cluster?.id || `cluster-${idx}`}
-                      className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3 flex flex-col justify-between"
+                      className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3 flex flex-col justify-between"
                     >
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-lg font-black text-slate-900 font-mono flex items-center gap-1.5">
-                            <span className={isBug ? 'text-red-600' : isUX ? 'text-amber-600' : 'text-emerald-600'}>
+                          <span className="text-lg font-black text-[#FAFAFA] font-mono flex items-center gap-1.5">
+                            <span className={isBug ? 'text-red-300' : isUX ? 'text-amber-300' : 'text-emerald-300'}>
                               {count} {count === 1 ? 'user' : 'users'}
                             </span>
                           </span>
                           <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
                             severity === 'High'
-                              ? 'bg-red-50 text-red-700 border border-red-200'
+                              ? 'bg-red-500/10 text-red-300 border border-red-500/30'
                               : severity === 'Medium'
-                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
+                              : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
                           }`}>
                             {category} • {severity}
                           </span>
                         </div>
 
-                        <h4 className="font-bold text-slate-900 text-xs leading-snug">{title}</h4>
-                        <p className="text-[11px] text-slate-600 leading-relaxed">{description}</p>
+                        <h4 className="font-bold text-[#FAFAFA] text-xs leading-snug">{title}</h4>
+                        <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{description}</p>
 
                         {quote && (
-                          <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[10px] text-slate-700 italic font-medium">
+                          <div className="p-2.5 rounded-xl bg-[#111114] border border-[#2a2a30] text-[10px] text-[#D4D4D8] italic font-medium">
                             "{quote}"
                           </div>
                         )}
                       </div>
 
-                      <div className="pt-2 border-t border-slate-200 space-y-2">
+                      <div className="pt-2 border-t border-[#2a2a30] space-y-2">
                         {fix && (
-                          <div className="text-[10px] text-emerald-700 font-medium">
+                          <div className="text-[10px] text-emerald-300 font-medium">
                             <strong>Recommended Fix:</strong> {fix}
                           </div>
                         )}
 
                         <button
                           onClick={() => handleConvertClusterToTask(cluster)}
-                          className="w-full py-2 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-[#C8FF3D] font-black text-[11px] flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                          className="w-full py-2 rounded-xl bg-[#C81E3C] hover:bg-[#B01732] text-white font-black text-[11px] flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                         >
-                          <Plus className="w-3 h-3 text-[#C8FF3D]" />
+                          <Plus className="w-3 h-3 text-white" />
                           <span>Convert to Sprint Task</span>
                         </button>
                       </div>
@@ -3066,22 +3066,22 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
           {/* SUBTAB 2: BETA COHORT INVITES */}
           {betaSubtab === 'cohort' && (
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+            <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-[#2a2a30] pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-black text-slate-900">Presale & Waitlist Beta Access Manager</h3>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-mono">
+                    <h3 className="text-sm font-black text-[#FAFAFA]">Presale & Waitlist Beta Access Manager</h3>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45 font-mono">
                       {betaCohort.length} {betaCohort.length === 1 ? 'Backer' : 'Backers'}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 mt-0.5">
+                  <p className="text-xs text-[#A1A1AA] mt-0.5">
                     Provision private tokens and dispatch email testing invites with direct sandbox URLs to early backers.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-mono text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
+                  <span className="text-xs font-mono text-emerald-300 font-bold bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/30">
                     ${presalesRevenue.toLocaleString()} Total Pledged
                   </span>
 
@@ -3089,26 +3089,26 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                     <>
                       <button
                         onClick={handleSelectUnsentTesters}
-                        className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer border border-slate-200"
+                        className="px-2.5 py-1.5 rounded-lg bg-[#18181C] hover:bg-[#222227] text-[#D4D4D8] font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer border border-[#2a2a30]"
                         title="Select cohort members who have not received an email invite yet"
                       >
-                        <UserCheck className="w-3.5 h-3.5 text-slate-600" />
+                        <UserCheck className="w-3.5 h-3.5 text-[#A1A1AA]" />
                         <span>Select Unsent</span>
                       </button>
 
                       <button
                         onClick={handleSelectAllTesters}
-                        className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer border border-slate-200"
+                        className="px-2.5 py-1.5 rounded-lg bg-[#18181C] hover:bg-[#222227] text-[#D4D4D8] font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer border border-[#2a2a30]"
                       >
-                        <CheckSquare className="w-3.5 h-3.5 text-slate-600" />
+                        <CheckSquare className="w-3.5 h-3.5 text-[#A1A1AA]" />
                         <span>{selectedTesterIds.length === betaCohort.length ? 'Deselect All' : 'Select All'}</span>
                       </button>
 
                       <button
                         onClick={() => handleOpenBulkEmailModal(selectedTesterIds.length > 0)}
-                        className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-lg bg-[#C81E3C] hover:bg-[#B01732] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
                       >
-                        <Mail className="w-3.5 h-3.5 text-blue-100" />
+                        <Mail className="w-3.5 h-3.5 text-[#FFD1DA]" />
                         <span>
                           {selectedTesterIds.length > 0
                             ? `Email Selected (${selectedTesterIds.length})`
@@ -3122,10 +3122,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
               {/* Batch Action Floating Pill Ribbon (When selection > 0) */}
               {selectedTesterIds.length > 0 && (
-                <div className="p-3 rounded-xl bg-blue-50/80 border border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 animate-fade-in">
+                <div className="p-3 rounded-xl bg-[#C81E3C]/10 border border-[#C81E3C]/45 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 animate-fade-in">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-                    <span className="text-xs font-black text-blue-900 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-[#C81E3C] animate-pulse" />
+                    <span className="text-xs font-black text-[#FF8FA3] font-mono">
                       {selectedTesterIds.length} of {betaCohort.length} testers selected
                     </span>
                   </div>
@@ -3133,7 +3133,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleOpenBulkEmailModal(true)}
-                      className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg bg-[#C81E3C] hover:bg-[#B01732] text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                     >
                       <Mail className="w-3.5 h-3.5" />
                       <span>Email Selected Testers</span>
@@ -3148,7 +3148,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                         navigator.clipboard?.writeText(links)
                         showToast(`Copied ${selectedTesterIds.length} Magic Links to clipboard!`)
                       }}
-                      className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                      className="px-2.5 py-1.5 rounded-lg bg-[#0C0C0E] hover:bg-[#18181C] text-[#D4D4D8] border border-[#3a3a42] font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
                     >
                       <Copy className="w-3.5 h-3.5" />
                       <span>Copy Magic Links</span>
@@ -3156,7 +3156,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
                     <button
                       onClick={() => setSelectedTesterIds([])}
-                      className="px-2.5 py-1.5 rounded-lg text-slate-500 hover:text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+                      className="px-2.5 py-1.5 rounded-lg text-[#A1A1AA] hover:text-[#D4D4D8] font-bold text-xs transition-colors cursor-pointer"
                     >
                       Clear
                     </button>
@@ -3208,25 +3208,25 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   form.reset()
                   showToast(`Invited ${name} to private beta!`)
                 }}
-                className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 p-3.5 rounded-xl bg-slate-50 border border-slate-200"
+                className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]"
               >
                 <input
                   name="name"
                   type="text"
                   placeholder="Backer name..."
                   required
-                  className="px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 outline-none shadow-2xs"
+                  className="px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none shadow-2xs"
                 />
                 <input
                   name="email"
                   type="email"
                   placeholder="Email address..."
                   required
-                  className="px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 outline-none shadow-2xs"
+                  className="px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none shadow-2xs"
                 />
                 <select
                   name="tier"
-                  className="px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-700 outline-none shadow-2xs"
+                  className="px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#D4D4D8] outline-none shadow-2xs"
                 >
                   {projectPricingTiers.map((pt, idx) => (
                     <option key={idx} value={pt.value}>{pt.label}</option>
@@ -3234,7 +3234,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 </select>
                 <button
                   type="submit"
-                  className="py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+                  className="py-2 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Invite Backer</span>
@@ -3243,10 +3243,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
               {/* Cohort List */}
               {betaCohort.length === 0 ? (
-                <div className="p-8 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-center space-y-2">
-                  <User className="w-8 h-8 text-slate-400 mx-auto" />
-                  <h4 className="text-xs font-bold text-slate-900">No Beta Backers Invited Yet</h4>
-                  <p className="text-[11px] text-slate-500 max-w-sm mx-auto">
+                <div className="p-8 rounded-2xl bg-[#111114] border border-dashed border-[#3a3a42] text-center space-y-2">
+                  <User className="w-8 h-8 text-[#71717A] mx-auto" />
+                  <h4 className="text-xs font-bold text-[#FAFAFA]">No Beta Backers Invited Yet</h4>
+                  <p className="text-[11px] text-[#A1A1AA] max-w-sm mx-auto">
                     Backers who pre-order in Phase 1 appear here automatically. Use the form above to invite additional testers.
                   </p>
                 </div>
@@ -3262,35 +3262,35 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                       <div
                         key={backerId}
                         className={`p-3.5 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
-                          isSelected ? 'bg-blue-50/40 border-blue-300 shadow-2xs' : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                          isSelected ? 'bg-[#C81E3C]/10 border-[#C81E3C]/45 shadow-2xs' : 'bg-[#111114] border-[#2a2a30] hover:border-[#3a3a42]'
                         }`}
                       >
                         <div className="flex items-start sm:items-center gap-3">
                           <button
                             type="button"
                             onClick={() => handleToggleSelectTester(backerId)}
-                            className="mt-0.5 sm:mt-0 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+                            className="mt-0.5 sm:mt-0 text-[#71717A] hover:text-[#FF8FA3] transition-colors cursor-pointer"
                           >
                             {isSelected ? (
-                              <CheckSquare className="w-4 h-4 text-blue-600" />
+                              <CheckSquare className="w-4 h-4 text-[#FF8FA3]" />
                             ) : (
-                              <Square className="w-4 h-4 text-slate-400" />
+                              <Square className="w-4 h-4 text-[#71717A]" />
                             )}
                           </button>
 
                           <div>
                             <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="font-bold text-slate-900">{backer.name}</span>
-                              <span className="text-[10px] px-2 py-0.5 rounded bg-slate-200 text-slate-800 border border-slate-300 font-bold">
+                              <span className="font-bold text-[#FAFAFA]">{backer.name}</span>
+                              <span className="text-[10px] px-2 py-0.5 rounded bg-[#222227] text-[#E4E4E7] border border-[#3a3a42] font-bold">
                                 {backer.tier}
                               </span>
                               {backer.totalAmount > 0 && (
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
+                                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/30">
                                   ${backer.totalAmount} Contributed
                                 </span>
                               )}
                             </div>
-                            <span className="text-[11px] text-slate-500 font-mono block mt-0.5">{backer.email}</span>
+                            <span className="text-[11px] text-[#A1A1AA] font-mono block mt-0.5">{backer.email}</span>
                           </div>
                         </div>
 
@@ -3298,8 +3298,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                           {/* Invite status pill */}
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 ${
                             isSent
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-amber-50 text-amber-800 border border-amber-200'
+                              ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
+                              : 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
                           }`}>
                             <Mail className="w-3 h-3" />
                             {isSent ? 'Invite Sent' : 'Not Contacted'}
@@ -3308,10 +3308,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                           {/* Email Specific Tester Button */}
                           <button
                             onClick={() => handleOpenSingleTesterEmail(backer)}
-                            className="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                            className="px-2.5 py-1.5 rounded-lg bg-[#C81E3C]/10 hover:bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45 font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
                             title={`Compose and send email invitation to ${backer.email}`}
                           >
-                            <Mail className="w-3 h-3 text-blue-600" />
+                            <Mail className="w-3 h-3 text-[#FF8FA3]" />
                             <span>Email Tester</span>
                           </button>
 
@@ -3320,7 +3320,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                               navigator.clipboard?.writeText(betaUrl)
                               showToast(`Copied Beta Magic Link for ${backer.name}!`)
                             }}
-                            className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 shadow-2xs font-semibold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
+                            className="px-2.5 py-1.5 rounded-lg bg-[#0C0C0E] hover:bg-[#18181C] text-[#D4D4D8] border border-[#3a3a42] shadow-2xs font-semibold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
                             title="Copy tester magic link"
                           >
                             <Copy className="w-3 h-3" />
@@ -3331,7 +3331,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                             href={betaUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#C8FF3D] hover:bg-[#b5ee2e] text-[#080A0C] font-black text-[11px] transition-colors cursor-pointer shadow-2xs"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#C81E3C] hover:bg-[#B01732] text-white font-black text-[11px] transition-colors cursor-pointer shadow-2xs"
                             title="Open testing portal as this tester"
                           >
                             <span>Open Portal</span>
@@ -3348,8 +3348,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
           {/* SUBTAB 3: RAW FEEDBACK LOGGER */}
           {betaSubtab === 'feedback' && (
-            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
-              <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Log Customer Support Conversation / Friction Point</h3>
+            <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4">
+              <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider">Log Customer Support Conversation / Friction Point</h3>
 
               <form onSubmit={handleAddFeedback} className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
                 <input
@@ -3357,12 +3357,12 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   placeholder="Customer name..."
                   value={newFeedbackAuthor}
                   onChange={e => setNewFeedbackAuthor(e.target.value)}
-                  className="px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 outline-none shadow-2xs"
+                  className="px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none shadow-2xs"
                 />
                 <select
                   value={newFeedbackType}
                   onChange={e => setNewFeedbackType(e.target.value)}
-                  className="px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-700 outline-none shadow-2xs"
+                  className="px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#D4D4D8] outline-none shadow-2xs"
                 >
                   <option value="UX / Onboarding">UX / Onboarding</option>
                   <option value="Feature Request">Feature Request</option>
@@ -3374,13 +3374,13 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   placeholder="Feedback or message..."
                   value={newFeedbackMsg}
                   onChange={e => setNewFeedbackMsg(e.target.value)}
-                  className="sm:col-span-2 px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 outline-none shadow-2xs"
+                  className="sm:col-span-2 px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none shadow-2xs"
                 />
                 <button
                   type="submit"
-                  className="sm:col-span-4 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-[#C8FF3D] font-black text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  className="sm:col-span-4 py-2.5 rounded-xl bg-[#C81E3C] hover:bg-[#B01732] text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                 >
-                  <Send className="w-3.5 h-3.5 text-[#C8FF3D]" />
+                  <Send className="w-3.5 h-3.5 text-white" />
                   <span>Log Feedback Item</span>
                 </button>
               </form>
@@ -3388,28 +3388,28 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               {/* Feed List */}
               <div className="space-y-2 pt-2">
                 {rawFeedback.length === 0 ? (
-                  <div className="p-8 text-center rounded-xl bg-slate-50 border border-dashed border-slate-200 text-xs text-slate-500 space-y-1">
-                    <p className="font-semibold text-slate-700">No beta feedback logged yet</p>
-                    <p className="text-[11px] text-slate-500">Log customer conversations above, or invite beta testers to submit feedback via the Beta Portal.</p>
+                  <div className="p-8 text-center rounded-xl bg-[#111114] border border-dashed border-[#2a2a30] text-xs text-[#A1A1AA] space-y-1">
+                    <p className="font-semibold text-[#D4D4D8]">No beta feedback logged yet</p>
+                    <p className="text-[11px] text-[#A1A1AA]">Log customer conversations above, or invite beta testers to submit feedback via the Beta Portal.</p>
                   </div>
                 ) : (
                   rawFeedback.map(f => (
-                    <div key={f.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                    <div key={f.id} className="p-3 rounded-xl bg-[#111114] border border-[#2a2a30] text-xs space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900">{f.author}</span>
+                        <span className="font-bold text-[#FAFAFA]">{f.author}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-slate-500 font-mono">{f.type} • {f.timestamp}</span>
+                          <span className="text-[10px] text-[#A1A1AA] font-mono">{f.type} • {f.timestamp}</span>
                           <button
                             type="button"
                             onClick={() => handleDeleteFeedback(f.id)}
-                            className="text-slate-400 hover:text-rose-600 p-0.5 transition-colors cursor-pointer"
+                            className="text-[#71717A] hover:text-rose-300 p-0.5 transition-colors cursor-pointer"
                             title="Delete feedback entry"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>
-                      <p className="text-slate-700 text-[11px]">"{f.message}"</p>
+                      <p className="text-[#D4D4D8] text-[11px]">"{f.message}"</p>
                     </div>
                   ))
                 )}
@@ -3418,10 +3418,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           )}
 
           {/* Step 3 Footer */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[#2a2a30]">
             <button
               onClick={() => setActiveStep('build')}
-              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-2xs text-xs font-semibold cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#3a3a42] shadow-2xs text-xs font-semibold cursor-pointer"
             >
               ← Back to Build
             </button>
@@ -3455,7 +3455,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   current_step: 'gate'
                 }).catch(err => console.warn('[Phase2BuildMVP] Background save gate warning:', err))
               }}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#C81E3C] hover:bg-[#B01732] text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
             >
               <span>Proceed to 4. Iterate + Launch Gate</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -3469,19 +3469,19 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
         <div className="space-y-5">
           {/* Prerequisite Check Banner if prior steps are incomplete */}
           {!p2Guards.allPriorStepsDone && (
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-2.5 shadow-2xs">
-              <div className="flex items-center gap-2 font-bold text-amber-900">
-                <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-2.5 shadow-2xs">
+              <div className="flex items-center gap-2 font-bold text-amber-300">
+                <Lock className="w-4 h-4 text-amber-300 shrink-0" />
                 <span>Phase 2 Launch Gate is Locked: Prerequisite Steps Incomplete</span>
               </div>
-              <p className="text-[11px] text-amber-800 leading-relaxed">
+              <p className="text-[11px] text-amber-300 leading-relaxed">
                 The Launch Gate requires completing product specifications, the MVP codebase build tasks, and beta cohort testing before public release.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
                 <button
                   onClick={() => setActiveStep('plan')}
                   className={`p-2.5 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all cursor-pointer ${
-                    p2Guards.isStep1Done ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800 hover:bg-red-100'
+                    p2Guards.isStep1Done ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15'
                   }`}
                 >
                   <span>1. Product + Build Plan</span>
@@ -3492,10 +3492,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   disabled={!p2Guards.canAccessStep2}
                   className={`p-2.5 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all ${
                     p2Guards.isStep2Done
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800 cursor-pointer'
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 cursor-pointer'
                       : p2Guards.canAccessStep2
-                      ? 'bg-red-50 border-red-200 text-red-800 hover:bg-red-100 cursor-pointer'
-                      : 'opacity-40 border-slate-200 text-slate-400 cursor-not-allowed'
+                      ? 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15 cursor-pointer'
+                      : 'opacity-40 border-[#2a2a30] text-[#71717A] cursor-not-allowed'
                   }`}
                 >
                   <span>2. Build MVP</span>
@@ -3506,10 +3506,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   disabled={!p2Guards.canAccessStep3}
                   className={`p-2.5 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all ${
                     p2Guards.isStep3Done
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800 cursor-pointer'
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 cursor-pointer'
                       : p2Guards.canAccessStep3
-                      ? 'bg-red-50 border-red-200 text-red-800 hover:bg-red-100 cursor-pointer'
-                      : 'opacity-40 border-slate-200 text-slate-400 cursor-not-allowed'
+                      ? 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15 cursor-pointer'
+                      : 'opacity-40 border-[#2a2a30] text-[#71717A] cursor-not-allowed'
                   }`}
                 >
                   <span>3. Beta Test</span>
@@ -3520,14 +3520,14 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           )}
 
           {/* Executive Header Banner */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2a2a30] pb-3">
               <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-slate-600" />
+                <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
+                  <Award className="w-3.5 h-3.5 text-[#A1A1AA]" />
                   <span>Step 4: Iterate + Launch Gate</span>
                 </span>
-                <h3 className="text-base font-black text-slate-950">
+                <h3 className="text-base font-black text-[#FAFAFA]">
                   Executive Product-Readiness Audit & Launch Gate
                 </h3>
               </div>
@@ -3536,11 +3536,11 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 <button
                   onClick={handleApplyAIAutoFixes}
                   disabled={isAutoFixing}
-                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
                   {isAutoFixing ? (
                     <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-300" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#D4D4D8]" />
                       <span>Applying Fixes & Retesting...</span>
                     </>
                   ) : (
@@ -3554,37 +3554,37 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 <button
                   onClick={handleGenerateReadinessAudit}
                   disabled={isAuditing}
-                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-2xs font-semibold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#3a3a42] shadow-2xs font-semibold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
                 >
-                  {isAuditing ? <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" /> : <RefreshCw className="w-3.5 h-3.5 text-slate-500" />}
+                  {isAuditing ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#71717A]" /> : <RefreshCw className="w-3.5 h-3.5 text-[#A1A1AA]" />}
                   <span>Re-Audit</span>
                 </button>
               </div>
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-[#A1A1AA] leading-relaxed">
               AI prioritizes feedback issues, applies targeted code hotfixes, updates the MVP build version, and verifies product readiness.
             </p>
           </div>
 
           {/* Decision Notice (if Continue Beta or Killed) */}
           {decisionNotice && (
-            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-blue-900 text-xs flex items-center gap-2 font-medium shadow-2xs">
-              <Compass className="w-4 h-4 text-blue-600 shrink-0" />
+            <div className="p-4 rounded-2xl bg-[#C81E3C]/10 border border-[#C81E3C]/45 text-[#FF8FA3] text-xs flex items-center gap-2 font-medium shadow-2xs">
+              <Compass className="w-4 h-4 text-[#FF8FA3] shrink-0" />
               <span>{decisionNotice}</span>
             </div>
           )}
 
           {/* 1. AI Product-Readiness Audit Score Card */}
-          <div className={`p-5 rounded-3xl bg-white border ${activeReadiness.cardBorderClass} shadow-2xs space-y-4`}>
+          <div className={`p-5 rounded-3xl bg-[#0C0C0E] border ${activeReadiness.cardBorderClass} shadow-2xs space-y-4`}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <span className={`text-[10px] font-bold uppercase tracking-wider ${activeReadiness.textVerdictClass}`}>
                   AI Product-Readiness Score
                 </span>
                 <div className="flex items-baseline gap-3">
-                  <span className="text-3xl sm:text-4xl font-black text-slate-950 font-mono">
-                    {activeReadiness.score}<span className="text-slate-400 text-xl font-normal">/100</span>
+                  <span className="text-3xl sm:text-4xl font-black text-[#FAFAFA] font-mono">
+                    {activeReadiness.score}<span className="text-[#71717A] text-xl font-normal">/100</span>
                   </span>
                   <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${activeReadiness.verdictBadgeClass}`}>
                     {activeReadiness.verdict}
@@ -3592,54 +3592,54 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 </div>
               </div>
 
-              <div className="text-xs text-slate-600 text-left sm:text-right space-y-0.5">
-                <div>Confidence Level: <strong className="text-slate-900">{activeReadiness.confidence}</strong></div>
-                <div>MVP Build Release: <strong className="text-slate-800 font-mono">{mvpVersion}</strong></div>
+              <div className="text-xs text-[#A1A1AA] text-left sm:text-right space-y-0.5">
+                <div>Confidence Level: <strong className="text-[#FAFAFA]">{activeReadiness.confidence}</strong></div>
+                <div>MVP Build Release: <strong className="text-[#E4E4E7] font-mono">{mvpVersion}</strong></div>
               </div>
             </div>
 
-            <p className="text-xs text-slate-700 leading-relaxed font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <p className="text-xs text-[#D4D4D8] leading-relaxed font-medium bg-[#111114] p-3 rounded-xl border border-[#2a2a30]">
               "{activeReadiness.summary}"
             </p>
 
             {/* 4 Pillars Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               {(activeReadiness.pillars || []).map((p, idx) => (
-                <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1 text-xs">
+                <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                      <CheckCircle className={`w-3.5 h-3.5 ${p.score >= 70 ? 'text-emerald-600' : 'text-amber-600'}`} />
+                    <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5">
+                      <CheckCircle className={`w-3.5 h-3.5 ${p.score >= 70 ? 'text-emerald-300' : 'text-amber-300'}`} />
                       <span>{p.name}</span>
                     </span>
-                    <span className={`font-mono font-bold ${p.score >= 70 ? 'text-emerald-700' : 'text-amber-700'}`}>{p.score}% • {p.status}</span>
+                    <span className={`font-mono font-bold ${p.score >= 70 ? 'text-emerald-300' : 'text-amber-300'}`}>{p.score}% • {p.status}</span>
                   </div>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">{p.detail}</p>
+                  <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{p.detail}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* 2. Automated Hotfixes & MVP Update Log */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-              <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+            <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
+              <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
                 <Zap className="w-4 h-4 text-amber-500" />
                 <span>AI Automated Code Hotfixes ({appliedPatches.length} Patches Applied)</span>
               </h3>
-              <span className="text-[10px] font-mono text-emerald-700 font-bold">All Patches Verified ✓</span>
+              <span className="text-[10px] font-mono text-emerald-300 font-bold">All Patches Verified ✓</span>
             </div>
 
             <div className="space-y-2">
               {appliedPatches.map((patch, idx) => (
-                <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs">
+                <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">{patch.issueTitle}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold">
+                    <span className="font-bold text-[#FAFAFA]">{patch.issueTitle}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
                       Verified Fix ✓
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-600">{patch.fixSummary}</p>
-                  <div className="text-[10px] text-slate-500 font-mono">
+                  <p className="text-[11px] text-[#A1A1AA]">{patch.fixSummary}</p>
+                  <div className="text-[10px] text-[#A1A1AA] font-mono">
                     Files patched: {patch.filesModified.join(', ')}
                   </div>
                 </div>
@@ -3648,52 +3648,52 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           </div>
 
           {/* 3. Post-Patch Retest Results */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-              <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <CheckCheck className="w-4 h-4 text-emerald-600" />
+          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+            <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
+              <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
+                <CheckCheck className="w-4 h-4 text-emerald-300" />
                 <span>Updated MVP Retest Summary</span>
               </h3>
-              <span className="text-[10px] font-mono text-slate-500 font-medium">Target: Zero Launch Blockers</span>
+              <span className="text-[10px] font-mono text-[#A1A1AA] font-medium">Target: Zero Launch Blockers</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                <span className="text-[10px] text-slate-500 font-bold uppercase">Unit & Integration Tests</span>
-                <div className="text-base font-black text-emerald-700 font-mono">
+              <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1">
+                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase">Unit & Integration Tests</span>
+                <div className="text-base font-black text-emerald-300 font-mono">
                   {qaResults.unitTests.passed + qaResults.integrationTests.passed} Tests Passing (100%)
                 </div>
-                <span className="text-[10px] text-slate-400">0 failures, 0 regressions</span>
+                <span className="text-[10px] text-[#71717A]">0 failures, 0 regressions</span>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                <span className="text-[10px] text-slate-500 font-bold uppercase">Critical P0 Bugs</span>
-                <div className="text-base font-black text-emerald-700 font-mono">
+              <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1">
+                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase">Critical P0 Bugs</span>
+                <div className="text-base font-black text-emerald-300 font-mono">
                   0 Open Blockers
                 </div>
-                <span className="text-[10px] text-slate-400">All P0 criteria met</span>
+                <span className="text-[10px] text-[#71717A]">All P0 criteria met</span>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                <span className="text-[10px] text-slate-500 font-bold uppercase">Beta Backer Provisioning</span>
-                <div className="text-base font-black text-emerald-700 font-mono">
+              <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1">
+                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase">Beta Backer Provisioning</span>
+                <div className="text-base font-black text-emerald-300 font-mono">
                   {backersCount} Ready for Public Access
                 </div>
-                <span className="text-[10px] text-slate-400">Tokens activated</span>
+                <span className="text-[10px] text-[#71717A]">Tokens activated</span>
               </div>
             </div>
           </div>
 
           {/* 4. Human Executive Decision Gate */}
-          <div className="p-6 rounded-3xl bg-white border-2 border-blue-500 shadow-md space-y-4">
+          <div className="p-6 rounded-3xl bg-[#0C0C0E] border-2 border-[#C81E3C] shadow-md space-y-4">
             <div>
-              <span className="text-[10px] font-black text-blue-700 uppercase tracking-widest block">
+              <span className="text-[10px] font-black text-[#FF8FA3] uppercase tracking-widest block">
                 Human Executive Decision
               </span>
-              <h3 className="text-lg font-black text-slate-950 tracking-tight">
+              <h3 className="text-lg font-black text-[#FAFAFA] tracking-tight">
                 Choose the Next Strategic Milestone
               </h3>
-              <p className="text-xs text-slate-600 mt-1">
+              <p className="text-xs text-[#A1A1AA] mt-1">
                 As the technical operator, choose whether to launch generally, continue the private beta cycle, or kill/pivot the project.
               </p>
             </div>
@@ -3705,26 +3705,26 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 onClick={p2Guards.allPriorStepsDone ? onAdvanceToPhase3 : undefined}
                 className={`p-4 rounded-2xl text-left space-y-2 transition-all group border ${
                   p2Guards.allPriorStepsDone
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md active:scale-[0.98] border-blue-500 cursor-pointer'
-                    : 'bg-slate-100 text-slate-400 border-slate-200 shadow-none cursor-not-allowed opacity-60'
+                    ? 'bg-[#C81E3C] hover:bg-[#B01732] text-white shadow-md active:scale-[0.98] border-[#C81E3C] cursor-pointer'
+                    : 'bg-[#18181C] text-[#71717A] border-[#2a2a30] shadow-none cursor-not-allowed opacity-60'
                 }`}
                 title={!p2Guards.allPriorStepsDone ? 'Complete Steps 1–3 before advancing to Phase 3' : 'Advance to Phase 3'}
               >
                 <div className="flex items-center justify-between">
-                  <div className={`p-2 rounded-xl ${p2Guards.allPriorStepsDone ? 'bg-white/10 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                  <div className={`p-2 rounded-xl ${p2Guards.allPriorStepsDone ? 'bg-white/10 text-white' : 'bg-[#222227] text-[#71717A]'}`}>
                     {!p2Guards.allPriorStepsDone ? <Lock className="w-5 h-5" /> : <Rocket className="w-5 h-5" />}
                   </div>
                   <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                    p2Guards.allPriorStepsDone ? 'bg-emerald-400 text-slate-950' : 'bg-slate-200 text-slate-500'
+                    p2Guards.allPriorStepsDone ? 'bg-emerald-400 text-[#FAFAFA]' : 'bg-[#222227] text-[#A1A1AA]'
                   }`}>
                     {p2Guards.allPriorStepsDone ? 'Recommended' : 'Locked'}
                   </span>
                 </div>
                 <div>
-                  <h4 className={`text-sm font-black transition-colors ${p2Guards.allPriorStepsDone ? 'text-white' : 'text-slate-500'}`}>
+                  <h4 className={`text-sm font-black transition-colors ${p2Guards.allPriorStepsDone ? 'text-white' : 'text-[#A1A1AA]'}`}>
                     1. Launch Product
                   </h4>
-                  <p className={`text-[11px] leading-relaxed mt-0.5 ${p2Guards.allPriorStepsDone ? 'text-blue-100' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] leading-relaxed mt-0.5 ${p2Guards.allPriorStepsDone ? 'text-[#FFD1DA]' : 'text-[#71717A]'}`}>
                     {p2Guards.allPriorStepsDone
                       ? 'Advance to Phase 3 (Scale / General Launch), open public onboarding, and activate marketing engine.'
                       : 'Locked — Complete Steps 1–3 (Product Plan, MVP Engineering Build, and Beta Test) first.'}
@@ -3739,19 +3739,19 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   setDecisionNotice('Beta cycle extended. Continue collecting usage data and inviting cohort testers.')
                   showToast('Beta cycle extended.')
                 }}
-                className="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-900 text-left space-y-2 border border-slate-200 hover:border-slate-300 transition-all active:scale-[0.98] group cursor-pointer shadow-2xs"
+                className="p-4 rounded-2xl bg-[#111114] hover:bg-[#18181C] text-[#FAFAFA] text-left space-y-2 border border-[#2a2a30] hover:border-[#3a3a42] transition-all active:scale-[0.98] group cursor-pointer shadow-2xs"
               >
                 <div className="flex items-center justify-between">
-                  <div className="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 shadow-2xs">
+                  <div className="p-2 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] text-[#D4D4D8] shadow-2xs">
                     <RotateCcw className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono text-slate-500 font-semibold">Iterate</span>
+                  <span className="text-[10px] font-mono text-[#A1A1AA] font-semibold">Iterate</span>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900">
+                  <h4 className="text-sm font-bold text-[#FAFAFA]">
                     2. Continue Beta
                   </h4>
-                  <p className="text-[11px] text-slate-600 leading-relaxed mt-0.5">
+                  <p className="text-[11px] text-[#A1A1AA] leading-relaxed mt-0.5">
                     Gather more cohort usage data, log additional feedback, and refine edge cases before public launch.
                   </p>
                 </div>
@@ -3760,19 +3760,19 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               {/* Choice 3: Kill / Pivot */}
               <button
                 onClick={() => setShowKillModal(true)}
-                className="p-4 rounded-2xl bg-red-50/50 hover:bg-red-50 text-red-900 text-left space-y-2 border border-red-200 hover:border-red-300 transition-all active:scale-[0.98] group cursor-pointer shadow-2xs"
+                className="p-4 rounded-2xl bg-red-500/10 hover:bg-red-500/10 text-red-300 text-left space-y-2 border border-red-500/30 hover:border-red-500/30 transition-all active:scale-[0.98] group cursor-pointer shadow-2xs"
               >
                 <div className="flex items-center justify-between">
-                  <div className="p-2 rounded-xl bg-red-100 text-red-700">
+                  <div className="p-2 rounded-xl bg-red-500/15 text-red-300">
                     <XCircle className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono text-red-700 font-bold">Pivot</span>
+                  <span className="text-[10px] font-mono text-red-300 font-bold">Pivot</span>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-red-700">
+                  <h4 className="text-sm font-bold text-red-300">
                     3. Kill / Pivot
                   </h4>
-                  <p className="text-[11px] text-red-600/80 leading-relaxed mt-0.5">
+                  <p className="text-[11px] text-red-300/80 leading-relaxed mt-0.5">
                     Gracefully archive the project, process presale refunds, or pivot into a new validated problem space.
                   </p>
                 </div>
@@ -3781,10 +3781,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           </div>
 
           {/* Step 4 Footer */}
-          <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+          <div className="flex items-center justify-between pt-2 border-t border-[#2a2a30]">
             <button
               onClick={() => setActiveStep('beta')}
-              className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-2xs text-xs font-semibold cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#3a3a42] shadow-2xs text-xs font-semibold cursor-pointer"
             >
               ← Back to Beta Testing
             </button>
@@ -3794,21 +3794,21 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
       {/* ── BETA TESTER EMAIL DISPATCHER MODAL ───────────────────────── */}
       {showBetaEmailModal && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[9999] bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-hidden">
-          <div className="max-w-2xl w-full bg-white border border-slate-200 rounded-3xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900 overscroll-contain">
+        <div className="fixed inset-0 z-[9999] bg-[#050506]/40 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-hidden">
+          <div className="max-w-2xl w-full bg-[#0C0C0E] border border-[#2a2a30] rounded-3xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-[#FAFAFA] overscroll-contain">
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
+            <div className="p-4 sm:p-5 border-b border-[#2a2a30] flex items-center justify-between bg-[#111114]/80">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                <div className="w-9 h-9 rounded-xl bg-[#C81E3C] text-white flex items-center justify-center shadow-xs">
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-900 tracking-tight">
+                  <h3 className="text-sm font-black text-[#FAFAFA] tracking-tight">
                     {emailModalMode === 'single' && targetTester
                       ? `Send Beta Invitation to ${targetTester.name}`
                       : `Bulk Dispatch Beta Invitations`}
                   </h3>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-[#A1A1AA]">
                     {emailModalMode === 'single' && targetTester
                       ? `Recipient: ${targetTester.email}`
                       : `Dispatching to ${selectedTesterIds.length} selected beta testers`}
@@ -3822,7 +3822,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   setSendResultLogs(null)
                   setIsSendingEmails(false)
                 }}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#71717A] hover:text-[#D4D4D8] hover:bg-[#222227]/60 transition-colors cursor-pointer"
                 title="Close"
               >
                 <X className="w-5 h-5" />
@@ -3834,19 +3834,19 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               {/* Sending In Progress State */}
               {isSendingEmails ? (
                 <div className="py-10 px-6 text-center space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-2xs">
-                    <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                  <div className="w-12 h-12 rounded-2xl bg-[#C81E3C]/10 text-[#FF8FA3] flex items-center justify-center mx-auto shadow-2xs">
+                    <Loader2 className="w-6 h-6 animate-spin text-[#FF8FA3]" />
                   </div>
                   <div className="space-y-1">
-                    <h4 className="text-sm font-black text-slate-900">Dispatching Beta Invitations...</h4>
-                    <p className="text-xs text-slate-500">
+                    <h4 className="text-sm font-black text-[#FAFAFA]">Dispatching Beta Invitations...</h4>
+                    <p className="text-xs text-[#A1A1AA]">
                       Sending {sendProgress.current} of {sendProgress.total}:{' '}
-                      <span className="font-mono font-bold text-slate-800">{sendProgress.currentEmail}</span>
+                      <span className="font-mono font-bold text-[#E4E4E7]">{sendProgress.currentEmail}</span>
                     </p>
                   </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200 max-w-md mx-auto">
+                  <div className="w-full bg-[#18181C] rounded-full h-2.5 overflow-hidden border border-[#2a2a30] max-w-md mx-auto">
                     <div
-                      className="bg-blue-600 h-full transition-all duration-300 rounded-full"
+                      className="bg-[#C81E3C] h-full transition-all duration-300 rounded-full"
                       style={{
                         width: `${Math.round((sendProgress.current / (sendProgress.total || 1)) * 100)}%`
                       }}
@@ -3859,7 +3859,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                         setIsSendingEmails(false)
                         setShowBetaEmailModal(false)
                       }}
-                      className="text-[11px] font-bold text-slate-500 hover:text-slate-800 underline cursor-pointer"
+                      className="text-[11px] font-bold text-[#A1A1AA] hover:text-[#E4E4E7] underline cursor-pointer"
                     >
                       Dismiss (Finishes in Background)
                     </button>
@@ -3868,28 +3868,28 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               ) : sendResultLogs ? (
                 /* Success Logs State */
                 <div className="space-y-4 py-4">
-                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
-                    <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-2xs">
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-2">
+                    <div className="w-10 h-10 rounded-full bg-emerald-500/15 text-emerald-300 flex items-center justify-center mx-auto shadow-2xs">
                       <Check className="w-5 h-5" />
                     </div>
-                    <h4 className="text-sm font-black text-emerald-900">Invitations Dispatched Successfully!</h4>
-                    <p className="text-xs text-emerald-700">
+                    <h4 className="text-sm font-black text-emerald-300">Invitations Dispatched Successfully!</h4>
+                    <p className="text-xs text-emerald-300">
                       Sent {sendResultLogs.successCount} testing {sendResultLogs.successCount === 1 ? 'invitation' : 'invitations'} with personalized magic tokens.
                     </p>
                   </div>
 
-                  <div className="space-y-1.5 max-h-48 overflow-y-auto rounded-xl border border-slate-200 p-2.5 bg-slate-50">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block px-1">
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto rounded-xl border border-[#2a2a30] p-2.5 bg-[#111114]">
+                    <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider block px-1">
                       Dispatch Log
                     </span>
                     {sendResultLogs.logs.map((log, i) => (
-                      <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-[11px]">
+                      <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-[#0C0C0E] border border-[#2a2a30] text-[11px]">
                         <div className="flex items-center gap-2">
-                          <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          <span className="font-bold text-slate-800">{log.name}</span>
-                          <span className="text-slate-500 font-mono">({log.email})</span>
+                          <CheckCircle className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
+                          <span className="font-bold text-[#E4E4E7]">{log.name}</span>
+                          <span className="text-[#A1A1AA] font-mono">({log.email})</span>
                         </div>
-                        <span className="text-[10px] font-mono text-slate-400">{log.time}</span>
+                        <span className="text-[10px] font-mono text-[#71717A]">{log.time}</span>
                       </div>
                     ))}
                   </div>
@@ -3898,17 +3898,17 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 /* Standard Compose / Preview State */
                 <>
                   {/* 1. Target Testing URL Configuration */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="p-3.5 rounded-2xl bg-[#111114] border border-[#2a2a30] space-y-2">
                     <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <Link2 className="w-3.5 h-3.5 text-blue-600" />
+                      <label className="text-[11px] font-black text-[#E4E4E7] uppercase tracking-wider flex items-center gap-1.5">
+                        <Link2 className="w-3.5 h-3.5 text-[#FF8FA3]" />
                         <span>Testing Destination Page URL</span>
                       </label>
                       <a
                         href={`${(emailTestingUrl || `${origin}/beta/${productSlug}`).split('?')[0]}?token=preview`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[11px] font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1 cursor-pointer"
+                        className="text-[11px] font-bold text-[#FF8FA3] hover:text-[#FF8FA3] hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         <span>Preview Page</span>
                         <ExternalLink className="w-3 h-3" />
@@ -3920,7 +3920,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                         value={emailTestingUrl || `${origin}/beta/${productSlug}`}
                         onChange={e => setEmailTestingUrl(e.target.value)}
                         placeholder={`${origin}/beta/${productSlug}`}
-                        className="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 font-mono outline-none shadow-2xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="flex-1 px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] font-mono outline-none shadow-2xs focus:border-[#C81E3C] focus:ring-1 focus:ring-[#C81E3C]"
                       />
                       <button
                         type="button"
@@ -3928,14 +3928,14 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                           navigator.clipboard?.writeText(emailTestingUrl || `${origin}/beta/${productSlug}`)
                           showToast('Copied Testing URL!')
                         }}
-                        className="px-2.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold transition-colors cursor-pointer shadow-2xs shrink-0 flex items-center gap-1"
+                        className="px-2.5 py-2 rounded-xl bg-[#0C0C0E] hover:bg-[#18181C] text-[#D4D4D8] border border-[#3a3a42] text-xs font-bold transition-colors cursor-pointer shadow-2xs shrink-0 flex items-center gap-1"
                       >
                         <Copy className="w-3.5 h-3.5" />
                         <span>Copy</span>
                       </button>
                     </div>
-                    <p className="text-[10px] text-slate-500 leading-normal">
-                      Each tester automatically gets their individual token appended (<code className="bg-slate-200 px-1 py-0.5 rounded text-slate-800 font-mono">?token=beta_xxxx</code>) when the email is dispatched.
+                    <p className="text-[10px] text-[#A1A1AA] leading-normal">
+                      Each tester automatically gets their individual token appended (<code className="bg-[#222227] px-1 py-0.5 rounded text-[#E4E4E7] font-mono">?token=beta_xxxx</code>) when the email is dispatched.
                     </p>
                   </div>
 
@@ -3943,32 +3943,32 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   {emailModalMode === 'bulk' && (
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider">
+                        <label className="text-[11px] font-black text-[#E4E4E7] uppercase tracking-wider">
                           Recipients ({selectedTesterIds.length} Selected)
                         </label>
                         <button
                           type="button"
                           onClick={() => setSelectedTesterIds(betaCohort.map(b => b.id || b.email))}
-                          className="text-[10px] font-bold text-blue-600 hover:underline"
+                          className="text-[10px] font-bold text-[#FF8FA3] hover:underline"
                         >
                           Select All ({betaCohort.length})
                         </button>
                       </div>
 
-                      <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-2 rounded-xl bg-slate-50 border border-slate-200">
+                      <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-2 rounded-xl bg-[#111114] border border-[#2a2a30]">
                         {betaCohort
                           .filter(b => selectedTesterIds.includes(b.id || b.email))
                           .map(b => (
                             <span
                               key={b.id || b.email}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-[10px] font-medium text-slate-700 shadow-2xs"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#0C0C0E] border border-[#2a2a30] text-[10px] font-medium text-[#D4D4D8] shadow-2xs"
                             >
-                              <span className="font-bold text-slate-900">{b.name}</span>
-                              <span className="text-slate-400">({b.email})</span>
+                              <span className="font-bold text-[#FAFAFA]">{b.name}</span>
+                              <span className="text-[#71717A]">({b.email})</span>
                               <button
                                 type="button"
                                 onClick={() => handleToggleSelectTester(b.id || b.email)}
-                                className="text-slate-400 hover:text-red-600 ml-0.5"
+                                className="text-[#71717A] hover:text-red-300 ml-0.5"
                               >
                                 ×
                               </button>
@@ -3980,7 +3980,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
                   {/* 3. Preset Templates & AI Enhancer — Tight Compact Toolbar */}
                   <div className="flex flex-wrap items-center justify-between gap-1.5 py-0.5">
-                    <div className="inline-flex items-center gap-0.5 bg-slate-100/90 p-0.5 rounded-lg border border-slate-200/90 max-w-full overflow-x-auto">
+                    <div className="inline-flex items-center gap-0.5 bg-[#18181C]/90 p-0.5 rounded-lg border border-[#2a2a30]/90 max-w-full overflow-x-auto">
                       {[
                         { id: 'standard', label: 'Standard Invitation' },
                         { id: 'bugbash', label: 'Bug Bash / QA' },
@@ -3992,8 +3992,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                           onClick={() => handleSelectTemplatePreset(preset.id)}
                           className={`px-2.5 py-1 rounded-md text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer leading-none ${
                             emailTemplatePreset === preset.id
-                              ? 'bg-white text-slate-900 border border-slate-200/80 shadow-2xs'
-                              : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                              ? 'bg-[#0C0C0E] text-[#FAFAFA] border border-[#2a2a30]/80 shadow-2xs'
+                              : 'text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#0C0C0E]/50'
                           }`}
                         >
                           {preset.label}
@@ -4006,30 +4006,30 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                         type="button"
                         disabled={isPolishingEmailAI}
                         onClick={handleAiPolishEmail}
-                        className="px-2.5 py-1 h-7 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-[11px] border border-amber-200 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap leading-none"
+                        className="px-2.5 py-1 h-7 rounded-lg bg-amber-500/10 hover:bg-amber-500/15 text-amber-300 font-bold text-[11px] border border-amber-500/30 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap leading-none"
                       >
                         {isPolishingEmailAI ? (
                           <>
-                            <Loader2 className="w-3 h-3 animate-spin text-amber-600 shrink-0" />
+                            <Loader2 className="w-3 h-3 animate-spin text-amber-300 shrink-0" />
                             <span>AI Polishing...</span>
                           </>
                         ) : (
                           <>
-                            <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+                            <Sparkles className="w-3 h-3 text-amber-300 shrink-0" />
                             <span>AI Polish Copy</span>
                           </>
                         )}
                       </button>
 
                       {/* Tab switch: Compose vs Preview */}
-                      <div className="inline-flex rounded-lg bg-slate-100/90 p-0.5 border border-slate-200/90">
+                      <div className="inline-flex rounded-lg bg-[#18181C]/90 p-0.5 border border-[#2a2a30]/90">
                         <button
                           type="button"
                           onClick={() => setEmailPreviewTab('compose')}
                           className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap leading-none ${
                             emailPreviewTab === 'compose'
-                              ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80'
-                              : 'text-slate-600 hover:text-slate-900'
+                              ? 'bg-[#0C0C0E] text-[#FAFAFA] shadow-2xs border border-[#2a2a30]/80'
+                              : 'text-[#A1A1AA] hover:text-[#FAFAFA]'
                           }`}
                         >
                           Compose
@@ -4039,8 +4039,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                           onClick={() => setEmailPreviewTab('preview')}
                           className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap leading-none ${
                             emailPreviewTab === 'preview'
-                              ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80'
-                              : 'text-slate-600 hover:text-slate-900'
+                              ? 'bg-[#0C0C0E] text-[#FAFAFA] shadow-2xs border border-[#2a2a30]/80'
+                              : 'text-[#A1A1AA] hover:text-[#FAFAFA]'
                           }`}
                         >
                           Preview
@@ -4054,7 +4054,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                     <div className="space-y-3">
                       {/* Subject */}
                       <div className="space-y-1">
-                        <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider block">
+                        <label className="text-[11px] font-black text-[#E4E4E7] uppercase tracking-wider block">
                           Subject Line
                         </label>
                         <input
@@ -4062,36 +4062,36 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                           value={emailSubject}
                           onChange={e => setEmailSubject(e.target.value)}
                           placeholder="e.g. [Private Beta Access] You're invited to test..."
-                          className="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 outline-none shadow-2xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-medium"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none shadow-2xs focus:border-[#C81E3C] focus:ring-1 focus:ring-[#C81E3C] font-medium"
                         />
                       </div>
 
                       {/* Body */}
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                          <label className="text-[11px] font-black text-slate-800 uppercase tracking-wider">
+                          <label className="text-[11px] font-black text-[#E4E4E7] uppercase tracking-wider">
                             Email Message Template
                           </label>
-                          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-mono">
+                          <div className="flex items-center gap-1 text-[10px] text-[#A1A1AA] font-mono">
                             <span>Tags:</span>
                             <button
                               type="button"
                               onClick={() => setEmailBodyTemplate(prev => prev + ' {{name}}')}
-                              className="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
+                              className="px-1.5 py-0.5 rounded bg-[#18181C] hover:bg-[#222227] text-[#D4D4D8] border border-[#2a2a30]"
                             >
                               {'{{name}}'}
                             </button>
                             <button
                               type="button"
                               onClick={() => setEmailBodyTemplate(prev => prev + ' {{betaUrl}}')}
-                              className="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
+                              className="px-1.5 py-0.5 rounded bg-[#18181C] hover:bg-[#222227] text-[#D4D4D8] border border-[#2a2a30]"
                             >
                               {'{{betaUrl}}'}
                             </button>
                             <button
                               type="button"
                               onClick={() => setEmailBodyTemplate(prev => prev + ' {{tier}}')}
-                              className="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
+                              className="px-1.5 py-0.5 rounded bg-[#18181C] hover:bg-[#222227] text-[#D4D4D8] border border-[#2a2a30]"
                             >
                               {'{{tier}}'}
                             </button>
@@ -4102,26 +4102,26 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                           rows={8}
                           value={emailBodyTemplate}
                           onChange={e => setEmailBodyTemplate(e.target.value)}
-                          className="w-full p-3.5 rounded-2xl bg-white border border-slate-300 text-xs text-slate-900 outline-none shadow-2xs font-sans leading-relaxed focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          className="w-full p-3.5 rounded-2xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none shadow-2xs font-sans leading-relaxed focus:border-[#C81E3C] focus:ring-1 focus:ring-[#C81E3C]"
                           placeholder="Write your email invitation message..."
                         />
                       </div>
                     </div>
                   ) : (
                     /* Live Email Preview */
-                    <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+                    <div className="p-5 rounded-2xl bg-[#111114] border border-[#2a2a30] space-y-4">
                       {/* Email simulated envelope */}
-                      <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-1.5 shadow-2xs">
+                      <div className="p-3 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] space-y-1.5 shadow-2xs">
                         <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-slate-500">To:</span>
-                          <span className="font-bold text-slate-900">
+                          <span className="text-[#A1A1AA]">To:</span>
+                          <span className="font-bold text-[#FAFAFA]">
                             {targetTester?.name || betaCohort[0]?.name || 'Alex Backer'} &lt;
                             {targetTester?.email || betaCohort[0]?.email || 'alex@example.com'}&gt;
                           </span>
                         </div>
-                        <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100">
-                          <span className="text-slate-500">Subject:</span>
-                          <span className="font-black text-slate-900">
+                        <div className="flex items-center justify-between text-[11px] pt-1 border-t border-[#1C1C20]">
+                          <span className="text-[#A1A1AA]">Subject:</span>
+                          <span className="font-black text-[#FAFAFA]">
                             {emailSubject
                               .replace(/\{\{name\}\}/gi, targetTester?.name || betaCohort[0]?.name || 'Alex Backer')
                               .replace(/\{\{productName\}\}/gi, project?.productName || 'the MVP')
@@ -4133,8 +4133,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                       </div>
 
                       {/* Rendered Email Body Box */}
-                      <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-4 shadow-xs">
-                        <div className="text-xs text-slate-800 whitespace-pre-wrap leading-relaxed">
+                      <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] space-y-4 shadow-xs">
+                        <div className="text-xs text-[#E4E4E7] whitespace-pre-wrap leading-relaxed">
                           {emailBodyTemplate
                             .replace(/\{\{name\}\}/gi, targetTester?.name || betaCohort[0]?.name || 'Alex Backer')
                             .replace(/\{\{productName\}\}/gi, project?.productName || 'the MVP')
@@ -4149,7 +4149,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                             href={`${(emailTestingUrl || `${origin}/beta/${productSlug}`).split('?')[0]}?token=${targetTester?.token || betaCohort[0]?.token || 'beta_access123'}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#C81E3C] hover:bg-[#B01732] text-white font-bold text-xs shadow-md"
                           >
                             <span>Open Beta Testing Portal & Sandbox</span>
                             <ArrowRight className="w-3.5 h-3.5" />
@@ -4163,7 +4163,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 sm:p-5 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
+            <div className="p-4 sm:p-5 border-t border-[#2a2a30] bg-[#111114] flex items-center justify-between gap-3">
               <button
                 type="button"
                 disabled={isSendingEmails}
@@ -4171,7 +4171,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   setShowBetaEmailModal(false)
                   setSendResultLogs(null)
                 }}
-                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold text-xs transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
+                className="px-4 py-2 rounded-xl bg-[#0C0C0E] hover:bg-[#18181C] text-[#D4D4D8] border border-[#3a3a42] font-bold text-xs transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
               >
                 {sendResultLogs ? 'Close' : 'Cancel'}
               </button>
@@ -4180,9 +4180,9 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 <button
                   type="button"
                   onClick={handleSendBetaEmails}
-                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs flex items-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[#C81E3C] hover:bg-[#B01732] text-white font-black text-xs flex items-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
                 >
-                  <Send className="w-4 h-4 text-blue-100" />
+                  <Send className="w-4 h-4 text-[#FFD1DA]" />
                   <span>
                     {emailModalMode === 'single' && targetTester
                       ? `Send Invitation to ${targetTester.name}`

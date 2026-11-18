@@ -277,7 +277,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
       return <FileText className="w-3.5 h-3.5 text-red-400" />
     }
     if (['py', 'python', 'sql', 'js', 'jsx', 'ts', 'tsx', 'html', 'css', 'json', 'dart'].includes(type)) {
-      return <Code className="w-3.5 h-3.5 text-blue-400" />
+      return <Code className="w-3.5 h-3.5 text-[#FF8FA3]" />
     }
     return <FileText className="w-3.5 h-3.5 text-emerald-400" />
   }
@@ -288,9 +288,9 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
   const lineCount = (editingContent || '').split('\n').length
 
   return (
-    <div className="rounded-2xl bg-[#090b0e] border border-white/[0.08] shadow-xl p-3.5 sm:p-4 space-y-3 font-sans w-full">
+    <div className="rounded-2xl bg-[#090b0e] border border-[#2a2a30]/[0.08] shadow-xl p-3.5 sm:p-4 space-y-3 font-sans w-full">
       {/* ── 1. COMPACT TOP BAR ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/[0.06] pb-2.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-[#2a2a30]/[0.06] pb-2.5">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
             <Cloud className="w-3.5 h-3.5" />
@@ -304,7 +304,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
         </div>
 
         {/* Upload Button */}
-        <label className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-md shadow-purple-950/40 shrink-0">
+        <label className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-[#C81E3C] hover:from-purple-500 hover:to-[#C81E3C] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-md shadow-purple-950/40 shrink-0">
           {isUploading ? (
             <>
               <Loader2 className="w-3 h-3 animate-spin text-white" />
@@ -356,7 +356,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
           className={`p-8 rounded-xl border-2 border-dashed text-center space-y-2.5 transition-all ${
             isDragging
               ? 'border-purple-500 bg-purple-500/10 scale-[1.01]'
-              : 'border-white/[0.08] hover:border-white/20 bg-[#141720]/20'
+              : 'border-[#2a2a30]/[0.08] hover:border-[#2a2a30]/20 bg-[#141720]/20'
           }`}
         >
           <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mx-auto">
@@ -364,11 +364,11 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
           </div>
           <div className="max-w-md mx-auto space-y-0.5">
             <h3 className="font-extrabold text-white text-xs">No Files Stored Yet</h3>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Drag & drop code (<span className="text-blue-400 font-mono">.py, .js, .md, .sql</span>), images, or video clips here.
+            <p className="text-[11px] text-[#71717A] leading-relaxed">
+              Drag & drop code (<span className="text-[#FF8FA3] font-mono">.py, .js, .md, .sql</span>), images, or video clips here.
             </p>
           </div>
-          <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1a1f2c] hover:bg-[#252c3f] text-slate-200 hover:text-white border border-white/[0.1] text-xs font-bold cursor-pointer transition-all">
+          <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1a1f2c] hover:bg-[#252c3f] text-[#E4E4E7] hover:text-white border border-[#2a2a30]/[0.1] text-xs font-bold cursor-pointer transition-all">
             <Plus className="w-3 h-3 text-purple-400" />
             <span>Select Files to Upload</span>
             <input
@@ -386,17 +386,17 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
         /* ── 2-COLUMN COMPACT LAYOUT ── */
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3 min-h-[420px]">
           {/* ── LEFT FILE LIST (COMPACT & SLEEK) ── */}
-          <div className="md:col-span-5 lg:col-span-4 rounded-xl bg-[#0e1117] border border-white/[0.06] p-2.5 flex flex-col justify-between overflow-hidden shadow-md">
+          <div className="md:col-span-5 lg:col-span-4 rounded-xl bg-[#0e1117] border border-[#2a2a30]/[0.06] p-2.5 flex flex-col justify-between overflow-hidden shadow-md">
             <div className="overflow-y-auto space-y-1.5 pr-1 flex-1 max-h-[380px]">
               {/* Compact Search Bar */}
               <div className="relative mb-1.5">
-                <Search className="w-3 h-3 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-3 h-3 text-[#A1A1AA] absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Filter files..."
-                  className="w-full bg-[#141720] border border-white/[0.08] focus:border-purple-500/50 rounded-lg pl-7 pr-2.5 py-1 text-xs text-white placeholder-slate-500 focus:outline-none transition-colors"
+                  className="w-full bg-[#141720] border border-[#2a2a30]/[0.08] focus:border-purple-500/50 rounded-lg pl-7 pr-2.5 py-1 text-xs text-white placeholder-[#A1A1AA] focus:outline-none transition-colors"
                 />
               </div>
 
@@ -411,14 +411,14 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                     className={`group px-2.5 py-2 rounded-xl border flex items-center justify-between gap-2 text-xs transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-purple-600/20 border-purple-500/50 text-white shadow-xs'
-                        : 'bg-[#141720]/80 border-white/[0.04] text-slate-300 hover:bg-[#1a1f2c] hover:text-white'
+                        : 'bg-[#141720]/80 border-[#2a2a30]/[0.04] text-[#D4D4D8] hover:bg-[#1a1f2c] hover:text-white'
                     }`}
                     title={file.name}
                   >
                     {/* Left: Thumbnail or File Icon Badge */}
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       {isImage ? (
-                        <div className="w-7 h-7 rounded-lg overflow-hidden border border-white/10 shrink-0 bg-black/40 flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-lg overflow-hidden border border-[#2a2a30]/10 shrink-0 bg-black/40 flex items-center justify-center">
                           <img
                             src={file.thumbnailUrl || file.url || file.content}
                             alt={file.name}
@@ -427,17 +427,17 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                           />
                         </div>
                       ) : (
-                        <div className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-[#0C0C0E]/[0.04] border border-[#2a2a30]/[0.08] flex items-center justify-center shrink-0">
                           {getFileIcon(file)}
                         </div>
                       )}
 
                       {/* Middle: Filename and Compact Size Inline */}
                       <div className="min-w-0 flex-1">
-                        <span className="font-semibold text-xs text-slate-100 group-hover:text-white block truncate">
+                        <span className="font-semibold text-xs text-[#F4F4F5] group-hover:text-white block truncate">
                           {shortenFileName(file.name, 16)}
                         </span>
-                        <div className="flex items-center gap-1 text-[10px] text-slate-400 font-mono">
+                        <div className="flex items-center gap-1 text-[10px] text-[#71717A] font-mono">
                           <span>{file.size}</span>
                           <span>•</span>
                           <span className="text-purple-300 font-bold uppercase">{file.type || 'FILE'}</span>
@@ -453,7 +453,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                           e.stopPropagation()
                           handleDownloadFile(file)
                         }}
-                        className="p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                        className="p-1 rounded-md hover:bg-white/10 text-[#71717A] hover:text-white transition-colors"
                         title={`Download ${file.name}`}
                       >
                         <Download className="w-3.5 h-3.5" />
@@ -464,7 +464,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                           e.stopPropagation()
                           handleDeleteFile(file.id)
                         }}
-                        className="p-1 rounded-md hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
+                        className="p-1 rounded-md hover:bg-red-500/20 text-[#71717A] hover:text-red-400 transition-colors"
                         title={`Delete ${file.name}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -476,7 +476,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
             </div>
 
             {/* List Footer */}
-            <div className="pt-2 border-t border-white/[0.06] text-[10px] text-slate-400 flex items-center justify-between font-mono">
+            <div className="pt-2 border-t border-[#2a2a30]/[0.06] text-[10px] text-[#71717A] flex items-center justify-between font-mono">
               <span>{filteredFiles.length} file{filteredFiles.length !== 1 ? 's' : ''}</span>
               <span className="text-emerald-400 flex items-center gap-1 font-semibold">
                 <Check className="w-2.5 h-2.5" />
@@ -486,11 +486,11 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
           </div>
 
           {/* ── RIGHT VIEWER & EDITOR PANE ── */}
-          <div className="md:col-span-7 lg:col-span-8 rounded-xl bg-[#0e1117] border border-white/[0.06] flex flex-col overflow-hidden shadow-md min-w-0">
+          <div className="md:col-span-7 lg:col-span-8 rounded-xl bg-[#0e1117] border border-[#2a2a30]/[0.06] flex flex-col overflow-hidden shadow-md min-w-0">
             {selectedFile ? (
               <>
                 {/* Header Bar */}
-                <div className="bg-[#141720] px-3.5 py-2 border-b border-white/[0.06] flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="bg-[#141720] px-3.5 py-2 border-b border-[#2a2a30]/[0.06] flex flex-wrap items-center justify-between gap-2 text-xs">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <span
                       className="text-white font-bold text-xs truncate max-w-[180px] sm:max-w-xs"
@@ -498,7 +498,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                     >
                       {selectedFile.name}
                     </span>
-                    <span className="px-1.5 py-0.2 rounded bg-white/[0.06] text-purple-300 font-mono text-[9px] font-bold uppercase shrink-0">
+                    <span className="px-1.5 py-0.2 rounded bg-[#0C0C0E]/[0.06] text-purple-300 font-mono text-[9px] font-bold uppercase shrink-0">
                       {selectedFile.type || 'FILE'}
                     </span>
                     {selectedFile.storageProvider && (
@@ -515,7 +515,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                         <button
                           type="button"
                           onClick={handleCopyCode}
-                          className="px-2 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+                          className="px-2 py-1 rounded-lg bg-[#0C0C0E]/[0.06] hover:bg-[#0C0C0E]/[0.1] text-[#E4E4E7] text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
                         >
                           {copiedCode ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                           <span>{copiedCode ? 'Copied' : 'Copy'}</span>
@@ -537,7 +537,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                       <button
                         type="button"
                         onClick={() => handleCopyUrl(selectedFile.url)}
-                        className="px-2 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+                        className="px-2 py-1 rounded-lg bg-[#0C0C0E]/[0.06] hover:bg-[#0C0C0E]/[0.1] text-[#E4E4E7] text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
                         title="Copy CDN Link"
                       >
                         {copiedUrl ? <Check className="w-3 h-3 text-emerald-400" /> : <Link className="w-3 h-3" />}
@@ -548,7 +548,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                     <button
                       type="button"
                       onClick={() => handleDownloadFile(selectedFile)}
-                      className="px-2 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+                      className="px-2 py-1 rounded-lg bg-[#0C0C0E]/[0.06] hover:bg-[#0C0C0E]/[0.1] text-[#E4E4E7] text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
                       title="Download Asset"
                     >
                       <Download className="w-3 h-3" />
@@ -562,7 +562,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                   {/* Image Viewer */}
                   {isImageFile ? (
                     <div className="flex-1 p-3 sm:p-4 flex flex-col items-center justify-center overflow-auto space-y-2 bg-[radial-gradient(#1f2430_1px,transparent_1px)] [background-size:16px_16px]">
-                      <div className="relative group max-h-[260px] max-w-full rounded-xl overflow-hidden border border-white/10 shadow-xl bg-[#11141d] p-1.5 flex items-center justify-center">
+                      <div className="relative group max-h-[260px] max-w-full rounded-xl overflow-hidden border border-[#2a2a30]/10 shadow-xl bg-[#11141d] p-1.5 flex items-center justify-center">
                         <img
                           src={selectedFile.url || selectedFile.content}
                           alt={selectedFile.name}
@@ -579,7 +579,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                       </div>
 
                       {/* Image Details Bar */}
-                      <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono bg-[#141720] px-2.5 py-1 rounded-lg border border-white/[0.06] max-w-full truncate">
+                      <div className="flex items-center gap-2 text-[10px] text-[#71717A] font-mono bg-[#141720] px-2.5 py-1 rounded-lg border border-[#2a2a30]/[0.06] max-w-full truncate">
                         <span className="text-white font-bold truncate" title={selectedFile.name}>
                           {shortenFileName(selectedFile.name, 26)}
                         </span>
@@ -592,14 +592,14 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                   ) : isVideoFile ? (
                     /* Video Stream Player */
                     <div className="flex-1 p-3 sm:p-4 flex flex-col items-center justify-center overflow-auto space-y-2">
-                      <div className="max-h-[280px] w-full max-w-xl rounded-xl overflow-hidden border border-white/10 shadow-xl bg-black flex items-center justify-center">
+                      <div className="max-h-[280px] w-full max-w-xl rounded-xl overflow-hidden border border-[#2a2a30]/10 shadow-xl bg-black flex items-center justify-center">
                         <video
                           src={selectedFile.url || selectedFile.content}
                           controls
                           className="max-h-[250px] w-full rounded-lg"
                         />
                       </div>
-                      <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono bg-[#141720] px-2.5 py-1 rounded-lg border border-white/[0.06]">
+                      <div className="flex items-center gap-2 text-[10px] text-[#71717A] font-mono bg-[#141720] px-2.5 py-1 rounded-lg border border-[#2a2a30]/[0.06]">
                         <span className="text-white font-bold truncate" title={selectedFile.name}>
                           {shortenFileName(selectedFile.name, 26)}
                         </span>
@@ -617,7 +617,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                         <h4 className="text-xs font-bold text-white truncate" title={selectedFile.name}>
                           {selectedFile.name}
                         </h4>
-                        <p className="text-[10px] text-slate-400 font-mono">PDF Document • {selectedFile.size}</p>
+                        <p className="text-[10px] text-[#71717A] font-mono">PDF Document • {selectedFile.size}</p>
                       </div>
                       <div className="flex items-center gap-1.5 pt-1">
                         <button
@@ -633,7 +633,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                             href={selectedFile.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 font-bold text-xs flex items-center gap-1"
+                            className="px-3 py-1.5 rounded-lg bg-[#0C0C0E]/[0.06] hover:bg-[#0C0C0E]/[0.1] text-[#E4E4E7] font-bold text-xs flex items-center gap-1"
                           >
                             <ExternalLink className="w-3 h-3" />
                             <span>Open</span>
@@ -645,7 +645,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                     /* Code / Markdown / Text Editor */
                     <div className="flex-1 flex overflow-hidden">
                       {/* Gutter */}
-                      <div className="w-9 bg-[#0d1017] border-r border-white/[0.04] p-2 text-right text-[10px] font-mono text-slate-600 select-none overflow-hidden leading-relaxed">
+                      <div className="w-9 bg-[#0d1017] border-r border-[#2a2a30]/[0.04] p-2 text-right text-[10px] font-mono text-[#A1A1AA] select-none overflow-hidden leading-relaxed">
                         {Array.from({ length: Math.max(lineCount, 14) }, (_, i) => (
                           <div key={i + 1}>{i + 1}</div>
                         ))}
@@ -656,7 +656,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                         <textarea
                           value={editingContent}
                           onChange={(e) => setEditingContent(e.target.value)}
-                          className="w-full h-full bg-transparent text-slate-200 font-mono text-xs leading-relaxed border-none focus:outline-none resize-none selection:bg-purple-600/30 overflow-auto"
+                          className="w-full h-full bg-transparent text-[#E4E4E7] font-mono text-xs leading-relaxed border-none focus:outline-none resize-none selection:bg-purple-600/30 overflow-auto"
                           spellCheck={false}
                         />
                       </div>
@@ -665,7 +665,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                 </div>
 
                 {/* Footer Bar */}
-                <div className="bg-[#141720] px-3.5 py-1 border-t border-white/[0.06] flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                <div className="bg-[#141720] px-3.5 py-1 border-t border-[#2a2a30]/[0.06] flex items-center justify-between text-[10px] text-[#71717A] font-mono">
                   <span>
                     {isImageFile ? 'Preview' : isVideoFile ? 'Video Stream' : isPdfFile ? 'PDF Document' : `${lineCount} lines`} • {selectedFile.size}
                   </span>
@@ -676,7 +676,7 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-slate-500 text-xs">
+              <div className="flex-1 flex items-center justify-center text-[#A1A1AA] text-xs">
                 Select a file from the list to preview or edit
               </div>
             )}
@@ -704,14 +704,14 @@ export default function ProjectFileExplorer({ project, onUpdateProject }) {
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="max-w-4xl max-h-[85vh] p-2 bg-[#141720] rounded-2xl border border-white/10 shadow-2xl flex items-center justify-center">
+          <div className="max-w-4xl max-h-[85vh] p-2 bg-[#141720] rounded-2xl border border-[#2a2a30]/10 shadow-2xl flex items-center justify-center">
             <img
               src={selectedFile.url || selectedFile.content}
               alt={selectedFile.name}
               className="max-h-[80vh] max-w-full object-contain rounded-xl"
             />
           </div>
-          <span className="text-xs text-slate-400 font-mono mt-2">
+          <span className="text-xs text-[#71717A] font-mono mt-2">
             {selectedFile.name} • {selectedFile.size}
           </span>
         </div>

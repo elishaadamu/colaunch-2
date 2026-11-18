@@ -47,17 +47,17 @@ export default function CreatorBrandThemePicker({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs transition-all cursor-pointer active:scale-95"
+        className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] border border-[#2a2a30] text-xs font-semibold text-[#D4D4D8] shadow-2xs transition-all cursor-pointer active:scale-95"
         title="Creator Brand Palette (Decided by AI or Admin)"
       >
         <span
-          className="w-3.5 h-3.5 rounded-full shadow-2xs border border-white/80 shrink-0"
+          className="w-3.5 h-3.5 rounded-full shadow-2xs border border-[#2a2a30]/80 shrink-0"
           style={{ backgroundColor: activeTheme.primaryHex }}
         />
-        <span className="hidden sm:inline font-bold text-slate-800 text-[11px] truncate max-w-[100px]">
+        <span className="hidden sm:inline font-bold text-[#E4E4E7] text-[11px] truncate max-w-[100px]">
           {activeTheme.name}
         </span>
-        <Palette className="w-3.5 h-3.5 text-slate-400" />
+        <Palette className="w-3.5 h-3.5 text-[#71717A]" />
       </button>
 
       {/* Dropdown Menu Modal */}
@@ -67,19 +67,19 @@ export default function CreatorBrandThemePicker({
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-2xl border border-slate-200 shadow-2xl p-3 z-50 animate-in fade-in-50 zoom-in-95 duration-100">
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+          <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-[#0C0C0E] rounded-2xl border border-[#2a2a30] shadow-2xl p-3 z-50 animate-in fade-in-50 zoom-in-95 duration-100">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1C1C20]">
               <div className="flex items-center gap-1.5">
-                <Palette className="w-4 h-4 text-slate-600" />
-                <span className="text-xs font-extrabold text-slate-900">Brand Color & Theme</span>
+                <Palette className="w-4 h-4 text-[#A1A1AA]" />
+                <span className="text-xs font-extrabold text-[#FAFAFA]">Brand Color & Theme</span>
               </div>
-              <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200 flex items-center gap-1">
-                <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+              <span className="text-[10px] font-mono text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full font-bold border border-emerald-500/30 flex items-center gap-1">
+                <Sparkles className="w-2.5 h-2.5 text-emerald-300" />
                 AI / Admin
               </span>
             </div>
 
-            <p className="text-[11px] text-slate-500 mb-2.5 leading-relaxed">
+            <p className="text-[11px] text-[#A1A1AA] mb-2.5 leading-relaxed">
               Theme chosen for this creator's dashboard, ensuring crystal-clear readability and matching venture identity.
             </p>
 
@@ -93,8 +93,8 @@ export default function CreatorBrandThemePicker({
                     onClick={() => handleSelectTheme(theme)}
                     className={`w-full p-2 rounded-xl text-left flex items-center justify-between transition-all cursor-pointer border ${
                       isSelected
-                        ? 'bg-slate-50 border-slate-300 shadow-2xs'
-                        : 'bg-white hover:bg-slate-50/80 border-transparent hover:border-slate-200'
+                        ? 'bg-[#111114] border-[#3a3a42] shadow-2xs'
+                        : 'bg-[#0C0C0E] hover:bg-[#111114]/80 border-transparent hover:border-[#2a2a30]'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -105,7 +105,7 @@ export default function CreatorBrandThemePicker({
                         {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                       </span>
                       <div className="min-w-0">
-                        <div className="text-xs font-bold text-slate-900 truncate flex items-center gap-1.5">
+                        <div className="text-xs font-bold text-[#FAFAFA] truncate flex items-center gap-1.5">
                           <span>{theme.name}</span>
                           <span
                             className="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold"
@@ -118,7 +118,7 @@ export default function CreatorBrandThemePicker({
                             {theme.primaryHex}
                           </span>
                         </div>
-                        <div className="text-[10px] text-slate-500 truncate">
+                        <div className="text-[10px] text-[#A1A1AA] truncate">
                           {theme.subtitle}
                         </div>
                       </div>

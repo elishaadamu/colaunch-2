@@ -44,43 +44,43 @@ function ToastItem({ toast, onDismiss }) {
   const config = {
     success: {
       border: 'border-emerald-500/40',
-      bg: 'bg-slate-900/95',
+      bg: 'bg-[#050506]/95',
       icon: <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />,
       barBg: 'bg-emerald-500',
       titleColor: 'text-emerald-400',
     },
     error: {
       border: 'border-rose-500/40',
-      bg: 'bg-slate-900/95',
+      bg: 'bg-[#050506]/95',
       icon: <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />,
       barBg: 'bg-rose-500',
       titleColor: 'text-rose-400',
     },
     warning: {
       border: 'border-amber-500/40',
-      bg: 'bg-slate-900/95',
+      bg: 'bg-[#050506]/95',
       icon: <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />,
       barBg: 'bg-amber-500',
       titleColor: 'text-amber-400',
     },
     info: {
       border: 'border-purple-500/40',
-      bg: 'bg-slate-900/95',
+      bg: 'bg-[#050506]/95',
       icon: <Sparkles className="w-4 h-4 text-purple-400 flex-shrink-0" />,
       barBg: 'bg-purple-500',
       titleColor: 'text-purple-400',
     },
   }[type] || {
-    border: 'border-slate-700/60',
-    bg: 'bg-slate-900/95',
-    icon: <Info className="w-4 h-4 text-slate-300 flex-shrink-0" />,
-    barBg: 'bg-slate-400',
+    border: 'border-[#2a2a30]/60',
+    bg: 'bg-[#050506]/95',
+    icon: <Info className="w-4 h-4 text-[#D4D4D8] flex-shrink-0" />,
+    barBg: 'bg-[#3f3f46]',
     titleColor: 'text-white',
   }
 
   return (
     <div
-      className={`pointer-events-auto relative overflow-hidden rounded-2xl border ${config.border} ${config.bg} backdrop-blur-md px-4 py-3 transition-all duration-200 animate-in slide-in-from-top-3 shadow-2xl flex items-start justify-between gap-3 text-slate-100`}
+      className={`pointer-events-auto relative overflow-hidden rounded-2xl border ${config.border} ${config.bg} backdrop-blur-md px-4 py-3 transition-all duration-200 animate-in slide-in-from-top-3 shadow-2xl flex items-start justify-between gap-3 text-[#F4F4F5]`}
     >
       <div className="flex items-start gap-3 min-w-0">
         <div className="mt-0.5 flex-shrink-0">
@@ -91,7 +91,7 @@ function ToastItem({ toast, onDismiss }) {
             {title}
           </h4>
           {message && (
-            <p className="text-[11px] text-slate-200 mt-1 leading-snug break-words">
+            <p className="text-[11px] text-[#E4E4E7] mt-1 leading-snug break-words">
               {message}
             </p>
           )}
@@ -100,14 +100,14 @@ function ToastItem({ toast, onDismiss }) {
 
       <button
         onClick={() => onDismiss?.(id)}
-        className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer -mr-1"
+        className="text-[#71717A] hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors flex-shrink-0 cursor-pointer -mr-1"
         aria-label="Dismiss notification"
       >
         <X className="w-3.5 h-3.5" />
       </button>
 
       {/* Hairline progress bar pinned to the bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/[0.08] overflow-hidden">
+      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#0C0C0E]/[0.08] overflow-hidden">
         <div
           className={`h-full ${config.barBg} transition-all duration-75 ease-linear`}
           style={{ width: `${progress}%` }}

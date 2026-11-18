@@ -441,16 +441,16 @@ export default function AdminPipelineLookup({
   const getPlatformBadge = (platform = '') => {
     const p = (platform || '').toLowerCase().trim()
     if (p.includes('youtube') || p.includes('yt')) return { name: 'YouTube', color: 'bg-red-500/15 text-red-400 border-red-500/30' }
-    if (p.includes('twitter') || p.includes('x') || p.includes('tweet')) return { name: 'X', color: 'bg-white/10 text-white border-white/20' }
+    if (p.includes('twitter') || p.includes('x') || p.includes('tweet')) return { name: 'X', color: 'bg-white/10 text-white border-[#2a2a30]/20' }
     if (p.includes('instagram') || p.includes('ig') || p.includes('insta')) return { name: 'Instagram', color: 'bg-fuchsia-500/15 text-fuchsia-400 border-fuchsia-500/30' }
     if (p.includes('tiktok') || p.includes('tt')) return { name: 'TikTok', color: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30' }
-    return { name: platform || 'Social', color: 'bg-slate-500/15 text-slate-400 border-slate-500/30' }
+    return { name: platform || 'Social', color: 'bg-[#52525b]/15 text-[#71717A] border-[#52525b]/30' }
   }
 
   const dashboardContent = (
-    <div className={`relative w-full ${isPage ? 'rounded-3xl min-h-[85vh]' : 'max-w-6xl h-[88vh] rounded-3xl'} flex flex-col bg-[#0b0d13] border border-white/[0.12] shadow-2xl overflow-hidden`}>
+    <div className={`relative w-full ${isPage ? 'rounded-3xl min-h-[85vh]' : 'max-w-6xl h-[88vh] rounded-3xl'} flex flex-col bg-[#0b0d13] border border-[#2a2a30]/[0.12] shadow-2xl overflow-hidden`}>
         {/* Sleek Command Center Header */}
-        <div id="tour-admin-header" className="flex items-center justify-between px-6 py-3 border-b border-white/[0.08] bg-[#10131c]/90 backdrop-blur-md flex-shrink-0">
+        <div id="tour-admin-header" className="flex items-center justify-between px-6 py-3 border-b border-[#2a2a30]/[0.08] bg-[#10131c]/90 backdrop-blur-md flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500/20 to-amber-500/20 border border-rose-500/30 text-rose-400 flex-shrink-0 shadow-inner">
               <ShieldAlert className="w-4 h-4" />
@@ -460,7 +460,7 @@ export default function AdminPipelineLookup({
               <h2 className="text-sm font-black text-white tracking-tight flex items-center gap-2">
                 Pipeline Intelligence & Exception Dashboard
               </h2>
-              <div className="hidden md:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-[11px] text-slate-400 font-mono">
+              <div className="hidden md:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#0C0C0E]/[0.05] border border-[#2a2a30]/[0.08] text-[11px] text-[#71717A] font-mono">
                 <Radio className="w-3 h-3 text-emerald-400" />
                 <span>Live Audit ({creators.length} Leads)</span>
               </div>
@@ -487,13 +487,13 @@ export default function AdminPipelineLookup({
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-bold transition-all cursor-pointer disabled:opacity-50 flex-shrink-0"
               title="Check for incoming creator replies"
             >
-              <RefreshCw className={`w-3.5 h-3.5 flex-shrink-0 inline-block origin-center ${isSyncing ? 'animate-spin text-emerald-400' : 'text-slate-400'}`} />
+              <RefreshCw className={`w-3.5 h-3.5 flex-shrink-0 inline-block origin-center ${isSyncing ? 'animate-spin text-emerald-400' : 'text-[#71717A]'}`} />
               <span className="flex-shrink-0">Sync Replies</span>
             </button>
             {!isPage && onClose && (
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer active:scale-95"
+                className="p-2 rounded-xl text-[#71717A] hover:text-white hover:bg-[#0C0C0E]/[0.08] transition-colors cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -515,20 +515,20 @@ export default function AdminPipelineLookup({
         )}
 
         {/* Compact Segmented Control & Search Command Rail */}
-        <div id="tour-admin-filters" className="px-6 py-2.5 border-b border-white/[0.06] bg-[#090b10] flex flex-wrap lg:flex-nowrap items-center justify-between gap-3 flex-shrink-0">
+        <div id="tour-admin-filters" className="px-6 py-2.5 border-b border-[#2a2a30]/[0.06] bg-[#090b10] flex flex-wrap lg:flex-nowrap items-center justify-between gap-3 flex-shrink-0">
           {/* Segmented Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 scrollbar-none flex-shrink-0">
             <button
               onClick={() => setActiveTab('all')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 border ${
                 activeTab === 'all'
-                  ? 'bg-slate-800 border-slate-700 text-white shadow-sm'
-                  : 'bg-white/[0.02] border-white/[0.06] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]'
+                  ? 'bg-[#1C1C20] border-[#2a2a30] text-white shadow-sm'
+                  : 'bg-[#0C0C0E]/[0.02] border-[#2a2a30]/[0.06] text-[#71717A] hover:text-[#E4E4E7] hover:bg-[#0C0C0E]/[0.05]'
               }`}
             >
               <span>All</span>
               <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold ${
-                activeTab === 'all' ? 'bg-slate-700 text-slate-200' : 'bg-white/10 text-slate-400'
+                activeTab === 'all' ? 'bg-[#2a2a30] text-[#E4E4E7]' : 'bg-white/10 text-[#71717A]'
               }`}>
                 {counts.all}
               </span>
@@ -539,13 +539,13 @@ export default function AdminPipelineLookup({
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 border ${
                 activeTab === 'awaiting'
                   ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-200 shadow-sm'
-                  : 'bg-white/[0.02] border-white/[0.06] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]'
+                  : 'bg-[#0C0C0E]/[0.02] border-[#2a2a30]/[0.06] text-[#71717A] hover:text-[#E4E4E7] hover:bg-[#0C0C0E]/[0.05]'
               }`}
             >
               <Clock className="w-3.5 h-3.5 text-cyan-400" />
               <span>Awaiting</span>
               <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold ${
-                activeTab === 'awaiting' ? 'bg-cyan-500/40 text-cyan-200' : 'bg-white/10 text-slate-400'
+                activeTab === 'awaiting' ? 'bg-cyan-500/40 text-cyan-200' : 'bg-white/10 text-[#71717A]'
               }`}>
                 {counts.awaiting}
               </span>
@@ -556,13 +556,13 @@ export default function AdminPipelineLookup({
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 border ${
                 activeTab === 'uninterested'
                   ? 'bg-rose-500/20 border-rose-500/50 text-rose-200 shadow-sm shadow-rose-500/20'
-                  : 'bg-white/[0.02] border-white/[0.06] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]'
+                  : 'bg-[#0C0C0E]/[0.02] border-[#2a2a30]/[0.06] text-[#71717A] hover:text-[#E4E4E7] hover:bg-[#0C0C0E]/[0.05]'
               }`}
             >
               <UserX className="w-3.5 h-3.5 text-rose-400" />
               <span>Declined</span>
               <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold ${
-                activeTab === 'uninterested' ? 'bg-rose-500/40 text-rose-200' : 'bg-white/10 text-slate-400'
+                activeTab === 'uninterested' ? 'bg-rose-500/40 text-rose-200' : 'bg-white/10 text-[#71717A]'
               }`}>
                 {counts.uninterested}
               </span>
@@ -573,13 +573,13 @@ export default function AdminPipelineLookup({
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 border ${
                 activeTab === 'stalled'
                   ? 'bg-amber-500/20 border-amber-500/50 text-amber-200 shadow-sm shadow-amber-500/20'
-                  : 'bg-white/[0.02] border-white/[0.06] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]'
+                  : 'bg-[#0C0C0E]/[0.02] border-[#2a2a30]/[0.06] text-[#71717A] hover:text-[#E4E4E7] hover:bg-[#0C0C0E]/[0.05]'
               }`}
             >
               <TrendingDown className="w-3.5 h-3.5 text-amber-400" />
               <span>Stalled</span>
               <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold ${
-                activeTab === 'stalled' ? 'bg-amber-500/40 text-amber-200' : 'bg-white/10 text-slate-400'
+                activeTab === 'stalled' ? 'bg-amber-500/40 text-amber-200' : 'bg-white/10 text-[#71717A]'
               }`}>
                 {counts.stalled}
               </span>
@@ -590,13 +590,13 @@ export default function AdminPipelineLookup({
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 border ${
                 activeTab === 'errors'
                   ? 'bg-rose-500/25 border-rose-500/60 text-rose-200 shadow-sm shadow-rose-500/25'
-                  : 'bg-white/[0.02] border-white/[0.06] text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]'
+                  : 'bg-[#0C0C0E]/[0.02] border-[#2a2a30]/[0.06] text-[#71717A] hover:text-[#E4E4E7] hover:bg-[#0C0C0E]/[0.05]'
               }`}
             >
               <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
               <span>Failed</span>
               <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold ${
-                activeTab === 'errors' ? 'bg-rose-500/40 text-rose-200' : 'bg-white/10 text-slate-400'
+                activeTab === 'errors' ? 'bg-rose-500/40 text-rose-200' : 'bg-white/10 text-[#71717A]'
               }`}>
                 {counts.errors}
               </span>
@@ -606,18 +606,18 @@ export default function AdminPipelineLookup({
           {/* Search and Platform Select */}
           <div className="flex items-center gap-2.5 w-full lg:w-auto justify-end">
             <div className="relative w-full sm:w-56">
-              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-[#A1A1AA] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="w-full pl-8 pr-7 py-1.5 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/60 focus:bg-white/[0.05] transition-all"
+                className="w-full pl-8 pr-7 py-1.5 rounded-xl bg-[#0C0C0E]/[0.03] border border-[#2a2a30]/[0.08] text-xs text-white placeholder-[#A1A1AA] focus:outline-none focus:border-emerald-500/60 focus:bg-[#0C0C0E]/[0.05] transition-all"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-white"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -628,7 +628,7 @@ export default function AdminPipelineLookup({
               <select
                 value={platformFilter}
                 onChange={(e) => setPlatformFilter(e.target.value)}
-                className="px-2.5 py-1.5 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs text-slate-300 focus:outline-none cursor-pointer hover:bg-white/[0.06] transition-colors"
+                className="px-2.5 py-1.5 rounded-xl bg-[#0C0C0E]/[0.03] border border-[#2a2a30]/[0.08] text-xs text-[#D4D4D8] focus:outline-none cursor-pointer hover:bg-[#0C0C0E]/[0.06] transition-colors"
               >
                 <option value="all" className="bg-[#10131c]">All</option>
                 <option value="youtube" className="bg-[#10131c]">YouTube</option>
@@ -644,12 +644,12 @@ export default function AdminPipelineLookup({
           {/* High-Height Creators List (THE CENTERPIECE) */}
           <div id="tour-admin-list" className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-3.5">
             {filteredList.length === 0 ? (
-              <div className="py-20 text-center text-slate-400 space-y-3">
+              <div className="py-20 text-center text-[#71717A] space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h3 className="text-sm font-bold text-white">All Monitored Leads Operational</h3>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                <p className="text-xs text-[#A1A1AA] max-w-sm mx-auto">
                   No pipeline exceptions or stalled threads found under the "{activeTab}" filter.
                 </p>
               </div>
@@ -666,7 +666,7 @@ export default function AdminPipelineLookup({
                     className={`group relative p-4 rounded-2xl border transition-all shadow-md flex flex-col gap-3 ${
                       isSelected
                         ? 'bg-[#151926] border-emerald-500/60 shadow-sm'
-                        : 'bg-[#10131d]/90 hover:bg-[#131724] border-white/[0.08] hover:border-white/[0.16]'
+                        : 'bg-[#10131d]/90 hover:bg-[#131724] border-[#2a2a30]/[0.08] hover:border-[#2a2a30]/[0.16]'
                     }`}
                   >
                     {/* Top Row: Creator Identity + Status Badge + Action Triggers */}
@@ -677,7 +677,7 @@ export default function AdminPipelineLookup({
                           <img
                             src={creator.avatar || creator.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent((creator.name || creator.handle || "Creator").replace(/^@/, ''))}&background=0f172a&color=fff&bold=true`}
                             alt=""
-                            className="w-10 h-10 rounded-xl object-cover border border-white/10 shadow-sm"
+                            className="w-10 h-10 rounded-xl object-cover border border-[#2a2a30]/10 shadow-sm"
                             onError={(e) => {
                               e.currentTarget.onerror = null;
                               e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent((creator.name || creator.handle || "Creator").replace(/^@/, ''))}&background=0f172a&color=fff&bold=true`;
@@ -691,7 +691,7 @@ export default function AdminPipelineLookup({
                             <span className="font-extrabold text-white text-sm tracking-tight truncate">
                               {creator.name || creator.display_name}
                             </span>
-                            <span className="text-xs text-slate-400 font-mono">
+                            <span className="text-xs text-[#71717A] font-mono">
                               {creator.handle}
                             </span>
 
@@ -700,15 +700,15 @@ export default function AdminPipelineLookup({
                               <div className="flex items-center gap-1.5">
                                 <button
                                   onClick={(e) => handleCopyEmail(e, creator.email || creator.email_public, creator.id)}
-                                  className="group/email flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.06] transition-colors cursor-pointer"
+                                  className="group/email flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded-lg bg-[#0C0C0E]/[0.04] hover:bg-[#0C0C0E]/[0.08] text-[#D4D4D8] hover:text-white border border-[#2a2a30]/[0.06] transition-colors cursor-pointer"
                                   title="Click to copy email address"
                                 >
-                                  <Mail className="w-3 h-3 text-slate-400" />
+                                  <Mail className="w-3 h-3 text-[#71717A]" />
                                   <span>{creator.email || creator.email_public}</span>
                                   {copiedEmailId === creator.id ? (
                                     <Check className="w-3 h-3 text-emerald-400" />
                                   ) : (
-                                    <Copy className="w-3 h-3 opacity-0 group-hover/email:opacity-100 transition-opacity text-slate-400" />
+                                    <Copy className="w-3 h-3 opacity-0 group-hover/email:opacity-100 transition-opacity text-[#71717A]" />
                                   )}
                                 </button>
                                 <button
@@ -751,7 +751,7 @@ export default function AdminPipelineLookup({
                                     setEditingEmailId(creator.id)
                                     setInlineEmailValue('')
                                   }}
-                                  className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-white/[0.04] text-slate-300 border border-white/[0.08] hover:bg-white/[0.08] transition-all cursor-pointer"
+                                  className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-[#0C0C0E]/[0.04] text-[#D4D4D8] border border-[#2a2a30]/[0.08] hover:bg-[#0C0C0E]/[0.08] transition-all cursor-pointer"
                                 >
                                   <Plus className="w-3 h-3" />
                                   <span>Manual</span>
@@ -761,7 +761,7 @@ export default function AdminPipelineLookup({
                           </div>
 
                           {/* Row 2: Status Indicator Pill + Platform + Niche + Community */}
-                          <div className="flex items-center gap-2 text-xs text-slate-400 flex-wrap">
+                          <div className="flex items-center gap-2 text-xs text-[#71717A] flex-wrap">
                             {/* Status Indicator Pill */}
                             <span
                               className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border ${
@@ -770,14 +770,14 @@ export default function AdminPipelineLookup({
                                   : badgeColor === 'amber'
                                     ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
                                     : badgeColor === 'blue'
-                                      ? 'bg-blue-500/15 text-blue-300 border-blue-500/30'
+                                      ? 'bg-[#C81E3C]/15 text-[#FF8FA3] border-[#C81E3C]/30'
                                       : badgeColor === 'cyan'
                                         ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
                                         : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
                               }`}
                             >
                               <span className={`w-1.5 h-1.5 rounded-full ${
-                                badgeColor === 'rose' ? 'bg-rose-400' : badgeColor === 'amber' ? 'bg-amber-400' : badgeColor === 'blue' ? 'bg-blue-400' : badgeColor === 'cyan' ? 'bg-cyan-400' : 'bg-emerald-400'
+                                badgeColor === 'rose' ? 'bg-rose-400' : badgeColor === 'amber' ? 'bg-amber-400' : badgeColor === 'blue' ? 'bg-[#C81E3C]/20' : badgeColor === 'cyan' ? 'bg-cyan-400' : 'bg-emerald-400'
                               }`} />
                               <span>{statusLabel}</span>
                             </span>
@@ -787,9 +787,9 @@ export default function AdminPipelineLookup({
                               {platformBadge.name}
                             </span>
                             <span>•</span>
-                            <span className="text-slate-300 font-medium">{creator.niche || 'Technology'}</span>
+                            <span className="text-[#D4D4D8] font-medium">{creator.niche || 'Technology'}</span>
                             <span>•</span>
-                            <span className="text-slate-300 font-semibold">{creator.followerStr || '100k+'}</span>
+                            <span className="text-[#D4D4D8] font-semibold">{creator.followerStr || '100k+'}</span>
                           </div>
                         </div>
                       </div>
@@ -818,7 +818,7 @@ export default function AdminPipelineLookup({
                               onClose()
                               onNotify?.('info', 'Ready to Answer', `Switched to dialog view for ${creator.name || creator.handle}.`)
                             }}
-                            className="px-3 h-8 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 border border-blue-500/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 shadow-sm"
+                            className="px-3 h-8 rounded-xl bg-[#C81E3C]/20 hover:bg-[#C81E3C]/30 text-[#FFD1DA] border border-[#C81E3C]/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 shadow-sm"
                           >
                             <MessageSquare className="w-3.5 h-3.5" />
                             <span>Answer</span>
@@ -865,7 +865,7 @@ export default function AdminPipelineLookup({
                           className={`px-3 h-8 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap border ${
                             isSelected
                               ? 'bg-emerald-500/20 text-emerald-200 border-emerald-500/50 shadow-sm'
-                              : 'bg-white/[0.05] hover:bg-white/[0.1] text-white border-white/[0.08]'
+                              : 'bg-[#0C0C0E]/[0.05] hover:bg-[#0C0C0E]/[0.1] text-white border-[#2a2a30]/[0.08]'
                           }`}
                         >
                           <span>{isSelected ? 'Close' : 'Inspect'}</span>
@@ -884,7 +884,7 @@ export default function AdminPipelineLookup({
                           value={inlineEmailValue}
                           onChange={(e) => setInlineEmailValue(e.target.value)}
                           placeholder="Enter verified creator email (e.g. partner@creator.com)..."
-                          className="flex-1 bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none"
+                          className="flex-1 bg-transparent text-xs text-white placeholder-[#A1A1AA] focus:outline-none"
                         />
                         <button
                           onClick={() => handleSaveInlineEmail(creator.id)}
@@ -894,7 +894,7 @@ export default function AdminPipelineLookup({
                         </button>
                         <button
                           onClick={() => setEditingEmailId(null)}
-                          className="px-2 py-1 text-slate-400 hover:text-white text-xs cursor-pointer"
+                          className="px-2 py-1 text-[#71717A] hover:text-white text-xs cursor-pointer"
                         >
                           Cancel
                         </button>
@@ -902,7 +902,7 @@ export default function AdminPipelineLookup({
                     )}
 
                     {/* Diagnostic Intelligence Callout */}
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/40 border border-white/[0.04] text-xs text-slate-300">
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/40 border border-[#2a2a30]/[0.04] text-xs text-[#D4D4D8]">
                       <Zap className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                       <span className="flex-1">{diagnostic}</span>
                     </div>
@@ -934,27 +934,27 @@ export default function AdminPipelineLookup({
 
           {/* Slide-Over Inspection Drawer */}
           {inspectingCreator && (
-            <div className="w-full sm:w-96 border-l border-white/[0.08] bg-[#0d1017] p-5 flex flex-col gap-4 overflow-y-auto animate-in slide-in-from-right duration-200 flex-shrink-0 shadow-2xl">
-              <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+            <div className="w-full sm:w-96 border-l border-[#2a2a30]/[0.08] bg-[#0d1017] p-5 flex flex-col gap-4 overflow-y-auto animate-in slide-in-from-right duration-200 flex-shrink-0 shadow-2xl">
+              <div className="flex items-center justify-between pb-3 border-b border-[#2a2a30]/[0.08]">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-emerald-400" />
                   <h3 className="text-sm font-bold text-white">Lead Detail Inspection</h3>
                 </div>
                 <button
                   onClick={() => setInspectingCreator(null)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] cursor-pointer"
+                  className="p-1 rounded-lg text-[#71717A] hover:text-white hover:bg-[#0C0C0E]/[0.08] cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Creator Summary Card */}
-              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-2">
+              <div className="p-3.5 rounded-2xl bg-[#0C0C0E]/[0.03] border border-[#2a2a30]/[0.06] space-y-2">
                 <div className="flex items-center gap-3">
                   <img
                     src={inspectingCreator.creator.avatar || inspectingCreator.creator.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent((inspectingCreator.creator.name || inspectingCreator.creator.handle || "Creator").replace(/^@/, ''))}&background=0f172a&color=fff&bold=true`}
                     alt=""
-                    className="w-12 h-12 rounded-xl object-cover border border-white/10"
+                    className="w-12 h-12 rounded-xl object-cover border border-[#2a2a30]/10"
                     onError={(e) => {
                       e.currentTarget.onerror = null;
                       e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent((inspectingCreator.creator.name || inspectingCreator.creator.handle || "Creator").replace(/^@/, ''))}&background=0f172a&color=fff&bold=true`;
@@ -964,18 +964,18 @@ export default function AdminPipelineLookup({
                     <h4 className="font-bold text-white text-sm">
                       {inspectingCreator.creator.name || inspectingCreator.creator.display_name}
                     </h4>
-                    <p className="text-xs text-slate-400 font-mono">{inspectingCreator.creator.handle}</p>
+                    <p className="text-xs text-[#71717A] font-mono">{inspectingCreator.creator.handle}</p>
                     <p className="text-xs text-emerald-400 mt-0.5">{inspectingCreator.creator.niche || 'Software & Tech'}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/[0.06] text-xs">
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#2a2a30]/[0.06] text-xs">
                   <div>
-                    <span className="text-slate-500 block text-[10px]">Followers</span>
+                    <span className="text-[#A1A1AA] block text-[10px]">Followers</span>
                     <span className="text-white font-bold">{inspectingCreator.creator.followerStr || '100k+'}</span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block text-[10px]">Status</span>
+                    <span className="text-[#A1A1AA] block text-[10px]">Status</span>
                     <span className="text-emerald-400 font-semibold">{inspectingCreator.statusLabel}</span>
                   </div>
                 </div>
@@ -984,29 +984,29 @@ export default function AdminPipelineLookup({
               {/* Full Email Thread History */}
               <div className="space-y-2 flex-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-[#D4D4D8] uppercase tracking-wider">
                     Thread Audit
                   </span>
-                  <span className="text-[10px] text-slate-500 font-mono">
+                  <span className="text-[10px] text-[#A1A1AA] font-mono">
                     {getCreatorMessages(inspectingCreator.creator).length} messages
                   </span>
                 </div>
 
                 <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                   {getCreatorMessages(inspectingCreator.creator).length === 0 ? (
-                    <div className="p-3 rounded-xl bg-black/20 border border-white/[0.04] text-xs text-slate-500 text-center">
+                    <div className="p-3 rounded-xl bg-black/20 border border-[#2a2a30]/[0.04] text-xs text-[#A1A1AA] text-center">
                       No inbound replies logged yet for this thread.
                     </div>
                   ) : (
                     getCreatorMessages(inspectingCreator.creator).map((msg, idx) => (
-                      <div key={idx} className="p-2.5 rounded-xl bg-slate-900/50 border border-emerald-500/20 text-xs space-y-1">
+                      <div key={idx} className="p-2.5 rounded-xl bg-[#050506]/50 border border-emerald-500/20 text-xs space-y-1">
                         <div className="flex items-center justify-between text-[10px] text-emerald-300 font-semibold">
                           <span>{msg.sender || inspectingCreator.creator.handle}</span>
-                          <span className="font-mono text-slate-400">
+                          <span className="font-mono text-[#71717A]">
                             {msg.received_at ? new Date(msg.received_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently'}
                           </span>
                         </div>
-                        <p className="text-slate-200 text-[11px] leading-relaxed">
+                        <p className="text-[#E4E4E7] text-[11px] leading-relaxed">
                           {decodeReplyText(msg.body)}
                         </p>
                       </div>
@@ -1016,7 +1016,7 @@ export default function AdminPipelineLookup({
               </div>
 
               {/* Direct Jump to Acquisition Step */}
-              <div className="pt-3 border-t border-white/[0.08] space-y-2">
+              <div className="pt-3 border-t border-[#2a2a30]/[0.08] space-y-2">
                 <button
                   onClick={() => {
                     if (onSelectCreator) onSelectCreator(inspectingCreator.creator.id)
@@ -1033,7 +1033,7 @@ export default function AdminPipelineLookup({
         </div>
 
         {/* High-End Studio Footer */}
-        <div className="px-6 py-2.5 border-t border-white/[0.08] bg-[#090b10] flex items-center justify-between text-xs text-slate-400 flex-shrink-0">
+        <div className="px-6 py-2.5 border-t border-[#2a2a30]/[0.08] bg-[#090b10] flex items-center justify-between text-xs text-[#71717A] flex-shrink-0">
           <div className="flex items-center gap-2">
             <Info className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
             <span className="text-[11px] sm:text-xs">
@@ -1043,7 +1043,7 @@ export default function AdminPipelineLookup({
           {!isPage && onClose && (
             <button
               onClick={onClose}
-              className="px-4 h-7.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-white text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95"
+              className="px-4 h-7.5 rounded-xl bg-[#0C0C0E]/[0.08] hover:bg-[#0C0C0E]/[0.15] text-white text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95"
             >
               Close Dashboard
             </button>

@@ -2318,3 +2318,46 @@ h1, h2, h3, h4, h5, h6 {
   font-synthesis: none;
 }
 /* END heading-font */
+
+/* ==========================================================================
+   RESPONSIVE SAFETY NET — phones (320px+), tablets and desktops
+   Applies app-wide so every page degrades gracefully on small screens.
+   ========================================================================== */
+html, body { max-width: 100%; overflow-x: clip; }
+img, video, canvas, iframe { max-width: 100%; }
+
+/* Long URLs, emails and handles wrap instead of pushing the layout sideways */
+p, li, dd, td, th, h1, h2, h3, h4, h5, h6, blockquote { overflow-wrap: break-word; }
+
+/* Fixed arbitrary widths (w-[NNNpx]) never exceed their container */
+[class*=" w-["], [class^="w-["] { max-width: 100%; }
+
+@media (max-width: 767px) {
+  /* Wide tables scroll inside themselves instead of widening the page */
+  table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+@media (max-width: 639px) {
+  /* Multi-column grids that were never given a mobile layout collapse to 2 columns */
+  .grid-cols-4, .grid-cols-5, .grid-cols-6, .grid-cols-7, .grid-cols-8 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .grid-cols-12 { grid-template-columns: minmax(0, 1fr); }
+  .grid-cols-12 > [class*="col-span-"] { grid-column: 1 / -1; }
+  .grid-cols-4 > .col-span-3, .grid-cols-4 > .col-span-4,
+  .grid-cols-5 > [class*="col-span-"], .grid-cols-6 > [class*="col-span-"] { grid-column: 1 / -1; }
+
+  /* Minimum widths meant for desktop toolbars/search boxes shouldn't overflow phones */
+  [class*="min-w-["]:not(table) { min-width: 0 !important; }
+
+  /* iOS Safari zooms into inputs below 16px — keep the layout steady */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea { font-size: 16px !important; }
+
+  /* Modals and popovers use the full width with a small gutter */
+  [role="dialog"] > div, dialog { max-width: calc(100vw - 16px); }
+}
+
+@media (max-width: 379px) {
+  /* Very small phones: 3-column grids become 2 */
+  .grid-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
