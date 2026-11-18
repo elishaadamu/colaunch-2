@@ -1709,6 +1709,7 @@ partnerships@colaunch.com`
                                 creator={landing.creator}
                                 brandColor={landing.brandColor}
                                 mode="thumb"
+                                heroImageUrl={project?.mockupImage || project?.mockup_image || ''}
                               />
                               <span
                                 className="absolute bottom-3 left-3 text-[10px] font-semibold px-2 py-1"

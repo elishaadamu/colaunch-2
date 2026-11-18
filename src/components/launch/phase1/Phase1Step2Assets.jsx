@@ -11,6 +11,8 @@ import {
 } from '../../../services/opsApi'
 import ProductMockupCanvas from '../ProductMockupCanvas'
 import { C, PILL_TONES, P1_SHARED_CSS } from './phase1Constants'
+import ConceptLandingPage from '../ConceptLandingPage'
+import { resolveProjectLanding } from '../../../utils/projectLanding'
 import StepRail from './StepRail'
 
 const ASSETS_CSS = `
@@ -360,49 +362,36 @@ export default function Phase1Step2Assets({
             onCopy={() => { navigator.clipboard?.writeText(pageUrl); showNotification('Pre-order link copied!') }}
           />
 
-          <div className="card overflow-hidden">
-            <div className="px-6 sm:px-10 pt-10 pb-8 text-center space-y-4 max-w-3xl mx-auto">
-              <div className="flex items-center justify-center gap-2 flex-wrap">
-                <span className="px-3 py-1 rounded-full text-xs font-medium border" style={PILL_TONES.ok}>Founding member pre-sale</span>
-                {hasVariant && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border" style={PILL_TONES.violet}>
-                    <Sparkles className="w-3 h-3" aria-hidden="true" />
-                    AI variant is live
-                  </span>
-                )}
-              </div>
-              <h2 className="serif m-0 text-4xl sm:text-5xl leading-[1.05]">
-                {campaignKit?.landingPageCopy?.headline || `The ${project?.productName || 'Product'} System`}
-              </h2>
-              <p className="m-0 text-sm sm:text-base leading-relaxed max-w-xl mx-auto" style={{ color: C.muted }}>
-                {campaignKit?.landingPageCopy?.subheadline || project?.productTagline || 'Reserve early founding access and lock in lifetime benefits.'}
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                <a href={pageUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full sm:w-auto h-11 px-6">
-                  <CreditCard className="w-4 h-4" aria-hidden="true" />
-                  <span>Claim access for ${activeFoundingPrice}</span>
-                </a>
-                <a href={pageUrl} target="_blank" rel="noopener noreferrer" className="btn btn-quiet w-full sm:w-auto h-11 px-5">
-                  <ShieldCheck className="w-4 h-4" style={{ color: C.ok }} aria-hidden="true" />
-                  <span>Reserve with ${activeDepositPrice} deposit</span>
-                </a>
-              </div>
-            </div>
-            {(mockupImage || project?.mockupImage || project?.mockup_image || project?.meta?.mockup_image) && (
-              <div className="px-5 sm:px-10 pb-10 max-w-4xl mx-auto space-y-2">
-                <div className="overflow-hidden rounded-xl border border-[#252B32] bg-[#101419] shadow-2xl">
-                  <img
-                    src={mockupImage || project?.mockupImage || project?.mockup_image || project?.meta?.mockup_image}
-                    alt={project?.productName || project?.selectedConcept?.name || 'Planned product'}
-                    className="w-full h-auto object-cover"
+          {/* Exactly the page buyers see at the live link (same component, mockup and prices) */}
+          {(() => {
+            const landing = resolveProjectLanding(project || {})
+            const heroImg = mockupImage || project?.mockupImage || project?.mockup_image || project?.meta?.mockup_image || ''
+            return (
+              <div className="card overflow-hidden">
+                <div className="flex items-center justify-between gap-3 px-4 py-2.5" style={{ background: C.raised, borderBottom: `1px solid ${C.line}` }}>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: '#3f3f46' }} />
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: '#3f3f46' }} />
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: '#3f3f46' }} />
+                    <span className="ml-2 text-[11px] font-mono truncate" style={{ color: C.muted }}>{pageUrl}</span>
+                  </div>
+                  <span className="text-[11px] shrink-0" style={{ color: C.faint }}>Live preview</span>
+                </div>
+                <div className="max-h-[760px] overflow-y-auto">
+                  <ConceptLandingPage
+                    concept={landing.concept}
+                    conceptIndex={landing.conceptIndex}
+                    creator={landing.creator}
+                    brandColor={landing.brandColor}
+                    mode="full"
+                    heroImageUrl={heroImg}
+                    ctaLabel={`Claim access for $${activeFoundingPrice}`}
+                    onCtaClick={() => window.open(pageUrl, '_blank', 'noopener')}
                   />
                 </div>
-                <p className="m-0 text-xs text-center" style={{ color: C.muted }}>
-                  Illustration of the planned product. The final design may differ.
-                </p>
               </div>
-            )}
-          </div>
+            )
+          })()}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="card p-5 space-y-1.5">

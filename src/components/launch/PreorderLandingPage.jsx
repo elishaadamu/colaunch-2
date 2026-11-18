@@ -484,6 +484,8 @@ export default function PreorderLandingPage({ slug }) {
           creator={approvedLanding.creator}
           brandColor={approvedLanding.brandColor}
           mode="full"
+          heroImageUrl={savedMockupImage || ''}
+          ctaLabel="Claim founding access"
           onCtaClick={() => openCheckout(availableTiers.find((t) => t.highlight) || availableTiers[0])}
         />
       </div>

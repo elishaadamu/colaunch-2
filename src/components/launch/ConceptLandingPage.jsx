@@ -607,6 +607,8 @@ function LandingPageSurface({
   palette,
   isThumb,
   onCtaClick,
+  heroImageUrl = "",
+  ctaLabel = "",
   isEditing = false,
   onFieldChange,
   onFeatureChange,
@@ -834,7 +836,7 @@ function LandingPageSurface({
                 whiteSpace: "nowrap",
               }}
             >
-              Get early access
+              {ctaLabel || "Get early access"}
             </button>
           </nav>
         </div>
@@ -962,7 +964,7 @@ function LandingPageSurface({
                     minHeight: "2.75rem",
                   }}
                 >
-                  {layoutVariant === 1 ? "Launch workspace" : layoutVariant === 2 ? "Join member vault" : "Get early access"}
+                  {ctaLabel || (layoutVariant === 1 ? "Launch workspace" : layoutVariant === 2 ? "Join member vault" : "Get early access")}
                 </button>
                 {editable ? (
                   <input
@@ -1041,16 +1043,25 @@ function LandingPageSurface({
                   boxShadow: "0 16px 36px rgba(0, 0, 0, 0.35)",
                 }}
               >
-                <HeroIllustration
-                  concept={concept}
-                  conceptIndex={conceptIndex}
-                  brandColor={palette.solid}
-                  labels={featureLabelsForArt}
-                  title={displayTitle}
-                />
+                {heroImageUrl ? (
+                  <img
+                    src={heroImageUrl}
+                    alt={`${displayTitle} product preview`}
+                    style={{ display: "block", width: "100%", height: "auto", borderRadius: "0.75rem" }}
+                    loading={isThumb ? "eager" : "lazy"}
+                  />
+                ) : (
+                  <HeroIllustration
+                    concept={concept}
+                    conceptIndex={conceptIndex}
+                    brandColor={palette.solid}
+                    labels={featureLabelsForArt}
+                    title={displayTitle}
+                  />
+                )}
               </div>
               <figcaption style={{ fontSize: "0.8125rem", color: palette.textMuted, textAlign: "center" }}>
-                Sample data, for illustration
+                {heroImageUrl ? "Product preview, final design may differ" : "Sample data, for illustration"}
               </figcaption>
             </figure>
           </div>
@@ -2000,7 +2011,7 @@ function LandingPageSurface({
                       alignSelf: "flex-start",
                     }}
                   >
-                    Get early access
+                    {ctaLabel || "Get early access"}
                   </button>
                 </div>
 
@@ -2070,7 +2081,7 @@ function LandingPageSurface({
                   minHeight: "2.75rem",
                 }}
               >
-                Get early access
+                {ctaLabel || "Get early access"}
               </button>
             </div>
           </div>
@@ -2153,6 +2164,8 @@ export default function ConceptLandingPage({
   getCreatorAvatar,
   generateCreatorAvatarSvg,
   onCtaClick,
+  heroImageUrl = "",
+  ctaLabel = "",
 }) {
   const wrapRef = useRef(null);
   const [scale, setScale] = useState(0.3);
@@ -2230,6 +2243,8 @@ export default function ConceptLandingPage({
             creator={creator}
             palette={palette}
             isThumb={true}
+            heroImageUrl={heroImageUrl}
+            ctaLabel={ctaLabel}
             getCreatorAvatar={getCreatorAvatar}
             generateCreatorAvatarSvg={generateCreatorAvatarSvg}
           />
@@ -2249,6 +2264,8 @@ export default function ConceptLandingPage({
         isThumb={false}
         isEditing={isEditing}
         onCtaClick={onCtaClick}
+        heroImageUrl={heroImageUrl}
+        ctaLabel={ctaLabel}
         onFieldChange={onFieldChange}
         onFeatureChange={onFeatureChange}
         onAddFeature={onAddFeature}
