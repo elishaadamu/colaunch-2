@@ -245,5 +245,4 @@ export default function ProductMockupCanvas({ project, onSaveMockupImage, onShow
       </p>
     </div>
   )
-  )
 }
