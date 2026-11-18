@@ -253,7 +253,7 @@ export function suggestThreshold({ followers, price, conversion = 0.0025 }) {
   const p = Number(price);
   if (!Number.isFinite(f) || f <= 0 || !Number.isFinite(p) || p <= 0) return null;
   const buyers = Math.max(10, Math.round(f * conversion));
-  const target = clamp(Math.round((buyers * p) / 500) * 500, 1000, 25000);
+  const target = clamp(Math.round((buyers * p) / 500) * 500, 1000, 100000);
   return { buyers, target, conversion, basis: `${f.toLocaleString()} followers × ${(conversion * 100).toFixed(2)}% × $${p}` };
 }
 
@@ -261,9 +261,47 @@ export function suggestThreshold({ followers, price, conversion = 0.0025 }) {
  * Freeze the chosen concept into the seed Phase 1 Step 1 reads.
  * Call this once, on "Create project". Later edits to the concept do not change a running test.
  */
+/** "437K" / "1.2M" / 437000 / "437,000" → number (null when unknown). */
+export function parseFollowerCount(value) {
+  if (value == null || value === "") return null;
+  if (typeof value === "number") return Number.isFinite(value) && value > 0 ? value : null;
+  const m = String(value).replace(/,/g, "").trim().match(/^([\d.]+)\s*([kmb])?/i);
+  if (!m) return null;
+  const n = parseFloat(m[1]);
+  const mult = { k: 1e3, m: 1e6, b: 1e9 }[(m[2] || "").toLowerCase()] || 1;
+  const out = Math.round(n * mult);
+  return out > 0 ? out : null;
+}
+
+/**
+ * Founding presale price from a concept pricing string, matching the landing-page offer
+ * (one year at 50% off): "$7/mo Starter · $12/mo Pro" → 42, "$99/yr" → 49.5, "$49 one-time" → 49.
+ * Uses the cheapest tier. Returns null when no price is found.
+ */
+export function derivePresalePrice(pricing) {
+  const str = String(pricing || "");
+  const re = /\$\s*([\d,]+(?:\.\d+)?)\s*(\/\s*(mo|month|monthly|yr|year|annual|annually))?/gi;
+  const prices = [];
+  let m;
+  while ((m = re.exec(str))) {
+    const amount = parseFloat(m[1].replace(/,/g, ""));
+    if (!Number.isFinite(amount) || amount <= 0) continue;
+    const period = (m[3] || "").toLowerCase();
+    if (period.startsWith("mo")) prices.push(amount * 12 * 0.5);
+    else if (period) prices.push(amount * 0.5);
+    else prices.push(amount);
+  }
+  if (!prices.length) return null;
+  return Math.round(Math.min(...prices) * 100) / 100;
+}
+
 export function buildValidationSeed(concept, creator = {}) {
-  const followers = creator.followers ?? creator.followerCount ?? null;
-  const price = concept.presalePrice;
+  const followers =
+    parseFollowerCount(creator.followers) ??
+    parseFollowerCount(creator.followerCount) ??
+    parseFollowerCount(creator.follower_count) ??
+    parseFollowerCount(creator.followerStr);
+  const price = concept.presalePrice ?? derivePresalePrice(concept.pricing);
   const th = suggestThreshold({ followers, price });
   return {
     frozenAt: new Date().toISOString(),

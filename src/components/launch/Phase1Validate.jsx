@@ -246,8 +246,15 @@ export default function Phase1Validate({
   // Real Project Reservations / Backers state
   const [reservations, setReservations] = useState(() => project?.reservations || [])
 
+  // Old projects were created with a pre-filled template plan marked "generated". It was never
+  // generated for this creator, so treat it as not generated and ask the operator to generate.
+  const isTemplatePlan = (p) => Boolean(p) &&
+    p.testMethod === '1) Co-founder video announcement, 2) 10 user interviews, 3) 48-hour Founding Pre-Order sprint' &&
+    p.status === 'ready' && !p.locked
+  const templatePlan = isTemplatePlan(project?.validationPlan)
+
   // Real Project Validation Plan State
-  const [plan, setPlan] = useState(() => project?.validationPlan || {
+  const [plan, setPlan] = useState(() => (!isTemplatePlan(project?.validationPlan) && project?.validationPlan) || {
     customer: '',
     problem: '',
     offer: '',
@@ -259,13 +266,14 @@ export default function Phase1Validate({
 
   // Synchronize plan from project prop when database updates
   useEffect(() => {
-    if (project?.validationPlan) {
+    if (project?.validationPlan && !isTemplatePlan(project.validationPlan)) {
       setPlan(project.validationPlan)
     }
   }, [project?.id, project?.validationPlan])
 
   // Check if Validation Plan has been explicitly generated
   const [hasPlanGenerated, setHasPlanGenerated] = useState(() => {
+    if (templatePlan) return false
     if (project?.planGenerated !== undefined) return Boolean(project.planGenerated)
     if (project?.validationPlan?.generated !== undefined) return Boolean(project.validationPlan.generated)
     if (project?.planLocked || project?.validationPlan?.status === 'approved') return true
@@ -274,14 +282,16 @@ export default function Phase1Validate({
 
   // Synchronize hasPlanGenerated from project prop when database updates
   useEffect(() => {
-    if (project?.planGenerated !== undefined) {
+    if (templatePlan) {
+      setHasPlanGenerated(false)
+    } else if (project?.planGenerated !== undefined) {
       setHasPlanGenerated(Boolean(project.planGenerated))
     } else if (project?.validationPlan?.generated !== undefined) {
       setHasPlanGenerated(Boolean(project.validationPlan.generated))
     } else if (project?.planLocked || project?.validationPlan?.status === 'approved') {
       setHasPlanGenerated(true)
     }
-  }, [project?.planGenerated, project?.validationPlan?.generated, project?.planLocked, project?.validationPlan?.status])
+  }, [templatePlan, project?.planGenerated, project?.validationPlan?.generated, project?.planLocked, project?.validationPlan?.status])
 
   // Reset generated state if Section 1 chosen concept changed
   useEffect(() => {
@@ -452,18 +462,13 @@ export default function Phase1Validate({
     if (!project) return
     setPresalesRevenue(Number(project.currentPresales || 0))
     setReservations(Array.isArray(project.reservations) ? project.reservations : [])
-    if (project.validationPlan && (project.validationPlan.customer || project.validationPlan.status === 'approved')) {
-      setPlan(project.validationPlan)
+    const vp = project.validationPlan
+    if (vp && !isTemplatePlan(vp) && (vp.customer || vp.status === 'approved')) {
+      setPlan(vp)
     } else {
-      const seed = project.validationSeed
+      // Nothing is pre-filled: the plan appears only after "Generate plan".
       setPlan({
-        customer: seed?.customer || project.customer || project.targetAudience || '',
-        problem: seed?.problem || project.problem || '',
-        offer: seed?.offer ? `${seed.offer.pricing ? seed.offer.pricing + ' · ' : ''}${seed.offer.revenueModel || ''}` : '',
-        pricing: seed?.offer?.pricing || project.pricing || '',
-        testMethod: '',
-        period: seed?.estimatedBuild || '',
-        threshold: seed?.suggestedThreshold ? `$${seed.suggestedThreshold.target.toLocaleString()} in presales or ${seed.suggestedThreshold.buyers} pre-orders` : '',
+        customer: '', problem: '', offer: '', pricing: '', testMethod: '', period: '', threshold: '',
         status: 'draft',
         locked: false
       })
@@ -773,7 +778,7 @@ export default function Phase1Validate({
         }
         setPlan(generatedDraft)
         setHasPlanGenerated(true)
-        const newTarget = parseThresholdAmount(generated.threshold) || 12500
+        const newTarget = parseThresholdAmount(generated.threshold) || project?.validationSeed?.suggestedThreshold?.target || project?.presaleTarget || 12500
         const updated = {
           ...(project || {}),
           planGenerated: true,

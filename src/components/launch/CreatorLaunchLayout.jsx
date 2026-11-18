@@ -853,19 +853,14 @@ export default function CreatorLaunchLayout({
       conversionRate: 0,
       reservations: [],
       experiments: [],
+      // Empty until the operator clicks "Generate plan" in Phase 1 — no pre-filled template.
       validationPlan: {
         id: `plan_${projId}`,
-        customer: seed?.customer || newProjData.customer || newProjData.targetAudience || '',
-        problem: seed?.problem || newProjData.problem || '',
-        offer: `${newProjData.productName || seed?.product?.name || 'Venture'} Founding Co-Launch Access: ${newProjData.productTagline || seed?.product?.tagline || ''}`,
-        pricing: seed?.offer?.pricing || newProjData.pricing || '$29/mo Starter • $79/mo Pro',
-        testMethod: '1) Co-founder video announcement, 2) 10 user interviews, 3) 48-hour Founding Pre-Order sprint',
-        period: '14 days',
-        threshold: thresholdText,
+        customer: '', problem: '', offer: '', pricing: '', testMethod: '', period: '', threshold: '',
         targetRevenue: targetVal,
         targetOrders: targetOrders,
-        status: 'ready',
-        generated: true,
+        status: 'draft',
+        generated: false,
         locked: false,
       },
       // Clear all legacy specs from former creators so the new creator starts fresh

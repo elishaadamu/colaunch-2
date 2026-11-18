@@ -2361,3 +2361,13 @@ p, li, dd, td, th, h1, h2, h3, h4, h5, h6, blockquote { overflow-wrap: break-wor
   /* Very small phones: 3-column grids become 2 */
   .grid-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* ── Brand rule: square corners for every pill, badge and button ───────────────
+   `.rounded-full` stays circular only for status dots/rings (empty), avatars (contain an
+   image) and icon-only circles. Anything with text becomes square. */
+.rounded-full:not(:empty):not(:has(img)):not(:has(> svg:only-child)) {
+  border-radius: 0 !important;
+}
+.s5 .chip, .s6 .chip, .cpm-root .cpm-tab, .crm-root .crm-chip {
+  border-radius: 0 !important;
+}

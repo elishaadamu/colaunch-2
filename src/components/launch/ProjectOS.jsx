@@ -14,6 +14,7 @@ import Phase2BuildMVP from './Phase2BuildMVP'
 import Phase3Launch from './Phase3Launch'
 import ConceptLandingPage from './ConceptLandingPage'
 import { resolveProjectLanding } from '../../utils/projectLanding'
+import { suggestThreshold, parseFollowerCount, derivePresalePrice } from './conceptSchema'
 import { getContrastTextColor } from './DynamicConceptMockup'
 import WorkflowWiringTutorial from './WorkflowWiringTutorial'
 import { getFrontendUrl, recordGateDecision } from '../../services/opsApi'
@@ -443,7 +444,20 @@ partnerships@colaunch.com`
     return match ? Number(match[1]) : 0
   }
   const derivedPlanTarget = parseThresholdAmount(project.validationPlan?.threshold)
-  const presaleTarget = derivedPlanTarget > 0 ? derivedPlanTarget : Number(project.presaleTarget || project.targetRevenue || 12500)
+  // Older projects saved a hard-coded $12,500 for everyone. Recompute a per-creator goal from
+  // the creator's audience and the approved concept's founding price unless the plan sets one.
+  const storedTarget = Number(project.presaleTarget || project.targetRevenue || 0)
+  const computedTarget = (() => {
+    const prof = project.creatorProfile || project.metadataInfo?.creator_profile || {}
+    const followers =
+      parseFollowerCount(prof.followers) ?? parseFollowerCount(prof.followersLabel) ??
+      parseFollowerCount(project.followers) ?? parseFollowerCount(project.follower_count)
+    const price = derivePresalePrice((project.selectedConcept || {}).pricing || project.pricing)
+    return suggestThreshold({ followers, price })?.target || 0
+  })()
+  const presaleTarget = derivedPlanTarget > 0
+    ? derivedPlanTarget
+    : (storedTarget > 0 && storedTarget !== 12500 ? storedTarget : (computedTarget || storedTarget || 12500))
   const visitorsCount = Number(project.visitors || 0)
   const daysLeft = project.daysLeft || project.validationPlan?.period || '18 days'
   const magicPortalUrl = portalUrl
@@ -1160,10 +1174,10 @@ partnerships@colaunch.com`
             {/* Header inside Command Center */}
             <div
               id="tour-s2-header"
-              className="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-3.5"
+              className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 pb-3.5"
               style={{ borderBottom: `1px solid ${C.line}` }}
             >
-              <div className="flex-1 min-w-0 space-y-1.5">
+              <div className="min-w-0 space-y-1.5">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2
                     className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2 flex-wrap"
@@ -1175,57 +1189,6 @@ partnerships@colaunch.com`
                   </h2>
                 </div>
 
-                {/* Unified metadata row: Pricing, AI experiment, Chosen Concept & Archetype */}
-                <div className="flex items-center gap-2 flex-wrap max-w-full pt-0.5">
-                  {(() => {
-                    if (!project?.pricing) return null
-                    const rawPricing = String(project.pricing).trim()
-                    const match = rawPricing.match(/^(.*?)(?:\s*\((?:Pricing adjusted via )?AI Experiment:\s*(.*?)\))?$/i)
-                    const corePrice = match && match[1] ? match[1].trim() : rawPricing
-                    const expTitle = match && match[2] ? match[2].trim() : null
-
-                    return (
-                      <>
-                        <span
-                          className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold inline-flex items-center gap-1.5 max-w-full sm:max-w-xl border"
-                          style={PILL_TONES.ok}
-                          title={rawPricing}
-                        >
-                          <Tag className="w-3 h-3 shrink-0" style={{ color: C.ok }} />
-                          <span className="truncate">{corePrice}</span>
-                        </span>
-                        {expTitle && (
-                          <span
-                            className="px-2.5 py-1 rounded-lg text-[11px] font-semibold border inline-flex items-center gap-1.5 shrink-0"
-                            style={PILL_TONES.violet}
-                            title={`Pricing adjusted via AI Experiment: ${expTitle}`}
-                          >
-                            <Sparkles className="w-3 h-3 shrink-0" style={{ color: C.violet }} />
-                            <span>AI Experiment: {expTitle}</span>
-                          </span>
-                        )}
-                      </>
-                    )
-                  })()}
-
-                  <span
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold flex items-center gap-1.5 border"
-                    style={PILL_TONES.crimson}
-                  >
-                    <Target className="w-3.5 h-3.5 shrink-0" style={{ color: C.crimsonText }} />
-                    <span>Chosen Concept: {chosenConcept?.name || cleanProductName}</span>
-                  </span>
-                  <span
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold border"
-                    style={PILL_TONES.sky}
-                  >
-                    {archetypeLabel}
-                  </span>
-                </div>
-
-                <p className="text-xs sm:text-sm max-w-3xl leading-relaxed pt-0.5" style={{ color: C.muted }}>
-                  {cleanTagline}
-                </p>
               </div>
 
               {/* Action buttons on right of Command Center Header */}
@@ -1313,6 +1276,61 @@ partnerships@colaunch.com`
                   <span>Open Phase Workspace</span>
                   <ExternalLink className="w-3 h-3 text-white" />
                 </button>
+              </div>
+
+              {/* Full-width details row: pricing · chosen concept · archetype, then tagline */}
+              <div className="w-full basis-full space-y-2">
+                {/* Unified metadata row: Pricing, AI experiment, Chosen Concept & Archetype */}
+                <div className="flex items-center gap-2 flex-wrap max-w-full">
+                  {(() => {
+                    if (!project?.pricing) return null
+                    const rawPricing = String(project.pricing).trim()
+                    const match = rawPricing.match(/^(.*?)(?:\s*\((?:Pricing adjusted via )?AI Experiment:\s*(.*?)\))?$/i)
+                    const corePrice = match && match[1] ? match[1].trim() : rawPricing
+                    const expTitle = match && match[2] ? match[2].trim() : null
+
+                    return (
+                      <>
+                        <span
+                          className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold inline-flex items-center gap-1.5 max-w-full sm:max-w-xl border"
+                          style={PILL_TONES.ok}
+                          title={rawPricing}
+                        >
+                          <Tag className="w-3 h-3 shrink-0" style={{ color: C.ok }} />
+                          <span className="truncate">{corePrice}</span>
+                        </span>
+                        {expTitle && (
+                          <span
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-semibold border inline-flex items-center gap-1.5 shrink-0"
+                            style={PILL_TONES.violet}
+                            title={`Pricing adjusted via AI Experiment: ${expTitle}`}
+                          >
+                            <Sparkles className="w-3 h-3 shrink-0" style={{ color: C.violet }} />
+                            <span>AI Experiment: {expTitle}</span>
+                          </span>
+                        )}
+                      </>
+                    )
+                  })()}
+
+                  <span
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold flex items-center gap-1.5 border"
+                    style={PILL_TONES.crimson}
+                  >
+                    <Target className="w-3.5 h-3.5 shrink-0" style={{ color: C.crimsonText }} />
+                    <span>Chosen Concept: {chosenConcept?.name || cleanProductName}</span>
+                  </span>
+                  <span
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold border"
+                    style={PILL_TONES.sky}
+                  >
+                    {archetypeLabel}
+                  </span>
+                </div>
+
+                <p className="text-xs sm:text-sm max-w-3xl leading-relaxed pt-0.5" style={{ color: C.muted }}>
+                  {cleanTagline}
+                </p>
               </div>
             </div>
 
@@ -2885,7 +2903,7 @@ partnerships@colaunch.com`
       {/* PHASE EXECUTION MODAL (PHASE 1 / PHASE 2 / PHASE 3) - CLEAN WHITE THEME */}
       {showPhaseExecutionModal && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[9999] bg-[#050506]/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-hidden">
-          <div className="max-w-5xl w-full max-h-[92vh] overflow-y-auto rounded-3xl bg-[#0C0C0E] border border-[#2a2a30] p-6 pb-12 space-y-6 shadow-2xl overscroll-contain text-[#FAFAFA] phase-modal-white-theme">
+          <div className="max-w-5xl w-full max-h-[92vh] overflow-y-auto rounded-3xl bg-[#0C0C0E] border border-[#2a2a30] p-6 pb-12 space-y-6 shadow-2xl overscroll-contain text-[#FAFAFA]">
             <div className="flex items-center justify-between border-b border-[#2a2a30] pb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#18181C] border border-[#2a2a30] flex items-center justify-center shrink-0 shadow-2xs">
