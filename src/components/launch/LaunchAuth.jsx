@@ -7,7 +7,10 @@ import {
   EyeOff,
   Loader2,
   ArrowLeft,
-  ArrowRight
+  ArrowRight,
+  Mail,
+  KeyRound,
+  Check
 } from 'lucide-react'
 import CoLaunchLogo from '../ui/CoLaunchLogo'
 
@@ -55,6 +58,10 @@ export default function LaunchAuth({ children }) {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [mode, setMode] = useState('signin') // 'signin' | 'signup'
+  const [fullName, setFullName] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [inviteCode, setInviteCode] = useState('')
 
   // Periodic expiration watcher: check every 10 seconds for session timeout
   useEffect(() => {
@@ -149,6 +156,56 @@ export default function LaunchAuth({ children }) {
 
 
 
+  const handleSignup = async (e) => {
+    if (e) e.preventDefault()
+    setError('')
+    const cleanEmail = identifier.trim().toLowerCase()
+    if (!fullName.trim()) return setError('Please enter your name.')
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(cleanEmail)) return setError('Please enter a valid email address.')
+    if (password.length < 10) return setError('Password must be at least 10 characters.')
+    if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) return setError('Password must contain both letters and numbers.')
+    if (password !== confirmPassword) return setError("Passwords don't match.")
+    if (!inviteCode.trim()) return setError('Enter the invite code you were given.')
+
+    setLoading(true)
+    try {
+      const res = await fetch('/api/auth/operator-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: fullName.trim(),
+          email: cleanEmail,
+          password,
+          invite_code: inviteCode.trim(),
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data.status === 'success' && data.token) {
+        establishLaunchSession(data.user?.email || cleanEmail, data.token)
+        return
+      }
+      const detail = Array.isArray(data.detail) ? data.detail.map((d) => d.msg).join(', ') : data.detail
+      setError(detail || 'Could not create your account.')
+      setLoading(false)
+    } catch (err) {
+      setError('Could not reach the server. Please try again.')
+      setLoading(false)
+    }
+  }
+
+  const switchMode = (next) => {
+    setMode(next)
+    setError('')
+    setPassword('')
+    setConfirmPassword('')
+  }
+
+  const passwordChecks = [
+    { label: '10+ characters', ok: password.length >= 10 },
+    { label: 'Letters & numbers', ok: /[A-Za-z]/.test(password) && /\d/.test(password) },
+    { label: 'Passwords match', ok: confirmPassword.length > 0 && password === confirmPassword },
+  ]
+
   const logout = useCallback(() => {
     logoutLaunchAuth()
     setIsAuthenticated(false)
@@ -164,10 +221,10 @@ export default function LaunchAuth({ children }) {
   }
 
   return (
-    <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 bg-[#090D16] text-white selection:bg-[#C81E3C] selection:text-white font-sans">
+    <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 bg-[#050506] text-white selection:bg-[#C81E3C] selection:text-white font-sans">
 
       {/* ── LEFT: FULL-BLEED IMAGE PANEL ── */}
-      <div className="relative hidden lg:block overflow-hidden h-full min-h-screen bg-[#07090F]">
+      <div className="relative hidden lg:block overflow-hidden h-full min-h-screen bg-[#030304]">
         <img
           src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=80"
           onError={(e) => {
@@ -179,7 +236,7 @@ export default function LaunchAuth({ children }) {
           loading="eager"
         />
         {/* Dark overlay with soft gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#090D16]/70 via-[#090D16]/20 to-[#090D16]/90 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050506]/70 via-[#050506]/20 to-[#050506]/90 pointer-events-none" />
 
         {/* CoLaunch branding */}
         <div className="absolute top-8 left-8 z-10 flex items-center gap-3">
@@ -188,26 +245,26 @@ export default function LaunchAuth({ children }) {
 
         {/* Caption text */}
         <div className="absolute bottom-0 left-0 right-0 p-10 z-10 space-y-3">
-          <span className="inline-block px-2.5 py-0.5 rounded-none text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-500/40 uppercase tracking-wider">
+          <span className="inline-block px-2.5 py-0.5 rounded-none text-[10px] font-mono font-bold text-[#FF8FA3] bg-[#C81E3C]/15 border border-[#C81E3C]/45 uppercase tracking-wider">
             STUDIO
           </span>
           <h2 className="text-3xl font-extrabold text-white tracking-tight leading-tight font-display">
             Build Products.<br />Share Ownership.
           </h2>
-          <p className="text-sm text-slate-300 max-w-sm leading-relaxed">
+          <p className="text-sm text-[#D4D4D8] max-w-sm leading-relaxed">
             50/50 co-founder partnerships powered by AI sprint workflows.
           </p>
         </div>
       </div>
 
       {/* ── RIGHT: DARK MODE LOGIN FORM ── */}
-      <div className="flex flex-col justify-between bg-[#090D16] border-l border-[#1E2638] min-h-screen p-6 sm:p-10 lg:p-14 relative">
+      <div className="flex flex-col justify-between bg-[#050506] border-l border-[#222227] min-h-screen p-6 sm:p-10 lg:p-14 relative">
         {/* Subtle ambient corner glow */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#C81E3C]/5 rounded-full blur-3xl pointer-events-none" />
 
         {/* Top bar */}
         <div className="flex items-center justify-between w-full relative z-10 mb-8">
-          <span className="text-xs font-mono uppercase tracking-wider text-slate-500">
+          <span className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
             Operator Console
           </span>
 
@@ -220,64 +277,103 @@ export default function LaunchAuth({ children }) {
         {/* Form inner (vertically centered) */}
         <div className="w-full max-w-sm mx-auto my-auto relative z-10 space-y-6">
 
+          {/* Sign in / Create account switch */}
+          <div className="grid grid-cols-2 p-1 bg-[#0C0C0E] border border-[#222227]" role="tablist" aria-label="Account">
+            {[
+              { id: 'signin', label: 'Sign in' },
+              { id: 'signup', label: 'Create account' },
+            ].map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={mode === t.id}
+                onClick={() => switchMode(t.id)}
+                className={`h-9 text-xs font-bold transition-colors cursor-pointer ${
+                  mode === t.id
+                    ? 'bg-gradient-to-b from-[#d62546] to-[#ad1833] text-white'
+                    : 'text-[#A1A1AA] hover:text-white'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
           {/* Heading */}
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-display">
-              Welcome back
+          <div key={mode} className="acq-pop">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-display m-0">
+              {mode === 'signin' ? 'Welcome back' : 'Create your operator account'}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Sign in to your CoLaunch workspace
+            <p className="text-xs sm:text-sm text-[#A1A1AA] mt-1 mb-0">
+              {mode === 'signin'
+                ? 'Sign in to your CoLaunch workspace'
+                : 'You need an invite code from a CoLaunch admin to join.'}
             </p>
           </div>
 
           {/* Error Alert */}
           {error && (
-            <div className="p-3 bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-start gap-2.5 rounded-none leading-relaxed">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+            <div role="alert" className="acq-pop p-3 bg-[#C81E3C]/10 border border-[#C81E3C]/45 text-[#FF8FA3] text-xs flex items-start gap-2.5 leading-relaxed">
+              <AlertTriangle className="w-4 h-4 text-[#FF4D6D] shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={mode === 'signin' ? handleLogin : handleSignup} className="space-y-4" noValidate>
+            {mode === 'signup' && (
+              <div className="acq-pop">
+                <label htmlFor="auth-name" className="block text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA] mb-1.5">Full name</label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    id="auth-name"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Ada Lovelace"
+                    autoComplete="name"
+                    className="w-full pl-10 pr-4 py-3 text-sm font-medium"
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
-              <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mb-1.5">
-                Username or Email
+              <label htmlFor="auth-email" className="block text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA] mb-1.5">
+                {mode === 'signin' ? 'Username or email' : 'Work email'}
               </label>
               <div className="relative">
-                <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Mail className="w-4 h-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
-                  type="text"
+                  id="auth-email"
+                  type={mode === 'signin' ? 'text' : 'email'}
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="admin or operator@colaunch.com"
-                  autoComplete="username"
-                  required
-                  className="w-full pl-10 pr-4 py-3 bg-[#0D111C] border border-[#1E2638] text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-[#C81E3C] transition rounded-none font-medium"
+                  placeholder={mode === 'signin' ? 'you@company.com' : 'you@company.com'}
+                  autoComplete={mode === 'signin' ? 'username' : 'email'}
+                  className="w-full pl-10 pr-4 py-3 text-sm font-medium"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-300 mb-1.5">
-                Password
-              </label>
+              <label htmlFor="auth-password" className="block text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA] mb-1.5">Password</label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Lock className="w-4 h-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
+                  id="auth-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter operator password"
-                  autoComplete="current-password"
-                  required
-                  className="w-full pl-10 pr-10 py-3 bg-[#0D111C] border border-[#1E2638] text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-[#C81E3C] transition rounded-none font-medium"
+                  placeholder={mode === 'signin' ? 'Your password' : 'At least 10 characters'}
+                  autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                  className="w-full pl-10 pr-10 py-3 text-sm font-medium"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition cursor-pointer p-1"
-                  tabIndex={-1}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-white transition cursor-pointer p-1"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -285,35 +381,85 @@ export default function LaunchAuth({ children }) {
               </div>
             </div>
 
-            {/* Submit Button */}
+            {mode === 'signup' && (
+              <>
+                <div className="acq-pop">
+                  <label htmlFor="auth-confirm" className="block text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA] mb-1.5">Confirm password</label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      id="auth-confirm"
+                      type={showPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Repeat password"
+                      autoComplete="new-password"
+                      className="w-full pl-10 pr-4 py-3 text-sm font-medium"
+                    />
+                  </div>
+                  <ul className="list-none m-0 mt-2 p-0 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+                    {passwordChecks.map((c) => (
+                      <li key={c.label} className={`inline-flex items-center gap-1.5 transition-colors ${c.ok ? 'text-emerald-400' : 'text-[#71717A]'}`}>
+                        {c.ok ? <Check className="w-3 h-3" /> : <span className="w-1.5 h-1.5 rounded-full bg-[#3f3f46]" />}
+                        {c.label}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="acq-pop">
+                  <label htmlFor="auth-invite" className="block text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA] mb-1.5">Invite code</label>
+                  <div className="relative">
+                    <KeyRound className="w-4 h-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      id="auth-invite"
+                      type="text"
+                      value={inviteCode}
+                      onChange={(e) => setInviteCode(e.target.value)}
+                      placeholder="Provided by your admin"
+                      autoComplete="off"
+                      spellCheck={false}
+                      className="w-full pl-10 pr-4 py-3 text-sm font-medium tracking-wide"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
             <button
               type="submit"
               disabled={loading || !identifier.trim() || !password}
-              className="w-full mt-2 py-3.5 px-4 bg-[#C81E3C] hover:bg-[#B01732] active:bg-[#99142B] text-white font-bold text-xs uppercase tracking-wider rounded-none transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#C81E3C]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="acq-btn-primary w-full mt-2 py-3.5 px-4 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>Signing In…</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>{mode === 'signin' ? 'Signing in…' : 'Creating account…'}</span>
                 </>
               ) : (
                 <>
-                  <span>Sign In</span>
-                  <ArrowRight className="w-4 h-4 text-white" />
+                  <span>{mode === 'signin' ? 'Sign in' : 'Create account'}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Bottom text */}
-          <p className="text-xs text-slate-400 text-center mt-6">
-            Authorized operator access only.{' '}
-            <span className="text-slate-300 font-medium">Contact system administrator</span>
+          <p className="text-xs text-[#A1A1AA] text-center mt-6 mb-0">
+            {mode === 'signin' ? (
+              <>New to the studio?{' '}
+                <button type="button" onClick={() => switchMode('signup')} className="text-white font-semibold underline-offset-2 hover:underline cursor-pointer">Create an account</button>
+              </>
+            ) : (
+              <>Already have an account?{' '}
+                <button type="button" onClick={() => switchMode('signin')} className="text-white font-semibold underline-offset-2 hover:underline cursor-pointer">Sign in</button>
+              </>
+            )}
           </p>
         </div>
 
         {/* Footer */}
-        <div className="w-full text-center text-xs text-slate-600 font-mono py-4 border-t border-[#1E2638]/60 relative z-10 mt-8">
+        <div className="w-full text-center text-xs text-[#52525B] font-mono py-4 border-t border-[#222227]/60 relative z-10 mt-8">
           © 2026 CoLaunch
         </div>
 
