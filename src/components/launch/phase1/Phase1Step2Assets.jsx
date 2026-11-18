@@ -2,7 +2,8 @@ import React from 'react'
 import {
   Palette, Globe, HelpCircle, Save, Copy, ExternalLink,
   CreditCard, ShieldCheck, CheckCircle2, ArrowRight, Sparkles,
-  Loader2, Plus, Trash2
+  Loader2, Plus, Trash2, MessageSquare, HeartHandshake, Crown, Bell, Gauge,
+  Flame, Wallet, Tag, Workflow, X, Mail, Inbox, BarChart3
 } from 'lucide-react'
 import {
   updateValidationCampaign,
@@ -414,8 +415,57 @@ export default function Phase1Step2Assets({
       )}
 
       {/* SURVEY */}
-      {tab === 'research' && (
-        <div className="space-y-6">
+      {tab === 'research' && (() => {
+        const qs = surveyData?.questions || []
+        const qText = (key) => (qs.find((q) => String(q.id) === String(key)) || {}).question
+        const qCat = (key) => (qs.find((q) => String(q.id) === String(key)) || {}).category
+        const st = { yes: 0, maybe: 0, no: 0, waitlist: 0, deposit: 0, founding: 0, consented: 0, pricePoints: {} }
+        let ratingSum = 0, ratingN = 0
+        surveyResponses.forEach((r) => {
+          const sp = r.support || {}
+          if (st[sp.decision] !== undefined && ['yes', 'maybe', 'no'].includes(sp.decision)) st[sp.decision] += 1
+          if (['waitlist', 'deposit', 'founding'].includes(sp.level)) st[sp.level] += 1
+          if (sp.consent) st.consented += 1
+          if (sp.pricePoint) st.pricePoints[sp.pricePoint] = (st.pricePoints[sp.pricePoint] || 0) + 1
+          if (Number(r.rating) > 0) { ratingSum += Number(r.rating); ratingN += 1 }
+        })
+        const total = surveyResponses.length
+        const decided = st.yes + st.maybe + st.no
+        const avgRating = ratingN ? (ratingSum / ratingN).toFixed(1) : null
+        const pledgedValue = st.deposit * Number(activeDepositPrice || 0) + st.founding * Number(activeFoundingPrice || 0)
+        const priceRows = Object.entries(st.pricePoints).sort((a, b) => b[1] - a[1])
+        const priceMax = priceRows.length ? priceRows[0][1] : 1
+        const pct = (n) => (decided ? Math.round((n / decided) * 100) : 0)
+        const stats = [
+          { Icon: MessageSquare, label: 'Responses', value: total, note: `${st.consented} opted in to emails`, tone: C.body },
+          { Icon: HeartHandshake, label: 'Will support', value: st.yes, note: decided ? `${pct(st.yes)}% said yes` : 'No pledges yet', tone: C.ok },
+          { Icon: Crown, label: 'Founding', value: st.founding, note: `$${activeFoundingPrice} each`, tone: C.violetText },
+          { Icon: ShieldCheck, label: 'Deposits', value: st.deposit, note: `$${activeDepositPrice} refundable`, tone: C.warn },
+          { Icon: Bell, label: 'Waitlist', value: st.waitlist, note: 'Free sign-ups', tone: C.body },
+          { Icon: Gauge, label: 'Avg excitement', value: avgRating ? `${avgRating}` : '--', note: avgRating ? 'out of 10' : 'No ratings yet', tone: C.crimsonText },
+        ]
+        const catIcon = (category = '') => {
+          const c = category.toLowerCase()
+          if (c.includes('pain') || c.includes('problem')) return Flame
+          if (c.includes('spend') || c.includes('budget')) return Wallet
+          if (c.includes('pric') || c.includes('pay')) return Tag
+          if (c.includes('feature') || c.includes('wish')) return Sparkles
+          if (c.includes('workflow') || c.includes('process')) return Workflow
+          return MessageSquare
+        }
+        const decisionBadge = (sp) => {
+          if (sp?.decision === 'yes') {
+            const lvl = { founding: ['Founding member', Crown, PILL_TONES.violet], deposit: ['Deposit', ShieldCheck, PILL_TONES.warn], waitlist: ['Waitlist', Bell, PILL_TONES.ok] }[sp.level] || ['Supporter', HeartHandshake, PILL_TONES.ok]
+            return { label: lvl[0], Icon: lvl[1], style: lvl[2] }
+          }
+          if (sp?.decision === 'maybe') return { label: 'Maybe', Icon: HelpCircle, style: PILL_TONES.raised }
+          if (sp?.decision === 'no') return { label: 'Not for them', Icon: X, style: PILL_TONES.neutral }
+          return null
+        }
+        const initials = (name = '') => name.trim().split(/\s+/).slice(0, 2).map((p) => p[0] || '').join('').toUpperCase() || '?'
+
+        return (
+        <div className="space-y-6 p1-rise">
           <UrlBar
             url={surveyUrl}
             copyLabel="Copy link"
@@ -423,16 +473,98 @@ export default function Phase1Step2Assets({
             onCopy={() => { navigator.clipboard?.writeText(surveyUrl); showNotification('Shareable survey link copied!') }}
           />
 
-          {/* Score */}
+          {/* Support dashboard */}
+          <section className="card p-5 sm:p-6 space-y-5" aria-labelledby="p1a-support">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+              <div className="min-w-0">
+                <p className="m-0 flex items-center gap-1.5 text-xs" style={{ color: C.muted }}>
+                  <HeartHandshake className="w-3.5 h-3.5" style={{ color: C.crimsonText }} aria-hidden="true" /> Support pledges
+                </p>
+                <h4 id="p1a-support" className="serif m-0 mt-1 text-3xl leading-tight">
+                  {st.yes > 0 ? `${st.yes} ${st.yes === 1 ? 'person' : 'people'} will support it` : 'No supporters yet'}
+                </h4>
+                <p className="m-0 mt-1 text-xs" style={{ color: C.faint }}>
+                  Respondents choose yes, maybe or no on the survey, then how they'd back it.
+                </p>
+              </div>
+              <div className="shrink-0 px-4 py-3" style={{ background: C.sheet, border: `1px solid ${C.okLine}` }}>
+                <p className="m-0 text-[11px] uppercase tracking-wider" style={{ color: C.muted }}>Pledged value</p>
+                <p className="serif m-0 text-3xl leading-none mt-1" style={{ color: C.ok }}>${pledgedValue.toLocaleString()}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              {stats.map(({ Icon, label, value, note, tone }) => (
+                <div key={label} className="p-4 acq-lift" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="m-0 text-xs" style={{ color: C.muted }}>{label}</p>
+                    <span className="w-7 h-7 flex items-center justify-center shrink-0" style={{ background: C.raised, border: `1px solid ${C.line}`, color: tone }}>
+                      <Icon className="w-3.5 h-3.5" aria-hidden="true" />
+                    </span>
+                  </div>
+                  <p className="serif m-0 mt-2 text-4xl leading-none" style={{ color: value && value !== '--' ? C.text : C.faint }}>{value}</p>
+                  <p className="m-0 mt-2 text-xs" style={{ color: C.faint }}>{note}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <div className="p-4 space-y-3" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+                <p className="m-0 text-xs font-semibold" style={{ color: C.body }}>Would they support it?</p>
+                <div className="flex h-3 w-full overflow-hidden" style={{ background: C.raised }} role="img" aria-label={`Yes ${st.yes}, maybe ${st.maybe}, no ${st.no}`}>
+                  {decided > 0 && (<>
+                    <span style={{ width: `${pct(st.yes)}%`, background: C.ok }} />
+                    <span style={{ width: `${pct(st.maybe)}%`, background: C.warn }} />
+                    <span style={{ width: `${pct(st.no)}%`, background: '#3f3f46' }} />
+                  </>)}
+                </div>
+                <ul className="list-none m-0 p-0 grid grid-cols-3 gap-2 text-xs">
+                  {[['Yes', st.yes, C.ok], ['Maybe', st.maybe, C.warn], ['No', st.no, '#71717a']].map(([l, n, col]) => (
+                    <li key={l} className="flex items-center gap-1.5" style={{ color: C.body }}>
+                      <span className="w-2 h-2 shrink-0" style={{ background: col }} aria-hidden="true" />
+                      {l} <span className="tabular-nums" style={{ color: C.muted }}>{n} · {pct(n)}%</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="p-4 space-y-2.5" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+                <p className="m-0 flex items-center gap-1.5 text-xs font-semibold" style={{ color: C.body }}>
+                  <Tag className="w-3.5 h-3.5" style={{ color: C.muted }} aria-hidden="true" /> What they'd pay monthly
+                </p>
+                {priceRows.length === 0 ? (
+                  <p className="m-0 text-xs" style={{ color: C.faint }}>Price answers appear here as supporters respond.</p>
+                ) : (
+                  <ul className="list-none m-0 p-0 space-y-2">
+                    {priceRows.map(([label, n]) => (
+                      <li key={label} className="grid grid-cols-[6.5rem_1fr_2rem] items-center gap-2 text-xs">
+                        <span className="truncate" style={{ color: C.body }}>{label}</span>
+                        <span className="h-2" style={{ background: C.raised }}>
+                          <span className="block h-full" style={{ width: `${(n / priceMax) * 100}%`, background: C.crimson }} />
+                        </span>
+                        <span className="text-right tabular-nums" style={{ color: C.muted }}>{n}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* AI score */}
           <section className="card p-5 sm:p-6 space-y-5" aria-labelledby="p1a-score">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="m-0 text-xs" style={{ color: C.muted }}>{surveyResponses.length} {surveyResponses.length === 1 ? 'response' : 'responses'} collected</p>
-                <h4 id="p1a-score" className="serif m-0 mt-0.5 text-3xl leading-tight">
-                  {surveyAnalysis?.scoreVerdict || (surveyResponses.length > 0 ? 'Responses are ready to analyse' : 'Waiting for responses')}
-                </h4>
+              <div className="flex items-start gap-3 min-w-0">
+                <span className="w-10 h-10 flex items-center justify-center shrink-0" style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.crimsonText }}>
+                  <BarChart3 className="w-4 h-4" aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <p className="m-0 text-xs" style={{ color: C.muted }}>AI read of {total} {total === 1 ? 'response' : 'responses'}</p>
+                  <h4 id="p1a-score" className="serif m-0 mt-0.5 text-3xl leading-tight">
+                    {surveyAnalysis?.scoreVerdict || (total > 0 ? 'Responses are ready to analyse' : 'Waiting for responses')}
+                  </h4>
+                </div>
               </div>
-              <button type="button" onClick={handleAnalyzeResponses} disabled={isAnalyzingResponses || surveyResponses.length === 0} className="btn btn-primary h-10 px-4 shrink-0">
+              <button type="button" onClick={handleAnalyzeResponses} disabled={isAnalyzingResponses || total === 0} className="btn btn-primary h-10 px-4 shrink-0">
                 {isAnalyzingResponses ? (
                   <><Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /><span>Analysing...</span></>
                 ) : (
@@ -443,7 +575,7 @@ export default function Phase1Step2Assets({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {analysisScores.map((s) => (
-                <div key={s.label} className="p-4 rounded-xl" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+                <div key={s.label} className="p-4" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
                   <p className="m-0 text-xs" style={{ color: C.muted }}>{s.label}</p>
                   <p className="serif m-0 mt-1.5 text-4xl leading-none" style={{ color: s.value ? s.color : C.faint }}>{s.value || '--'}</p>
                   <p className="m-0 mt-2 text-xs" style={{ color: s.noteColor }}>{s.note}</p>
@@ -452,7 +584,7 @@ export default function Phase1Step2Assets({
             </div>
 
             {surveyAnalysis?.executiveSummary && (
-              <div className="p-4 rounded-xl space-y-3" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+              <div className="p-4 space-y-3" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
                 <p className="m-0 text-sm leading-relaxed" style={{ color: C.body }}>{surveyAnalysis.executiveSummary}</p>
                 {surveyAnalysis.keyFindings?.length > 0 && (
                   <ul className="list-none m-0 p-0 pt-3 space-y-1.5" style={{ borderTop: `1px solid ${C.line}` }}>
@@ -473,7 +605,9 @@ export default function Phase1Step2Assets({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h4 id="p1a-questions" className="serif m-0 text-2xl">Survey questions</h4>
-                <p className="m-0 mt-1 text-xs" style={{ color: C.muted }}>What people are asked on the public survey page.</p>
+                <p className="m-0 mt-1 text-xs" style={{ color: C.muted }}>
+                  Shown on the public page, followed by an excitement score and the "Will you support it?" step.
+                </p>
               </div>
               <button type="button" onClick={handleGenerateSurvey} disabled={isGeneratingSurvey} className="btn btn-quiet h-9 px-3.5 shrink-0">
                 {isGeneratingSurvey ? (
@@ -484,21 +618,36 @@ export default function Phase1Step2Assets({
               </button>
             </div>
 
-            <ol className="list-none m-0 p-0 space-y-2">
-              {(surveyData?.questions || []).map((q, index) => (
-                <li key={q.id || index} className="p-3.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
-                  <div className="flex items-start gap-3 min-w-0">
-                    <span className="text-xs tabular-nums mt-0.5 shrink-0" style={{ color: C.faint }}>{index + 1}.</span>
-                    <div className="min-w-0">
-                      <p className="m-0 text-sm font-medium" style={{ color: C.text }}>{q.question}</p>
-                      <p className="m-0 mt-0.5 text-xs" style={{ color: C.faint }}>{q.category || 'Discovery'}</p>
+            <ol className="list-none m-0 p-0 grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              {qs.map((q, index) => {
+                const Icon = catIcon(q.category)
+                const answered = surveyResponses.filter((r) => String(r.answers?.[q.id] || '').trim()).length
+                return (
+                  <li key={q.id || index} className="p-4 flex items-start gap-3 acq-lift" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+                    <span className="w-9 h-9 flex items-center justify-center shrink-0" style={{ background: C.raised, border: `1px solid ${C.line}`, color: C.crimsonText }}>
+                      <Icon className="w-4 h-4" aria-hidden="true" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="m-0 text-[11px] uppercase tracking-wider" style={{ color: C.faint }}>
+                        {String(index + 1).padStart(2, '0')} · {q.category || 'Discovery'}
+                      </p>
+                      <p className="m-0 mt-1 text-sm font-medium leading-snug" style={{ color: C.text }}>{q.question}</p>
+                      <span className="inline-block mt-2 px-2 py-0.5 text-[11px] font-medium border" style={answered > 0 ? PILL_TONES.ok : PILL_TONES.neutral}>
+                        {answered} {answered === 1 ? 'answer' : 'answers'}
+                      </span>
                     </div>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border shrink-0 self-start sm:self-center" style={(q.responseCount || 0) > 0 ? PILL_TONES.ok : PILL_TONES.neutral}>
-                    {q.responseCount || 0} {(q.responseCount || 0) === 1 ? 'response' : 'responses'}
-                  </span>
-                </li>
-              ))}
+                  </li>
+                )
+              })}
+              <li className="p-4 flex items-start gap-3" style={{ background: C.sheet, border: `1px dashed ${C.lineStrong}` }}>
+                <span className="w-9 h-9 flex items-center justify-center shrink-0" style={{ background: C.okSoft, border: `1px solid ${C.okLine}`, color: C.ok }}>
+                  <HeartHandshake className="w-4 h-4" aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <p className="m-0 text-[11px] uppercase tracking-wider" style={{ color: C.faint }}>Always last · Support</p>
+                  <p className="m-0 mt-1 text-sm font-medium leading-snug" style={{ color: C.text }}>Will you support it? Waitlist, ${activeDepositPrice} deposit or ${activeFoundingPrice} founding.</p>
+                </div>
+              </li>
             </ol>
 
             <form onSubmit={handleAddQuestion} className="flex flex-col sm:flex-row gap-2 pt-4" style={{ borderTop: `1px solid ${C.line}` }}>
@@ -533,53 +682,93 @@ export default function Phase1Step2Assets({
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div>
                 <h4 id="p1a-responses" className="serif m-0 text-2xl">Responses</h4>
-                <p className="m-0 mt-1 text-xs" style={{ color: C.muted }}>Answers sent in through the public survey link.</p>
+                <p className="m-0 mt-1 text-xs" style={{ color: C.muted }}>Each answer is shown next to the question it replies to.</p>
               </div>
-              {surveyResponses.length > 0 && (
+              {total > 0 && (
                 <button type="button" onClick={handleClearAllSurveyResponses} className="btn btn-danger h-8 px-3 text-xs">
-                  Clear all
+                  <Trash2 className="w-3.5 h-3.5" aria-hidden="true" /> Clear all
                 </button>
               )}
             </div>
 
-            {surveyResponses.length === 0 ? (
-              <div className="text-center py-10 rounded-xl space-y-1" style={{ background: C.sheet, border: `1px dashed ${C.lineStrong}` }}>
+            {total === 0 ? (
+              <div className="text-center py-10 px-4 space-y-2" style={{ background: C.sheet, border: `1px dashed ${C.lineStrong}` }}>
+                <span className="inline-flex w-11 h-11 items-center justify-center" style={{ background: C.raised, border: `1px solid ${C.line}`, color: C.muted }}>
+                  <Inbox className="w-5 h-5" aria-hidden="true" />
+                </span>
                 <p className="m-0 text-sm font-medium" style={{ color: C.body }}>No responses yet</p>
-                <p className="m-0 text-xs" style={{ color: C.muted }}>Share the survey link with the creator's community to start collecting answers.</p>
+                <p className="m-0 text-xs" style={{ color: C.muted }}>Share the survey link with the creator's community to start collecting answers and pledges.</p>
               </div>
             ) : (
-              <ul className="list-none m-0 p-0 space-y-3">
-                {surveyResponses.map((r) => (
-                  <li key={r.id} className="p-4 rounded-xl space-y-3" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="min-w-0">
-                        <span className="text-sm font-semibold" style={{ color: C.text }}>{r.name}</span>
-                        <span className="ml-2 text-xs break-all" style={{ color: C.muted }}>{r.email}</span>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                        {r.rating ? (
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border" style={PILL_TONES.ok}>Intent {r.rating}/10</span>
-                        ) : null}
-                        <span className="text-xs" style={{ color: C.faint }}>{r.submittedAt || r.date}</span>
-                        <button type="button" onClick={() => handleDeleteSurveyResponse(r.id)} aria-label={`Delete response from ${r.name}`} title="Delete response" className="p-1 rounded cursor-pointer" style={{ color: C.crimsonText }}>
+              <ul className="list-none m-0 p-0 grid grid-cols-1 xl:grid-cols-2 gap-3">
+                {surveyResponses.map((r) => {
+                  const badge = decisionBadge(r.support)
+                  return (
+                    <li key={r.id} className="p-4 space-y-3 acq-lift" style={{ background: C.sheet, border: `1px solid ${r.support?.decision === 'yes' ? C.okLine : C.line}` }}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ background: C.raised, border: `1px solid ${C.lineStrong}`, color: C.text }}>
+                            {initials(r.name)}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="m-0 text-sm font-semibold truncate" style={{ color: C.text }}>{r.name}</p>
+                            <p className="m-0 text-xs truncate" style={{ color: C.muted }}>{r.email || 'No email'}</p>
+                          </div>
+                        </div>
+                        <button type="button" onClick={() => handleDeleteSurveyResponse(r.id)} aria-label={`Delete response from ${r.name}`} title="Delete response" className="p-1.5 cursor-pointer shrink-0" style={{ color: C.faint }}>
                           <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       </div>
-                    </div>
-                    {r.answers && (
-                      <ul className="list-none m-0 p-0 pt-3 space-y-1.5 text-sm" style={{ borderTop: `1px solid ${C.line}`, color: C.body }}>
-                        {Object.entries(r.answers).map(([key, ans]) => (
-                          <li key={key} className="leading-relaxed">{ans}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                ))}
+
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {badge && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium border" style={badge.style}>
+                            <badge.Icon className="w-3 h-3" aria-hidden="true" />{badge.label}
+                          </span>
+                        )}
+                        {r.rating ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium border" style={PILL_TONES.crimson}>
+                            <Gauge className="w-3 h-3" aria-hidden="true" />Excitement {r.rating}/10
+                          </span>
+                        ) : null}
+                        {r.support?.pricePoint && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium border" style={PILL_TONES.raised}>
+                            <Tag className="w-3 h-3" aria-hidden="true" />{r.support.pricePoint}
+                          </span>
+                        )}
+                        {r.support?.consent && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium border" style={PILL_TONES.neutral}>
+                            <Mail className="w-3 h-3" aria-hidden="true" />Opted in
+                          </span>
+                        )}
+                        <span className="ml-auto text-[11px]" style={{ color: C.faint }}>{r.submittedAt || r.date}</span>
+                      </div>
+
+                      {r.answers && Object.keys(r.answers).length > 0 && (
+                        <dl className="m-0 pt-3 space-y-2.5" style={{ borderTop: `1px solid ${C.line}` }}>
+                          {Object.entries(r.answers).filter(([, ans]) => String(ans || '').trim()).map(([key, ans]) => {
+                            const Icon = catIcon(qCat(key))
+                            return (
+                              <div key={key} className="flex items-start gap-2.5">
+                                <Icon className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: C.faint }} aria-hidden="true" />
+                                <div className="min-w-0">
+                                  <dt className="text-[11px]" style={{ color: C.faint }}>{qText(key) || 'Answer'}</dt>
+                                  <dd className="m-0 text-sm leading-relaxed" style={{ color: C.body }}>{ans}</dd>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </dl>
+                      )}
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </section>
         </div>
-      )}
+        )
+      })()}
 
       {/* Approval */}
       <div className="pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ borderTop: `1px solid ${C.line}` }}>
