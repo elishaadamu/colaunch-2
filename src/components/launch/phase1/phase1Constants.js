@@ -27,10 +27,10 @@ export const C = {
   skySoft: 'rgba(255, 255, 255,0.12)',
   skyLine: 'rgba(255, 255, 255,0.36)',
   skyText: '#e4e4e7',
-  violet: '#a78bfa',
-  violetSoft: 'rgba(167,139,250,0.14)',
-  violetLine: 'rgba(167,139,250,0.40)',
-  violetText: '#c4b5fd',
+  violet: '#f59e0b',
+  violetSoft: 'rgba(245,158,11,0.12)',
+  violetLine: 'rgba(245,158,11,0.40)',
+  violetText: '#fcd34d',
 }
 
 export const HEADING_FONT = { fontFamily: "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }
@@ -45,3 +45,19 @@ export const PILL_TONES = {
   violet: { color: C.violetText, background: C.violetSoft, borderColor: C.violetLine },
 }
 
+
+
+// Shared Phase 1 look (applied by adding `p1-themed` to a step's root element).
+export const P1_SHARED_CSS = `
+.p1-themed { position: relative; background: linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0) 160px), ${C.sheet} !important; border-color: #2a2a30 !important; }
+.p1-themed .btn-primary { background: linear-gradient(180deg,#d62546 0%,#c81e3c 55%,#ad1833 100%) !important; border-color: rgba(255,77,109,.35) !important; box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 10px 26px -12px rgba(200,30,60,.6); }
+.p1-themed .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+.p1-themed .card { background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 90px), ${C.row}; border: 1px solid ${C.line}; transition: border-color .18s, transform .18s; }
+.p1-themed .card:hover { border-color: ${C.lineStrong}; }
+.p1-themed .tab[aria-selected="true"] { background: linear-gradient(180deg, rgba(200,30,60,.28), rgba(200,30,60,.08)) !important; border-color: rgba(255,77,109,.55) !important; color: #fff !important; }
+@keyframes p1Rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.p1-rise > * { animation: p1Rise .45s cubic-bezier(.16,1,.3,1) both; }
+.p1-rise > *:nth-child(2) { animation-delay: .05s; } .p1-rise > *:nth-child(3) { animation-delay: .1s; }
+.p1-rise > *:nth-child(4) { animation-delay: .15s; } .p1-rise > *:nth-child(n+5) { animation-delay: .2s; }
+@media (prefers-reduced-motion: reduce) { .p1-rise > * { animation: none; } }
+`

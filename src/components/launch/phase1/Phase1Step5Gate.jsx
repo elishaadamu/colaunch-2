@@ -4,7 +4,8 @@ import {
   TrendingUp, Award, Flame, Crown, RefreshCw, Trash2, Loader2
 } from 'lucide-react'
 import { recordGateDecision, updateCoLaunchProject } from '../../../services/opsApi'
-import { C, HEADING_FONT, PILL_TONES } from './phase1Constants'
+import { C, HEADING_FONT, PILL_TONES, P1_SHARED_CSS } from './phase1Constants'
+import StepRail from './StepRail'
 
 export default function Phase1Step5Gate({
   project,
@@ -34,9 +35,11 @@ export default function Phase1Step5Gate({
 }) {
   return (
     <div
-      className="p-5 sm:p-6 rounded-2xl space-y-6"
+      className="p1-themed p1-rise p-5 sm:p-6 rounded-2xl space-y-6"
       style={{ background: C.sheet, border: `1px solid ${C.line}` }}
     >
+      <style>{P1_SHARED_CSS}</style>
+      <StepRail current="gate" />
       {/* Prerequisite Check Banner if prior steps are incomplete */}
       {!allPriorStepsDone && (
         <div

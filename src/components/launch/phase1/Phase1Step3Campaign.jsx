@@ -9,7 +9,8 @@ import {
 import { updateCoLaunchProject } from '../../../services/opsApi'
 import { Phase1CampaignGenSkeleton } from '../Section2Skeletons'
 import PostVisualMockup, { XLogo } from '../PostVisualMockup'
-import { C, HEADING_FONT, PILL_TONES } from './phase1Constants'
+import { C, HEADING_FONT, PILL_TONES, P1_SHARED_CSS } from './phase1Constants'
+import StepRail from './StepRail'
 
 export default function Phase1Step3Campaign({
   project,
@@ -77,9 +78,11 @@ export default function Phase1Step3Campaign({
 
   return (
     <div
-      className="p-5 sm:p-6 rounded-2xl space-y-5"
+      className="p1-themed p1-rise p-5 sm:p-6 rounded-2xl space-y-5"
       style={{ background: C.sheet, border: `1px solid ${C.line}` }}
     >
+      <style>{P1_SHARED_CSS}</style>
+      <StepRail current="campaign" />
       {/* Top Header */}
       <div
         className="pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"

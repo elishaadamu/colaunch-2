@@ -10,7 +10,8 @@ import {
   logProjectActivity
 } from '../../../services/opsApi'
 import ProductMockupCanvas from '../ProductMockupCanvas'
-import { C, PILL_TONES } from './phase1Constants'
+import { C, PILL_TONES, P1_SHARED_CSS } from './phase1Constants'
+import StepRail from './StepRail'
 
 const ASSETS_CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap');
@@ -209,7 +210,9 @@ export default function Phase1Step2Assets({
   ]
 
   return (
-    <div className="p1assets p-5 sm:p-8 rounded-2xl space-y-6" style={{ background: C.sheet, border: `1px solid ${C.line}`, color: C.text }}>
+    <div className="p1-themed p1-rise p1assets p-5 sm:p-8 rounded-2xl space-y-6" style={{ background: C.sheet, border: `1px solid ${C.line}`, color: C.text }}>
+      <style>{P1_SHARED_CSS}</style>
+      <StepRail current="assets" />
       <style>{ASSETS_CSS}</style>
 
       {/* Header */}

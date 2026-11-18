@@ -6,7 +6,8 @@ import {
 } from 'lucide-react'
 import { updateCoLaunchProject } from '../../../services/opsApi'
 import { XLogo } from '../PostVisualMockup'
-import { C, HEADING_FONT, PILL_TONES } from './phase1Constants'
+import { C, HEADING_FONT, PILL_TONES, P1_SHARED_CSS } from './phase1Constants'
+import StepRail from './StepRail'
 
 export default function Phase1Step4Optimize({
   project,
@@ -176,9 +177,11 @@ export default function Phase1Step4Optimize({
 
   return (
     <div
-      className="p-5 sm:p-6 rounded-2xl space-y-5"
+      className="p1-themed p-5 sm:p-6 rounded-2xl space-y-5"
       style={{ background: C.sheet, border: `1px solid ${C.line}` }}
     >
+      <style>{P1_SHARED_CSS}</style>
+      <StepRail current="optimize" />
       <style>{`
         @keyframes p1s4-rise { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
         .p1s4-rise { animation: p1s4-rise .35s ease-out both }
