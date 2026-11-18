@@ -324,8 +324,8 @@ export default function AcquisitionStep6Pitch({
           <div
             className="p-4 rounded-xl flex flex-col lg:flex-row lg:items-center justify-between gap-3"
             style={{
-              background: hasCommitment ? C.okSoft : "rgba(251,191,36,0.06)",
-              border: `1px solid ${hasCommitment ? C.okLine : C.warnLine}`,
+              background: `linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0) 100%), ${C.sheet}`,
+              border: `1px solid ${C.line}`,
               borderLeftWidth: "3px",
               borderLeftColor: hasCommitment ? C.ok : C.warn,
             }}
@@ -344,7 +344,7 @@ export default function AcquisitionStep6Pitch({
                   : <Lock className="w-4 h-4" style={{ color: C.warn }} aria-hidden="true" />}
               </span>
               <div className="min-w-0">
-                <p className="m-0 text-sm font-semibold" style={{ color: hasCommitment ? C.ok : C.warn }}>
+                <p className="m-0 text-sm font-semibold" style={{ color: C.text }}>
                   {hasCommitment ? "Creator has committed" : "Waiting for the creator to commit"}
                 </p>
                 <p className="m-0 mt-0.5 text-xs leading-relaxed" style={{ color: C.body }}>
@@ -557,7 +557,7 @@ export default function AcquisitionStep6Pitch({
                 </Panel>
               ) : (
                 <>
-                  <Panel className="p-5 space-y-4" style={{ border: `1px solid ${hasCommitment ? C.okLine : C.line}`, borderTop: `3px solid ${hasCommitment ? C.ok : chosenAccent}` }}>
+                  <Panel className="p-5 space-y-4" style={{ border: `1px solid ${C.line}`, borderTop: `3px solid ${chosenAccent}` }}>
                     <div className="flex items-center justify-between gap-2">
                       <span className="inline-flex items-center gap-2 text-sm font-medium" style={{ color: C.body }}>
                         <span className="w-2 h-2 rounded-full" style={{ background: chosenAccent }} aria-hidden="true" />
