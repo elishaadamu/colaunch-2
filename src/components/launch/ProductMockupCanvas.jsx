@@ -75,30 +75,53 @@ export default function ProductMockupCanvas({ project, onSaveMockupImage, onShow
   }
 
   return (
-    <div className="space-y-4 rounded-xl bg-[#101419] border border-[#252B32] p-5 text-left text-[#F5F3EA]">
+    <div
+      className="keep-dark product-mockup-canvas space-y-4 rounded-xl p-5 text-left"
+      style={{
+        backgroundColor: '#101419',
+        borderColor: '#252B32',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        color: '#F5F3EA'
+      }}
+    >
       {/* Controls Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Style Switch */}
-        <div className="flex items-center rounded-lg bg-[#080A0C] border border-[#252B32] p-1">
+        <div
+          className="flex items-center rounded-lg p-1"
+          style={{
+            backgroundColor: '#080A0C',
+            borderColor: '#252B32',
+            borderWidth: '1px',
+            borderStyle: 'solid'
+          }}
+        >
           <button
             type="button"
             onClick={() => setStyle('screen')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
-              style === 'screen'
-                ? 'bg-[#171B24] text-[#F5F3EA] border border-[#252B32]'
-                : 'text-[#969DA6] hover:text-[#F5F3EA]'
-            }`}
+            className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
+            style={{
+              backgroundColor: style === 'screen' ? '#171B24' : 'transparent',
+              borderColor: style === 'screen' ? '#252B32' : 'transparent',
+              borderWidth: '1px',
+              borderStyle: 'solid',
+              color: style === 'screen' ? '#F5F3EA' : '#969DA6'
+            }}
           >
             Product screen
           </button>
           <button
             type="button"
             onClick={() => setStyle('desk')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
-              style === 'desk'
-                ? 'bg-[#171B24] text-[#F5F3EA] border border-[#252B32]'
-                : 'text-[#969DA6] hover:text-[#F5F3EA]'
-            }`}
+            className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
+            style={{
+              backgroundColor: style === 'desk' ? '#171B24' : 'transparent',
+              borderColor: style === 'desk' ? '#252B32' : 'transparent',
+              borderWidth: '1px',
+              borderStyle: 'solid',
+              color: style === 'desk' ? '#F5F3EA' : '#969DA6'
+            }}
           >
             Laptop and phone
           </button>
@@ -110,7 +133,14 @@ export default function ProductMockupCanvas({ project, onSaveMockupImage, onShow
             <button
               type="button"
               onClick={handleDownload}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#171B24] border border-[#252B32] text-xs font-medium text-[#F5F3EA] hover:border-[#3a4350] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer hover:border-[#3a4350]"
+              style={{
+                backgroundColor: '#171B24',
+                borderColor: '#252B32',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                color: '#F5F3EA'
+              }}
             >
               <Download className="w-3.5 h-3.5" />
               <span>Download</span>
@@ -132,7 +162,7 @@ export default function ProductMockupCanvas({ project, onSaveMockupImage, onShow
 
       {/* Optional Creator Direction */}
       <div>
-        <label htmlFor="mockup-direction" className="block text-xs font-medium text-[#969DA6] mb-1.5">
+        <label htmlFor="mockup-direction" className="block text-xs font-medium mb-1.5" style={{ color: '#969DA6' }}>
           Creator direction (optional)
         </label>
         <input
@@ -142,19 +172,43 @@ export default function ProductMockupCanvas({ project, onSaveMockupImage, onShow
           value={direction}
           onChange={(e) => setDirection(e.target.value)}
           placeholder="e.g. Focus on interactive workflow steps, minimalist navigation"
-          className="w-full px-3 py-2 rounded-lg bg-[#080A0C] border border-[#252B32] text-xs text-[#F5F3EA] placeholder-[#686F78] outline-none focus:border-[#c81e3c] transition-colors"
+          className="w-full px-3 py-2 rounded-lg text-xs placeholder-[#686F78] outline-none focus:border-[#c81e3c] transition-colors"
+          style={{
+            backgroundColor: '#080A0C',
+            borderColor: '#252B32',
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            color: '#F5F3EA'
+          }}
         />
       </div>
 
       {/* Error Message */}
       {errorText && (
-        <div className="p-3 rounded-lg bg-[#171B24] border border-[#c81e3c]/40 text-xs text-[#ff8fa3]">
+        <div
+          className="p-3 rounded-lg text-xs"
+          style={{
+            backgroundColor: '#171B24',
+            borderColor: 'rgba(200, 30, 60, 0.4)',
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            color: '#ff8fa3'
+          }}
+        >
           {errorText}
         </div>
       )}
 
       {/* 16:9 Image Area */}
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-[#080A0C] border border-[#252B32] flex items-center justify-center">
+      <div
+        className="relative aspect-[16/9] w-full overflow-hidden rounded-lg flex items-center justify-center"
+        style={{
+          backgroundColor: '#080A0C',
+          borderColor: '#252B32',
+          borderWidth: '1px',
+          borderStyle: 'solid'
+        }}
+      >
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -163,29 +217,33 @@ export default function ProductMockupCanvas({ project, onSaveMockupImage, onShow
           />
         ) : (
           <div className="text-center p-6 space-y-2">
-            <ImageIcon className="w-8 h-8 mx-auto text-[#686F78]" />
-            <p className="text-xs font-medium text-[#969DA6]">
+            <ImageIcon className="w-8 h-8 mx-auto" style={{ color: '#686F78' }} />
+            <p className="text-xs font-medium" style={{ color: '#969DA6' }}>
               No product image generated yet.
             </p>
-            <p className="text-[11px] text-[#686F78]">
+            <p className="text-[11px]" style={{ color: '#686F78' }}>
               Choose a style and click generate image to illustrate the product.
             </p>
           </div>
         )}
 
         {isGenerating && (
-          <div className="absolute inset-0 bg-[#080A0C]/85 backdrop-blur-xs flex flex-col items-center justify-center gap-2 p-4 text-center">
+          <div
+            className="absolute inset-0 backdrop-blur-xs flex flex-col items-center justify-center gap-2 p-4 text-center"
+            style={{ backgroundColor: 'rgba(8, 10, 12, 0.88)' }}
+          >
             <Loader2 className="w-6 h-6 animate-spin text-[#c81e3c]" />
-            <p className="text-xs font-medium text-[#F5F3EA]">Generating product illustration...</p>
-            <p className="text-[11px] text-[#969DA6]">This usually takes 10 to 15 seconds with DALL-E 3.</p>
+            <p className="text-xs font-medium" style={{ color: '#F5F3EA' }}>Generating product illustration...</p>
+            <p className="text-[11px]" style={{ color: '#969DA6' }}>This usually takes 10 to 15 seconds with DALL-E 3.</p>
           </div>
         )}
       </div>
 
       {/* Note under image */}
-      <p className="text-xs text-[#969DA6] leading-relaxed">
+      <p className="text-xs leading-relaxed" style={{ color: '#969DA6' }}>
         AI-generated illustration of the planned product. Labels can come out slightly off, so check the words before you launch.
       </p>
     </div>
+  )
   )
 }
