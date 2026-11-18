@@ -22,6 +22,7 @@ import FormattedMarkdownBody from "../FormattedMarkdownBody";
 
 /* One visual language for reply classes: dot colour + label (black + crimson base, semantic accents). */
 const CLASS_META = {
+  qualified: { label: "Approved", dot: "#34d399", text: "#6ee7b7", tint: "rgba(52,211,153,0.10)", line: "rgba(52,211,153,0.35)", Icon: Sparkles },
   interested: { label: "Interested", dot: "#34d399", text: "#6ee7b7", tint: "rgba(52,211,153,0.10)", line: "rgba(52,211,153,0.35)", Icon: Sparkles },
   question: { label: "Question", dot: "#fbbf24", text: "#fcd34d", tint: "rgba(251,191,36,0.10)", line: "rgba(251,191,36,0.35)", Icon: MessageCircleQuestion },
   not_interested: { label: "Not interested", dot: "#ff4d6d", text: "#ff8fa3", tint: "rgba(255,77,109,0.10)", line: "rgba(255,77,109,0.35)", Icon: XCircle },
@@ -75,7 +76,8 @@ export default function AcquisitionStep4Review({
   const step4Source = scopedIndividualCreator ? [scopedIndividualCreator] : unlaunchedCreators;
 
   const creatorsWithReplies = step4Source.map((c) => ({ ...c, replyInfo: getCreatorReply(c) }));
-  const countOf = (cls) => creatorsWithReplies.filter((c) => c.replyInfo.classification === cls).length;
+  const clsOf = (c) => (c.replyInfo.classification === "qualified" ? "interested" : c.replyInfo.classification);
+  const countOf = (cls) => creatorsWithReplies.filter((c) => clsOf(c) === cls).length;
 
   const filters = [
     { id: "all", label: "All", count: creatorsWithReplies.length },
@@ -92,7 +94,7 @@ export default function AcquisitionStep4Review({
 
   const filteredReplies = scopedIndividualCreator
     ? creatorsWithReplies
-    : creatorsWithReplies.filter((c) => replyFilter === "all" || c.replyInfo.classification === replyFilter);
+    : creatorsWithReplies.filter((c) => replyFilter === "all" || clsOf(c) === replyFilter);
 
   const rawActiveReviewCreator =
     creatorsWithReplies.find((c) => c.id === selectedCreatorId || c.id === scopedCreatorId) ||
@@ -121,7 +123,7 @@ export default function AcquisitionStep4Review({
     />
   );
 
-  const isActiveApproved = activeReviewCreator && (activeReviewCreator.status === "approved" || activeReviewCreator.isApproved);
+  const isActiveApproved = activeReviewCreator && (["approved", "qualified", "pitched", "committed"].includes((activeReviewCreator.status || "").toLowerCase()) || activeReviewCreator.isApproved);
   const isActiveRejected = activeReviewCreator && (activeReviewCreator.status === "rejected" || activeReviewCreator.isRejected);
 
   return (
@@ -223,7 +225,7 @@ export default function AcquisitionStep4Review({
               {filteredReplies.map((c) => {
                 const isSelected = activeReviewCreator?.id === c.id;
                 const reply = c.replyInfo;
-                const isApproved = c.status === "approved";
+                const isApproved = ["approved", "qualified", "pitched", "committed"].includes((c.status || "").toLowerCase()) || c.isApproved;
                 const isRejected = c.status === "rejected";
                 const cls = reply.classification;
                 const m = metaFor(cls);
@@ -439,7 +441,7 @@ export default function AcquisitionStep4Review({
                       const isAiInterested =
                         rInfo?.classification === "interested" ||
                         ["qualified", "interested"].includes((activeReviewCreator.replyClassification || activeReviewCreator.reply_classification || "").toLowerCase());
-                      const isApproved = activeReviewCreator.status === "approved";
+                      const isApproved = isActiveApproved;
                       const canApproveOrAdvance = isAiInterested || isApproved;
                       const isDeclined = rInfo?.classification === "not_interested" || rInfo?.classification === "unsubscribe";
 

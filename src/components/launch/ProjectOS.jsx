@@ -14,6 +14,7 @@ import Phase2BuildMVP from './Phase2BuildMVP'
 import Phase3Launch from './Phase3Launch'
 import ConceptLandingPage from './ConceptLandingPage'
 import { resolveProjectLanding } from '../../utils/projectLanding'
+import { getContrastTextColor } from './DynamicConceptMockup'
 import WorkflowWiringTutorial from './WorkflowWiringTutorial'
 import { getFrontendUrl, recordGateDecision } from '../../services/opsApi'
 import { ProjectOSSkeleton } from './Section2Skeletons'
@@ -52,10 +53,10 @@ const C = {
   skySoft: 'rgba(56,189,248,0.12)',
   skyLine: 'rgba(56,189,248,0.36)',
   skyText: '#7dd3fc',
-  violet: '#a78bfa',
-  violetSoft: 'rgba(167,139,250,0.14)',
-  violetLine: 'rgba(167,139,250,0.40)',
-  violetText: '#c4b5fd',
+  violet: '#f59e0b',
+  violetSoft: 'rgba(245, 158, 11,0.14)',
+  violetLine: 'rgba(245, 158, 11,0.40)',
+  violetText: '#fcd34d',
 }
 
 // Base Crimson theme passed to DynamicConceptMockup (ignores avatar-extracted colors)
@@ -1073,7 +1074,7 @@ partnerships@colaunch.com`
                         : p === 3
                         ? isLiveLaunch
                           ? { background: '#059669', color: '#ffffff', border: '1px solid #34d399' }
-                          : { background: '#7c3aed', color: '#ffffff', border: '1px solid #a78bfa' }
+                          : { background: '#d97706', color: '#ffffff', border: '1px solid #f59e0b' }
                         : { background: C.crimson, color: '#ffffff', border: `1px solid ${C.crimsonLine}` }
                     const idleStyle = isDone
                       ? { background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }
@@ -1317,6 +1318,195 @@ partnerships@colaunch.com`
               {/* OVERVIEW TAB CONTENT */}
               {sidebarTab === 'overview' && (
                 <div className="space-y-4 animate-fade-in">
+                  {/* ── VENTURE FOUNDATION: everything Section 2 builds on (Section 1 creator data × approved concept) ── */}
+                  {(() => {
+                    const meta = project?.metadataInfo || project?.metadata_info || {}
+                    const prof = project?.creatorProfile || meta.creator_profile || {}
+                    const intel = project?.audienceIntelligence || meta.audience_intelligence || chosenConcept?.audienceIntelligence || {}
+                    const posts = (project?.recentPosts || meta.recent_posts || project?.videos || []).filter(Boolean).slice(0, 3)
+                    const comments = (project?.audienceComments || []).slice(0, 2)
+                    const landing = resolveProjectLanding(project, chosenConcept)
+                    const fmtNum = (n) => {
+                      const v = Number(n)
+                      if (!v || Number.isNaN(v)) return n || '—'
+                      return v >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : v >= 1e3 ? `${Math.round(v / 1e3)}K` : `${v}`
+                    }
+                    const name = prof.name || project?.creatorName || 'Creator'
+                    const handle = (prof.handle || project?.creatorHandle || '').replace(/^@/, '')
+                    const avatar = prof.avatarUrl || project?.creatorAvatar
+                    const stats = [
+                      { label: 'Audience', value: prof.followersLabel || fmtNum(prof.followers || project?.followers) },
+                      { label: 'Engagement', value: prof.engagementRate || '—' },
+                      { label: 'Creator score', value: prof.creatorScore || project?.creatorScore || '—' },
+                      { label: 'Platform', value: (prof.platform || 'YouTube').replace(/^./, (c) => c.toUpperCase()) },
+                    ]
+                    const niche = (Array.isArray(prof.niche) && prof.niche.length ? prof.niche : [project?.niche].flat()).filter(Boolean).slice(0, 3)
+                    const insights = [
+                      intel?.painPoints?.description && { label: 'Pain point', text: intel.painPoints.description },
+                      intel?.recurringQuestions?.quote && { label: 'They keep asking', text: `“${intel.recurringQuestions.quote}”` },
+                      intel?.topContent?.headline && { label: 'Content that works', text: intel.topContent.headline },
+                      intel?.demographics?.description && { label: 'Buyers', text: intel.demographics.description },
+                    ].filter(Boolean).slice(0, 3)
+                    const conceptFacts = [
+                      { label: 'Solves', text: chosenConcept?.problem || project?.problem },
+                      { label: 'For', text: chosenConcept?.customer || project?.targetAudience },
+                      { label: 'Pricing', text: chosenConcept?.pricing || project?.pricing },
+                    ].filter((f) => f.text)
+                    const features = (chosenConcept?.keyFeatures || project?.keyFeatures || []).slice(0, 4)
+
+                    return (
+                      <section
+                        id="tour-s2-foundation"
+                        aria-label="Venture foundation"
+                        className="acq-pop relative overflow-hidden"
+                        style={{ background: `linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0) 140px), ${C.row}`, border: `1px solid ${C.lineStrong}` }}
+                      >
+                        <span className="absolute inset-x-0 top-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${landing.brandColor}, transparent)` }} aria-hidden="true" />
+                        <div className="px-4 sm:px-5 py-3 flex flex-wrap items-center justify-between gap-2" style={{ borderBottom: `1px solid ${C.line}` }}>
+                          <div>
+                            <p className="m-0 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: '#ff4d6d' }}>Venture foundation</p>
+                            <h2 className="m-0 mt-0.5 text-base sm:text-lg font-bold tracking-tight" style={{ color: C.text }}>
+                              Built from {name}'s audience × {chosenConcept?.name || cleanProductName}
+                            </h2>
+                          </div>
+                          <span className="text-[11px]" style={{ color: C.faint }}>
+                            Every phase below uses this data: plan, assets, campaign, build and launch.
+                          </span>
+                        </div>
+
+                        <div className="grid lg:grid-cols-2">
+                          {/* Creator (Section 1 discovery) */}
+                          <div className="p-4 sm:p-5 space-y-4" style={{ borderRight: `1px solid ${C.line}` }}>
+                            <div className="flex items-center gap-3 min-w-0">
+                              {avatar ? (
+                                <img src={avatar} alt="" className="w-12 h-12 rounded-full object-cover shrink-0" style={{ border: `2px solid ${C.crimsonLine}` }} />
+                              ) : (
+                                <span className="w-12 h-12 rounded-full flex items-center justify-center font-bold shrink-0" style={{ background: C.crimsonSoft, color: C.crimsonText }}>{name.slice(0, 1)}</span>
+                              )}
+                              <div className="min-w-0">
+                                <p className="m-0 text-[10px] font-semibold uppercase tracking-wider" style={{ color: C.faint }}>Creator · from discovery</p>
+                                <p className="m-0 text-sm font-bold truncate" style={{ color: C.text }}>{name}</p>
+                                <p className="m-0 text-xs truncate" style={{ color: C.muted }}>
+                                  {handle ? `@${handle}` : ''}{prof.location ? ` · ${prof.location}` : ''}
+                                </p>
+                              </div>
+                              {prof.profileUrl && (
+                                <a href={prof.profileUrl} target="_blank" rel="noreferrer" className="ml-auto shrink-0 inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1" style={{ color: C.body, border: `1px solid ${C.line}` }}>
+                                  Channel <ExternalLink className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
+
+                            <dl className="grid grid-cols-4 gap-px m-0" style={{ background: C.line, border: `1px solid ${C.line}` }}>
+                              {stats.map((st) => (
+                                <div key={st.label} className="px-2 py-2.5 text-center" style={{ background: C.sheet }}>
+                                  <dt className="text-[10px] uppercase tracking-wider" style={{ color: C.faint }}>{st.label}</dt>
+                                  <dd className="m-0 mt-0.5 text-sm font-bold truncate" style={{ color: C.text }}>{st.value}</dd>
+                                </div>
+                              ))}
+                            </dl>
+
+                            {(prof.bio || niche.length > 0) && (
+                              <div className="space-y-2">
+                                {niche.length > 0 && (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {niche.map((n) => (
+                                      <span key={n} className="text-[11px] font-semibold px-2 py-0.5" style={{ background: C.raised, color: C.body, border: `1px solid ${C.line}` }}>{n}</span>
+                                    ))}
+                                  </div>
+                                )}
+                                {prof.bio && <p className="m-0 text-xs leading-relaxed line-clamp-3" style={{ color: C.muted }}>{prof.bio}</p>}
+                              </div>
+                            )}
+
+                            {insights.length > 0 ? (
+                              <ul className="list-none m-0 p-0 space-y-2">
+                                {insights.map((it) => (
+                                  <li key={it.label} className="px-3 py-2 text-xs leading-relaxed" style={{ background: C.sheet, borderLeft: `2px solid ${C.crimson}` }}>
+                                    <span className="block text-[10px] font-semibold uppercase tracking-wider" style={{ color: C.crimsonText }}>{it.label}</span>
+                                    <span style={{ color: C.body }}>{it.text}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : comments.length > 0 ? (
+                              <ul className="list-none m-0 p-0 space-y-2">
+                                {comments.map((cm, i) => (
+                                  <li key={i} className="px-3 py-2 text-xs italic" style={{ background: C.sheet, borderLeft: `2px solid ${C.crimson}`, color: C.body }}>
+                                    “{String(cm?.text || cm?.comment || cm).slice(0, 160)}”
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : null}
+
+                            {posts.length > 0 && (
+                              <div>
+                                <p className="m-0 mb-2 text-[10px] font-semibold uppercase tracking-wider" style={{ color: C.faint }}>Recent content</p>
+                                <div className="grid grid-cols-3 gap-2">
+                                  {posts.map((pst, i) => {
+                                    const thumb = pst.thumbnail || pst.thumbnailUrl || pst.thumbnail_url || pst.image
+                                    const title = pst.title || pst.caption || pst.text || 'Post'
+                                    const views = pst.views || pst.viewCount || pst.view_count
+                                    const url = pst.url || pst.link
+                                    const Tag = url ? 'a' : 'div'
+                                    return (
+                                      <Tag key={i} {...(url ? { href: url, target: '_blank', rel: 'noreferrer' } : {})} className="block min-w-0 group" style={{ color: C.body }}>
+                                        <div className="aspect-video overflow-hidden" style={{ background: C.raised, border: `1px solid ${C.line}` }}>
+                                          {thumb && <img src={thumb} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />}
+                                        </div>
+                                        <p className="m-0 mt-1 text-[11px] leading-snug line-clamp-2">{title}</p>
+                                        {views ? <p className="m-0 text-[10px]" style={{ color: C.faint }}>{fmtNum(views)} views</p> : null}
+                                      </Tag>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Approved concept (Step 5) */}
+                          <div className="p-4 sm:p-5 space-y-4">
+                            <div className="flex items-center gap-2.5">
+                              <span className="w-8 h-8 flex items-center justify-center text-xs font-bold shrink-0" style={{ background: landing.brandColor, color: getContrastTextColor(landing.brandColor) }}>
+                                {landing.conceptIndex + 1}
+                              </span>
+                              <div className="min-w-0">
+                                <p className="m-0 text-[10px] font-semibold uppercase tracking-wider" style={{ color: C.faint }}>Approved concept · Step 5</p>
+                                <p className="m-0 text-sm font-bold truncate" style={{ color: C.text }}>{chosenConcept?.name || cleanProductName}</p>
+                              </div>
+                            </div>
+                            {chosenConcept?.tagline && <p className="m-0 text-sm font-medium" style={{ color: C.body }}>{chosenConcept.tagline}</p>}
+                            <dl className="m-0 space-y-2">
+                              {conceptFacts.map((f) => (
+                                <div key={f.label} className="grid grid-cols-[72px_1fr] gap-2 text-xs">
+                                  <dt className="font-semibold uppercase tracking-wider text-[10px] pt-0.5" style={{ color: C.faint }}>{f.label}</dt>
+                                  <dd className="m-0 leading-relaxed" style={{ color: C.body }}>{f.text}</dd>
+                                </div>
+                              ))}
+                            </dl>
+                            {features.length > 0 && (
+                              <ul className="list-none m-0 p-0 grid sm:grid-cols-2 gap-1.5">
+                                {features.map((ft, i) => {
+                                  const title = typeof ft === 'string' ? ft.split(':')[0] : (ft.title || ft.name || 'Feature')
+                                  return (
+                                    <li key={i} className="flex items-center gap-2 text-xs px-2.5 py-1.5" style={{ background: C.sheet, border: `1px solid ${C.line}`, color: C.text }}>
+                                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: landing.brandColor }} />
+                                      <span className="truncate">{title}</span>
+                                    </li>
+                                  )
+                                })}
+                              </ul>
+                            )}
+                            {chosenConcept?.audienceEvidence && (
+                              <p className="m-0 text-[11px] leading-relaxed" style={{ color: C.muted }}>
+                                <span className="font-semibold" style={{ color: C.crimsonText }}>Why this audience: </span>{chosenConcept.audienceEvidence}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </section>
+                    )
+                  })()}
+
                   {/* STEP 5 CHOSEN CONCEPT BLUEPRINT (HERO CARD) */}
                   <div
                     id="tour-s2-blueprint-card"

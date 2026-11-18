@@ -9,7 +9,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Mail,
-  KeyRound,
   Check
 } from 'lucide-react'
 import CoLaunchLogo from '../ui/CoLaunchLogo'
@@ -61,7 +60,6 @@ export default function LaunchAuth({ children }) {
   const [mode, setMode] = useState('signin') // 'signin' | 'signup'
   const [fullName, setFullName] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [inviteCode, setInviteCode] = useState('')
 
   // Periodic expiration watcher: check every 10 seconds for session timeout
   useEffect(() => {
@@ -165,7 +163,6 @@ export default function LaunchAuth({ children }) {
     if (password.length < 10) return setError('Password must be at least 10 characters.')
     if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) return setError('Password must contain both letters and numbers.')
     if (password !== confirmPassword) return setError("Passwords don't match.")
-    if (!inviteCode.trim()) return setError('Enter the invite code you were given.')
 
     setLoading(true)
     try {
@@ -176,7 +173,6 @@ export default function LaunchAuth({ children }) {
           name: fullName.trim(),
           email: cleanEmail,
           password,
-          invite_code: inviteCode.trim(),
         }),
       })
       const data = await res.json().catch(() => ({}))
@@ -308,7 +304,7 @@ export default function LaunchAuth({ children }) {
             <p className="text-xs sm:text-sm text-[#A1A1AA] mt-1 mb-0">
               {mode === 'signin'
                 ? 'Sign in to your CoLaunch workspace'
-                : 'You need an invite code from a CoLaunch admin to join.'}
+                : 'Set up your login for the CoLaunch studio.'}
             </p>
           </div>
 
@@ -405,23 +401,6 @@ export default function LaunchAuth({ children }) {
                       </li>
                     ))}
                   </ul>
-                </div>
-
-                <div className="acq-pop">
-                  <label htmlFor="auth-invite" className="block text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA] mb-1.5">Invite code</label>
-                  <div className="relative">
-                    <KeyRound className="w-4 h-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <input
-                      id="auth-invite"
-                      type="text"
-                      value={inviteCode}
-                      onChange={(e) => setInviteCode(e.target.value)}
-                      placeholder="Provided by your admin"
-                      autoComplete="off"
-                      spellCheck={false}
-                      className="w-full pl-10 pr-4 py-3 text-sm font-medium tracking-wide"
-                    />
-                  </div>
                 </div>
               </>
             )}

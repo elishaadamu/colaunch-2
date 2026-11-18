@@ -231,9 +231,9 @@ export default function DIYSubscriptionModal({
     sky: '#7dd3fc',
     skySoft: 'rgba(56,189,248,0.12)',
     skyLine: 'rgba(56,189,248,0.36)',
-    violet: '#c4b5fd',
-    violetSoft: 'rgba(167,139,250,0.12)',
-    violetLine: 'rgba(167,139,250,0.36)',
+    violet: '#fcd34d',
+    violetSoft: 'rgba(245, 158, 11,0.12)',
+    violetLine: 'rgba(245, 158, 11,0.36)',
     warn: '#f0b46a',
     warnSoft: 'rgba(240,180,106,0.12)',
     warnLine: 'rgba(240,180,106,0.36)',
@@ -254,7 +254,7 @@ export default function DIYSubscriptionModal({
         {/* Top Accent Bar */}
         <div
           className="h-1 w-full relative z-10"
-          style={{ background: `linear-gradient(90deg, ${C.crimson}, #a78bfa, #38bdf8)` }}
+          style={{ background: `linear-gradient(90deg, ${C.crimson}, #f59e0b, #38bdf8)` }}
         />
 
         {/* Top Header Bar */}

@@ -83,10 +83,10 @@ const C = {
   skySoft: 'rgba(56,189,248,0.12)',
   skyLine: 'rgba(56,189,248,0.36)',
   skyText: '#7dd3fc',
-  violet: '#a78bfa',
-  violetSoft: 'rgba(167,139,250,0.14)',
-  violetLine: 'rgba(167,139,250,0.40)',
-  violetText: '#c4b5fd',
+  violet: '#f59e0b',
+  violetSoft: 'rgba(245, 158, 11,0.14)',
+  violetLine: 'rgba(245, 158, 11,0.40)',
+  violetText: '#fcd34d',
 }
 
 const HEADING_FONT = { fontFamily: "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }
@@ -1960,9 +1960,9 @@ export default function Phase1Validate({
         .p1-validate-dark .bg-sky-50 { background-color: ${C.skySoft} !important; color: ${C.skyText} !important; border-color: ${C.skyLine} !important; }
         .p1-validate-dark .text-sky-800, .p1-validate-dark .text-sky-700 { color: ${C.skyText} !important; }
         .p1-validate-dark .border-sky-300, .p1-validate-dark .border-sky-200 { border-color: ${C.skyLine} !important; }
-        .p1-validate-dark .bg-violet-50 { background-color: ${C.violetSoft} !important; color: ${C.violetText} !important; border-color: ${C.violetLine} !important; }
-        .p1-validate-dark .text-violet-800, .p1-validate-dark .text-violet-700 { color: ${C.violetText} !important; }
-        .p1-validate-dark .border-violet-300, .p1-validate-dark .border-violet-200 { border-color: ${C.violetLine} !important; }
+        .p1-validate-dark .bg-amber-50 { background-color: ${C.violetSoft} !important; color: ${C.violetText} !important; border-color: ${C.violetLine} !important; }
+        .p1-validate-dark .text-amber-800, .p1-validate-dark .text-amber-700 { color: ${C.violetText} !important; }
+        .p1-validate-dark .border-amber-300, .p1-validate-dark .border-amber-200 { border-color: ${C.violetLine} !important; }
       `}</style>
       {/* 5-Step Phase 1 Progress Nav */}
       <div className="p-3.5 rounded-2xl border shadow-sm space-y-2.5" style={{ background: C.sheet, borderColor: C.line }}>

@@ -61,9 +61,7 @@ const TUNE_COLORS = [
   { name: "Crimson", hex: "#C81E3C" },
   { name: "Emerald", hex: "#10B981" },
   { name: "Cyan", hex: "#06B6D4" },
-  { name: "Amber", hex: "#F59E0B" },
-  { name: "Purple", hex: "#8B5CF6" },
-  { name: "Indigo", hex: "#6366F1" },
+  { name: "Ember", hex: "#F59E0B" },
 ];
 
 const conceptKey = (concept, index) => concept.id || index;
@@ -464,7 +462,9 @@ function ConceptCard({
   getCreatorAvatar, generateCreatorAvatarSvg,
 }) {
   const brandColor = resolveConceptBrandHex(concept, index, colorInfo, uniformBrandColor);
-  const accentHex = getBrandColorObj(brandColor).hex;
+  // Use the exact colour the landing page uses. getBrandColorObj() remaps #10B981 to crimson
+  // (legacy default guard), which made Concept 2's trim disagree with its own landing page.
+  const accentHex = brandColor;
   const buildLabel = concept.mvpDifficulty
     ? (concept.mvpDifficulty.includes("build")
         ? concept.mvpDifficulty

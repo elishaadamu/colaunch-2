@@ -49,7 +49,11 @@ export default function PreorderLandingPage({ slug }) {
   })()
 
   // Default brand colors from index.css (:root --brand / --theme-accent: #c81e3c)
-  const brandColor = (() => {
+  // Same colour as the approved landing page (Step 5 rule), so checkout & loaders match it.
+  const approvedLanding = resolveProjectLanding(project || {}, selectedConcept)
+  const brandColor = approvedLanding.brandColor
+  // eslint-disable-next-line no-unused-vars
+  const legacyBrandColor = (() => {
     const candidate = selectedConcept?.brandColor || project?.brandColor || project?.brand_color
     if (candidate) {
       const clean = String(candidate).trim().toLowerCase()
@@ -79,8 +83,6 @@ export default function PreorderLandingPage({ slug }) {
   })()
   const brandContrastText = getContrastTextColor(brandColor)
 
-  // Same inputs Step 5 used for the approved concept (layout variant + base-palette colour)
-  const approvedLanding = resolveProjectLanding(project || {}, selectedConcept)
 
   const productName = project?.productName || selectedConcept?.name || project?.title || 'Software Co-Launch'
   const creatorName = project?.creatorName || project?.creatorHandle || 'Creator Partner'

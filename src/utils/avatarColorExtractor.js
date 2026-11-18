@@ -162,7 +162,8 @@ export function getFriendlyColorName(hex) {
   }
 
   if (h >= 345 || h < 15) return "Creator Crimson";
-  if (h >= 15 && h < 45) return "Flame Orange";
+  if (h >= 15 && h < 30) return "Flame Orange";
+  if (h >= 30 && h < 45) return "Ember";
   if (h >= 45 && h < 65) return "Venture Amber";
   if (h >= 65 && h < 100) return "Forge Lime";
   if (h >= 100 && h < 165) return "Studio Emerald";
@@ -173,14 +174,17 @@ export function getFriendlyColorName(hex) {
   return "Electric Rose";
 }
 
-const DISTINCT_ACCENTS = [
+/* CoLaunch concept accents (no "AI" purples/indigos). Priority order: with the default crimson,
+ * Concept 2 = Emerald and Concept 3 = Ember. Cyan / Crimson are fallbacks when the primary
+ * colour sits too close to one of them. */
+export const CONCEPT_EMBER = "#F59E0B";
+const CONCEPT_ACCENT_ORDER = [
   { hex: "#10B981", h: 160 }, // Emerald
+  { hex: CONCEPT_EMBER, h: 38 }, // Ember (amber bg → black text)
   { hex: "#06B6D4", h: 189 }, // Cyan
-  { hex: "#6366F1", h: 239 }, // Indigo
-  { hex: "#8B5CF6", h: 258 }, // Purple
-  { hex: "#F59E0B", h: 38 },  // Amber
   { hex: "#C81E3C", h: 350 }, // Crimson
 ];
+const MIN_HUE_GAP = 40;
 
 const hueDistance = (a, b) => {
   const diff = Math.abs((((a - b) % 360) + 360) % 360);
@@ -188,41 +192,32 @@ const hueDistance = (a, b) => {
 };
 
 /**
- * Returns a set of 3 distinct, high-contrast concept colors derived from the creator's brand color
- * so Concept 1, Concept 2, and Concept 3 never collapse onto similar hues.
+ * Returns 3 distinct concept colours: [primary, accent2, accent3].
+ * Used everywhere (Step 5 cards & landing pages, Step 6, hand-off modal, Section 2, /preorder, emails)
+ * through utils/projectLanding.resolveConceptLandingColor, so every surface agrees.
  */
 export function getHarmoniousConceptColors(primaryHex) {
   let safeHex = primaryHex || "#c81e3c";
   const clean = safeHex.replace('#', '').toLowerCase().trim();
   if (['0f172a', '1e293b', '090b10', '0a0e17', '000000', '111827', '334155', '475569'].includes(clean)) {
-    safeHex = "#06B6D4";
+    safeHex = "#c81e3c";
   }
 
   const [r, g, b] = hexToRgb(safeHex);
   const [h, s, l] = rgbToHsl(r, g, b);
 
-  // Concept 1 is the signature color (boost lightness if too dark)
+  // Concept 1 is the signature colour (boost lightness if too dark)
   const c1 = l < 35 ? hslToHex(h, Math.max(75, s), 50) : safeHex;
 
-  // Choose two curated accents that maximize minimum hue separation across all 3 concepts.
-  let bestPair = ["#10B981", "#6366F1"];
-  let bestMinSep = -1;
-  for (let i = 0; i < DISTINCT_ACCENTS.length; i += 1) {
-    for (let j = i + 1; j < DISTINCT_ACCENTS.length; j += 1) {
-      const a = DISTINCT_ACCENTS[i];
-      const d = DISTINCT_ACCENTS[j];
-      const minSep = Math.min(
-        hueDistance(h, a.h),
-        hueDistance(h, d.h),
-        hueDistance(a.h, d.h),
-      );
-      if (minSep > bestMinSep) {
-        bestMinSep = minSep;
-        bestPair = [a.hex, d.hex];
-      }
-    }
+  const picked = [];
+  for (const cand of CONCEPT_ACCENT_ORDER) {
+    if (picked.length === 2) break;
+    if (hueDistance(h, cand.h) < MIN_HUE_GAP) continue;
+    if (picked.some((p) => hueDistance(p.h, cand.h) < MIN_HUE_GAP)) continue;
+    picked.push(cand);
   }
+  while (picked.length < 2) picked.push(CONCEPT_ACCENT_ORDER[picked.length]);
 
-  return [c1, bestPair[0], bestPair[1]];
+  return [c1, picked[0].hex, picked[1].hex];
 }
 

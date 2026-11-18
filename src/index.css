@@ -2284,3 +2284,27 @@ input[type="range"]:focus {
   .acq-shimmer::after { animation: none !important; }
   .acq-lift, .acq-lift:hover { transition: none; transform: none; }
 }
+
+/* ── Browser autofill: keep dark fields (Chrome/Safari paint autofilled inputs light blue) ── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #0c0c0e inset !important;
+  box-shadow: 0 0 0 1000px #0c0c0e inset !important;
+  -webkit-text-fill-color: #fafafa !important;
+  caret-color: #fafafa !important;
+  border-color: #2a2a30 !important;
+  transition: background-color 99999s ease-out 0s;
+}
+input:-webkit-autofill:focus {
+  border-color: #c81e3c !important;
+  -webkit-box-shadow: 0 0 0 1000px #0c0c0e inset, 0 0 0 1px #c81e3c !important;
+  box-shadow: 0 0 0 1000px #0c0c0e inset, 0 0 0 1px #c81e3c !important;
+}
+input:autofill {
+  background-color: #0c0c0e !important;
+  color: #fafafa !important;
+}

@@ -2973,7 +2973,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-purple-600" />
+                    <Sparkles className="w-4 h-4 text-amber-600" />
                     <span>AI Recurring Issue Summaries & Quantified Clusters</span>
                   </h3>
                   <p className="text-xs text-slate-600">
@@ -2981,8 +2981,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1">
-                    <Bot className="w-3 h-3 text-purple-600" />
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                    <Bot className="w-3 h-3 text-amber-600" />
                     AI Synthesized ({feedbackClusters.length} clusters)
                   </span>
                   <button
@@ -4006,16 +4006,16 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                         type="button"
                         disabled={isPolishingEmailAI}
                         onClick={handleAiPolishEmail}
-                        className="px-2.5 py-1 h-7 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-[11px] border border-purple-200 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap leading-none"
+                        className="px-2.5 py-1 h-7 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-[11px] border border-amber-200 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap leading-none"
                       >
                         {isPolishingEmailAI ? (
                           <>
-                            <Loader2 className="w-3 h-3 animate-spin text-purple-600 shrink-0" />
+                            <Loader2 className="w-3 h-3 animate-spin text-amber-600 shrink-0" />
                             <span>AI Polishing...</span>
                           </>
                         ) : (
                           <>
-                            <Sparkles className="w-3 h-3 text-purple-600 shrink-0" />
+                            <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
                             <span>AI Polish Copy</span>
                           </>
                         )}

@@ -81,8 +81,16 @@ export function getContrastTextColor(hex) {
   const r = parseInt(clean.substring(0, 2), 16) || 0;
   const g = parseInt(clean.substring(2, 4), 16) || 0;
   const b = parseInt(clean.substring(4, 6), 16) || 0;
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.65 ? "#0A0E17" : "#FFFFFF";
+  // WCAG contrast: pick whichever of white / near-black reads better on the accent
+  // (e.g. Ember #F59E0B → black text, Crimson #C81E3C → white text).
+  const lin = (c) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  const L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  const contrastWhite = 1.05 / (L + 0.05);
+  const contrastDark = (L + 0.05) / 0.0555; // #0A0E17 ≈ 0.0055 luminance
+  return contrastDark >= contrastWhite ? "#0A0E17" : "#FFFFFF";
 }
 
 export function getBrandColorObj(colorInput) {

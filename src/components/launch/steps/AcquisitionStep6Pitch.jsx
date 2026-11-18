@@ -715,42 +715,43 @@ export default function AcquisitionStep6Pitch({
 
             {/* Right */}
             <div className="lg:col-span-7 space-y-4">
-              <Panel className="overflow-hidden" style={{ borderTop: `2px solid ${C.skyLine}` }}>
+              <Panel className="overflow-hidden">
                 <div className="px-4 py-3 flex items-center justify-between gap-2" style={{ borderBottom: `1px solid ${C.line}`, background: C.row }}>
-                  <p className="m-0 flex items-center gap-2 text-sm font-semibold min-w-0">
-                    <span className="w-6 h-6 rounded-md inline-flex items-center justify-center shrink-0" style={{ background: C.skySoft, border: `1px solid ${C.skyLine}` }}>
-                      <Mail className="w-3.5 h-3.5" style={{ color: C.skyText }} aria-hidden="true" />
+                  <p className="m-0 flex items-center gap-2.5 text-sm font-semibold min-w-0">
+                    <span className="w-7 h-7 inline-flex items-center justify-center shrink-0" style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}` }}>
+                      <Mail className="w-3.5 h-3.5" style={{ color: "#ff8fa3" }} aria-hidden="true" />
                     </span>
                     <span className="truncate">Conversation with {nameOf(creator)}</span>
                   </p>
-                  <Pill tone="sky">{msgs.length} {msgs.length === 1 ? "message" : "messages"}</Pill>
+                  <Pill tone="neutral">{msgs.length} {msgs.length === 1 ? "message" : "messages"}</Pill>
                 </div>
 
-                <ul className="list-none m-0 p-3 space-y-2.5 overflow-y-auto" style={{ maxHeight: 300 }}>
+                <ul className="acq-stagger list-none m-0 p-3 sm:p-4 space-y-3 overflow-y-auto" style={{ maxHeight: 520 }}>
                   {msgs.length > 0 ? msgs.map((msg, idx) => {
                     const fromCreator = isCreatorMessage(msg);
                     return (
                       <li
                         key={msg.id || idx}
-                        className={`p-3.5 rounded-xl text-xs space-y-1.5 ${fromCreator ? "ml-4" : "mr-4"}`}
+                        className={`relative p-4 text-xs space-y-2.5 ${fromCreator ? "ml-6" : "mr-6"}`}
                         style={{
-                          background: fromCreator ? C.raised : "rgba(56,189,248,0.05)",
-                          border: `1px solid ${fromCreator ? C.crimsonLine : C.skyLine}`,
+                          background: fromCreator ? "rgba(200,30,60,0.06)" : "#111114",
+                          border: `1px solid ${fromCreator ? C.crimsonLine : C.line}`,
+                          borderLeft: `3px solid ${fromCreator ? "#ff4d6d" : "#3f3f46"}`,
                         }}
                       >
-                        <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center justify-between gap-2 pb-2" style={{ borderBottom: `1px solid ${C.line}` }}>
                           <span className="flex items-center gap-2 min-w-0">
                             <span className="font-semibold truncate" style={{ color: C.text }}>
                               {fromCreator ? (creator.name || msg.from_address) : "CoLaunch Studio"}
                             </span>
-                            <Pill tone={fromCreator ? "crimson" : "sky"}>{fromCreator ? "Reply" : "Sent"}</Pill>
+                            <Pill tone={fromCreator ? "crimson" : "neutral"}>{fromCreator ? "Creator reply" : "Sent by you"}</Pill>
                           </span>
                           <span className="shrink-0" style={{ color: C.faint }}>
                             {msg.received_at ? new Date(msg.received_at).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) : "Recently"}
                           </span>
                         </div>
                         <div className="leading-relaxed" style={{ color: C.body }}>
-                          <FormattedMarkdownBody text={msg.body} />
+                          <FormattedMarkdownBody text={msg.body} isDark />
                         </div>
                       </li>
                     );

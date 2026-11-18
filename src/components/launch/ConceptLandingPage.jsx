@@ -2115,9 +2115,7 @@ const QUICK_EDIT_COLORS = [
   { name: "Crimson", hex: "#c81e3c" },
   { name: "Emerald", hex: "#10b981" },
   { name: "Cyan", hex: "#06b6d4" },
-  { name: "Amber", hex: "#f59e0b" },
-  { name: "Purple", hex: "#8b5cf6" },
-  { name: "Indigo", hex: "#6366f1" },
+  { name: "Ember", hex: "#f59e0b" },
 ];
 
 function cloneConceptForEdit(src) {

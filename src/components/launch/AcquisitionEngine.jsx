@@ -57,7 +57,7 @@ export const CONCEPT_CATEGORY_IMAGES = {
   default: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80",
 };
 
-export const getConceptImageUrl = (concept, fallbackNiche = "tech", brandColor = null, variantIdx = null) => {
+export const getConceptImageUrl = (concept, fallbackNiche = "tech", brandColor = null, variantIdx = null, creatorName = "") => {
   const appendVariant = (url) => {
     if (!url || typeof url !== "string") return url;
     if (variantIdx === null || variantIdx === undefined) return url;
@@ -97,7 +97,9 @@ export const getConceptImageUrl = (concept, fallbackNiche = "tech", brandColor =
       ? ""
       : `&mrr=${encodeURIComponent(concept?.mockup?.primaryMetric || concept?.primaryMetric || "")}&active_users=${encodeURIComponent(concept?.mockup?.activeMetric || concept?.activeMetric || "")}&retention=${encodeURIComponent(concept?.mockup?.efficiencyMetric || concept?.efficiencyMetric || "")}`;
     const variantParam = (variantIdx !== null && variantIdx !== undefined) ? `&variant=${variantIdx}` : "";
-    return `/api/outreach/concept-card-image?name=${name}&app_url=${appUrl}&tagline=${tagline}&features=${featuresParam}&customer=${cust}&pricing=${price}&brand_color=${bColor}&mockup_type=${mType}${metricParams}${variantParam}`;
+    const problemParam = `&problem=${encodeURIComponent(String(concept?.problem || concept?.description || "").slice(0, 220))}`;
+    const creatorParam = creatorName ? `&creator=${encodeURIComponent(String(creatorName).slice(0, 60))}` : "";
+    return `/api/outreach/concept-card-image?name=${name}&app_url=${appUrl}&tagline=${tagline}&features=${featuresParam}&customer=${cust}&pricing=${price}&brand_color=${bColor}&mockup_type=${mType}${metricParams}${variantParam}${problemParam}${creatorParam}`;
   }
 
   if (CONCEPT_ARCHETYPE_IMAGES[mockupType]) {
@@ -2702,7 +2704,7 @@ export default function AcquisitionEngine({
     }
 
     // 4. Default: No incoming reply -> strictly awaiting_reply
-    const isApprovedOrQualified = c.status === "approved" || c.isApproved;
+    const isApprovedOrQualified = ["approved", "qualified", "pitched", "committed"].includes((c.status || "").toLowerCase()) || c.isApproved;
     return {
       hasRealReply: false,
       hasEmail: true,
@@ -3054,8 +3056,9 @@ export default function AcquisitionEngine({
     const status = (c.status || "").toLowerCase();
     if (status === "rejected" || status === "declined" || status === "archived") return false;
 
-    // 1. Creator was explicitly approved by human operator in Step 4
-    if (status === "approved" || c.isApproved) return true;
+    // 1. Creator was explicitly approved by the operator in Step 4. "pitched" only happens after
+    //    approval (Step 5 → 6), so it stays qualified after the status changes.
+    if (["approved", "qualified", "pitched", "committed"].includes(status) || c.isApproved) return true;
 
     // (Selecting/clicking a creator is NOT a qualification — it previously let un-replied
     //  creators reach Step 5 just by being highlighted in Step 4.)
@@ -3276,12 +3279,12 @@ export default function AcquisitionEngine({
     const harmonized = getHarmoniousConceptColors(primaryHex);
 
     const conceptsWithImages = rawConcepts.slice(0, 3).map((c, i) => {
-      const resolvedBrandColor = c.brandColor || harmonized[i % harmonized.length] || primaryHex;
+      const resolvedBrandColor = resolveConceptLandingColor(c, i, creatorBrandColorMap[creator.id]?.primaryHex || "#c81e3c");
       let img =
         c.customImageUrl ||
         c.imageUrl ||
         c.image_url ||
-        getConceptImageUrl({ ...c, brandColor: resolvedBrandColor }, creator.niche, resolvedBrandColor, i);
+        getConceptImageUrl({ ...c, brandColor: resolvedBrandColor }, creator.niche, resolvedBrandColor, i, creator.name || creator.display_name || creator.handle || "");
       if (img && typeof img === 'string' && img.includes('/api/outreach/concept-card-image') && !img.includes('variant=')) {
         img = `${img}${img.includes('?') ? '&' : '?'}variant=${i}`;
       }
@@ -3731,12 +3734,12 @@ export default function AcquisitionEngine({
 
     // Ensure all 3 concepts have their exact AI or admin-modified images, brand colors, and properties
     const conceptsToSend = baseConcepts.slice(0, 3).map((c, i) => {
-      const resolvedBrandColor = c.brandColor || harmonized[i % harmonized.length] || primaryHex;
+      const resolvedBrandColor = resolveConceptLandingColor(c, i, creatorBrandColorMap[creator.id]?.primaryHex || "#c81e3c");
       let resolvedImg =
         c.customImageUrl ||
         c.imageUrl ||
         c.image_url ||
-        getConceptImageUrl({ ...c, brandColor: resolvedBrandColor }, creator.niche, resolvedBrandColor, i);
+        getConceptImageUrl({ ...c, brandColor: resolvedBrandColor }, creator.niche, resolvedBrandColor, i, creator.name || creator.display_name || creator.handle || "");
       if (resolvedImg && typeof resolvedImg === 'string' && resolvedImg.includes('/api/outreach/concept-card-image') && !resolvedImg.includes('variant=')) {
         resolvedImg = `${resolvedImg}${resolvedImg.includes('?') ? '&' : '?'}variant=${i}`;
       }
@@ -4629,6 +4632,8 @@ export default function AcquisitionEngine({
             ...c,
             status: "approved",
             isApproved: true,
+            replyClassification: "interested",
+            reply_classification: "interested",
             approvedAt: new Date().toISOString(),
             productConcepts: c.productConcepts?.length ? c.productConcepts : ensureCreatorConcepts(c),
           };
@@ -4655,7 +4660,8 @@ export default function AcquisitionEngine({
     // 3. Persist to database (source of truth)
     try {
       const { updateCreatorDetails } = await import("../../services/opsApi");
-      await updateCreatorDetails(targetId, { status: "approved" });
+      // Save the decision on the creator record so it survives refreshes, even before inbox threads load.
+      await updateCreatorDetails(targetId, { status: "approved", reply_classification: "interested" });
       console.log(`[AcquisitionEngine] Creator ${targetId} approved in DB.`);
     } catch (e) {
       console.warn("[AcquisitionEngine] Failed to persist approval status:", e);
@@ -5091,6 +5097,36 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
       brandColor: (concept?.brandColor && !['#16a34a', '#10b981'].includes(concept.brandColor.toLowerCase())) ? concept.brandColor : '#c81e3c',
       creatorScore: selectedCreator.creatorScore || selectedCreator.score || 85,
       opportunityScore: concept?.opportunityScore || 80,
+      // ── Section 1 creator data (Apify discovery + enrichment) — Section 2 is built around this ──
+      creatorProfile: {
+        id: selectedCreator.id,
+        name: selectedCreator.name || selectedCreator.display_name || "",
+        handle: selectedCreator.handle || "",
+        platform: selectedCreator.platform || "youtube",
+        profileUrl: selectedCreator.profile_url || selectedCreator.profileUrl || "",
+        avatarUrl: selectedCreator.avatar || selectedCreator.avatar_url || "",
+        email: selectedCreator.email || selectedCreator.email_public || "",
+        followers: selectedCreator.follower_count || selectedCreator.followers || 0,
+        followersLabel: selectedCreator.followerStr || "",
+        engagementRate: selectedCreator.engagement_rate || selectedCreator.engagementRate ||
+          (selectedCreator.engagement ? `${selectedCreator.engagement}%` : ""),
+        creatorScore: selectedCreator.creatorScore || selectedCreator.score || null,
+        niche: Array.isArray(selectedCreator.niche) ? selectedCreator.niche : (selectedCreator.niche ? [selectedCreator.niche] : []),
+        bio: selectedCreator.bio || "",
+        location: selectedCreator.location || "",
+        website: selectedCreator.website || "",
+        nicheFit: selectedCreator.nicheFit || selectedCreator.niche_fit || "",
+        audienceAuthenticity: selectedCreator.audienceAuthenticity || selectedCreator.audience_authenticity || "",
+        postingConsistency: selectedCreator.postingConsistency || selectedCreator.posting_consistency || "",
+        discoverySource: selectedCreator.discovery_source || "apify",
+        replySummary: (selectedCreator.replyInfo?.text || selectedCreator.reply_text || "").slice(0, 600),
+        capturedAt: new Date().toISOString(),
+      },
+      recentPosts: (selectedCreator.recentPosts || selectedCreator.recent_posts || selectedCreator.videos || []).slice(0, 12),
+      creatorBio: selectedCreator.bio || "",
+      channelUrl: selectedCreator.profile_url || selectedCreator.profileUrl || "",
+      audienceIntelligence: selectedCreator.audienceIntelligence || selectedCreator.audience_intelligence || null,
+      audienceComments: (selectedCreator.audienceComments || selectedCreator.audience_comments || selectedCreator.comments || []).slice(0, 40),
       selectedConceptId: concept?.id,
       // Freeze the exact Step 5 landing page inputs (layout variant + base-palette colour)
       // so Section 2 and /preorder render the same approved landing page.

@@ -414,7 +414,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
       {saveToast && typeof document !== 'undefined' && createPortal(
         <div
           data-toast="true"
-          className="toast-notification keep-dark fixed bottom-6 right-6 z-[99999] px-4 py-2.5 rounded-2xl bg-slate-900/95 border border-indigo-500/40 text-white font-bold text-xs shadow-2xl flex items-center gap-2 backdrop-blur-md animate-slide-up"
+          className="toast-notification keep-dark fixed bottom-6 right-6 z-[99999] px-4 py-2.5 rounded-2xl bg-slate-900/95 border border-amber-500/40 text-white font-bold text-xs shadow-2xl flex items-center gap-2 backdrop-blur-md animate-slide-up"
           style={{ backgroundColor: '#0f172a', color: '#ffffff' }}
         >
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -485,7 +485,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-mono font-bold uppercase tracking-wider">
+                  <span className="px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-mono font-bold uppercase tracking-wider">
                     Phase 3 Checkpoint — COMMERCIAL LAUNCH
                   </span>
                   <span className={`text-[10px] font-mono font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 ${
@@ -579,7 +579,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
 
               <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <Eye className="w-3.5 h-3.5 text-indigo-600" />
+                  <Eye className="w-3.5 h-3.5 text-amber-600" />
                   <span>Visitor Traffic</span>
                 </span>
                 <div className="text-xl sm:text-2xl font-black text-blue-600 font-mono">
@@ -609,7 +609,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
       <div className="p-3 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2.5">
         <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-indigo-600 shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-amber-600 shrink-0" />
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
               Commercial Launch & Scale Pipeline
             </span>
@@ -718,10 +718,10 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 type="button"
                 onClick={handleGenerateStrategy}
                 disabled={isGeneratingStrategy}
-                className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-indigo-700 border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shrink-0 shadow-2xs"
+                className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-amber-700 border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shrink-0 shadow-2xs"
                 title="Synthesizes complete launch strategy, 48-hour schedule, and checklists with AI"
               >
-                {isGeneratingStrategy ? <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" /> : <Sparkles className="w-3.5 h-3.5 text-indigo-600" />}
+                {isGeneratingStrategy ? <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" /> : <Sparkles className="w-3.5 h-3.5 text-amber-600" />}
                 <span>{isGeneratingStrategy ? 'Synthesizing with AI...' : 'Regenerate Strategy with AI'}</span>
               </button>
             )}
@@ -731,15 +731,15 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           {prepSubtab === 'strategy' && (
             isGeneratingStrategy ? (
               <div className="space-y-4 animate-fade-in">
-                <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-between gap-3 text-indigo-900 text-xs shadow-2xs">
+                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 text-amber-900 text-xs shadow-2xs">
                   <div className="flex items-center gap-2.5">
-                    <Loader2 className="w-5 h-5 animate-spin text-indigo-600 shrink-0" />
+                    <Loader2 className="w-5 h-5 animate-spin text-amber-600 shrink-0" />
                     <div>
                       <strong className="text-slate-900 block text-sm font-bold">Synthesizing Launch Strategy with AI...</strong>
                       <span className="text-[11px] text-slate-600">Analyzing presales, multi-channel distribution matrix, and 48-hour schedule</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono text-indigo-700 bg-white px-2.5 py-1 rounded-lg border border-indigo-200 font-bold shrink-0 shadow-2xs">
+                  <span className="text-[10px] font-mono text-amber-700 bg-white px-2.5 py-1 rounded-lg border border-amber-200 font-bold shrink-0 shadow-2xs">
                     AI In Progress
                   </span>
                 </div>
@@ -747,7 +747,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               </div>
             ) : !strategy ? (
               <div className="p-8 sm:p-12 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 text-center space-y-4 shadow-2xs animate-fade-in">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-indigo-600 mx-auto">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-amber-600 mx-auto">
                   <Sparkles className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
@@ -762,7 +762,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   disabled={isGeneratingStrategy}
                   className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-indigo-400" />
+                  <Sparkles className="w-4 h-4 text-amber-400" />
                   <span>Generate Launch Strategy with AI</span>
                 </button>
               </div>
@@ -780,7 +780,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                     return (
                       <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3 flex flex-col justify-between">
                         <div className="space-y-2">
-                          <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider flex items-center gap-1.5">
                             <Clock className="w-3.5 h-3.5" />
                             <span>Target Commercial Launch Window</span>
                           </span>
@@ -788,7 +788,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                             <span className="text-2xl font-black text-slate-900 font-mono tracking-tight">
                               {activeLaunchDate}
                             </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
                               Active 48h Window
                             </span>
                           </div>
@@ -796,8 +796,8 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                             Coordinated 48-hour commercial launch window synchronized across creator distribution channels.
                           </p>
                         </div>
-                        <div className="p-3 rounded-xl bg-indigo-50/60 border border-indigo-100 text-[11px] text-indigo-800 flex items-center gap-2 font-medium">
-                          <Flame className="w-4 h-4 text-indigo-600 shrink-0" />
+                        <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-100 text-[11px] text-amber-800 flex items-center gap-2 font-medium">
+                          <Flame className="w-4 h-4 text-amber-600 shrink-0" />
                           <span>48h Urgency countdown timer active on checkout</span>
                         </div>
                       </div>
@@ -821,7 +821,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                               <Radio className="w-3.5 h-3.5 text-blue-500" />
                               <span>{tc.channel}</span>
                             </span>
-                            <span className="text-[10px] font-bold text-indigo-700 font-mono px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200">{tc.expectedShare}</span>
+                            <span className="text-[10px] font-bold text-amber-700 font-mono px-2 py-0.5 rounded bg-amber-50 border border-amber-200">{tc.expectedShare}</span>
                           </div>
                           <p className="text-[11px] text-slate-600 leading-relaxed">{tc.strategy}</p>
                           {tc.tactics && (
@@ -883,7 +883,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                               key={idx}
                               className={`p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-4 ${
                                 isVip
-                                  ? 'bg-slate-50 border-indigo-200 hover:border-indigo-300 shadow-2xs'
+                                  ? 'bg-slate-50 border-amber-200 hover:border-amber-300 shadow-2xs'
                                   : 'bg-slate-50 border-emerald-200 hover:border-emerald-300 shadow-2xs'
                               }`}
                             >
@@ -894,14 +894,14 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                     <h4 className="font-black text-slate-900 text-base tracking-tight">
                                       {offer.tier}
                                     </h4>
-                                    <p className={`text-xs font-semibold ${isVip ? 'text-indigo-600' : 'text-emerald-700'}`}>
+                                    <p className={`text-xs font-semibold ${isVip ? 'text-amber-600' : 'text-emerald-700'}`}>
                                       {offer.discount}
                                     </p>
                                   </div>
                                   <span
                                     className={`shrink-0 whitespace-nowrap text-[9px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider ${
                                       isVip
-                                        ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
+                                        ? 'bg-amber-100 text-amber-800 border border-amber-200'
                                         : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                                     }`}
                                   >
@@ -912,7 +912,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                 {/* Prominent Pricing Box */}
                                 <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
                                   <div className="flex items-baseline gap-2 flex-wrap">
-                                    <span className={`text-xl sm:text-2xl font-black font-mono tracking-tight ${isVip ? 'text-indigo-700' : 'text-emerald-700'}`}>
+                                    <span className={`text-xl sm:text-2xl font-black font-mono tracking-tight ${isVip ? 'text-amber-700' : 'text-emerald-700'}`}>
                                       {mainPrice}
                                     </span>
                                     {isVip ? (
@@ -946,7 +946,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                     <div className="space-y-1.5">
                                       {perkList.map((perk, pIdx) => (
                                         <div key={pIdx} className="flex items-start gap-2 text-xs text-slate-700 leading-snug">
-                                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${isVip ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${isVip ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
                                             <Check className="w-2.5 h-2.5" />
                                           </div>
                                           <span>{perk}</span>
@@ -960,10 +960,10 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                               {/* Footer: Cap & Urgency */}
                               <div className="flex items-center justify-between pt-3 text-[10px] text-slate-500 border-t border-slate-200 mt-auto">
                                 <span className="flex items-center gap-1.5">
-                                  <span className={`w-2 h-2 rounded-full ${isVip ? 'bg-indigo-500' : 'bg-emerald-500'}`} />
+                                  <span className={`w-2 h-2 rounded-full ${isVip ? 'bg-amber-500' : 'bg-emerald-500'}`} />
                                   <span>Cap: <strong className="text-slate-900 font-mono">{offer.spots} Founding Spots</strong></span>
                                 </span>
-                                <span className={`px-2.5 py-0.5 rounded font-bold ${isVip ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
+                                <span className={`px-2.5 py-0.5 rounded font-bold ${isVip ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
                                   {offer.urgency}
                                 </span>
                               </div>
@@ -985,7 +985,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {(strategy.messagingPillars || []).map((m, idx) => (
                       <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-2">
-                        <span className="font-bold text-indigo-700 block text-xs">{m.angle}</span>
+                        <span className="font-bold text-amber-700 block text-xs">{m.angle}</span>
                         <p className="text-slate-900 text-[11px] font-medium leading-relaxed italic">"{m.hook}"</p>
                         {m.counterObjection && (
                           <div className="text-[10px] text-slate-500 pt-1.5 border-t border-slate-200">
@@ -1001,17 +1001,17 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                     <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-indigo-600" />
+                      <Clock className="w-4 h-4 text-amber-600" />
                       <span>Coordinated 48-Hour Launch Schedule & Timeline</span>
                     </h3>
-                    <span className="text-[10px] font-mono text-indigo-600 font-bold">Hour-by-Hour Roadmap</span>
+                    <span className="text-[10px] font-mono text-amber-600 font-bold">Hour-by-Hour Roadmap</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {(strategy.launchSchedule || []).map((item, idx) => (
                       <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-xs">
                         <div className="flex items-center justify-between">
-                          <span className="font-mono font-bold text-indigo-700 text-[11px]">{item.time}</span>
+                          <span className="font-mono font-bold text-amber-700 text-[11px]">{item.time}</span>
                           <span className="text-[9px] px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-sans font-semibold">{item.channel}</span>
                         </div>
                         <h4 className="font-bold text-slate-900 text-xs">{item.event}</h4>
@@ -1028,15 +1028,15 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           {prepSubtab === 'assets' && (
             isGeneratingAssets ? (
               <div className="space-y-4 animate-fade-in">
-                <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-between gap-3 text-indigo-900 text-xs shadow-2xs">
+                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 text-amber-900 text-xs shadow-2xs">
                   <div className="flex items-center gap-2.5">
-                    <Loader2 className="w-5 h-5 animate-spin text-indigo-600 shrink-0" />
+                    <Loader2 className="w-5 h-5 animate-spin text-amber-600 shrink-0" />
                     <div>
                       <strong className="text-slate-900 block text-sm font-bold">Generating Creator Assets with AI...</strong>
                       <span className="text-[11px] text-slate-600">Drafting announcement posts, story sequences, newsletter, scripts & referral links</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono text-indigo-700 bg-white px-2.5 py-1 rounded-lg border border-indigo-200 font-bold shrink-0 shadow-2xs">
+                  <span className="text-[10px] font-mono text-amber-700 bg-white px-2.5 py-1 rounded-lg border border-amber-200 font-bold shrink-0 shadow-2xs">
                     AI In Progress
                   </span>
                 </div>
@@ -1044,7 +1044,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               </div>
             ) : !creatorAssets ? (
               <div className="p-8 sm:p-12 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 text-center space-y-4 shadow-2xs animate-fade-in">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-indigo-600 mx-auto">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-amber-600 mx-auto">
                   <Video className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
@@ -1059,7 +1059,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   disabled={isGeneratingAssets}
                   className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-indigo-400" />
+                  <Sparkles className="w-4 h-4 text-amber-400" />
                   <span>Generate Assets with AI</span>
                 </button>
               </div>
@@ -1095,9 +1095,9 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                     type="button"
                     onClick={handleGenerateAssets}
                     disabled={isGeneratingAssets}
-                    className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-indigo-700 border border-slate-200 font-bold text-xs flex items-center gap-1.5 shadow-2xs disabled:opacity-50 cursor-pointer shrink-0"
+                    className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-amber-700 border border-slate-200 font-bold text-xs flex items-center gap-1.5 shadow-2xs disabled:opacity-50 cursor-pointer shrink-0"
                   >
-                    {isGeneratingAssets ? <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" /> : <Sparkles className="w-3.5 h-3.5 text-indigo-600" />}
+                    {isGeneratingAssets ? <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" /> : <Sparkles className="w-3.5 h-3.5 text-amber-600" />}
                     <span>Regenerate Assets with AI</span>
                   </button>
                 </div>
@@ -1134,14 +1134,14 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                         <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2.5 text-xs flex flex-col justify-between">
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-indigo-700">Slide {slide.slide || idx + 1}</span>
+                              <span className="font-bold text-amber-700">Slide {slide.slide || idx + 1}</span>
                               <span className="text-[9px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-bold">{slide.type}</span>
                             </div>
                             <p className="text-slate-700 text-[11px] leading-relaxed">{slide.copy}</p>
                           </div>
                           {slide.sticker && (
-                            <div className="p-2 rounded-lg bg-white border border-slate-200 text-[10px] text-indigo-700 flex items-center gap-1.5 font-medium shadow-2xs">
-                              <Tag className="w-3 h-3 text-indigo-600 shrink-0" />
+                            <div className="p-2 rounded-lg bg-white border border-slate-200 text-[10px] text-amber-700 flex items-center gap-1.5 font-medium shadow-2xs">
+                              <Tag className="w-3 h-3 text-amber-600 shrink-0" />
                               <span>{slide.sticker}</span>
                             </div>
                           )}
@@ -1183,12 +1183,12 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-900 block">Short-Form Video Demo Script (TikTok / Reels / Shorts)</span>
                       {creatorAssets.videoScript?.filmingTips && (
-                        <span className="text-[10px] text-indigo-700 font-medium">💡 {creatorAssets.videoScript.filmingTips}</span>
+                        <span className="text-[10px] text-amber-700 font-medium">💡 {creatorAssets.videoScript.filmingTips}</span>
                       )}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                       <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                        <span className="text-[10px] font-bold text-indigo-700 uppercase">1. Video Hook (0-3s)</span>
+                        <span className="text-[10px] font-bold text-amber-700 uppercase">1. Video Hook (0-3s)</span>
                         <p className="text-slate-900 font-semibold">{creatorAssets.videoScript?.hook}</p>
                       </div>
                       <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
@@ -1214,7 +1214,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {(creatorAssets.talkingPoints || []).map((tp, idx) => (
                         <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
-                          <span className="font-bold text-indigo-700 block">{tp.topic}</span>
+                          <span className="font-bold text-amber-700 block">{tp.topic}</span>
                           <p className="text-slate-700 text-[11px] leading-relaxed">"{tp.point}"</p>
                         </div>
                       ))}
@@ -1247,7 +1247,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                               <p className="text-[11px] text-slate-500">{m.description}</p>
                             </div>
                             <div className="pt-2 border-t border-slate-200 flex items-center justify-between gap-2">
-                              <span className="text-[10px] text-indigo-700 font-mono truncate max-w-[180px]">{displayUrl}</span>
+                              <span className="text-[10px] text-amber-700 font-mono truncate max-w-[180px]">{displayUrl}</span>
                               <button
                                 type="button"
                                 onClick={() => {
@@ -1289,7 +1289,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 text-xs">
                             <div className="min-w-0">
                               <span className="font-bold text-slate-900 block">{link.channel}</span>
-                              <span className="text-[10px] text-indigo-700 font-mono truncate block">{linkUrl}</span>
+                              <span className="text-[10px] text-amber-700 font-mono truncate block">{linkUrl}</span>
                             </div>
                             <button
                               type="button"
@@ -1456,7 +1456,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                             <div className="space-y-1.5">
                               <div className="flex items-center justify-between gap-2">
                                 <span className="font-bold text-slate-900 flex items-center gap-1.5 min-w-0">
-                                  <Sparkles className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                                   <span className="truncate">Engineered Features</span>
                                 </span>
                                 <span className={`text-[10px] px-2 py-0.5 rounded font-bold whitespace-nowrap shrink-0 ${
@@ -1481,7 +1481,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                             </div>
                             <div className="pt-2 border-t border-slate-100 text-[10px] text-slate-500 font-mono flex items-center justify-between gap-2">
                               <span className="truncate">Scope: Must-Have MVP</span>
-                              <span className={`whitespace-nowrap shrink-0 ${completedTasksCount > 0 ? 'text-indigo-700 font-bold' : 'text-slate-400'}`}>
+                              <span className={`whitespace-nowrap shrink-0 ${completedTasksCount > 0 ? 'text-amber-700 font-bold' : 'text-slate-400'}`}>
                                 {completedTasksCount > 0 ? `${completedTasksCount} Done` : 'Pending Sprint'}
                               </span>
                             </div>
@@ -1623,10 +1623,10 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                 <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                     <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                      <HelpCircle className="w-4 h-4 text-indigo-600" />
+                      <HelpCircle className="w-4 h-4 text-amber-600" />
                       <span>Published Customer Support FAQs (Live on Landing Page)</span>
                     </h3>
-                    <span className="text-[10px] font-mono text-indigo-700 font-bold">Active Articles</span>
+                    <span className="text-[10px] font-mono text-amber-700 font-bold">Active Articles</span>
                   </div>
 
                   <div className="space-y-2">
@@ -1635,10 +1635,10 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                         <button
                           type="button"
                           onClick={() => setExpandedFaqIndex(expandedFaqIndex === idx ? null : idx)}
-                          className="w-full p-3.5 flex items-center justify-between text-left text-xs font-bold text-slate-900 hover:text-indigo-600 transition-colors cursor-pointer"
+                          className="w-full p-3.5 flex items-center justify-between text-left text-xs font-bold text-slate-900 hover:text-amber-600 transition-colors cursor-pointer"
                         >
                           <span>{faq.q}</span>
-                          {expandedFaqIndex === idx ? <ChevronUp className="w-4 h-4 text-indigo-600" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                          {expandedFaqIndex === idx ? <ChevronUp className="w-4 h-4 text-amber-600" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                         </button>
                         {expandedFaqIndex === idx && (
                           <div className="p-3.5 pt-0 text-[11px] text-slate-600 leading-relaxed border-t border-slate-200">
@@ -1657,7 +1657,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
           {prepSubtab === 'checklists' && (
             !strategy ? (
               <div className="p-8 sm:p-12 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 text-center space-y-4 shadow-2xs animate-fade-in">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-indigo-600 mx-auto">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-amber-600 mx-auto">
                   <CheckSquare className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
@@ -1672,7 +1672,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                   disabled={isGeneratingStrategy}
                   className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-indigo-400" />
+                  <Sparkles className="w-4 h-4 text-amber-400" />
                   <span>Generate Checklists with AI</span>
                 </button>
               </div>
@@ -1684,11 +1684,11 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                     <div className="space-y-3">
                       <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                         <h3 className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                          <Video className="w-4 h-4 text-indigo-600" />
+                          <Video className="w-4 h-4 text-amber-600" />
                           <span>Creator Launch Checklist</span>
                         </h3>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono text-indigo-700 font-bold">
+                          <span className="text-[10px] font-mono text-amber-700 font-bold">
                             {(strategy.creatorChecklist || []).filter(t => t.done).length}/{(strategy.creatorChecklist || []).length} Completed
                           </span>
                           {(strategy.creatorChecklist || []).some(t => t.done) && (
@@ -1727,7 +1727,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                 {task.title}
                               </span>
                               {task.time && (
-                                <span className="text-[10px] font-mono text-indigo-700 block">{task.time}</span>
+                                <span className="text-[10px] font-mono text-amber-700 block">{task.time}</span>
                               )}
                             </div>
                           </div>
@@ -1742,7 +1742,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                         onChange={(e) => setNewCreatorTaskTitle(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAddChecklistTask('creator')}
                         placeholder="Add custom creator task..."
-                        className="flex-1 bg-slate-50 border border-slate-200 focus:border-indigo-500 text-slate-900 text-xs px-3 py-2 rounded-xl outline-none"
+                        className="flex-1 bg-slate-50 border border-slate-200 focus:border-amber-500 text-slate-900 text-xs px-3 py-2 rounded-xl outline-none"
                       />
                       <button
                         type="button"
@@ -1817,7 +1817,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                         onChange={(e) => setNewOpsTaskTitle(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAddChecklistTask('ops')}
                         placeholder="Add custom engineering task..."
-                        className="flex-1 bg-slate-50 border border-slate-200 focus:border-indigo-500 text-slate-900 text-xs px-3 py-2 rounded-xl outline-none"
+                        className="flex-1 bg-slate-50 border border-slate-200 focus:border-amber-500 text-slate-900 text-xs px-3 py-2 rounded-xl outline-none"
                       />
                       <button
                         type="button"
@@ -1891,7 +1891,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
 
             <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
               <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-indigo-600" />
+                <Users className="w-3.5 h-3.5 text-amber-600" />
                 <span>Signups & Activation</span>
               </span>
               <div className="text-xl sm:text-2xl font-black text-slate-900 font-mono">{telemetry.signups} Accounts</div>
@@ -1941,13 +1941,13 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               <div className="space-y-1">
                 <div className="flex justify-between text-slate-600 font-medium">
                   <span>2. Product Signups & Active Trials</span>
-                  <span className="font-mono text-indigo-700 font-bold">
+                  <span className="font-mono text-amber-700 font-bold">
                     {telemetry.signups} ({telemetry.visitors > 0 ? ((telemetry.signups / telemetry.visitors) * 100).toFixed(1) : '0.0'}%)
                   </span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                   <div
-                    className="bg-indigo-500 h-full rounded-full"
+                    className="bg-amber-500 h-full rounded-full"
                     style={{ width: `${Math.min(100, Math.max(8, telemetry.visitors > 0 ? (telemetry.signups / telemetry.visitors) * 100 : 0))}%` }}
                   />
                 </div>
@@ -2088,15 +2088,15 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
 
           {isRunningManager ? (
             <div className="space-y-4 animate-fade-in">
-              <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-between gap-3 text-indigo-900 text-xs shadow-2xs">
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 text-amber-900 text-xs shadow-2xs">
                 <div className="flex items-center gap-2.5">
-                  <Loader2 className="w-5 h-5 animate-spin text-indigo-600 shrink-0" />
+                  <Loader2 className="w-5 h-5 animate-spin text-amber-600 shrink-0" />
                   <div>
                     <strong className="text-slate-900 block text-sm font-bold">AI Launch Manager Diagnostic Sweep Running...</strong>
                     <span className="text-[11px] text-slate-600">Evaluating conversion bottlenecks, funnel leakages, and drafting automated actions</span>
                   </div>
                 </div>
-                <span className="text-[10px] font-mono text-indigo-700 bg-white px-2.5 py-1 rounded-lg border border-indigo-200 font-bold shrink-0 shadow-2xs">
+                <span className="text-[10px] font-mono text-amber-700 bg-white px-2.5 py-1 rounded-lg border border-amber-200 font-bold shrink-0 shadow-2xs">
                   Sweeping Telemetry
                 </span>
               </div>
@@ -2104,7 +2104,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
             </div>
           ) : !launchManager ? (
             <div className="p-8 sm:p-12 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 text-center space-y-4 shadow-2xs animate-fade-in">
-              <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-indigo-600 mx-auto">
+              <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-amber-600 mx-auto">
                 <Zap className="w-6 h-6" />
               </div>
               <div className="space-y-1">
@@ -2128,7 +2128,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               {/* AI Executive Diagnosis Card */}
               <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs space-y-2.5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block">
+                  <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider block">
                     AI Real-Time Performance Diagnosis
                   </span>
                   {launchManager.overallHealth && (
@@ -2156,7 +2156,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
               <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                   <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-indigo-600" />
+                    <Zap className="w-4 h-4 text-amber-600" />
                     <span>Autonomous AI Action Dispatcher</span>
                   </h3>
                   <span className="text-[10px] font-mono text-emerald-700 font-bold">
@@ -2188,7 +2188,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                             <div className="flex items-center gap-1 shrink-0">
                               <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                                 isCreatorTask
-                                  ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
                                   : 'bg-blue-100 text-blue-800 border border-blue-200'
                               }`}>
                                 {action.targetRole || (isCreatorTask ? 'Creator Marketing' : 'Technical CRO')}
@@ -2223,7 +2223,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                                     navigator.clipboard?.writeText(contentText)
                                     showToast('Copied action content to clipboard!')
                                   }}
-                                  className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer font-bold lowercase"
+                                  className="text-amber-600 hover:text-amber-800 flex items-center gap-1 cursor-pointer font-bold lowercase"
                                 >
                                   <Copy className="w-3 h-3" />
                                   <span>copy</span>
@@ -2658,7 +2658,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                             !p3Guards.allPriorStepsDone
                               ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
                               : isIterateActive
-                                ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-lg active:scale-[0.98] border-slate-700 cursor-pointer ring-2 ring-indigo-500'
+                                ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-lg active:scale-[0.98] border-slate-700 cursor-pointer ring-2 ring-amber-500'
                                 : 'bg-white hover:bg-slate-50 text-slate-900 border-slate-200 hover:border-slate-300 active:scale-[0.98] group cursor-pointer shadow-xs'
                           }`}
                         >
@@ -2667,15 +2667,15 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                               !p3Guards.allPriorStepsDone
                                 ? 'bg-slate-200 text-slate-400'
                                 : isIterateActive
-                                  ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                                  : 'bg-indigo-50 border border-indigo-200 text-indigo-600'
+                                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                  : 'bg-amber-50 border border-amber-200 text-amber-600'
                             }`}>
                               {!p3Guards.allPriorStepsDone ? <Lock className="w-5 h-5" /> : <RefreshCw className="w-5 h-5" />}
                             </div>
                             <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
                               isIterateActive
-                                ? 'bg-indigo-400 text-slate-950 border-indigo-300 font-black'
-                                : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                                ? 'bg-amber-400 text-slate-950 border-amber-300 font-black'
+                                : 'bg-amber-50 text-amber-700 border-amber-200'
                             }`}>
                               {isIterateActive ? 'Active Mode ✓' : 'Optimize'}
                             </span>
@@ -2704,8 +2704,8 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
                           </div>
                           <div className={`pt-2 border-t text-[10px] font-mono font-bold ${
                             isIterateActive
-                              ? 'border-slate-800/80 text-indigo-400'
-                              : 'border-slate-100 text-indigo-600'
+                              ? 'border-slate-800/80 text-amber-400'
+                              : 'border-slate-100 text-amber-600'
                           }`}>
                             {isIterateActive ? '✓ Active Direction' : '→ Patch Bottlenecks'}
                           </div>

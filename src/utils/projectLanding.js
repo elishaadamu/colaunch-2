@@ -13,6 +13,7 @@ export const COLAUNCH_BASE_BRAND = "#c81e3c";
 const ARCHETYPE_INDEX = { workflow: 0, copilot: 1, vault: 2 };
 const LEGACY_MOCKUP_INDEX = { saas_os: 0, ai_copilot: 1, knowledge_hub: 2 };
 const HEX_RE = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
+const RETIRED_ACCENTS = new Set(["#8b5cf6", "#6366f1", "#a78bfa", "#38bdf8"]);
 
 function normalizeHex(value) {
   if (typeof value !== "string" || !HEX_RE.test(value.trim())) return null;
@@ -83,8 +84,10 @@ export function resolveProjectLanding(project, overrideConcept = null) {
   };
 
   const conceptIndex = resolveIndex(base, conceptsList);
-  const brandColor =
-    normalizeHex(base.landingBrandColor) || resolveConceptLandingColor(base, conceptIndex);
+  // Projects created before the Ember palette froze an "AI" violet/indigo for Concept 3 — recompute those.
+  const frozen = normalizeHex(base.landingBrandColor);
+  const isRetiredAccent = frozen && RETIRED_ACCENTS.has(frozen.toLowerCase()) && !base.isCustomColor;
+  const brandColor = (!isRetiredAccent && frozen) || resolveConceptLandingColor(base, conceptIndex);
 
   const creator = {
     id: project?.creatorId || project?.creator_id,

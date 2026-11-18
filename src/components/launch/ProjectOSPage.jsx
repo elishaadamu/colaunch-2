@@ -47,10 +47,10 @@ const C = {
   skySoft: 'rgba(56,189,248,0.12)',
   skyLine: 'rgba(56,189,248,0.36)',
   skyText: '#7dd3fc',
-  violet: '#a78bfa',
-  violetSoft: 'rgba(167,139,250,0.14)',
-  violetLine: 'rgba(167,139,250,0.40)',
-  violetText: '#c4b5fd',
+  violet: '#f59e0b',
+  violetSoft: 'rgba(245, 158, 11,0.14)',
+  violetLine: 'rgba(245, 158, 11,0.40)',
+  violetText: '#fcd34d',
 }
 
 // Helper to check if string is raw UUID

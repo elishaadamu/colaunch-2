@@ -10,7 +10,7 @@ export default function FormattedMarkdownBody({
   text = "",
   className = "",
   showRefTag = true,
-  isDark = false,
+  isDark = true,
 }) {
   if (!text || typeof text !== "string") return null;
 
@@ -84,7 +84,7 @@ export default function FormattedMarkdownBody({
             rel="noopener noreferrer"
             className={
               isDark
-                ? "text-sky-400 hover:text-sky-300 font-semibold underline underline-offset-2 transition-colors"
+                ? "text-[#ff8fa3] hover:text-white font-semibold underline decoration-[#ff4d6d]/50 underline-offset-2 transition-colors"
                 : "text-sky-600 hover:text-sky-700 font-semibold underline underline-offset-2 transition-colors"
             }
           >
@@ -96,7 +96,7 @@ export default function FormattedMarkdownBody({
         tokens.push(
           <strong
             key={keyIdx++}
-            className={isDark ? "font-bold text-white" : "font-bold text-slate-900"}
+            className={isDark ? "font-semibold text-[#fafafa]" : "font-bold text-slate-900"}
           >
             {renderInline(cleanBold)}
           </strong>
@@ -106,7 +106,7 @@ export default function FormattedMarkdownBody({
         tokens.push(
           <em
             key={keyIdx++}
-            className={isDark ? "italic text-slate-200" : "italic text-slate-700"}
+            className={isDark ? "italic text-[#e4e4e7]" : "italic text-slate-700"}
           >
             {renderInline(cleanItalic)}
           </em>
@@ -118,7 +118,7 @@ export default function FormattedMarkdownBody({
             key={keyIdx++}
             className={
               isDark
-                ? "px-1.5 py-0.5 rounded bg-white/[0.08] text-sky-300 font-mono text-[11px]"
+                ? "px-1.5 py-0.5 bg-white/[0.07] border border-white/10 text-[#ff8fa3] font-mono text-[12px]"
                 : "px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200 font-mono text-[11px]"
             }
           >
@@ -134,7 +134,7 @@ export default function FormattedMarkdownBody({
             rel="noopener noreferrer"
             className={
               isDark
-                ? "text-sky-400 hover:text-sky-300 font-medium underline underline-offset-2 break-all transition-colors"
+                ? "text-[#ff8fa3] hover:text-white font-medium underline decoration-[#ff4d6d]/50 underline-offset-2 break-all transition-colors"
                 : "text-sky-600 hover:text-sky-700 font-medium underline underline-offset-2 break-all transition-colors"
             }
           >
@@ -194,7 +194,7 @@ export default function FormattedMarkdownBody({
   return (
     <div
       className={`space-y-3 font-sans ${
-        isDark ? "text-slate-200" : "text-slate-900"
+        isDark ? "text-[#d4d4d8]" : "text-slate-900"
       } ${className}`}
     >
       {blocks.map((block, bIdx) => {
@@ -206,7 +206,7 @@ export default function FormattedMarkdownBody({
           return (
             <hr
               key={bIdx}
-              className={`my-3 ${isDark ? "border-white/10" : "border-slate-200"}`}
+              className={`my-3 ${isDark ? "border-[#222227]" : "border-slate-200"}`}
             />
           );
         }
@@ -217,10 +217,10 @@ export default function FormattedMarkdownBody({
           return (
             <div
               key={bIdx}
-              className={`p-3.5 my-2 rounded-xl border-l-4 text-xs leading-relaxed shadow-2xs ${
+              className={`px-4 py-3 my-2 border border-l-[3px] text-[13px] leading-relaxed ${
                 isDark
-                  ? "bg-slate-800/80 border-slate-700 border-l-sky-400 text-slate-200"
-                  : "bg-sky-50/70 border border-sky-200/80 border-l-sky-600 text-slate-800"
+                  ? "bg-[#c81e3c]/[0.07] border-[#2a2a30] border-l-[#ff4d6d] text-[#e4e4e7]"
+                  : "bg-sky-50/70 border-sky-200/80 border-l-sky-600 text-slate-800"
               }`}
             >
               {renderInline(quoteContent)}
@@ -234,7 +234,7 @@ export default function FormattedMarkdownBody({
             <h4
               key={bIdx}
               className={`text-sm font-bold tracking-tight mt-2 mb-1 ${
-                isDark ? "text-white" : "text-slate-900"
+                isDark ? "text-[#fafafa]" : "text-slate-900"
               }`}
             >
               {renderInline(trimmed.slice(4))}
@@ -246,7 +246,7 @@ export default function FormattedMarkdownBody({
             <h3
               key={bIdx}
               className={`text-base font-extrabold tracking-tight mt-2.5 mb-1 ${
-                isDark ? "text-white" : "text-slate-900"
+                isDark ? "text-[#fafafa]" : "text-slate-900"
               }`}
             >
               {renderInline(trimmed.slice(3))}
@@ -258,7 +258,7 @@ export default function FormattedMarkdownBody({
             <h2
               key={bIdx}
               className={`text-lg font-black tracking-tight mt-3 mb-1 ${
-                isDark ? "text-white" : "text-slate-900"
+                isDark ? "text-[#fafafa]" : "text-slate-900"
               }`}
             >
               {renderInline(trimmed.slice(2))}
@@ -290,17 +290,16 @@ export default function FormattedMarkdownBody({
                 return (
                   <li
                     key={lIdx}
-                    className={`flex items-start gap-2 text-xs leading-relaxed ${
-                      isDark ? "text-slate-200" : "text-slate-900 font-medium"
+                    className={`flex items-start gap-2.5 text-[13px] leading-relaxed ${
+                      isDark ? "text-[#d4d4d8]" : "text-slate-900 font-medium"
                     }`}
                   >
                     <span
-                      className={`font-bold mt-0.5 ${
-                        isDark ? "text-purple-400" : "text-purple-600"
+                      aria-hidden="true"
+                      className={`shrink-0 mt-[0.55em] w-1.5 h-1.5 rounded-full ${
+                        isDark ? "bg-[#ff4d6d]" : "bg-purple-600"
                       }`}
-                    >
-                      •
-                    </span>
+                    />
                     <span className="flex-1">{renderInline(cleanItem)}</span>
                   </li>
                 );
@@ -313,8 +312,8 @@ export default function FormattedMarkdownBody({
         return (
           <p
             key={bIdx}
-            className={`text-xs leading-relaxed ${
-              isDark ? "text-slate-200" : "text-slate-900 font-medium"
+            className={`text-[13px] leading-relaxed ${
+              isDark ? "text-[#d4d4d8]" : "text-slate-900 font-medium"
             }`}
           >
             {lines.map((line, lIdx) => (
@@ -332,7 +331,7 @@ export default function FormattedMarkdownBody({
         <div
           className={`pt-2 mt-2 border-t flex items-center justify-between text-[10px] font-mono ${
             isDark
-              ? "border-white/[0.06] text-slate-500"
+              ? "border-[#222227] text-[#71717a]"
               : "border-slate-200 text-slate-500"
           }`}
         >
@@ -340,7 +339,7 @@ export default function FormattedMarkdownBody({
           <span
             className={`px-1.5 py-0.5 rounded border ${
               isDark
-                ? "text-slate-400 bg-white/[0.04] border-white/[0.04]"
+                ? "text-[#a1a1aa] bg-white/[0.04] border-white/[0.06]"
                 : "text-slate-700 bg-slate-100 border-slate-200 font-semibold"
             }`}
           >
