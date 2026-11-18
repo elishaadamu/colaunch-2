@@ -393,7 +393,7 @@ export default function Phase1Step2Assets({
                 <div className="overflow-hidden rounded-xl border border-[#252B32] bg-[#101419] shadow-2xl">
                   <img
                     src={mockupImage || project?.mockupImage || project?.mockup_image || project?.meta?.mockup_image}
-                    alt={productName || 'Planned product'}
+                    alt={project?.productName || project?.selectedConcept?.name || 'Planned product'}
                     className="w-full h-auto object-cover"
                   />
                 </div>

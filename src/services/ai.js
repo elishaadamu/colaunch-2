@@ -1428,13 +1428,7 @@ export function buildProductScreenPrompt(project, { brandColor = "#c81e3c", dire
     `All text must be legible, correctly spelled English; spell "${productName}"${titles.length ? ` and ${titles.map((t) => `"${t}"`).join(", ")}` : ""} exactly. ` +
     `No lorem ipsum, no gibberish, no real brand logos, no watermark, no photos of real people.`;
 
-  const desk =
-    `Premium product photograph: a MacBook Pro and an iPhone on a dark walnut desk, both displaying the "${productName}" SaaS dashboard ` +
-    `(dark UI, accent colour ${brandColor}, sidebar navigation, KPI cards with numbers, an area chart and ${archetype === "copilot" ? "an AI chat answer" : archetype === "vault" ? "a grid of content cards" : "a task pipeline board"}). ` +
-    `The phone shows the mobile version of the same app. Moody studio lighting with a soft ${brandColor} rim light, shallow depth of field, 35mm, photorealistic, ` +
-    `screens sharp and legible, the wordmark "${productName}" spelled exactly. No people, no other logos, no watermark.`;
-
-  const base = style === "desk" ? desk : screen;
+  const base = screen; // product dashboard screen only (laptop/phone desk shot removed)
   const extra = direction && direction.trim() ? ` Creator direction (follow it): ${direction.trim().slice(0, 300)}.` : "";
   return `${base}${extra}`;
 }

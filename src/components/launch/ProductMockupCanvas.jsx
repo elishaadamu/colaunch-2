@@ -4,7 +4,7 @@ import { generateProductImage, buildProductScreenPrompt } from '../../services/a
 import { resolveProjectLanding } from '../../utils/projectLanding'
 
 export default function ProductMockupCanvas({ project, onSaveMockupImage, onShowNotification }) {
-  const [style, setStyle] = useState('screen') // 'screen' | 'desk'
+  const style = 'screen' // product dashboard screen only
   const [direction, setDirection] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [imageUrl, setImageUrl] = useState(() => project?.mockupImage || project?.mockup_image || project?.meta?.mockup_image || null)
@@ -90,44 +90,7 @@ export default function ProductMockupCanvas({ project, onSaveMockupImage, onShow
       {/* Controls Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Style Switch */}
-        <div
-          className="flex items-center rounded-lg p-1"
-          style={{
-            backgroundColor: '#080A0C',
-            borderColor: '#252B32',
-            borderWidth: '1px',
-            borderStyle: 'solid'
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setStyle('screen')}
-            className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
-            style={{
-              backgroundColor: style === 'screen' ? '#171B24' : '#080A0C',
-              borderColor: style === 'screen' ? '#252B32' : 'transparent',
-              borderWidth: '1px',
-              borderStyle: 'solid',
-              color: style === 'screen' ? '#F5F3EA' : '#969DA6'
-            }}
-          >
-            Product screen
-          </button>
-          <button
-            type="button"
-            onClick={() => setStyle('desk')}
-            className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
-            style={{
-              backgroundColor: style === 'desk' ? '#171B24' : '#080A0C',
-              borderColor: style === 'desk' ? '#252B32' : 'transparent',
-              borderWidth: '1px',
-              borderStyle: 'solid',
-              color: style === 'desk' ? '#F5F3EA' : '#969DA6'
-            }}
-          >
-            Laptop and phone
-          </button>
-        </div>
+        <p className="m-0 text-xs font-medium" style={{ color: '#A1A1AA' }}>Product dashboard screen</p>
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
