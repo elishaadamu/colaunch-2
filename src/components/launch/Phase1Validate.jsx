@@ -839,7 +839,10 @@ export default function Phase1Validate({
     }
   }
 
-  const generateCampaign = async () => {
+  const generateCampaign = async (genOpts = {}) => {
+    const promptNotes = Array.isArray(genOpts?.promptNotes)
+      ? genOpts.promptNotes.filter(Boolean)
+      : (Array.isArray(campaignKit?.promptNotes) ? campaignKit.promptNotes : [])
     setIsGeneratingCampaign(true)
     showNotification('Generating AI Campaign Kit: tailored roadmap, video scripts & posts...')
     try {
@@ -874,12 +877,21 @@ export default function Phase1Validate({
       const generated = await generateValidationCampaignKitAI(projectForGen, {
         pacing: campaignPacing,
         postingFrequency,
-        customPrompt: campaignStrategyPrompt?.trim() || "based on creator's normal posting frequency, what you think will hit the next phase goal, what will be enough but not burden the creator..."
+        customPrompt: campaignStrategyPrompt?.trim() || "based on creator's normal posting frequency, what you think will hit the next phase goal, what will be enough but not burden the creator...",
+        promptNotes,
+        socialLinks: campaignKit?.socialLinks || {},
+        foundingPrice: sanitizedPricingConfig?.foundingPrice,
+        depositPrice: sanitizedPricingConfig?.depositPrice,
+        presaleTarget,
       })
       if (generated) {
         generated.pacingMode = campaignPacing
         generated.postingFrequency = postingFrequency
         generated.customPrompt = campaignStrategyPrompt
+        generated.promptNotes = promptNotes
+        // Keep settings that aren't part of the AI output
+        if (campaignKit?.socialLinks) generated.socialLinks = campaignKit.socialLinks
+        if (campaignKit?.autonomousEmailDelivery) generated.autonomousEmailDelivery = campaignKit.autonomousEmailDelivery
         setCampaignKit(generated)
         const updated = {
           ...(project || {}),
@@ -1029,7 +1041,7 @@ export default function Phase1Validate({
     }
   }
 
-  const handleGenerateCampaignVideo = async (customPrompt = null, targetKit = null) => {
+  const handleGenerateCampaignVideo = async (customPrompt = null, targetKit = null, mediaOpts = {}) => {
     if (!project?.id) {
       showNotification('Please save or select a valid project first.')
       return
@@ -1046,6 +1058,8 @@ export default function Phase1Validate({
       const res = await generateCampaignVideo(project.id, {
         prompt: promptToUse,
         postImageUrl: baseKit?.postImageUrl || campaignKit?.postImageUrl,
+        aspectRatio: mediaOpts?.aspectRatio || '9:16',
+        durationSeconds: mediaOpts?.durationSeconds || undefined,
         caller: isCreator ? 'creator' : 'admin'
       })
       if (res?.success && res?.media) {
@@ -1149,6 +1163,55 @@ export default function Phase1Validate({
     'United States'
   )
   const [isSavingAutonomousConfig, setIsSavingAutonomousConfig] = useState(false)
+  const [sendHour, setSendHour] = useState(() => Number(campaignKit?.autonomousEmailDelivery?.sendHour ?? 8))
+  useEffect(() => {
+    const h = campaignKit?.autonomousEmailDelivery?.sendHour
+    if (h !== undefined && h !== null) setSendHour(Number(h))
+  }, [campaignKit?.autonomousEmailDelivery?.sendHour])
+
+  const handleSaveDeliverySettings = async ({ enabled } = {}) => {
+    if (!project?.id) return
+    const email = String(autonomousEmail || '').trim()
+    if (!email || !email.includes('@')) {
+      showNotification('Add the email address the daily post kit should go to.')
+      return
+    }
+    setIsSavingAutonomousConfig(true)
+    const tz = creatorTimezone || detectedTimezone
+    try {
+      const res = await toggleAutonomousCampaignDelivery(project.id, {
+        enabled: Boolean(enabled),
+        recipientEmail: email,
+        sendHour,
+        timezone: tz,
+        country: creatorCountry,
+      })
+      if (res?.success) {
+        setIsAutonomousEnabled(Boolean(enabled))
+        const serverKit = res?.project?.campaignKit || res?.project?.validationCampaign?.campaignKit
+        setCampaignKit((prev) => ({
+          ...(prev || {}),
+          creatorTimezone: tz,
+          autonomousEmailDelivery: {
+            ...(prev?.autonomousEmailDelivery || {}),
+            ...(serverKit?.autonomousEmailDelivery || {}),
+            ...(res.config || {}),
+            enabled: Boolean(enabled),
+            recipientEmail: email,
+            sendHour,
+            timezone: tz,
+          },
+        }))
+        showNotification(enabled
+          ? `Daily post kit is on: ${email} at ${(sendHour % 12) || 12}:00 ${sendHour < 12 ? 'AM' : 'PM'} (${tz}).`
+          : 'Daily post kit paused.')
+      }
+    } catch (err) {
+      showNotification(`Could not save delivery settings: ${err.message}`)
+    } finally {
+      setIsSavingAutonomousConfig(false)
+    }
+  }
   const [copiedTaskId, setCopiedTaskId] = useState(null)
 
   useEffect(() => {
@@ -1182,9 +1245,10 @@ export default function Phase1Validate({
         recipientEmail: autonomousEmail || undefined
       })
       if (res?.success) {
-        showNotification(`Post Kit sent to ${res.recipient}. Check inbox.`)
-        if (res?.project?.validationCampaign?.campaignKit) {
-          setCampaignKit(res.project.validationCampaign.campaignKit)
+        showNotification(`Day ${res.day} post kit sent to ${res.recipient}${res.hasImage || res.hasVideo ? ' with media attached' : ''}.`)
+        const serverKit = res?.project?.campaignKit || res?.project?.validationCampaign?.campaignKit
+        if (serverKit?.postingSchedule) {
+          setCampaignKit((prev) => ({ ...(prev || {}), postingSchedule: serverKit.postingSchedule, autonomousEmailDelivery: serverKit.autonomousEmailDelivery || prev?.autonomousEmailDelivery }))
         } else {
           setCampaignKit(prev => {
             const schedule = [...(prev?.postingSchedule || [])].map(t =>
@@ -2238,6 +2302,15 @@ export default function Phase1Validate({
           setVideoGenError={setVideoGenError}
           handleSendPostKitEmail={handleSendPostKitEmail}
           isSendingTodayEmail={isSendingTodayEmail}
+          sendingEmailTaskId={sendingEmailTaskId}
+          autonomousEmail={autonomousEmail}
+          setAutonomousEmail={setAutonomousEmail}
+          creatorTimezone={creatorTimezone}
+          setCreatorTimezone={setCreatorTimezone}
+          sendHour={sendHour}
+          setSendHour={setSendHour}
+          handleSaveDeliverySettings={handleSaveDeliverySettings}
+          isSavingAutonomousConfig={isSavingAutonomousConfig}
           remindingTaskId={remindingTaskId}
           copyToClipboard={copyToClipboard}
           copiedKey={copiedKey}

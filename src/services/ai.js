@@ -3500,6 +3500,16 @@ export async function generateValidationCampaignKitAI(
   const pacingLabel = pacing === 'intensive' ? 'Sprint (7 posts)' : pacing === 'balanced' ? 'Balanced (5 posts)' : 'Low-Burden (4 posts)';
   const postingFrequency = options.postingFrequency || projectData?.postingFrequency || projectData?.campaignKit?.postingFrequency || '1 video per week (Standard YouTube)';
   const customPrompt = options.customPrompt || options.prompt || projectData?.campaignKit?.customPrompt || "based on creator's normal posting frequency, what you think will hit the next phase goal, what will be enough but not burden the creator...";
+  const promptNotes = (Array.isArray(options.promptNotes) ? options.promptNotes : (projectData?.campaignKit?.promptNotes || []))
+    .map((n) => String(n || "").trim()).filter(Boolean).slice(0, 20);
+  const foundingLine = options.foundingPrice
+    ? `Real pricing: founding price $${options.foundingPrice}${options.depositPrice ? `, refundable deposit $${options.depositPrice}` : ""}. Use these exact numbers.\n`
+    : "";
+  const socialEntries = Object.entries(options.socialLinks || projectData?.campaignKit?.socialLinks || {}).filter(([, v]) => v);
+  const socialLine = socialEntries.length ? `Creator's channels: ${socialEntries.map(([k, v]) => `${k} ${v}`).join(", ")}.\n` : "";
+  const goalLine = options.presaleTarget
+    ? `Reach $${Number(options.presaleTarget).toLocaleString()} in pre-sales.`
+    : "Acquire the first founding member pre-orders.";
 
   const normalizeUrls = (text) => {
     if (!text || typeof text !== "string") return text;
@@ -3578,8 +3588,11 @@ ${recentVideosSummary || '- Recent channel breakdowns addressing workflow fricti
 
 Strategic Operator Guidance:
 "${customPrompt}"
-
-Target Validation Goal: Acquire 50 Founding Member pre-orders / hit $1,000 presales target.
+${promptNotes.length ? `
+ADDITIONAL INSTRUCTIONS FROM THE OPERATOR (every one is mandatory and overrides the defaults above):
+${promptNotes.map((n, i) => `${i + 1}. ${n}`).join("\n")}
+` : ""}${foundingLine}${socialLine}
+Target Validation Goal: ${goalLine}
 
 Return JSON with exact keys:
 {
