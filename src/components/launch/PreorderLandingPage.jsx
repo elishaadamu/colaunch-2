@@ -478,14 +478,21 @@ export default function PreorderLandingPage({ slug }) {
       {/* Approved landing page — the exact Step 5 concept page (same layout + base palette).
           Every CTA on it opens the real reservation checkout below. */}
       <div className="pb-24">
+        {project?.campaignKit?.landingPageCopy?.urgency?.text && (
+          <div className="w-full px-4 py-2.5 text-center text-sm font-semibold" style={{ background: approvedLanding.brandColor, color: '#fff' }}>
+            ⏳ {project.campaignKit.landingPageCopy.urgency.text}
+          </div>
+        )}
         <ConceptLandingPage
-          concept={approvedLanding.concept}
+          concept={project?.campaignKit?.landingPageCopy?.headline
+            ? { ...(approvedLanding.concept || {}), tagline: project.campaignKit.landingPageCopy.headline }
+            : approvedLanding.concept}
           conceptIndex={approvedLanding.conceptIndex}
           creator={approvedLanding.creator}
           brandColor={approvedLanding.brandColor}
           mode="full"
           heroImageUrl={savedMockupImage || ''}
-          ctaLabel="Claim founding access"
+          ctaLabel={project?.campaignKit?.landingPageCopy?.ctaText || 'Claim founding access'}
           onCtaClick={() => openCheckout(availableTiers.find((t) => t.highlight) || availableTiers[0])}
         />
       </div>

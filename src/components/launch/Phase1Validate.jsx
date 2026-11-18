@@ -58,6 +58,7 @@ import Phase1Step4Optimize from './phase1/Phase1Step4Optimize'
 import Phase1Step5Gate from './phase1/Phase1Step5Gate'
 
 import { PUBLIC_APP_URL } from '../../utils/publicUrl'
+import { applyMove, undoMove } from '../../utils/launchMoves'
 const C = {
   bg: '#050506',
   sheet: '#0c0c0e',
@@ -1607,6 +1608,18 @@ export default function Phase1Validate({
     }
   }
 
+  // The plan endpoint fills defaults for omitted fields, so always send the full plan
+  const savePlanFull = (patch = {}) => {
+    if (!project?.id) return Promise.resolve()
+    const full = { ...(project?.validationPlan || {}), ...(plan || {}), ...patch }
+    return updateValidationPlan(project.id, {
+      customer: full.customer, problem: full.problem, offer: full.offer, pricing: full.pricing,
+      test_method: full.testMethod ?? full.test_method, period: full.period, threshold: full.threshold,
+      target_revenue: Number(full.targetRevenue || full.target_revenue || presaleTarget) || undefined,
+      status: full.status,
+    })
+  }
+
   const handleApplyExperiment = (exp) => {
     if (!exp) return
     let updatedCampaign = { ...campaignKit }
@@ -1732,9 +1745,7 @@ export default function Phase1Validate({
       }).catch(e => console.warn(e))
 
       if (updatedPlanPricing) {
-        updateValidationPlan(project.id, {
-          pricing: updatedPlanPricing
-        }).catch(e => console.warn(e))
+        savePlanFull({ pricing: updatedPlanPricing }).catch(e => console.warn(e))
       }
 
       logProjectActivity(project.id, {
@@ -1746,6 +1757,84 @@ export default function Phase1Validate({
     }
 
     showNotification(appliedMessage)
+  }
+
+  // ── Step 4 Launch Arena: moves that rewrite earlier steps ──────────────────────────────
+  const [optimizationMoves, setOptimizationMoves] = useState(() => (Array.isArray(project?.optimizationMoves) ? project.optimizationMoves : []))
+  useEffect(() => {
+    if (Array.isArray(project?.optimizationMoves)) setOptimizationMoves(project.optimizationMoves)
+  }, [project?.id, project?.optimizationMoves])
+
+  const persistMoveResult = (res, nextMoves, activity) => {
+    const nextKit = res.kit || campaignKit
+    const nextPlan = res.plan || null
+    const nextSurvey = res.surveyData || null
+    if (res.kit) setCampaignKit(res.kit)
+    if (nextPlan) setPlan(nextPlan)
+    if (nextSurvey) setSurveyData(nextSurvey)
+    setOptimizationMoves(nextMoves)
+
+    if (onUpdateProject) {
+      onUpdateProject((prev) => ({
+        ...(prev || {}),
+        campaignKit: nextKit,
+        optimizationMoves: nextMoves,
+        ...(nextPlan ? { validationPlan: { ...(prev?.validationPlan || {}), ...nextPlan }, pricing: nextPlan.pricing ?? prev?.pricing } : {}),
+        ...(nextSurvey ? { surveyData: nextSurvey } : {}),
+      }))
+    }
+    if (!project?.id) return
+    if (res.kit) {
+      updateValidationCampaign(project.id, { campaign_kit: nextKit, campaignKit: nextKit }).catch((e) => console.warn('[Step4] kit sync', e))
+    }
+    if (nextSurvey) {
+      updateValidationCampaign(project.id, { research_survey: nextSurvey }).catch((e) => console.warn('[Step4] survey sync', e))
+    }
+    if (nextPlan) {
+      // Send the whole plan: the endpoint fills defaults for any field left out
+      const full = { ...(project?.validationPlan || {}), ...nextPlan }
+      updateValidationPlan(project.id, {
+        customer: full.customer, problem: full.problem, offer: full.offer, pricing: full.pricing,
+        test_method: full.testMethod ?? full.test_method, period: full.period, threshold: full.threshold,
+        target_revenue: Number(full.targetRevenue || full.target_revenue || presaleTarget) || undefined,
+        status: full.status,
+      }).catch((e) => console.warn('[Step4] plan sync', e))
+    }
+    updateCoLaunchProject(project.id, {
+      optimizationMoves: nextMoves,
+      ...(res.kit ? { campaignKit: nextKit, campaign_kit: nextKit } : {}),
+      ...(nextPlan?.pricing ? { pricing: nextPlan.pricing } : {}),
+      ...(nextPlan?.targetRevenue ? { presaleTarget: nextPlan.targetRevenue, targetRevenue: nextPlan.targetRevenue } : {}),
+    }).catch((e) => console.warn('[Step4] project sync', e))
+    if (activity) {
+      logProjectActivity(project.id, { ...activity, step: 'optimize', phase: 1 }).catch(() => {})
+    }
+  }
+
+  const handlePlayMove = (move) => {
+    if (!move?.type) return
+    const id = `move-${Date.now()}`
+    const res = applyMove({ ...move, id }, {
+      kit: campaignKit, plan, surveyData,
+      foundingPrice: activeFoundingPrice, depositPrice: activeDepositPrice,
+    })
+    const entry = {
+      id, type: move.type, title: move.title, emoji: move.emoji, xp: move.xp || 25,
+      playedAt: new Date().toISOString(), affects: res.affects, summary: res.summary,
+      payload: move.payload, before: res.before,
+    }
+    const nextMoves = [entry, ...optimizationMoves].slice(0, 60)
+    persistMoveResult(res, nextMoves, { action: `${move.emoji || '🃏'} Move played: ${move.title}`, details: `${res.summary}. Affects: ${res.affects.join(', ')}` })
+    showNotification(`${move.emoji || '🃏'} ${move.title} played · +${entry.xp} XP. ${res.summary}.`)
+    return entry
+  }
+
+  const handleUndoMove = (entry) => {
+    if (!entry) return
+    const res = undoMove(entry, { kit: campaignKit, plan, surveyData })
+    const nextMoves = optimizationMoves.map((m) => (m.id === entry.id ? { ...m, undoneAt: new Date().toISOString() } : m))
+    persistMoveResult(res, nextMoves, { action: `↩️ Move undone: ${entry.title}`, details: entry.summary })
+    showNotification(`↩️ Undid "${entry.title}".`)
   }
 
   const handleRevertExperiment = (exp) => {
@@ -1795,7 +1884,7 @@ export default function Phase1Validate({
       }
       setPlan(prev => ({ ...prev, pricing: project?.pricing || `$${origFounding} founding member pass` }))
       if (project?.id) {
-        updateValidationPlan(project.id, { pricing: project?.pricing || `$${origFounding}` }).catch(() => {})
+        savePlanFull({ pricing: project?.pricing || `$${origFounding}` }).catch(() => {})
       }
     }
 
@@ -2336,6 +2425,14 @@ export default function Phase1Validate({
           isAnalyzingExperiments={isAnalyzingExperiments}
           handleRunExperimentsAI={handleRunExperimentsAI}
           handleApplyExperimentVariant={handleApplyExperiment}
+          handleRevertExperiment={handleRevertExperiment}
+          plan={plan}
+          surveyData={surveyData}
+          activeFoundingPrice={activeFoundingPrice}
+          activeDepositPrice={activeDepositPrice}
+          optimizationMoves={optimizationMoves}
+          handlePlayMove={handlePlayMove}
+          handleUndoMove={handleUndoMove}
           handleAddSimulatedReservation={handleAddSimulatedReservation}
           showNotification={showNotification}
           setActiveStep={setActiveStep}

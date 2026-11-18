@@ -494,6 +494,7 @@ export default function Phase1Step3Campaign(props) {
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-semibold" style={{ color: C.text }}>{task.title}</span>
+                            {task.fromMove && <span className="px-1.5 py-0.5 text-[10px] font-bold" style={{ background: C.violetSoft, color: C.violetText, border: `1px solid ${C.violetLine}` }}>⚡ Step 4 move</span>}
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] border" style={{ borderColor: C.line, color: C.muted }}><Icon className="w-3 h-3" />{task.channel || label}</span>
                             <span className="text-[11px] font-semibold" style={{ color: status[1] }}>● {status[0]}{task.emailed && task.lastEmailedAt ? ` ${new Date(task.lastEmailedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}` : ''}</span>
                           </div>

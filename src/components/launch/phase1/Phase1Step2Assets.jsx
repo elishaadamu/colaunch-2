@@ -379,14 +379,19 @@ export default function Phase1Step2Assets({
                   <span className="text-[11px] shrink-0" style={{ color: C.faint }}>Live preview</span>
                 </div>
                 <div className="max-h-[760px] overflow-y-auto">
+                  {campaignKit?.landingPageCopy?.urgency?.text && (
+                    <div className="px-4 py-2 text-center text-xs font-semibold" style={{ background: landing.brandColor, color: '#fff' }}>
+                      ⏳ {campaignKit.landingPageCopy.urgency.text}
+                    </div>
+                  )}
                   <ConceptLandingPage
-                    concept={landing.concept}
+                    concept={campaignKit?.landingPageCopy?.headline ? { ...(landing.concept || {}), tagline: campaignKit.landingPageCopy.headline } : landing.concept}
                     conceptIndex={landing.conceptIndex}
                     creator={landing.creator}
                     brandColor={landing.brandColor}
                     mode="full"
                     heroImageUrl={heroImg}
-                    ctaLabel={`Claim access for $${activeFoundingPrice}`}
+                    ctaLabel={campaignKit?.landingPageCopy?.ctaText || `Claim access for $${activeFoundingPrice}`}
                     onCtaClick={() => window.open(pageUrl, '_blank', 'noopener')}
                   />
                 </div>
