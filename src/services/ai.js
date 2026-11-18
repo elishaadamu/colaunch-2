@@ -1444,7 +1444,6 @@ export async function generateProductImageWithOpenAI(
         n: 1,
         size: imageOpts.size || "1024x1024",
         quality: imageOpts.quality || "standard",
-        response_format: "url",
       }),
       signal,
     });
@@ -1503,7 +1502,6 @@ export async function generateProductImageWithOpenAI(
             prompt: prompt.slice(0, 1000),
             n: 1,
             size: "1024x1024",
-            response_format: "url",
           }),
           signal,
         });
