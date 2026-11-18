@@ -788,10 +788,10 @@ export function PreorderLandingSkeleton({ slug }) {
  */
 export function CRMSkeleton() {
   const C = {
-    bg: '#08090c',
-    sheet: '#10131a',
-    row: '#0c0e13',
-    raised: '#171b24',
+    bg: '#050506',
+    sheet: '#0c0c0e',
+    row: '#111114',
+    raised: '#1c1c20',
     line: 'rgba(255,255,255,0.08)',
     lineStrong: 'rgba(255,255,255,0.16)',
     crimson: '#c81e3c',

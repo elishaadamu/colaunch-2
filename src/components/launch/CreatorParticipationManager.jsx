@@ -51,33 +51,33 @@ import DIYSubscriptionModal from './DIYSubscriptionModal'
 import { startParticipationTour } from '../../utils/driverTour'
 
 const C = {
-  bg: '#08090c',
-  sheet: '#10131a',
-  row: '#0c0e13',
-  raised: '#171b24',
+  bg: '#050506',
+  sheet: '#0c0c0e',
+  row: '#111114',
+  raised: '#1c1c20',
   line: 'rgba(255,255,255,0.08)',
   lineStrong: 'rgba(255,255,255,0.18)',
-  text: '#f3f4f6',
-  body: '#cdd1da',
-  muted: '#9ba1ae',
-  faint: '#6c7280',
+  text: '#fafafa',
+  body: '#d4d4d8',
+  muted: '#a1a1aa',
+  faint: '#71717a',
   crimson: '#c81e3c',
   crimsonHover: '#d92a49',
   crimsonSoft: 'rgba(200,30,60,0.14)',
   crimsonLine: 'rgba(200,30,60,0.42)',
   crimsonText: '#ff8fa3',
-  ok: '#6fcf9b',
-  okSoft: 'rgba(111,207,155,0.12)',
-  okLine: 'rgba(111,207,155,0.36)',
-  sky: '#7dd3fc',
-  skySoft: 'rgba(56,189,248,0.12)',
-  skyLine: 'rgba(56,189,248,0.36)',
-  violet: '#c4b5fd',
-  violetSoft: 'rgba(167,139,250,0.12)',
-  violetLine: 'rgba(167,139,250,0.36)',
-  warn: '#f0b46a',
-  warnSoft: 'rgba(240,180,106,0.12)',
-  warnLine: 'rgba(240,180,106,0.36)',
+  ok: '#34d399',
+  okSoft: 'rgba(52,211,153,0.10)',
+  okLine: 'rgba(52,211,153,0.32)',
+  sky: '#e4e4e7',
+  skySoft: 'rgba(255,255,255,0.06)',
+  skyLine: 'rgba(255,255,255,0.18)',
+  violet: '#ff8fa3',
+  violetSoft: 'rgba(255,77,109,0.10)',
+  violetLine: 'rgba(255,77,109,0.34)',
+  warn: '#fbbf24',
+  warnSoft: 'rgba(251,191,36,0.10)',
+  warnLine: 'rgba(251,191,36,0.32)',
 }
 
 const HEADING_FONT = { fontFamily: "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }
@@ -85,21 +85,33 @@ const HEADING_FONT = { fontFamily: "'Roboto', -apple-system, BlinkMacSystemFont,
 const CPM_CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap');
 .cpm-root .serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:-0.01em}
-.cpm-root .cpm-btn-primary{background:${C.crimson};color:#ffffff;border:1px solid ${C.crimsonLine};transition:background-color .15s,border-color .15s}
-.cpm-root .cpm-btn-primary:hover:not(:disabled){background:${C.crimsonHover}}
-.cpm-root .cpm-btn-quiet{background:${C.raised};color:${C.body};border:1px solid ${C.line};transition:background-color .15s,color .15s,border-color .15s}
-.cpm-root .cpm-btn-quiet:hover:not(:disabled){border-color:${C.lineStrong};color:${C.text}}
-.cpm-root .cpm-btn-danger{background:transparent;color:${C.crimsonText};border:1px solid ${C.crimsonLine};transition:background-color .15s}
-.cpm-root .cpm-btn-danger:hover:not(:disabled){background:${C.crimsonSoft}}
-.cpm-root .cpm-btn-ok{background:${C.okSoft};color:${C.ok};border:1px solid ${C.okLine};transition:background-color .15s}
-.cpm-root .cpm-btn-ok:hover:not(:disabled){background:rgba(111,207,155,0.2)}
-.cpm-root button:focus-visible,.cpm-root a:focus-visible,.cpm-root input:focus-visible,.cpm-root select:focus-visible,.cpm-root textarea:focus-visible{outline:2px solid ${C.crimson};outline-offset:2px}
-.cpm-root .cpm-tab{display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;border-radius:999px;padding:.375rem .875rem;font-size:.8125rem;font-weight:600;cursor:pointer;border:1px solid ${C.line};background:transparent;color:${C.muted};transition:color .15s,border-color .15s,background-color .15s}
-.cpm-root .cpm-tab:hover{color:${C.text};border-color:${C.lineStrong}}
-.cpm-root .cpm-tab[aria-pressed="true"]{background:${C.raised};color:${C.text};border-color:${C.lineStrong}}
-.cpm-root .cpm-field{background:${C.row};border:1px solid ${C.line};color:${C.text};border-radius:.625rem;font-size:.8125rem;transition:border-color .15s}
-.cpm-root .cpm-field::placeholder{color:${C.faint}}
-.cpm-root .cpm-field:hover{border-color:${C.lineStrong}}
+.cpm-root ::selection{background:#c81e3c;color:#fff}
+.cpm-root .cpm-btn-primary{background:linear-gradient(180deg,#d62546 0%,#c81e3c 55%,#ad1833 100%);color:#fff;border:1px solid rgba(255,77,109,.35);box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 10px 26px -12px rgba(200,30,60,.6);transition:filter .15s,box-shadow .2s,transform .15s}
+.cpm-root .cpm-btn-primary:hover:not(:disabled){filter:brightness(1.08);box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 14px 32px -12px rgba(200,30,60,.75)}
+.cpm-root .cpm-btn-primary:active:not(:disabled){transform:translateY(1px)}
+.cpm-root .cpm-btn-quiet{background:#111114;color:#d4d4d8;border:1px solid rgba(255,255,255,.08);transition:background-color .15s,color .15s,border-color .15s}
+.cpm-root .cpm-btn-quiet:hover:not(:disabled){background:#1c1c20;border-color:rgba(255,255,255,.18);color:#fafafa}
+.cpm-root .cpm-btn-danger{background:rgba(200,30,60,.08);color:#ff8fa3;border:1px solid rgba(200,30,60,.42);transition:background-color .15s,color .15s}
+.cpm-root .cpm-btn-danger:hover:not(:disabled){background:rgba(200,30,60,.22);color:#fff}
+.cpm-root .cpm-btn-ok{background:rgba(52,211,153,.10);color:#34d399;border:1px solid rgba(52,211,153,.32);transition:background-color .15s}
+.cpm-root .cpm-btn-ok:hover:not(:disabled){background:rgba(52,211,153,.2)}
+.cpm-root button:focus-visible,.cpm-root a:focus-visible,.cpm-root input:focus-visible,.cpm-root select:focus-visible,.cpm-root textarea:focus-visible{outline:2px solid #ff4d6d;outline-offset:2px}
+.cpm-root .cpm-tab{display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap;border-radius:.6rem;padding:.4rem .8rem;font-size:.8125rem;font-weight:600;cursor:pointer;border:1px solid transparent;background:transparent;color:#a1a1aa;transition:color .15s,border-color .15s,background-color .15s}
+.cpm-root .cpm-tab:hover{color:#fafafa;background:#141417}
+.cpm-root .cpm-tab[aria-pressed="true"]{background:linear-gradient(160deg,rgba(200,30,60,.28),rgba(200,30,60,.08));color:#fff;border-color:rgba(255,77,109,.55);box-shadow:0 8px 20px -14px rgba(200,30,60,.9)}
+.cpm-root .cpm-field{background:#050506;border:1px solid rgba(255,255,255,.08);color:#fafafa;border-radius:.75rem;font-size:.8125rem;transition:border-color .15s,box-shadow .15s}
+.cpm-root .cpm-field::placeholder{color:#71717a}
+.cpm-root .cpm-field:hover{border-color:rgba(255,255,255,.18)}
+.cpm-root .cpm-field:focus{border-color:rgba(200,30,60,.7);box-shadow:0 0 0 3px rgba(200,30,60,.18)}
+.cpm-root .cpm-card{background:linear-gradient(180deg,rgba(255,255,255,.025) 0%,rgba(255,255,255,0) 120px),#0c0c0e;border:1px solid #2a2a30;box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 20px 40px -24px rgba(0,0,0,.9)}
+.cpm-root .cpm-row{transition:border-color .18s,transform .18s,box-shadow .18s}
+.cpm-root .cpm-row:hover{transform:translateY(-1px);box-shadow:0 18px 40px -24px rgba(0,0,0,.95),0 0 0 1px rgba(255,255,255,.06)}
+.cpm-root .cpm-kpi{transition:transform .18s,border-color .18s}
+.cpm-root .cpm-kpi:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.18)}
+.cpm-root ::-webkit-scrollbar{width:8px;height:8px}
+.cpm-root ::-webkit-scrollbar-thumb{background:#2a2a30;border-radius:999px}
+.cpm-root ::-webkit-scrollbar-thumb:hover{background:#c81e3c}
+@media (prefers-reduced-motion:reduce){.cpm-root .cpm-row,.cpm-root .cpm-kpi{transition:none}.cpm-root .cpm-row:hover,.cpm-root .cpm-kpi:hover{transform:none}}
 `
 
 export default function CreatorParticipationManager() {
@@ -827,21 +839,37 @@ export default function CreatorParticipationManager() {
 
   return (
     <div
-      className="cpm-root min-h-screen flex flex-col font-sans"
+      className="cpm-root relative min-h-screen flex flex-col font-sans overflow-x-clip"
       style={{ background: C.bg, color: C.text }}
     >
       <style>{CPM_CSS}</style>
 
+      {/* Ambient canvas: black with a restrained crimson aura */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute -top-[30%] left-1/2 -translate-x-1/2 w-[80vw] h-[60vh] rounded-full" style={{ background: 'rgba(200,30,60,0.09)', filter: 'blur(120px)' }} />
+        <div className="absolute -bottom-[25%] -right-[10%] w-[45vw] h-[45vw] rounded-full" style={{ background: 'rgba(255,77,109,0.04)', filter: 'blur(120px)' }} />
+        <div
+          className="absolute inset-0"
+          style={{
+            opacity: 0.35,
+            backgroundImage: 'radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)',
+            backgroundSize: '28px 28px',
+            maskImage: 'radial-gradient(ellipse at top, black 20%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at top, black 20%, transparent 70%)',
+          }}
+        />
+      </div>
+
       {/* ── STICKY TOP HEADER ── */}
       <header
         id="tour-participation-header"
-        className="sticky top-0 z-40 backdrop-blur-xl border-b"
+        className="sticky top-0 z-40 backdrop-blur-xl border-b relative"
         style={{
-          background: 'rgba(8, 9, 12, 0.88)',
-          borderColor: C.line,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+          background: 'rgba(5,5,6,0.8)',
+          borderColor: '#1c1c20',
         }}
       >
+        <div className="absolute inset-x-0 bottom-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(200,30,60,0.5), transparent)' }} aria-hidden="true" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3.5">
             <button
@@ -862,10 +890,10 @@ export default function CreatorParticipationManager() {
               <div>
                 <div className="flex items-center gap-2">
                   <h1
-                    className="text-sm sm:text-base font-extrabold tracking-tight"
+                    className="text-sm sm:text-base font-bold tracking-tight m-0"
                     style={{ ...HEADING_FONT, color: C.text }}
                   >
-                    Creator Participation & Co-Builder Console
+                    Co-Builder Console
                   </h1>
                   <span
                     className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider hidden md:inline-flex items-center gap-1"
@@ -879,8 +907,8 @@ export default function CreatorParticipationManager() {
                     Dedicated Admin
                   </span>
                 </div>
-                <p className="text-[11px] hidden sm:block" style={{ color: C.muted }}>
-                  Co-builder pass fees, tracking, and 50/50 equity partnership governance.
+                <p className="text-[11px] hidden sm:block m-0" style={{ color: C.muted }}>
+                  Pass fees, participation tracks and 50/50 equity partnerships.
                 </p>
               </div>
             </div>
@@ -900,7 +928,7 @@ export default function CreatorParticipationManager() {
             >
               <div
                 className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: C.okSoft, color: C.ok }}
+                style={{ background: C.crimsonSoft, color: C.crimsonText }}
               >
                 <DollarSign className="w-3.5 h-3.5" />
               </div>
@@ -926,14 +954,7 @@ export default function CreatorParticipationManager() {
             <button
               type="button"
               onClick={() => startParticipationTour(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
-              style={{
-                background: C.warnSoft,
-                borderColor: C.warnLine,
-                borderWidth: '1px',
-                borderStyle: 'solid',
-                color: C.warn,
-              }}
+              className="cpm-btn-quiet flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer"
               title="Start Guided Walkthrough (Driver.js)"
             >
               <Sparkles className="w-3.5 h-3.5" style={{ color: C.warn }} />
@@ -943,16 +964,10 @@ export default function CreatorParticipationManager() {
             {/* Real-time status indicator */}
             <div
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-[11px] font-medium"
-              style={{
-                background: C.okSoft,
-                borderColor: C.okLine,
-                borderWidth: '1px',
-                borderStyle: 'solid',
-                color: C.ok,
-              }}
+              style={{ background: C.row, border: `1px solid ${C.line}`, color: C.body }}
             >
-              <span className="w-2 h-2 rounded-full shrink-0 animate-pulse" style={{ background: C.ok }} />
-              <span className="hidden md:inline">Real-Time Sync Active (4s)</span>
+              <span className="w-2 h-2 rounded-full shrink-0 animate-pulse" style={{ background: C.ok, boxShadow: '0 0 8px rgba(52,211,153,0.8)' }} />
+              <span className="hidden md:inline">Live sync · 4s</span>
               <span className="md:hidden">Live</span>
             </div>
 
@@ -963,7 +978,7 @@ export default function CreatorParticipationManager() {
               }}
               className="cpm-btn-quiet px-3 py-1.5 rounded-xl text-xs font-medium hidden sm:inline-flex items-center gap-1.5 cursor-pointer"
             >
-              <Users className="w-3.5 h-3.5" style={{ color: C.violet }} />
+              <Users className="w-3.5 h-3.5" style={{ color: C.muted }} />
               <span>CRM</span>
             </button>
 
@@ -974,8 +989,8 @@ export default function CreatorParticipationManager() {
               }}
               className="cpm-btn-quiet px-3 py-1.5 rounded-xl text-xs font-medium hidden sm:inline-flex items-center gap-1.5 cursor-pointer"
             >
-              <Layers className="w-3.5 h-3.5" style={{ color: C.sky }} />
-              <span>ProjectOS</span>
+              <Layers className="w-3.5 h-3.5" style={{ color: C.muted }} />
+              <span>Project OS</span>
             </button>
 
             {/* Manual Refresh */}
@@ -992,27 +1007,24 @@ export default function CreatorParticipationManager() {
       </header>
 
       {/* ── MAIN CONTENT AREA ── */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5 space-y-4">
+      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-5">
         {/* Equity Architecture Notice */}
         <div
           id="tour-participation-equity-banner"
-          className="px-4 py-3.5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3"
-          style={{
-            background: C.sheet,
-            border: `1px solid ${C.line}`,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-          }}
+          className="cpm-card relative overflow-hidden px-5 py-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4"
         >
+          <div className="absolute inset-x-0 top-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,77,109,0.7), transparent)' }} aria-hidden="true" />
+          <div className="absolute -top-20 left-1/4 w-1/2 h-40 rounded-full pointer-events-none" style={{ background: 'rgba(200,30,60,0.14)', filter: 'blur(60px)' }} aria-hidden="true" />
           <div className="flex items-start gap-3">
             <div
-              className="p-2 rounded-xl shrink-0"
-              style={{ background: C.okSoft, border: `1px solid ${C.okLine}`, color: C.ok }}
+              className="relative p-2.5 rounded-xl shrink-0"
+              style={{ background: 'linear-gradient(160deg, rgba(200,30,60,0.35), rgba(200,30,60,0.08))', border: `1px solid ${C.crimsonLine}`, color: '#fff', boxShadow: '0 10px 24px -12px rgba(200,30,60,0.8)' }}
             >
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <div>
+            <div className="relative">
               <div className="flex items-center gap-2">
-                <h3 className="text-xs sm:text-sm font-bold" style={{ color: C.text }}>
+                <h3 className="text-sm sm:text-base font-bold m-0" style={{ color: C.text }}>
                   50/50 Co-Founder Equity Architecture
                 </h3>
                 <span
@@ -1028,164 +1040,66 @@ export default function CreatorParticipationManager() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="relative flex items-center gap-2 shrink-0">
             <div
-              className="px-3 py-1.5 rounded-xl text-right"
-              style={{ background: C.row, border: `1px solid ${C.line}` }}
+              className="px-3.5 py-2 rounded-xl text-right"
+              style={{ background: C.bg, border: `1px solid ${C.line}` }}
             >
               <span className="text-[9px] uppercase tracking-wider block font-bold" style={{ color: C.muted }}>
                 Standard Equity Split
               </span>
-              <span className="text-xs font-black font-mono" style={{ color: C.ok }}>
-                50% Creator / 50% Studio
+              <span className="text-xs font-black font-mono" style={{ color: C.text }}>
+                50% Creator <span style={{ color: C.crimsonText }}>/</span> 50% Studio
               </span>
             </div>
           </div>
         </div>
 
-        {/* ── 5 KPI SUMMARY CARDS (DISTINCT ACCENT COLORS) ── */}
+        {/* ── 5 KPI SUMMARY CARDS ── */}
         <div id="tour-participation-kpis" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {/* Card 1: Total Ventures (CoLaunch Crimson) */}
-          <div
-            className="p-4 rounded-2xl space-y-1.5 transition-all duration-200 hover:-translate-y-0.5"
-            style={{
-              background: 'linear-gradient(180deg, rgba(200, 30, 60, 0.12) 0%, rgba(16, 19, 26, 0.95) 100%)',
-              border: '1px solid rgba(200, 30, 60, 0.35)',
-              borderTop: `2px solid ${C.crimson}`,
-              boxShadow: '0 4px 20px rgba(200, 30, 60, 0.10)',
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: C.crimsonText }}>
-                Total Ventures
-              </span>
+          {[
+            { label: 'Total Ventures', value: totalProjects, hint: 'Active co-launch projects', icon: Layers, accent: '#ff4d6d', featured: true },
+            { label: 'Co-Builders Active', value: coBuildersCount, hint: 'Interactive passes', icon: Zap, accent: C.warn },
+            { label: 'Studio-Managed', value: managedCount, hint: 'Studio team building', icon: Rocket, accent: C.crimsonText },
+            { label: 'Pending Decision', value: pendingCount, hint: 'Follow-up needed', icon: Clock, accent: C.sky },
+            { label: 'Toolset Revenue', value: `$${totalRevenue.toLocaleString()}`, hint: 'From Co-Builder passes', icon: DollarSign, accent: C.ok, wide: true },
+          ].map((kpi) => {
+            const Icon = kpi.icon
+            return (
               <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: 'rgba(200, 30, 60, 0.20)', border: `1px solid ${C.crimsonLine}` }}
+                key={kpi.label}
+                className={`cpm-kpi relative overflow-hidden p-4 rounded-2xl space-y-2 ${kpi.wide ? 'col-span-2 sm:col-span-1' : ''}`}
+                style={
+                  kpi.featured
+                    ? { background: 'linear-gradient(160deg, rgba(200,30,60,0.24) 0%, rgba(200,30,60,0.05) 100%)', border: '1px solid rgba(255,77,109,0.5)', boxShadow: '0 16px 36px -22px rgba(200,30,60,0.9)' }
+                    : { background: 'linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0) 80px), #0c0c0e', border: '1px solid #222227' }
+                }
               >
-                <Layers className="w-3.5 h-3.5" style={{ color: C.crimsonText }} />
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold flex items-center gap-1.5" style={{ color: kpi.featured ? '#ffd1da' : C.muted }}>
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: kpi.accent }} />
+                    {kpi.label}
+                  </span>
+                  <div
+                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: kpi.featured ? 'rgba(200,30,60,0.35)' : C.row, border: `1px solid ${kpi.featured ? C.crimsonLine : C.line}` }}
+                  >
+                    <Icon className="w-3.5 h-3.5" style={{ color: kpi.featured ? '#ffffff' : kpi.accent }} />
+                  </div>
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold tracking-tight tabular-nums" style={{ ...HEADING_FONT, color: '#ffffff' }}>
+                  {kpi.value}
+                </div>
+                <p className="text-[11px] m-0" style={{ color: kpi.featured ? '#ffb3c1' : C.faint }}>{kpi.hint}</p>
               </div>
-            </div>
-            <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight" style={{ color: '#ffffff' }}>
-              {totalProjects}
-            </div>
-            <p className="text-[10px]" style={{ color: C.muted }}>Active co-launch projects</p>
-          </div>
-
-          {/* Card 2: Co-Builders Active (Interactive Amber) */}
-          <div
-            className="p-4 rounded-2xl space-y-1.5 transition-all duration-200 hover:-translate-y-0.5"
-            style={{
-              background: 'linear-gradient(180deg, rgba(240, 180, 106, 0.12) 0%, rgba(16, 19, 26, 0.95) 100%)',
-              border: '1px solid rgba(240, 180, 106, 0.35)',
-              borderTop: `2px solid ${C.warn}`,
-              boxShadow: '0 4px 20px rgba(240, 180, 106, 0.10)',
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: C.warn }}>
-                Co-Builders Active
-              </span>
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: 'rgba(240, 180, 106, 0.20)', border: `1px solid ${C.warnLine}` }}
-              >
-                <Zap className="w-3.5 h-3.5" style={{ color: C.warn }} />
-              </div>
-            </div>
-            <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight" style={{ color: C.warn }}>
-              {coBuildersCount}
-            </div>
-            <p className="text-[10px]" style={{ color: C.muted }}>Active Interactive Passes</p>
-          </div>
-
-          {/* Card 3: Studio Managed Track (Studio Violet) */}
-          <div
-            className="p-4 rounded-2xl space-y-1.5 transition-all duration-200 hover:-translate-y-0.5"
-            style={{
-              background: 'linear-gradient(180deg, rgba(167, 139, 250, 0.12) 0%, rgba(16, 19, 26, 0.95) 100%)',
-              border: '1px solid rgba(167, 139, 250, 0.35)',
-              borderTop: `2px solid ${C.violet}`,
-              boxShadow: '0 4px 20px rgba(167, 139, 250, 0.10)',
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: C.violet }}>
-                Studio-Managed
-              </span>
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: 'rgba(167, 139, 250, 0.20)', border: `1px solid ${C.violetLine}` }}
-              >
-                <Rocket className="w-3.5 h-3.5" style={{ color: C.violet }} />
-              </div>
-            </div>
-            <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight" style={{ color: C.violet }}>
-              {managedCount}
-            </div>
-            <p className="text-[10px]" style={{ color: C.muted }}>Studio team executing builds</p>
-          </div>
-
-          {/* Card 4: Decision Pending (Decision Sky) */}
-          <div
-            className="p-4 rounded-2xl space-y-1.5 transition-all duration-200 hover:-translate-y-0.5"
-            style={{
-              background: 'linear-gradient(180deg, rgba(56, 189, 248, 0.12) 0%, rgba(16, 19, 26, 0.95) 100%)',
-              border: '1px solid rgba(56, 189, 248, 0.35)',
-              borderTop: `2px solid ${C.sky}`,
-              boxShadow: '0 4px 20px rgba(56, 189, 248, 0.10)',
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: C.sky }}>
-                Pending Decision
-              </span>
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: 'rgba(56, 189, 248, 0.20)', border: `1px solid ${C.skyLine}` }}
-              >
-                <Clock className="w-3.5 h-3.5" style={{ color: C.sky }} />
-              </div>
-            </div>
-            <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight" style={{ color: C.sky }}>
-              {pendingCount}
-            </div>
-            <p className="text-[10px]" style={{ color: C.muted }}>Follow-up needed</p>
-          </div>
-
-          {/* Card 5: Toolset Revenue (Monetization Emerald) */}
-          <div
-            className="p-4 rounded-2xl space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 col-span-2 sm:col-span-1"
-            style={{
-              background: 'linear-gradient(180deg, rgba(111, 207, 155, 0.14) 0%, rgba(16, 19, 26, 0.95) 100%)',
-              border: '1px solid rgba(111, 207, 155, 0.40)',
-              borderTop: `2px solid ${C.ok}`,
-              boxShadow: '0 4px 20px rgba(111, 207, 155, 0.12)',
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: C.ok }}>
-                Toolset Revenue
-              </span>
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: 'rgba(111, 207, 155, 0.22)', border: `1px solid ${C.okLine}` }}
-              >
-                <DollarSign className="w-3.5 h-3.5" style={{ color: C.ok }} />
-              </div>
-            </div>
-            <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight" style={{ color: C.ok }}>
-              ${totalRevenue.toLocaleString()}
-            </div>
-            <p className="text-[10px]" style={{ color: C.muted }}>from Co-Builder passes</p>
-          </div>
+            )
+          })}
         </div>
 
         {/* ── FILTER & SEARCH RIBBON ── */}
         <div
           id="tour-participation-filters"
-          className="px-3.5 py-2.5 rounded-2xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3"
-          style={{ background: C.sheet, border: `1px solid ${C.line}` }}
+          className="cpm-card px-2.5 py-2.5 rounded-2xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3"
         >
           {/* Track Filter Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
@@ -1193,7 +1107,6 @@ export default function CreatorParticipationManager() {
               onClick={() => setFilterTrack('all')}
               className="cpm-tab"
               aria-pressed={filterTrack === 'all'}
-              style={filterTrack === 'all' ? { background: C.crimson, color: '#ffffff', borderColor: C.crimsonLine } : {}}
             >
               All Ventures ({totalProjects})
             </button>
@@ -1202,7 +1115,6 @@ export default function CreatorParticipationManager() {
               onClick={() => setFilterTrack('cobuilder')}
               className="cpm-tab"
               aria-pressed={filterTrack === 'cobuilder'}
-              style={filterTrack === 'cobuilder' ? { background: C.warnSoft, color: C.warn, borderColor: C.warnLine } : {}}
             >
               <Zap className="w-3 h-3" />
               <span>Co-Builders Active ({coBuildersCount})</span>
@@ -1212,7 +1124,6 @@ export default function CreatorParticipationManager() {
               onClick={() => setFilterTrack('pending')}
               className="cpm-tab"
               aria-pressed={filterTrack === 'pending'}
-              style={filterTrack === 'pending' ? { background: C.skySoft, color: C.sky, borderColor: C.skyLine } : {}}
             >
               <Clock className="w-3 h-3" />
               <span>Pending Choice ({pendingCount})</span>
@@ -1222,7 +1133,6 @@ export default function CreatorParticipationManager() {
               onClick={() => setFilterTrack('managed')}
               className="cpm-tab"
               aria-pressed={filterTrack === 'managed'}
-              style={filterTrack === 'managed' ? { background: C.violetSoft, color: C.violet, borderColor: C.violetLine } : {}}
             >
               <Rocket className="w-3 h-3" />
               <span>Studio-Managed ({managedCount})</span>
@@ -1232,7 +1142,6 @@ export default function CreatorParticipationManager() {
               onClick={() => setFilterTrack('pipeline')}
               className="cpm-tab"
               aria-pressed={filterTrack === 'pipeline'}
-              style={filterTrack === 'pipeline' ? { background: C.okSoft, color: C.ok, borderColor: C.okLine } : {}}
             >
               <Users className="w-3 h-3" />
               <span>Pipeline Partners ({unlaunchedCreators.length})</span>
@@ -1248,14 +1157,14 @@ export default function CreatorParticipationManager() {
                 placeholder="Search creator, handle, email, app..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="cpm-field w-full pl-9 pr-3 py-1.5 outline-none"
+                className="cpm-field w-full pl-9 pr-3 h-9 outline-none"
               />
             </div>
             {totalProjects > 0 && (
               <button
                 type="button"
                 onClick={handleDeleteAllVentures}
-                className="cpm-btn-danger px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+                className="cpm-btn-danger px-3 h-9 rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
                 title="Wipe all co-launch ventures from Section 2"
               >
                 <Trash2 className="w-3 h-3" />
@@ -1409,14 +1318,13 @@ export default function CreatorParticipationManager() {
               return (
                 <div
                   key={proj.id}
-                  className="p-4 sm:p-5 rounded-2xl transition-all duration-200 relative overflow-hidden"
+                  className="cpm-row p-4 sm:p-5 rounded-2xl relative overflow-hidden"
                   style={{
-                    background: C.sheet,
-                    border: `1px solid ${isCoBuilder ? 'rgba(111,207,155,0.30)' : isDeclined ? 'rgba(167,139,250,0.30)' : 'rgba(56,189,248,0.25)'}`,
-                    borderLeft: `4px solid ${isCoBuilder ? C.ok : isDeclined ? C.violet : C.sky}`,
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 90px), #0c0c0e',
+                    border: '1px solid #222227',
                   }}
                 >
+                  <span className="absolute left-0 top-4 bottom-4 w-[3px] rounded-r-full" style={{ background: isCoBuilder ? C.ok : isDeclined ? C.crimson : C.sky }} aria-hidden="true" />
                   <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 relative z-10">
                     {/* Left: Creator & Venture Profile */}
                     <div className="space-y-3 flex-1 min-w-0">
@@ -1824,7 +1732,7 @@ export default function CreatorParticipationManager() {
                   <div className="flex items-center gap-3">
                     <div
                       className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                      style={{ background: 'rgba(111,207,155,0.25)', color: C.ok }}
+                      style={{ background: 'rgba(52, 211, 153,0.25)', color: C.ok }}
                     >
                       <Zap className="w-4 h-4" />
                     </div>
@@ -1863,7 +1771,7 @@ export default function CreatorParticipationManager() {
                   <div className="flex items-center gap-3">
                     <div
                       className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                      style={{ background: 'rgba(167,139,250,0.25)', color: C.violet }}
+                      style={{ background: 'rgba(255, 77, 109,0.25)', color: C.violet }}
                     >
                       <ShieldCheck className="w-4 h-4" />
                     </div>

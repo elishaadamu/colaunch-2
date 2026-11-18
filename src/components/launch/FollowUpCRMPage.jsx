@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import CreatorFollowUpCRM from "./CreatorFollowUpCRM";
 import { getCreators, getThreads, pollInboxReplies, updateCreatorDetails, deleteCreator, getWorkflowState, getCoLaunchProjects } from "../../services/opsApi";
 import { updatePageSEO } from "../../utils/seo";
-import { Users, ExternalLink, RefreshCw, Rocket, ShieldCheck, CheckCircle, AlertCircle, X, Target, Layers, Zap, MessageSquare, ShieldAlert, Loader2 } from "lucide-react";
+import { Users, ExternalLink, Rocket, ShieldCheck, CheckCircle, AlertCircle, X, Target, Layers, Zap, MessageSquare, ShieldAlert, Loader2 } from "lucide-react";
 import { CRMSkeleton } from "./Section2Skeletons";
 import CoLaunchLogo from "../ui/CoLaunchLogo";
 
@@ -286,14 +286,31 @@ export default function FollowUpCRMPage() {
     >
       <style>{CRM_PAGE_CSS}</style>
 
+      {/* Ambient canvas: black with a restrained crimson aura */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute -top-[30%] left-1/2 -translate-x-1/2 w-[80vw] h-[60vh] rounded-full" style={{ background: 'rgba(200,30,60,0.09)', filter: 'blur(120px)' }} />
+        <div className="absolute -bottom-[25%] -right-[10%] w-[45vw] h-[45vw] rounded-full" style={{ background: 'rgba(255,77,109,0.04)', filter: 'blur(120px)' }} />
+        <div
+          className="absolute inset-0"
+          style={{
+            opacity: 0.35,
+            backgroundImage: 'radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)',
+            backgroundSize: '28px 28px',
+            maskImage: 'radial-gradient(ellipse at top, black 20%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at top, black 20%, transparent 70%)',
+          }}
+        />
+      </div>
+
       {/* Top Navbar */}
       <header
-        className="h-14 sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 relative backdrop-blur-md"
+        className="h-14 sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 relative backdrop-blur-xl"
         style={{
-          background: 'rgba(16,19,26,0.85)',
-          borderBottom: `1px solid ${C.line}`,
+          background: 'rgba(5,5,6,0.8)',
+          borderBottom: '1px solid #1c1c20',
         }}
       >
+        <div className="absolute inset-x-0 bottom-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(200,30,60,0.5), transparent)' }} aria-hidden="true" />
         <div className="flex items-center gap-3 sm:gap-5 flex-shrink-0">
           <div
             className="flex items-center gap-3 cursor-pointer group"
@@ -314,8 +331,8 @@ export default function FollowUpCRMPage() {
 
           {/* Clean Suite Navigation Tabs */}
           <div
-            className="hidden md:flex items-center p-1 rounded-xl"
-            style={{ background: C.row, border: `1px solid ${C.line}` }}
+            className="hidden md:flex items-center gap-0.5 p-1 rounded-xl"
+            style={{ background: C.sheet, border: '1px solid #222227' }}
           >
             <a
               href="/launch"
@@ -335,17 +352,13 @@ export default function FollowUpCRMPage() {
               onMouseEnter={(e) => { e.currentTarget.style.color = C.text; e.currentTarget.style.background = C.raised; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = C.muted; e.currentTarget.style.background = 'transparent'; }}
             >
-              <Layers className="w-3.5 h-3.5" style={{ color: C.ok }} />
+              <Layers className="w-3.5 h-3.5" style={{ color: C.faint }} />
               <span>Project OS</span>
             </a>
             <button
               type="button"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer"
-              style={{
-                background: C.crimson,
-                color: '#ffffff',
-                border: `1px solid ${C.crimsonLine}`,
-              }}
+              aria-current="page"
+              className="crm-btn-primary flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap cursor-pointer"
             >
               <MessageSquare className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />
               <span>Follow-Up CRM</span>
@@ -409,21 +422,11 @@ export default function FollowUpCRMPage() {
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={handleSyncImap}
-            disabled={isSyncingImap}
-            className="crm-btn-primary flex items-center gap-1.5 px-3 h-8 rounded-xl text-xs font-semibold cursor-pointer disabled:opacity-50"
-            title="Poll Gmail IMAP for latest creator replies"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isSyncingImap ? "animate-spin" : ""}`} />
-            <span>{isSyncingImap ? "Syncing..." : "Sync Inbox"}</span>
-          </button>
         </div>
       </header>
 
       {/* Main Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 relative">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 relative z-10">
         {/* Mobile Suite Navigation Ribbon */}
         <div
           className="flex md:hidden items-center p-1 rounded-xl gap-1 overflow-x-auto no-scrollbar"
@@ -434,7 +437,7 @@ export default function FollowUpCRMPage() {
             className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all"
             style={{ color: C.muted }}
           >
-            <Target className="w-3.5 h-3.5" style={{ color: C.ok }} />
+            <Target className="w-3.5 h-3.5" style={{ color: C.faint }} />
             <span>Acquisition</span>
           </a>
           <a
@@ -442,17 +445,13 @@ export default function FollowUpCRMPage() {
             className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all"
             style={{ color: C.muted }}
           >
-            <Layers className="w-3.5 h-3.5" style={{ color: C.violet }} />
+            <Layers className="w-3.5 h-3.5" style={{ color: C.faint }} />
             <span>Project OS</span>
           </a>
           <button
             type="button"
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-[11px] font-bold whitespace-nowrap"
-            style={{
-              background: C.crimson,
-              color: '#ffffff',
-              border: `1px solid ${C.crimsonLine}`,
-            }}
+            aria-current="page"
+            className="crm-btn-primary flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-[11px] font-bold whitespace-nowrap"
           >
             <MessageSquare className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />
             <span>CRM ({creators.length})</span>
