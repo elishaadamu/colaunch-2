@@ -517,7 +517,7 @@ export default function EmailConfigModal({
               </div>
               <div className="flex items-center justify-between text-slate-400">
                 <span>Workspace:</span>
-                <span className="text-[#38bdf8]">app.co-launch.app</span>
+                <span className="text-[#38bdf8]">colaunch-2.vercel.app</span>
               </div>
             </div>
 

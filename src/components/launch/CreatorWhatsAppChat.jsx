@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { getFrontendUrl, getThreads, sendDirectEmail } from '../../services/opsApi'
 
+import { PUBLIC_APP_URL } from '../../utils/publicUrl'
 // Module-level cache so leaving and returning to the Messages tab NEVER flashes a loading spinner
 const globalThreadsCache = new Map()
 
@@ -70,7 +71,7 @@ export default function CreatorWhatsAppChat({ project = {}, onUpdateProject }) {
   const niche = project?.niche || 'Digital Tech'
   const portalSlug = (project?.creatorHandle || project?.creatorName || 'creator').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
   const portalToken = project?.portalToken || 'cf_sec_live'
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001'
+  const origin = PUBLIC_APP_URL
   const portalUrl = `${origin}/portal/${portalSlug}?token=${portalToken}`
   const preorderUrl = `${origin}/preorder/${project?.productSlug || portalSlug}`
 

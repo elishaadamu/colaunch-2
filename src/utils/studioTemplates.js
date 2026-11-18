@@ -68,7 +68,7 @@ The fix:
 We built ${c.productName} to solve this once and for all.
 
 Lock in founding pricing (${c.pricing}) today:
-https://app.co-launch.app/member/${c.cleanHandle}`
+https://colaunch-2.vercel.app/member/${c.cleanHandle}`
     }
   },
   {
@@ -127,7 +127,7 @@ This is the exact operating system we created inside ${c.productName}.
 We designed it specifically for ${c.audience} who want high-leverage outcomes without the 60-hour burnout.
 
 Explore the curriculum and join our founding cohort:
-https://app.co-launch.app/member/${c.cleanHandle}
+https://colaunch-2.vercel.app/member/${c.cleanHandle}
 
 #${c.nicheTag} #strategy #systems #creatorbusiness`
     }
@@ -164,7 +164,7 @@ Why recreate templates from scratch? Leverage proven ${c.f4} and focus on your u
 All 4 pillars packed into one dedicated member workspace for ${c.pricing}.
 
 Founding passes are officially live today:
-https://app.co-launch.app/member/${c.cleanHandle}`
+https://colaunch-2.vercel.app/member/${c.cleanHandle}`
     }
   },
   {
@@ -192,7 +192,7 @@ Here is what is waiting for you inside:
 Founding rate is locked at just ${c.pricing} (grandfathered for life).
 
 Grab your pass before founding enrollment closes:
-👉 https://app.co-launch.app/member/${c.cleanHandle}
+👉 https://colaunch-2.vercel.app/member/${c.cleanHandle}
 
 See you on the inside! 🚀`
     }
@@ -227,7 +227,7 @@ Here is what is waiting for you inside our official member workspace:
 Founding member pricing is officially live at ${c.pricing}.
 
 👉 Explore the ${c.productName} and lock in your founding pass today:
-https://app.co-launch.app/member/${c.cleanHandle}
+https://colaunch-2.vercel.app/member/${c.cleanHandle}
 
 Thank you so much for being part of this community from day one. Let's build something extraordinary together!`
     }
@@ -258,7 +258,7 @@ Instead of guessing, here is the 3-step playbook we use inside ${c.productName}:
 
 CALL TO ACTION (0:24 - 0:30):
 Founding passes are officially live. Tap the link in my bio or visit:
-https://app.co-launch.app/member/${c.cleanHandle}`
+https://colaunch-2.vercel.app/member/${c.cleanHandle}`
     }
   }
 ]
@@ -299,7 +299,7 @@ Because you are part of our core audience, founding member pricing is locked at 
 When you join today, this rate is grandfathered for as long as you remain a member.
 
 → Secure your founding pass here:
-https://app.co-launch.app/member/${c.cleanHandle}
+https://colaunch-2.vercel.app/member/${c.cleanHandle}
 
 I cannot wait to see you inside and build together.
 
@@ -338,7 +338,7 @@ Core Narrative: Screen-by-screen breakdown of the member experience. Spotlight o
 
 EMAIL 4: THE HARD DEADLINE (Day 4)
 Subject: Tonight: Founding passes for ${c.productName} close ⏳
-Core Narrative: Remind subscribers that the grandfathered rate closes tonight. Reiterate the 100% money-back guarantee. Final checkout link: https://app.co-launch.app/member/${c.cleanHandle}`
+Core Narrative: Remind subscribers that the grandfathered rate closes tonight. Reiterate the 100% money-back guarantee. Final checkout link: https://colaunch-2.vercel.app/member/${c.cleanHandle}`
     }
   },
   {
@@ -372,7 +372,7 @@ You can spend those 90 days guessing your way through scattered videos... or you
 You're completely protected by our 100% satisfaction guarantee. If inside 30 days you don't feel this is the highest-value investment in your craft, just send one email for a full refund.
 
 → Lock in your grandfathered founding pass here:
-https://app.co-launch.app/member/${c.cleanHandle}
+https://colaunch-2.vercel.app/member/${c.cleanHandle}
 
 Doors close at midnight. Hope to see you on the inside!
 
@@ -403,7 +403,7 @@ I noticed you checked out ${c.productName} yesterday. If you had any specific qu
 I'm happy to give you my honest thoughts on whether it's the right fit for your goals right now.
 
 Or if you're ready to jump in:
-https://app.co-launch.app/member/${c.cleanHandle}
+https://colaunch-2.vercel.app/member/${c.cleanHandle}
 
 Best,
 ${c.name}`
@@ -444,7 +444,7 @@ Yes, anytime in one click. No contracts, no fine print.
 Ready to build with us?
 
 → Claim your founding member pass here:
-https://app.co-launch.app/member/${c.cleanHandle}
+https://colaunch-2.vercel.app/member/${c.cleanHandle}
 
 Talk soon,
 ${c.name}`

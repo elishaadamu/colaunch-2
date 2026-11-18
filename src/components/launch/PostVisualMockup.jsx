@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { sanitizePricingConfig } from '../../utils/pricing'
 
+import { PUBLIC_APP_URL } from '../../utils/publicUrl'
 export function XLogo({ className = 'w-4 h-4' }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
@@ -94,7 +95,7 @@ export default function PostVisualMockup({
     project?.transcripts?.[0]?.title ||
     'Recent Channel Upload'
 
-  const targetUrl = preorderUrl || (typeof window !== 'undefined' ? `${window.location.origin}/preorder/${(productName || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : 'https://colaunch.app/preorder')
+  const targetUrl = preorderUrl || (true ? `${PUBLIC_APP_URL}/preorder/${(productName || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : 'https://colaunch.app/preorder')
 
   const scriptText = copyText || project?.campaignKit?.videoScript || ''
 

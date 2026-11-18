@@ -26,6 +26,7 @@ import { getProjectAudienceGrounding, enrichTasksWithGrounding } from '../../uti
 import { getPhase1StepGuards, getPhase2StepGuards, getPhase3StepGuards, getProjectActiveStep } from '../../utils/stepGuards'
 import { startSection2Tour } from '../../utils/driverTour'
 
+import { PUBLIC_APP_URL } from '../../utils/publicUrl'
 /* ── Section 2 Dark Palette (aligned with Section 1 Steps 5 & 6) ── */
 const C = {
   bg: '#08090c',
@@ -205,7 +206,7 @@ export default function ProjectOS({
     : (project?.productTagline || 'Co-launching software with creator audience.')
   const portalSlug = (project?.creatorHandle || project?.creatorName || 'creator').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
   const portalToken = project?.portalToken || 'cf_sec_live'
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001'
+  const origin = PUBLIC_APP_URL
   const portalUrl = `${origin}/portal/${portalSlug}?token=${portalToken}`
 
   const chosenConcept = project?.selectedConcept || (project?.product_concepts && project?.product_concepts[0]) || {

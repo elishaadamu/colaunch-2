@@ -31,6 +31,7 @@ import {
 } from './Section2Skeletons'
 import { getPhase3StepGuards } from '../../utils/stepGuards'
 
+import { PUBLIC_APP_URL } from '../../utils/publicUrl'
 export default function Phase3Launch({ project, api, onUpdateProject, activeStepId, onSelectStep }) {
   // Step & Subtab state with database & URL persistence
   const [activeStep, setActiveStepState] = useState(() => {
@@ -403,7 +404,7 @@ export default function Phase3Launch({ project, api, onUpdateProject, activeStep
     showToast('Downloaded Phase 3 Launch Report!')
   }
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://colaunch.app'
+  const origin = PUBLIC_APP_URL
   const productSlug = (project?.slug || project?.productName || 'product').toLowerCase().replace(/[^a-z0-9]/g, '-')
   const conversionRate = telemetry.visitors > 0 ? ((telemetry.customers / telemetry.visitors) * 100).toFixed(1) : '0.0'
   const infra = strategy?.productInfrastructure || null

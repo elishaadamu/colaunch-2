@@ -747,7 +747,7 @@ export function buildChannelNativeMarketingPack(creatorData) {
   const cleanHandle = (creatorData?.handle || 'creator').replace(/^@+/, '')
   const portalUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/member/${cleanHandle}`
-    : `https://app.co-launch.app/member/${cleanHandle}`
+    : `https://colaunch-2.vercel.app/member/${cleanHandle}`
 
   // Channel-specific email
   const emailSubject = `Why I spent 6 months building "${productName}" (and what it means for you)`
@@ -935,7 +935,7 @@ export async function generateMarketingPack(creatorData, signal = undefined) {
   const cleanHandle = (handle || 'creator').replace(/^@+/, '')
   const portalUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/member/${cleanHandle}`
-    : `https://app.co-launch.app/member/${cleanHandle}`
+    : `https://colaunch-2.vercel.app/member/${cleanHandle}`
 
   const system = `You are an elite creator economy marketing strategist and pitch deck designer. Write copy that sounds exactly like this creator — authentic, platform-native, never generic. Return ONLY valid JSON.`;
 
@@ -1196,7 +1196,7 @@ export async function regenerateSection(section, creatorData) {
   const cleanHandle = (creatorData?.handle || 'creator').replace(/^@+/, '')
   const portalUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/member/${cleanHandle}`
-    : `https://app.co-launch.app/member/${cleanHandle}`
+    : `https://colaunch-2.vercel.app/member/${cleanHandle}`
 
   const prompts = {
     email: `Write a completely different launch email for "${productName}" by ${name}. New angle, same authenticity. End strictly with this exact CTA line: 👉 Explore the ${productName} here: ${portalUrl}. Return JSON: { "subject": "...", "preview": "...", "body": "..." }`,
@@ -1632,7 +1632,7 @@ export async function generateStudioContent(
   const cleanHandle = (creatorData.handle || 'creator').replace(/^@+/, '')
   const portalUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/member/${cleanHandle}`
-    : `https://app.co-launch.app/member/${cleanHandle}`
+    : `https://colaunch-2.vercel.app/member/${cleanHandle}`
 
   const system = `You are an elite creator economy copywriter. You write highly engaging, high-conversion copy for creators. Return ONLY a JSON object containing a "content" field with the generated copy text.`;
 

@@ -1,3 +1,4 @@
+import { PUBLIC_APP_URL } from '../utils/publicUrl'
 import { loadAiKeys } from './ai'
 import { loadKeys } from './scraper'
 
@@ -459,16 +460,8 @@ export const deleteMediaFromCloudinary = async ({ publicId, url, resourceType = 
 }
 
 
-export const getFrontendUrl = () => {
-  const envUrl = import.meta.env?.VITE_FRONTEND_URL
-  if (envUrl && typeof envUrl === 'string' && envUrl.trim()) {
-    return envUrl.trim().replace(/\/$/, '')
-  }
-  if (typeof window !== 'undefined' && window.location?.origin) {
-    return window.location.origin.replace(/\/$/, '')
-  }
-  return 'https://colaunch-frontend.vercel.app'
-}
+// Shareable/public links (pre-order, portal, landing pages) always use the public app URL.
+export const getFrontendUrl = () => PUBLIC_APP_URL
 
 // ── Target Niches Database Operations ─────────────────────────────────────────
 export const getNiches = () => req('GET', '/niches')

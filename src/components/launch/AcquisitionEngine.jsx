@@ -36,6 +36,7 @@ import AcquisitionStep6Pitch from "./steps/AcquisitionStep6Pitch";
 import AcquisitionModals from "./steps/AcquisitionModals";
 import { buildConceptPrompt, normalizeConcepts, buildValidationSeed } from "./conceptSchema";
 
+import { PUBLIC_APP_URL } from "../../utils/publicUrl";
 // Category and archetype-tailored visual mockup screenshots for creator proposals
 export const CONCEPT_ARCHETYPE_IMAGES = {
   saas_os: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80",
@@ -3266,7 +3267,7 @@ export default function AcquisitionEngine({
     const rawConcepts = (creator.productConcepts && creator.productConcepts.length > 0)
       ? creator.productConcepts
       : ensureCreatorConcepts(creator);
-    const frontendBase = typeof window !== 'undefined' ? window.location.origin : 'https://app.co-launch.app';
+    const frontendBase = PUBLIC_APP_URL;
     const backendBase = (import.meta?.env?.VITE_BACKEND_URL || 'https://creator-forge-backend-jj1y.onrender.com').replace(/\/$/, '');
     const creatorSlug = (creator.handle || creator.name || 'creator').replace(/^@/, '').toLowerCase().replace(/[^a-z0-9\-]/g, '');
 
@@ -3585,7 +3586,7 @@ export default function AcquisitionEngine({
       }
     }
 
-    const frontendBase = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001';
+    const frontendBase = PUBLIC_APP_URL;
     const creatorSlug = cleanHandle.toLowerCase().replace(/[^a-z0-9\-]/g, '');
     const landingUrl = `${frontendBase}/preorder/${creatorSlug}?concept=${conceptName.toLowerCase().replace(/[^a-z0-9\-]/g, '-')}`;
 
@@ -3720,7 +3721,7 @@ export default function AcquisitionEngine({
           ? creator.productConcepts
           : ensureCreatorConcepts(creator));
 
-    const frontendBase = typeof window !== 'undefined' ? window.location.origin : 'https://app.co-launch.app';
+    const frontendBase = PUBLIC_APP_URL;
     const backendBase = (import.meta?.env?.VITE_BACKEND_URL || 'https://creator-forge-backend-jj1y.onrender.com').replace(/\/$/, '');
     const creatorSlug = (creator.handle || creator.name || 'creator').replace(/^@/, '').toLowerCase().replace(/[^a-z0-9\-]/g, '');
 
@@ -5000,7 +5001,7 @@ export default function AcquisitionEngine({
     const targetEmail = (selectedCreator.email || selectedCreator.email_public || "").trim();
     const portalSlug = (selectedCreator.handle || selectedCreator.name || "creator").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
     const portalToken = "cf_sec_live";
-    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3001";
+    const origin = PUBLIC_APP_URL;
     const magicPortalUrl = `${origin}/portal/${portalSlug}?token=${portalToken}`;
 
     if (targetEmail && targetEmail.includes("@")) {
@@ -5210,7 +5211,7 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
     const firstName = (creator.name || creator.display_name || "there").split(" ")[0];
     const portalSlug = (creator.handle || creator.name || "creator").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
     const portalToken = "cf_sec_live";
-    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3001";
+    const origin = PUBLIC_APP_URL;
     const magicPortalUrl = `${origin}/portal/${portalSlug}?token=${portalToken}&offer=track_choice`;
 
     const followUpSubject = `Reminder: Choose Your Co-Launch Track for ${prodName} ($${cobuilderPassPrice} DIY or Studio-Managed)`;
@@ -5281,7 +5282,7 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
       const targetEmail = (creator.email || creator.email_public || "").trim();
       if (targetEmail && targetEmail.includes("@")) {
         const portalSlug = (creator.handle || creator.name || "creator").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3001";
+        const origin = PUBLIC_APP_URL;
         const dedicatedUrl = `${origin}/portal/${portalSlug}?view=projectos&token=cf_diy_paid`;
         await sendDirectEmail(
           targetEmail,

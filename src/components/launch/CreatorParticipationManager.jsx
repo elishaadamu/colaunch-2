@@ -50,6 +50,7 @@ import CoLaunchLogo from '../ui/CoLaunchLogo'
 import DIYSubscriptionModal from './DIYSubscriptionModal'
 import { startParticipationTour } from '../../utils/driverTour'
 
+import { PUBLIC_APP_URL } from '../../utils/publicUrl'
 const C = {
   bg: '#050506',
   sheet: '#0c0c0e',
@@ -464,7 +465,7 @@ export default function CreatorParticipationManager() {
 
   const getCreatorWorkspaceUrl = (proj) => {
     if (!proj) return ''
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3002'
+    const origin = PUBLIC_APP_URL
     const handleClean = (proj.creatorHandle || proj.creatorName || 'creator')
       .replace(/^@/, '')
       .replace(/[^a-zA-Z0-9]/g, '')
@@ -495,7 +496,7 @@ export default function CreatorParticipationManager() {
     if (!confirmed) return
 
     try {
-      const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3002'
+      const origin = PUBLIC_APP_URL
       const handleClean = (proj.creatorHandle || proj.creatorName || 'creator')
         .replace(/^@/, '')
         .replace(/[^a-zA-Z0-9]/g, '')

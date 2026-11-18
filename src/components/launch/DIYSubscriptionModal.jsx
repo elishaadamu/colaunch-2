@@ -21,6 +21,7 @@ import {
 import { updateCoLaunchProject, sendDirectEmail, getWorkflowState } from '../../services/opsApi'
 import FloatingPolygons from '../ui/FloatingPolygons'
 
+import { PUBLIC_APP_URL } from '../../utils/publicUrl'
 export default function DIYSubscriptionModal({
   isOpen,
   onClose,
@@ -133,7 +134,7 @@ export default function DIYSubscriptionModal({
         await new Promise((r) => setTimeout(r, 800))
       }
 
-      const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001'
+      const origin = PUBLIC_APP_URL
       const creatorHandleClean = (project?.creatorHandle || project?.creatorName || 'creator')
         .replace(/^@/, '')
         .replace(/[^a-zA-Z0-9]/g, '')

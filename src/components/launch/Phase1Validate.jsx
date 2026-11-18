@@ -57,6 +57,7 @@ import Phase1Step3Campaign from './phase1/Phase1Step3Campaign'
 import Phase1Step4Optimize from './phase1/Phase1Step4Optimize'
 import Phase1Step5Gate from './phase1/Phase1Step5Gate'
 
+import { PUBLIC_APP_URL } from '../../utils/publicUrl'
 const C = {
   bg: '#08090c',
   sheet: '#10131a',
@@ -1284,7 +1285,7 @@ export default function Phase1Validate({
   const handleWhatsAppNudge = (task) => {
     const creatorName = project?.creatorName || 'Hey'
     const portalSlug = (project?.creatorHandle || project?.creatorName || 'creator').replace(/[@ ]/g, '').toLowerCase()
-    const portalUrl = `${window.location.origin}/portal/${portalSlug}`
+    const portalUrl = `${PUBLIC_APP_URL}/portal/${portalSlug}`
     const text = `Hey ${creatorName}! Quick heads-up: our Day ${task.day || task.dayNumber || 1} co-launch mission for ${project?.productName || 'our product'} (${task.channel}) is ready to post. Here is your draft & link: ${portalUrl}. Let me know once it's live!`
     
     if (navigator.clipboard) {
