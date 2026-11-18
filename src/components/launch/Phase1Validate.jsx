@@ -425,12 +425,15 @@ export default function Phase1Validate({
 
   // Real Survey & Research Responses
   const [surveyResponses, setSurveyResponses] = useState(() => {
-    const raw = project?.surveyResponses ||
-      project?.validationCampaign?.researchSurvey?.responses ||
-      project?.validationCampaign?.research_survey?.responses ||
-      project?.surveyData?.responses ||
-      (project?.metadataInfo || project?.metadata_info)?.survey_responses
-    return Array.isArray(raw) ? raw : []
+    const raw = [
+      project?.surveyResponses,
+      project?.validationCampaign?.researchSurvey?.responses,
+      project?.validationCampaign?.research_survey?.responses,
+      project?.surveyData?.responses,
+      project?.campaignKit?.research_survey?.responses,
+      (project?.metadataInfo || project?.metadata_info)?.survey_responses,
+    ].find((list) => Array.isArray(list) && list.length > 0)
+    return raw || []
   })
   const [surveyAnalysis, setSurveyAnalysis] = useState(() => {
     return project?.surveyAnalysis ||
@@ -495,9 +498,13 @@ export default function Phase1Validate({
       setSurveyData(null)
     }
 
-    const resolvedResponses = (Array.isArray(project.surveyResponses) && project.surveyResponses.length > 0)
-      ? project.surveyResponses
-      : (Array.isArray(incomingSurvey?.responses) ? incomingSurvey.responses : (Array.isArray((project.metadataInfo || project.metadata_info)?.survey_responses) ? (project.metadataInfo || project.metadata_info).survey_responses : []))
+    // First non-empty list wins (an empty surveyData.responses must not hide saved responses)
+    const resolvedResponses = [
+      project.surveyResponses,
+      incomingSurvey?.responses,
+      project.campaignKit?.research_survey?.responses,
+      (project.metadataInfo || project.metadata_info)?.survey_responses,
+    ].find((list) => Array.isArray(list) && list.length > 0) || []
 
     const resolvedAnalysis = project.surveyAnalysis ||
       incomingSurvey?.analysis ||
