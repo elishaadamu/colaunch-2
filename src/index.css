@@ -2080,3 +2080,139 @@ input[type="range"]:focus {
 }
 
 
+
+/* ==========================================================================
+   ACQUISITION OS (SECTION 1) — BLACK + CRIMSON DESIGN SYSTEM
+   Base: true black neutrals. Brand: #c81e3c. Accents: rose #ff4d6d (highlight),
+   emerald (verified / success), amber (pending / caution).
+   ========================================================================== */
+:root {
+  --acq-bg: #050506;
+  --acq-card: #0c0c0e;
+  --acq-surface: #141417;
+  --acq-raised: #1c1c20;
+  --acq-line: #222227;
+  --acq-line-strong: #2a2a30;
+  --acq-text: #fafafa;
+  --acq-muted: #a1a1aa;
+  --acq-faint: #71717a;
+  --acq-crimson: #c81e3c;
+  --acq-crimson-hover: #b01732;
+  --acq-crimson-deep: #7a0f22;
+  --acq-rose: #ff4d6d;
+  --acq-glow: rgba(200, 30, 60, 0.35);
+}
+
+.acq-os ::selection { background: var(--acq-crimson); color: #fff; }
+
+/* Elevated card surface: faint top sheen + crisp hairline */
+.acq-os .acq-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0%, rgba(255, 255, 255, 0) 120px),
+    var(--acq-card);
+  border: 1px solid var(--acq-line-strong);
+  border-radius: 16px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 20px 40px -24px rgba(0, 0, 0, 0.9);
+}
+
+/* Primary brand CTA */
+.acq-btn-primary {
+  background: linear-gradient(180deg, #d62546 0%, var(--acq-crimson) 55%, #ad1833 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 77, 109, 0.35);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 10px 30px -10px var(--acq-glow);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+.acq-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 14px 36px -10px rgba(200, 30, 60, 0.55);
+}
+.acq-btn-primary:active:not(:disabled) { transform: translateY(1px) scale(0.995); }
+
+/* Keyboard focus — visible crimson ring everywhere in Section 1 */
+.acq-os button:focus-visible,
+.acq-os a:focus-visible,
+.acq-os input:focus-visible,
+.acq-os select:focus-visible,
+.acq-os textarea:focus-visible {
+  outline: 2px solid var(--acq-rose);
+  outline-offset: 2px;
+}
+
+/* Form fields */
+.acq-os input[type="text"],
+.acq-os input[type="email"],
+.acq-os input[type="number"],
+.acq-os input[type="search"],
+.acq-os textarea,
+.acq-os select {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.acq-os input[type="text"]:focus,
+.acq-os input[type="email"]:focus,
+.acq-os input[type="number"]:focus,
+.acq-os input[type="search"]:focus,
+.acq-os textarea:focus,
+.acq-os select:focus {
+  border-color: rgba(200, 30, 60, 0.7) !important;
+  box-shadow: 0 0 0 3px rgba(200, 30, 60, 0.18);
+}
+
+/* Range sliders */
+.acq-os input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--acq-crimson), var(--acq-rose));
+  outline: none;
+}
+.acq-os input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #fff;
+  border: 3px solid var(--acq-crimson);
+  box-shadow: 0 0 0 4px rgba(200, 30, 60, 0.2);
+  cursor: pointer;
+}
+.acq-os input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 3px solid var(--acq-crimson);
+  cursor: pointer;
+}
+
+/* Stepper */
+.acq-step {
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+.acq-step:hover { transform: translateY(-1px); }
+.acq-step[data-state="active"] {
+  background: linear-gradient(160deg, rgba(200, 30, 60, 0.22) 0%, rgba(200, 30, 60, 0.06) 100%);
+  border-color: rgba(255, 77, 109, 0.55);
+  box-shadow: 0 0 0 1px rgba(200, 30, 60, 0.25) inset, 0 12px 32px -16px var(--acq-glow);
+}
+.acq-step[data-state="done"] { border-color: rgba(52, 211, 153, 0.22); }
+
+/* Subtle entrance for step panels */
+@keyframes acqFadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.acq-panel { animation: acqFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .acq-panel, .acq-step { animation: none; transition: none; }
+  .acq-step:hover { transform: none; }
+}
+
+/* Scrollbars inside Section 1 */
+.acq-os ::-webkit-scrollbar { width: 8px; height: 8px; }
+.acq-os ::-webkit-scrollbar-track { background: transparent; }
+.acq-os ::-webkit-scrollbar-thumb { background: #2a2a30; border-radius: 999px; }
+.acq-os ::-webkit-scrollbar-thumb:hover { background: var(--acq-crimson); }

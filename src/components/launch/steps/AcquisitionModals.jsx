@@ -182,7 +182,7 @@ export default function AcquisitionModals({
                         e.currentTarget.src = generateCreatorAvatarSvg(c?.name || c?.handle || "Creator");
                       }}
                       alt=""
-                      className="w-11 h-11 rounded-none object-cover border border-[#334155]"
+                      className="w-11 h-11 rounded-lg object-cover border border-[#2a2a30]"
                     />
                     <div>
                       <div className="flex items-center gap-2">
@@ -244,8 +244,8 @@ export default function AcquisitionModals({
                         setShowInterestedModal(false);
                       }}
                       className={`relative px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 ${isCurrentlySelected
-                          ? "bg-[#0F172A] text-white border border-slate-800"
-                          : "bg-[#0F172A] hover:bg-[#1E293B] text-white border border-slate-800"
+                          ? "bg-[#0F0F12] text-white border border-slate-800"
+                          : "bg-[#0F0F12] hover:bg-[#222227] text-white border border-slate-800"
                         }`}
                     >
                       <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
@@ -344,7 +344,7 @@ export default function AcquisitionModals({
                         e.currentTarget.src = generateCreatorAvatarSvg(c?.name || c?.handle || "Creator");
                       }}
                       alt=""
-                      className="w-10 h-10 rounded-none object-cover border border-[#334155]"
+                      className="w-10 h-10 rounded-lg object-cover border border-[#2a2a30]"
                     />
                     <div>
                       <div className="flex items-center gap-2">
@@ -431,7 +431,7 @@ export default function AcquisitionModals({
                         setActiveStep(6);
                         setShowAwaitingModal(false);
                       }}
-                      className="px-3.5 py-1.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white border border-slate-800 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#0F0F12] hover:bg-[#222227] text-white border border-slate-800 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
                     >
                       <span>Mark as Interested & Pitch</span>
                     </button>
@@ -556,7 +556,7 @@ export default function AcquisitionModals({
                 e.currentTarget.src = generateCreatorAvatarSvg(decisionModal.creator?.handle || "Creator");
               }}
               alt=""
-              className="w-10 h-10 rounded-none object-cover border border-[#334155] flex-shrink-0"
+              className="w-10 h-10 rounded-lg object-cover border border-[#2a2a30] flex-shrink-0"
             />
             <div className="min-w-0">
               <h4 className="font-bold text-slate-900 truncate">
@@ -598,7 +598,7 @@ export default function AcquisitionModals({
                       sendEmail: e.target.checked,
                     }))
                   }
-                  className="w-4 h-4 rounded text-slate-900 focus:ring-0 cursor-pointer accent-[#0F172A]"
+                  className="w-4 h-4 rounded text-slate-900 focus:ring-0 cursor-pointer accent-[#0F0F12]"
                 />
                 <span>Send decision notification email to creator</span>
               </label>
@@ -750,7 +750,7 @@ export default function AcquisitionModals({
               onClick={handleConfirmDecisionModal}
               disabled={decisionModal.isSending}
               className={`relative px-5 py-2.5 rounded-xl text-xs font-bold text-white shadow-sm transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95 ${decisionModal.decisionType === "approve"
-                  ? "bg-[#0F172A] hover:bg-[#1E293B] border border-slate-800"
+                  ? "bg-[#0F0F12] hover:bg-[#222227] border border-slate-800"
                   : "bg-rose-600 hover:bg-rose-500 border border-rose-500 shadow-rose-600/20"
                 }`}
             >
@@ -808,7 +808,7 @@ export default function AcquisitionModals({
                     e.currentTarget.src = generateCreatorAvatarSvg(selectedCreator?.name || selectedCreator?.handle || "Creator");
                   }}
                   alt=""
-                  className="w-10 h-10 rounded-none object-cover border border-[#334155]"
+                  className="w-10 h-10 rounded-lg object-cover border border-[#2a2a30]"
                 />
                 <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
                   <Rocket className="w-2 h-2 text-white" />
@@ -1339,7 +1339,7 @@ export default function AcquisitionModals({
                         e.currentTarget.src = generateCreatorAvatarSvg(c?.name || c?.handle || "Creator");
                       }}
                       alt=""
-                      className="w-5 h-5 rounded-none object-cover flex-shrink-0 border border-[#334155]"
+                      className="w-5 h-5 rounded-lg object-cover flex-shrink-0 border border-[#2a2a30]"
                     />
                     <span className="truncate">{c.name || c.display_name || c.handle}</span>
                   </div>

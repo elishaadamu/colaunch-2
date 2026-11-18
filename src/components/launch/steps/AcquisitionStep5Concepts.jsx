@@ -16,16 +16,16 @@ import { formatConceptPricing } from "../../../utils/pricing";
  * (and one small dot), so the page stays calm and the preview is what you look at.
  * ────────────────────────────────────────────────────────────────────────── */
 const C = {
-  bg: "#08090c",
-  sheet: "#10131a",
-  row: "#0c0e13",
-  raised: "#171b24",
+  bg: "#050506",
+  sheet: "#111114",
+  row: "#0c0c0e",
+  raised: "#18181c",
   line: "rgba(255,255,255,0.07)",
   lineStrong: "rgba(255,255,255,0.16)",
-  text: "#f3f4f6",
-  body: "#cdd1da",
-  muted: "#9ba1ae",
-  faint: "#6c7280",
+  text: "#fafafa",
+  body: "#d4d4d8",
+  muted: "#a1a1aa",
+  faint: "#71717a",
   crimson: "#c81e3c",
   crimsonHover: "#d92a49",
   crimsonSoft: "rgba(200,30,60,0.14)",
@@ -307,16 +307,12 @@ function StatusBanner({ state, creatorName, sentInfo }) {
 }
 
 function BrandColorBar({
-  creator, avatarHex, colorInfo, isExtracting, uniformBrandColor, onToggleUniform, onSetColor,
+  creator, colorInfo, uniformBrandColor, onToggleUniform, onSetColor,
   getCreatorAvatar, generateCreatorAvatarSvg,
 }) {
   const hex = colorInfo.primaryHex;
   const normalizedHex = hex.toLowerCase();
-  const normalizedAvatar = String(avatarHex || hex).toLowerCase();
-  const avatarInPresets = TUNE_COLORS.some((c) => c.hex.toLowerCase() === normalizedAvatar);
-  const swatches = avatarInPresets
-    ? TUNE_COLORS
-    : [{ name: "From avatar", hex: avatarHex }, ...TUNE_COLORS];
+  const swatches = TUNE_COLORS;
   const isCustomActive = !swatches.some((c) => c.hex.toLowerCase() === normalizedHex);
 
   const previewColors = uniformBrandColor
@@ -358,7 +354,7 @@ function BrandColorBar({
                 style={{ color: C.text, background: C.sheet, border: `1px solid ${C.lineStrong}` }}
               >
                 <span className="w-2 h-2 rounded-full" style={{ background: hex }} aria-hidden="true" />
-                {isExtracting ? "Reading avatar..." : `${colorInfo.name} · ${hex.toUpperCase()}`}
+                {`${colorInfo.name} · ${hex.toUpperCase()}`}
               </span>
             </p>
             <p className="m-0 text-xs" style={{ color: C.muted }}>
@@ -542,7 +538,6 @@ export default function AcquisitionStep5Concepts({
   handleSetCreatorBrandColor,
   handleSynthesizeStep5Ai,
   interestedCreators,
-  isExtractingAvatarColor,
   isSendingPitch,
   isSynthesizingStep5Ai,
   pitchSentMap,
@@ -582,14 +577,14 @@ export default function AcquisitionStep5Concepts({
     [selectedCreator, getCreatorThreadMessages, realThreads],
   );
 
-  const baseBrand = selectedCreator?.brand_color || selectedCreator?.brandColor || FALLBACK_BRAND;
+  const baseBrand = FALLBACK_BRAND;
   const colorInfo = useMemo(() => {
     const stored = selectedCreator && creatorBrandColorMap[selectedCreator.id];
     const primary = stored?.primaryHex || baseBrand;
     return {
       primaryHex: primary,
       name: stored?.name || getFriendlyColorName(primary),
-      source: stored?.source || "avatar_vision",
+      source: stored?.source || "colaunch_default",
       colors: getHarmoniousConceptColors(primary),
     };
   }, [selectedCreator, creatorBrandColorMap, baseBrand]);
@@ -715,9 +710,7 @@ export default function AcquisitionStep5Concepts({
         <div className="space-y-5">
           <BrandColorBar
             creator={selectedCreator}
-            avatarHex={baseBrand}
             colorInfo={colorInfo}
-            isExtracting={isExtractingAvatarColor}
             uniformBrandColor={uniformBrandColor}
             onToggleUniform={setUniformBrandColor}
             onSetColor={handleSetCreatorBrandColor}

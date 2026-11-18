@@ -66,15 +66,15 @@ export default function AcquisitionStep2Discovery({
   unlaunchedCreators,
 }) {
   return (
-  <div className="p-3.5 sm:p-6 rounded-none bg-[#0D121F] border border-[#334155] shadow-none space-y-5 min-w-0 w-full relative overflow-hidden">
-    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#334155] pb-4 min-w-0 relative z-10">
+  <div className="p-3.5 sm:p-6 acq-card space-y-5 min-w-0 w-full relative overflow-hidden">
+    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#2a2a30] pb-4 min-w-0 relative z-10">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] font-display">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#A1A1AA] font-display">
             Discovered Leads
           </span>
-          <span className="text-xs text-[#64748B]">•</span>
-          <span className="text-xs text-[#64748B]">
+          <span className="text-xs text-[#71717A]">•</span>
+          <span className="text-xs text-[#71717A]">
             Profile & Contact Intelligence
           </span>
         </div>
@@ -82,15 +82,15 @@ export default function AcquisitionStep2Discovery({
           <Search className="w-4 h-4 text-[#C81E3C] shrink-0" />
           <span>Find & Qualify Creators</span>
         </h2>
-        <p className="text-xs text-[#64748B] mt-0.5">
+        <p className="text-xs text-[#71717A] mt-0.5">
           Review discovered creator profiles and verified contact emails before launching outreach.
         </p>
       </div>
 
       <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap flex-shrink-0 max-w-full">
         {creators.length > 0 && !discovering && (
-          <div className="h-9 px-3 rounded-none bg-[#131929] border border-[#334155] text-[#94A3B8] text-xs font-mono flex items-center gap-2 whitespace-nowrap">
-            <Clock className="w-3.5 h-3.5 text-[#94A3B8] flex-shrink-0" />
+          <div className="h-9 px-3 rounded-lg bg-[#141417] border border-[#2a2a30] text-[#A1A1AA] text-xs font-mono flex items-center gap-2 whitespace-nowrap">
+            <Clock className="w-3.5 h-3.5 text-[#A1A1AA] flex-shrink-0" />
             <span>
               Auto-Advance to Step 3 in:{" "}
               <strong className="text-white">{formatCountdown(countdownSeconds)}</strong>
@@ -98,7 +98,7 @@ export default function AcquisitionStep2Discovery({
             <button
               type="button"
               onClick={toggleStep2Timer}
-              className="ml-1 text-[11px] underline text-[#CBD5E1] hover:text-white cursor-pointer font-sans"
+              className="ml-1 text-[11px] underline text-[#D4D4D8] hover:text-white cursor-pointer font-sans"
             >
               {timerPaused ? "Resume" : "Pause"}
             </button>
@@ -109,7 +109,7 @@ export default function AcquisitionStep2Discovery({
           <button
             type="button"
             onClick={handleStopDiscovery}
-            className="h-9 px-3.5 rounded-none bg-[#1A111E] hover:bg-[#2A1420] text-[#FF4D6D] hover:text-white border border-rose-900/60 hover:border-[#C81E3C] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 whitespace-nowrap"
+            className="h-9 px-3.5 rounded-lg bg-[#1A0B10] hover:bg-[#2A0F18] text-[#FF4D6D] hover:text-white border border-rose-900/60 hover:border-[#C81E3C] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 whitespace-nowrap"
             title="Stop discovery early and keep currently scouted creators"
           >
             <XCircle className="w-3.5 h-3.5 text-[#FF4D6D]" />
@@ -119,11 +119,11 @@ export default function AcquisitionStep2Discovery({
           <button
             onClick={handleStartEngine}
             disabled={discovering}
-            className="h-9 px-3.5 rounded-none bg-[#131929] hover:bg-[#1A2236] text-[#94A3B8] hover:text-white font-semibold text-xs flex items-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer border border-[#334155] whitespace-nowrap active:scale-95"
+            className="h-9 px-3.5 rounded-lg bg-[#141417] hover:bg-[#1C1C20] text-[#A1A1AA] hover:text-white font-semibold text-xs flex items-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer border border-[#2a2a30] whitespace-nowrap active:scale-95"
             title="Re-run discovery"
           >
             <RefreshCw
-              className={`w-3.5 h-3.5 text-[#94A3B8] ${discovering ? "animate-spin" : ""}`}
+              className={`w-3.5 h-3.5 text-[#A1A1AA] ${discovering ? "animate-spin" : ""}`}
             />
             <span>{discovering ? "Scouting..." : "Re-Discover"}</span>
           </button>
@@ -139,7 +139,7 @@ export default function AcquisitionStep2Discovery({
             }
             setActiveStep(3);
           }}
-          className="relative inline-flex items-center justify-center gap-2 h-9 px-4 rounded-none bg-[#C81E3C] hover:bg-[#B01732] active:bg-[#99142B] text-white font-bold text-xs shadow-lg shadow-[#C81E3C]/20 transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap"
+          className="relative inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg acq-btn-primary text-white font-bold text-xs shadow-lg shadow-[#C81E3C]/20 transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap"
         >
           <span>Proceed to Step 3: Outreach Wave</span>
           <ArrowRight className="w-3.5 h-3.5 text-white" />
@@ -150,22 +150,22 @@ export default function AcquisitionStep2Discovery({
     {/* Active Scouting State (Initial, 0 creators): Header + Shimmer Skeleton Grid */}
     {discovering && creators.length === 0 && (
       <div className="space-y-4 animate-in fade-in">
-        <div className="p-4 sm:p-5 rounded-none bg-[#0D121F] border border-[#334155] flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-none">
+        <div className="p-4 sm:p-5 rounded-xl bg-[#111114] border border-[#222227] flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-none">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-10 h-10 rounded-none bg-[#1A111E] border border-rose-900/50 flex items-center justify-center text-[#C81E3C] shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[#1A0B10] border border-rose-900/50 flex items-center justify-center text-[#C81E3C] shrink-0">
               <RotateCw className="w-5 h-5 animate-spin text-[#C81E3C]" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-sm font-bold text-white tracking-wide font-display flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.8)] shrink-0" />
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)] shrink-0" />
                   <span>Discovering Target Creators</span>
                 </h3>
-                <span className="px-2.5 py-0.5 rounded-none text-[10px] font-bold bg-[#131929] text-white border border-[#334155] font-mono">
+                <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-[#141417] text-white border border-[#2a2a30] font-mono">
                   Target: {creatorsBatchCount || 25}
                 </span>
               </div>
-              <p className="text-xs text-[#94A3B8] truncate">
+              <p className="text-xs text-[#A1A1AA] truncate">
                 Scouting verified creators across {niches.join(", ")}
               </p>
             </div>
@@ -175,7 +175,7 @@ export default function AcquisitionStep2Discovery({
             <button
               type="button"
               onClick={handleStopDiscovery}
-              className="px-3.5 py-1.5 rounded-none bg-[#1A111E] hover:bg-[#2A1420] text-[#FF4D6D] hover:text-white border border-rose-900/60 hover:border-[#C81E3C] text-xs font-bold inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-none active:scale-95"
+              className="px-3.5 py-1.5 rounded-lg bg-[#1A0B10] hover:bg-[#2A0F18] text-[#FF4D6D] hover:text-white border border-rose-900/60 hover:border-[#C81E3C] text-xs font-bold inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-none active:scale-95"
             >
               <X className="w-3.5 h-3.5 text-[#FF4D6D]" />
               <span>Stop Discovery</span>
@@ -193,7 +193,7 @@ export default function AcquisitionStep2Discovery({
       loadingCreatorsFromDb ? (
         <div className="text-center py-16 text-slate-500 text-xs space-y-4 animate-in fade-in">
           <div className="flex flex-col items-center gap-3">
-            <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+            <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
             <p className="text-sm font-medium text-slate-600">Loading creators from database…</p>
             <p className="text-[11px] text-slate-400">Syncing your pipeline from the server</p>
           </div>
@@ -206,9 +206,9 @@ export default function AcquisitionStep2Discovery({
           <button
             onClick={handleStartEngine}
             disabled={discovering}
-            className="relative inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-medium text-xs shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+            className="relative inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#0F0F12] hover:bg-[#222227] text-white font-medium text-xs shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
           >
-            <Search className="w-4 h-4 text-cyan-400" />
+            <Search className="w-4 h-4 text-emerald-400" />
             <span>
               Start Lead Discovery ({creatorsBatchCount} Creators)
             </span>
@@ -250,9 +250,9 @@ export default function AcquisitionStep2Discovery({
         <div className="space-y-4">
           {/* Active Ingestion Banner if discovery is still streaming candidates in background */}
           {discovering && (
-            <div className="p-3.5 sm:p-4 rounded-none bg-[#0D121F] border border-[#334155] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-none animate-in fade-in">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-[#111114] border border-[#222227] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-none animate-in fade-in">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-none bg-[#1A111E] text-[#C81E3C] flex items-center justify-center shrink-0 border border-rose-900/50">
+                <div className="w-9 h-9 rounded-lg bg-[#1A0B10] text-[#C81E3C] flex items-center justify-center shrink-0 border border-rose-900/50">
                   <RotateCw className="w-4 h-4 animate-spin text-[#C81E3C]" />
                 </div>
                 <div className="min-w-0">
@@ -260,12 +260,12 @@ export default function AcquisitionStep2Discovery({
                     <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide font-display">
                       Scouting Active: {validCreators.length} of {creatorsBatchCount || 25} Creators Gathered
                     </h3>
-                    <span className="px-2 py-0.5 rounded-none text-[10px] font-bold text-cyan-400 bg-cyan-950/40 border border-cyan-500/30 font-mono inline-flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shrink-0" />
+                    <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 font-mono inline-flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                       <span>Live Ingestion</span>
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#94A3B8] truncate">
+                  <p className="text-[11px] text-[#A1A1AA] truncate">
                     Audience crawler is finding more profiles across {niches.join(", ")}. Received leads below are active.
                   </p>
                 </div>
@@ -275,7 +275,7 @@ export default function AcquisitionStep2Discovery({
                 <button
                   type="button"
                   onClick={handleStopDiscovery}
-                  className="px-3.5 py-1.5 rounded-none bg-[#1A111E] hover:bg-[#2A1420] text-[#FF4D6D] hover:text-white border border-rose-900/60 hover:border-[#C81E3C] text-xs font-bold inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-none active:scale-95"
+                  className="px-3.5 py-1.5 rounded-lg bg-[#1A0B10] hover:bg-[#2A0F18] text-[#FF4D6D] hover:text-white border border-rose-900/60 hover:border-[#C81E3C] text-xs font-bold inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-none active:scale-95"
                 >
                   <X className="w-3.5 h-3.5 text-[#FF4D6D]" />
                   <span>Stop Scouting ({validCreators.length} Ready)</span>
@@ -287,88 +287,88 @@ export default function AcquisitionStep2Discovery({
           {/* 4 KPI Overview Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5">
             {/* 1. Scouted Leads */}
-            <div className="p-3.5 sm:p-4 rounded-none bg-[#0D121F] border border-[#334155] space-y-1 relative overflow-hidden group">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-[#111114] border border-[#222227] space-y-1 relative overflow-hidden group">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider font-display">
+                <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider font-display">
                   Candidates Scouted
                 </span>
-                <div className="w-7 h-7 rounded-none bg-[#131929] text-[#C81E3C] flex items-center justify-center border border-[#334155]">
+                <div className="w-7 h-7 rounded-lg bg-[#141417] text-[#C81E3C] flex items-center justify-center border border-[#2a2a30]">
                   <Users className="w-3.5 h-3.5" />
                 </div>
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-display">
                 {validCreators.length}
               </div>
-              <div className="flex items-center justify-between text-[11px] text-[#94A3B8] pt-0.5">
+              <div className="flex items-center justify-between text-[11px] text-[#A1A1AA] pt-0.5">
                 <span>Target: {creatorsBatchCount || 25}</span>
-                <span className="font-semibold text-white bg-[#131929] border border-[#334155] px-2 py-0.5 rounded-none text-[10px] font-mono">
+                <span className="font-semibold text-white bg-[#141417] border border-[#2a2a30] px-2 py-0.5 rounded-lg text-[10px] font-mono">
                   ↑ Live Pipeline
                 </span>
               </div>
             </div>
 
             {/* 2. Qualified Fit */}
-            <div className="p-3.5 sm:p-4 rounded-none bg-[#0D121F] border border-[#334155] space-y-1 relative overflow-hidden group">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-[#111114] border border-[#222227] space-y-1 relative overflow-hidden group">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider font-display">
+                <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider font-display">
                   High Fit (≥{minScoreThreshold})
                 </span>
-                <div className="w-7 h-7 rounded-none bg-[#131929] text-[#C81E3C] flex items-center justify-center border border-[#334155]">
+                <div className="w-7 h-7 rounded-lg bg-[#141417] text-[#C81E3C] flex items-center justify-center border border-[#2a2a30]">
                   <Target className="w-3.5 h-3.5" />
                 </div>
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-display">
                 {advanceableCount}
               </div>
-              <div className="flex items-center justify-between text-[11px] text-[#94A3B8] pt-0.5">
+              <div className="flex items-center justify-between text-[11px] text-[#A1A1AA] pt-0.5">
                 <span>Advanceable</span>
-                <span className="font-bold text-cyan-400 bg-cyan-950/40 border border-cyan-500/30 px-2 py-0.5 rounded-none text-[10px] font-mono">
+                <span className="font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-lg text-[10px] font-mono">
                   {Math.round((advanceableCount / (validCreators.length || 1)) * 100)}% Pass
                 </span>
               </div>
             </div>
 
             {/* 3. Verified Contacts */}
-            <div className="p-3.5 sm:p-4 rounded-none bg-[#0D121F] border border-[#334155] space-y-1 relative overflow-hidden group">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-[#111114] border border-[#222227] space-y-1 relative overflow-hidden group">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider font-display">
+                <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider font-display">
                   Verified Contacts
                 </span>
-                <div className="w-7 h-7 rounded-none bg-[#131929] text-[#C81E3C] flex items-center justify-center border border-[#334155]">
+                <div className="w-7 h-7 rounded-lg bg-[#141417] text-[#C81E3C] flex items-center justify-center border border-[#2a2a30]">
                   <Mail className="w-3.5 h-3.5" />
                 </div>
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-display">
                 {verifiedEmailCount}
               </div>
-              <div className="flex items-center justify-between text-[11px] text-[#94A3B8] pt-0.5">
+              <div className="flex items-center justify-between text-[11px] text-[#A1A1AA] pt-0.5">
                 <span>Direct Inboxes</span>
-                <span className="font-bold text-cyan-400 bg-cyan-950/40 border border-cyan-500/30 px-2 py-0.5 rounded-none text-[10px] font-mono">
+                <span className="font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-lg text-[10px] font-mono">
                   {Math.round((verifiedEmailCount / (validCreators.length || 1)) * 100)}% Verified
                 </span>
               </div>
             </div>
 
             {/* 4. Platform Diversity */}
-            <div className="p-3.5 sm:p-4 rounded-none bg-[#0D121F] border border-[#334155] space-y-1 relative overflow-hidden group">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-[#111114] border border-[#222227] space-y-1 relative overflow-hidden group">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider font-display">
+                <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider font-display">
                   Platform Mix
                 </span>
-                <div className="w-7 h-7 rounded-none bg-[#131929] text-[#C81E3C] flex items-center justify-center border border-[#334155]">
+                <div className="w-7 h-7 rounded-lg bg-[#141417] text-[#C81E3C] flex items-center justify-center border border-[#2a2a30]">
                   <Globe className="w-3.5 h-3.5" />
                 </div>
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-display flex items-center gap-1.5 flex-wrap">
                 <span className="text-xs font-mono font-bold">{ytCount} YT</span>
-                <span className="text-xs text-[#64748B]">•</span>
+                <span className="text-xs text-[#71717A]">•</span>
                 <span className="text-xs font-mono font-bold">{igCount} IG</span>
-                <span className="text-xs text-[#64748B]">•</span>
+                <span className="text-xs text-[#71717A]">•</span>
                 <span className="text-xs font-mono font-bold">{ttCount} TT</span>
               </div>
-              <div className="flex items-center justify-between text-[11px] text-[#94A3B8] pt-0.5">
+              <div className="flex items-center justify-between text-[11px] text-[#A1A1AA] pt-0.5">
                 <span>Omni-channel</span>
-                <span className="font-semibold text-white bg-[#131929] border border-[#334155] px-2 py-0.5 rounded-none text-[10px] font-mono">
+                <span className="font-semibold text-white bg-[#141417] border border-[#2a2a30] px-2 py-0.5 rounded-lg text-[10px] font-mono">
                   Multi-Source
                 </span>
               </div>
@@ -376,7 +376,7 @@ export default function AcquisitionStep2Discovery({
           </div>
 
           {/* Filter Pills & Score Gate Bar */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-2.5 rounded-none bg-[#0D121F] border border-[#334155]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-2.5 rounded-xl bg-[#111114] border border-[#222227]">
             {/* Left: Platform Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
               {[
@@ -391,9 +391,9 @@ export default function AcquisitionStep2Discovery({
                     key={tab.id}
                     type="button"
                     onClick={() => setStep2PlatformFilter(tab.id)}
-                    className={`px-3 py-1.5 rounded-none text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${active
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${active
                         ? "bg-[#C81E3C] text-white shadow-xs"
-                        : "bg-[#131929] text-[#94A3B8] hover:text-white border border-[#334155] hover:border-[#334155]"
+                        : "bg-[#141417] text-[#A1A1AA] hover:text-white border border-[#2a2a30] hover:border-[#2a2a30]"
                       }`}
                   >
                     {tab.label}
@@ -405,9 +405,9 @@ export default function AcquisitionStep2Discovery({
               <button
                 type="button"
                 onClick={() => setStep2EmailOnly(!step2EmailOnly)}
-                className={`px-3 py-1.5 rounded-none text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${step2EmailOnly
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${step2EmailOnly
                     ? "bg-[#C81E3C] text-white shadow-xs"
-                    : "bg-[#131929] text-[#94A3B8] hover:text-white border border-[#334155] hover:border-[#334155]"
+                    : "bg-[#141417] text-[#A1A1AA] hover:text-white border border-[#2a2a30] hover:border-[#2a2a30]"
                   }`}
               >
                 <Mail className="w-3 h-3 text-white" />
@@ -418,35 +418,35 @@ export default function AcquisitionStep2Discovery({
             {/* Right: Quick Search & Score Gate */}
             <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
               <div className="relative flex-1 sm:w-44">
-                <Search className="w-3.5 h-3.5 text-[#64748B] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Search className="w-3.5 h-3.5 text-[#71717A] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
                   value={step2SearchQuery}
                   onChange={(e) => setStep2SearchQuery(e.target.value)}
                   placeholder="Search creators..."
-                  className="w-full pl-8 pr-7 py-1 text-xs bg-[#131929] border border-[#334155] rounded-none text-white placeholder:text-[#64748B] focus:outline-none focus:border-[#C81E3C] font-medium"
+                  className="w-full pl-8 pr-7 py-1 text-xs bg-[#141417] border border-[#2a2a30] rounded-lg text-white placeholder:text-[#71717A] focus:outline-none focus:border-[#C81E3C] font-medium"
                 />
                 {step2SearchQuery && (
                   <button
                     type="button"
                     onClick={() => setStep2SearchQuery("")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-white cursor-pointer"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-white cursor-pointer"
                   >
                     <X className="w-3 h-3" />
                   </button>
                 )}
               </div>
 
-              <div className="flex items-center gap-1 bg-[#131929] p-1 rounded-none border border-[#334155]">
-                <span className="text-[10px] text-[#64748B] font-bold px-1.5 uppercase font-mono">Gate</span>
+              <div className="flex items-center gap-1 bg-[#141417] p-1 rounded-lg border border-[#2a2a30]">
+                <span className="text-[10px] text-[#71717A] font-bold px-1.5 uppercase font-mono">Gate</span>
                 {[60, 70, 80, 85].map((threshold) => (
                   <button
                     key={threshold}
                     type="button"
                     onClick={() => setMinScoreThreshold(threshold)}
-                    className={`px-2 py-0.5 rounded-none text-[10px] font-bold transition-all cursor-pointer ${minScoreThreshold === threshold
+                    className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${minScoreThreshold === threshold
                         ? "bg-[#C81E3C] text-white"
-                        : "text-[#94A3B8] hover:text-white hover:bg-[#1E293B]"
+                        : "text-[#A1A1AA] hover:text-white hover:bg-[#222227]"
                       }`}
                   >
                     ≥{threshold}
@@ -458,7 +458,7 @@ export default function AcquisitionStep2Discovery({
 
           {/* Creators Cards Grid */}
           {filteredCreators.length === 0 ? (
-            <div className="p-8 text-center rounded-none bg-[#0D121F] border border-[#334155] text-xs text-[#94A3B8] space-y-2">
+            <div className="p-8 text-center rounded-xl bg-[#111114] border border-[#222227] text-xs text-[#A1A1AA] space-y-2">
               <p className="font-semibold text-white">No creators match your active filter.</p>
               <button
                 type="button"
@@ -467,7 +467,7 @@ export default function AcquisitionStep2Discovery({
                   setStep2EmailOnly(false);
                   setStep2SearchQuery("");
                 }}
-                className="px-3 py-1.5 rounded-none bg-[#131929] border border-[#334155] text-white hover:bg-[#1E293B] font-bold cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-[#141417] border border-[#2a2a30] text-white hover:bg-[#222227] font-bold cursor-pointer"
               >
                 Reset Filters
               </button>
@@ -497,9 +497,9 @@ export default function AcquisitionStep2Discovery({
                   <div
                     key={c.id}
                     onClick={() => setSelectedCreatorId(c.id)}
-                    className={`p-4 rounded-none border transition-all cursor-pointer space-y-3 relative ${selectedCreatorId === c.id
-                        ? "bg-[#141C2E] border-[#C81E3C] shadow-none"
-                        : "bg-[#0D121F] border-[#334155] hover:border-[#334155] shadow-none"
+                    className={`p-4 rounded-lg border transition-all cursor-pointer space-y-3 relative ${selectedCreatorId === c.id
+                        ? "bg-[#1A0F12] border-[#C81E3C] shadow-none"
+                        : "bg-[#0C0C0E] border-[#2a2a30] hover:border-[#2a2a30] shadow-none"
                       }`}
                   >
                     {/* Creator Header */}
@@ -509,17 +509,17 @@ export default function AcquisitionStep2Discovery({
                           <img
                             src={getCreatorAvatar(c)}
                             alt=""
-                            className="w-12 h-12 rounded-none object-cover border border-[#334155] bg-[#131929]"
+                            className="w-12 h-12 rounded-lg object-cover border border-[#2a2a30] bg-[#141417]"
                             onError={(e) => {
                               e.currentTarget.onerror = null;
                               e.currentTarget.src = generateCreatorAvatarSvg(c.name || c.display_name || cleanHandle);
                             }}
                           />
-                          <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-none flex items-center justify-center border border-[#0D121F] ${platformSlug === 'youtube'
+                          <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-lg flex items-center justify-center border border-[#0C0C0E] ${platformSlug === 'youtube'
                               ? 'bg-red-600 text-white'
                               : platformSlug === 'instagram'
                                 ? 'bg-gradient-to-tr from-amber-500 via-rose-500 to-pink-600 text-white'
-                                : 'bg-slate-950 text-cyan-400'
+                                : 'bg-[#050506] text-emerald-400'
                             }`}>
                             {platformSlug === 'youtube' ? (
                               <Youtube className="w-2.5 h-2.5" />
@@ -534,7 +534,7 @@ export default function AcquisitionStep2Discovery({
                           <h3 className="text-sm font-bold text-white truncate font-display">
                             {c.name || c.display_name}
                           </h3>
-                          <p className="text-[11px] text-[#94A3B8] truncate font-mono">
+                          <p className="text-[11px] text-[#A1A1AA] truncate font-mono">
                             @{cleanHandle} • {c.platform}
                           </p>
                         </div>
@@ -542,42 +542,42 @@ export default function AcquisitionStep2Discovery({
 
                       <div className="text-right flex-shrink-0">
                         <span
-                          className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-none border flex items-center gap-1 ${
+                          className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border flex items-center gap-1 ${
                             isAbove
-                              ? "text-cyan-400 bg-cyan-950/40 border-cyan-500/30"
-                              : "text-[#94A3B8] bg-[#131929] border-[#334155]"
+                              ? "text-emerald-400 bg-emerald-950/40 border-emerald-500/30"
+                              : "text-[#A1A1AA] bg-[#141417] border-[#2a2a30]"
                           }`}
                         >
-                          <TrendingUp className={`w-3 h-3 ${isAbove ? "text-cyan-400" : "text-[#94A3B8]"}`} />
+                          <TrendingUp className={`w-3 h-3 ${isAbove ? "text-emerald-400" : "text-[#A1A1AA]"}`} />
                           <span>{score}/100</span>
-                          {isAbove && <span className="text-cyan-400 font-black">✓</span>}
+                          {isAbove && <span className="text-emerald-400 font-black">✓</span>}
                         </span>
                       </div>
                     </div>
 
                     {/* Stats 4-Grid in dark secondary tiles */}
                     <div className="grid grid-cols-4 gap-1.5 text-center text-[11px]">
-                      <div className="p-2 rounded-none bg-[#131929] border border-[#334155]">
-                        <span className="text-[9px] uppercase font-bold text-[#94A3B8] block tracking-wider">Followers</span>
+                      <div className="p-2 rounded-lg bg-[#141417] border border-[#2a2a30]">
+                        <span className="text-[9px] uppercase font-bold text-[#A1A1AA] block tracking-wider">Followers</span>
                         <span className="text-xs font-black text-white font-mono truncate block">{c.followerStr || c.follower_count || "100K+"}</span>
                       </div>
-                      <div className="p-2 rounded-none bg-[#131929] border border-[#334155]">
-                        <span className="text-[9px] uppercase font-bold text-[#94A3B8] block tracking-wider">Engage</span>
+                      <div className="p-2 rounded-lg bg-[#141417] border border-[#2a2a30]">
+                        <span className="text-[9px] uppercase font-bold text-[#A1A1AA] block tracking-wider">Engage</span>
                         <span className="text-xs font-black text-white font-mono truncate block">{c.engagement || c.engagement_score || 4.2}%</span>
                       </div>
-                      <div className="p-2 rounded-none bg-[#131929] border border-[#334155]">
-                        <span className="text-[9px] uppercase font-bold text-[#94A3B8] block tracking-wider">Niche Fit</span>
+                      <div className="p-2 rounded-lg bg-[#141417] border border-[#2a2a30]">
+                        <span className="text-[9px] uppercase font-bold text-[#A1A1AA] block tracking-wider">Niche Fit</span>
                         <span className="text-xs font-black text-white font-mono truncate block">{c.nicheFit || c.niche_fit || "95%"}</span>
                       </div>
-                      <div className="p-2 rounded-none bg-[#131929] border border-[#334155]">
-                        <span className="text-[9px] uppercase font-bold text-[#94A3B8] block tracking-wider">Potential</span>
+                      <div className="p-2 rounded-lg bg-[#141417] border border-[#2a2a30]">
+                        <span className="text-[9px] uppercase font-bold text-[#A1A1AA] block tracking-wider">Potential</span>
                         <span className="text-xs font-black text-white font-mono truncate block">{c.commercialPotential || c.commercial_potential || "Strong"}</span>
                       </div>
                     </div>
 
                     {/* Scraped Bio Description */}
                     {c.bio && (
-                      <p className="text-[11px] text-[#CBD5E1] line-clamp-2 leading-relaxed bg-[#131929]/60 p-2.5 rounded-none border border-[#334155] italic">
+                      <p className="text-[11px] text-[#D4D4D8] line-clamp-2 leading-relaxed bg-[#141417]/60 p-2.5 rounded-lg border border-[#2a2a30] italic">
                         "{c.bio}"
                       </p>
                     )}
@@ -590,7 +590,7 @@ export default function AcquisitionStep2Discovery({
                             e.stopPropagation();
                             e.preventDefault();
                           }}
-                          className="p-1.5 px-2 rounded-none bg-[#131929] border border-[#334155] flex items-center gap-1.5 text-xs"
+                          className="p-1.5 px-2 rounded-lg bg-[#141417] border border-[#2a2a30] flex items-center gap-1.5 text-xs"
                         >
                           <Mail className="w-3.5 h-3.5 text-[#C81E3C] flex-shrink-0" />
                           <input
@@ -615,7 +615,7 @@ export default function AcquisitionStep2Discovery({
                           <button
                             type="button"
                             onClick={(e) => saveEditEmail(c.id, e)}
-                            className="px-2 py-0.5 rounded-none bg-[#C81E3C] hover:bg-[#B01732] text-white font-bold text-[10px] flex items-center gap-1 transition-all cursor-pointer shadow-none"
+                            className="px-2 py-0.5 rounded-lg acq-btn-primary text-white font-bold text-[10px] flex items-center gap-1 transition-all cursor-pointer shadow-none"
                             title="Save Email"
                           >
                             <Check className="w-3 h-3 text-white" />
@@ -624,7 +624,7 @@ export default function AcquisitionStep2Discovery({
                           <button
                             type="button"
                             onClick={(e) => cancelEditEmail(e)}
-                            className="p-1 text-[#94A3B8] hover:text-white rounded-none hover:bg-[#1E293B] transition-all cursor-pointer"
+                            className="p-1 text-[#A1A1AA] hover:text-white rounded-lg hover:bg-[#222227] transition-all cursor-pointer"
                             title="Cancel"
                           >
                             <X className="w-3 h-3" />
@@ -634,7 +634,7 @@ export default function AcquisitionStep2Discovery({
                         <div className="space-y-1.5">
                           <div className="flex items-center justify-between gap-2">
                             {hasEmail ? (
-                              <div className="p-1.5 px-2.5 rounded-none bg-[#131929] border border-[#334155] flex items-center justify-between gap-2 text-xs min-w-0 flex-1">
+                              <div className="p-1.5 px-2.5 rounded-lg bg-[#141417] border border-[#2a2a30] flex items-center justify-between gap-2 text-xs min-w-0 flex-1">
                                 <div className="flex items-center gap-1.5 min-w-0">
                                   <Mail className="w-3.5 h-3.5 text-[#C81E3C] flex-shrink-0" />
                                   <span className="font-mono text-white truncate font-bold text-[11px]">
@@ -642,15 +642,15 @@ export default function AcquisitionStep2Discovery({
                                   </span>
                                   {(c.hunter_score || hunterDataMap[c.id]?.score) ? (
                                     <span
-                                      className="text-[9px] font-extrabold text-cyan-400 bg-cyan-950/40 border border-cyan-500/30 px-1.5 py-0.5 rounded-none flex items-center gap-1 whitespace-nowrap"
+                                      className="text-[9px] font-extrabold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-1.5 py-0.5 rounded-lg flex items-center gap-1 whitespace-nowrap"
                                       title={`Hunter.io: ${c.hunter_score || hunterDataMap[c.id]?.score}%`}
                                     >
-                                      <Check className="w-2.5 h-2.5 text-cyan-400 stroke-[2.5]" />
+                                      <Check className="w-2.5 h-2.5 text-emerald-400 stroke-[2.5]" />
                                       <span>{c.hunter_score || hunterDataMap[c.id]?.score}%</span>
                                     </span>
                                   ) : (
-                                    <span className="text-[9px] font-bold text-cyan-400 bg-cyan-950/40 border border-cyan-500/30 px-1.5 py-0.5 rounded-none flex items-center gap-1 whitespace-nowrap">
-                                      <Check className="w-2.5 h-2.5 text-cyan-400 stroke-[2.5]" />
+                                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-1.5 py-0.5 rounded-lg flex items-center gap-1 whitespace-nowrap">
+                                      <Check className="w-2.5 h-2.5 text-emerald-400 stroke-[2.5]" />
                                       <span>Verified</span>
                                     </span>
                                   )}
@@ -662,11 +662,11 @@ export default function AcquisitionStep2Discovery({
                                       e.stopPropagation();
                                       handleCopyEmail(effectiveEmail);
                                     }}
-                                    className="p-1 text-[#94A3B8] hover:text-white rounded-none hover:bg-[#1E293B] transition-colors"
+                                    className="p-1 text-[#A1A1AA] hover:text-white rounded-lg hover:bg-[#222227] transition-colors"
                                     title="Copy Email"
                                   >
                                     {copiedEmail === effectiveEmail ? (
-                                      <Check className="w-3.5 h-3.5 text-cyan-400" />
+                                      <Check className="w-3.5 h-3.5 text-emerald-400" />
                                     ) : (
                                       <Copy className="w-3.5 h-3.5" />
                                     )}
@@ -675,7 +675,7 @@ export default function AcquisitionStep2Discovery({
                                     type="button"
                                     onClick={(e) => handleHunterVerifyEmail({ ...c, email: effectiveEmail, email_public: effectiveEmail }, e)}
                                     disabled={hunterLoadingId === c.id}
-                                    className="p-1 text-[#94A3B8] hover:text-white rounded-none hover:bg-[#1E293B] transition-colors disabled:opacity-50"
+                                    className="p-1 text-[#A1A1AA] hover:text-white rounded-lg hover:bg-[#222227] transition-colors disabled:opacity-50"
                                     title="Verify deliverability with Hunter.io"
                                   >
                                     {hunterLoadingId === c.id && hunterActionType === 'verify' ? (
@@ -687,10 +687,10 @@ export default function AcquisitionStep2Discovery({
                                   <button
                                     type="button"
                                     onClick={(e) => startEditEmail(c.id, effectiveEmail, e)}
-                                    className="p-1 text-[#94A3B8] hover:text-white rounded-none hover:bg-[#1E293B] transition-colors"
+                                    className="p-1 text-[#A1A1AA] hover:text-white rounded-lg hover:bg-[#222227] transition-colors"
                                     title="Modify Email"
                                   >
-                                    <Pencil className="w-3 h-3 text-[#94A3B8]" />
+                                    <Pencil className="w-3 h-3 text-[#A1A1AA]" />
                                   </button>
                                 </div>
                               </div>
@@ -700,7 +700,7 @@ export default function AcquisitionStep2Discovery({
                                   type="button"
                                   onClick={(e) => handleHunterFindEmail(c, e)}
                                   disabled={hunterLoadingId === c.id}
-                                  className="p-1.5 px-3 rounded-none bg-[#1A111E] hover:bg-[#2A1420] border border-rose-900/60 hover:border-[#C81E3C] text-white flex items-center gap-1.5 text-[11px] font-bold transition-all cursor-pointer disabled:opacity-50"
+                                  className="p-1.5 px-3 rounded-lg bg-[#1A0B10] hover:bg-[#2A0F18] border border-rose-900/60 hover:border-[#C81E3C] text-white flex items-center gap-1.5 text-[11px] font-bold transition-all cursor-pointer disabled:opacity-50"
                                   title="Auto-search bio, Hunter.io B2B, and social directory for verified contact"
                                 >
                                   {hunterLoadingId === c.id && hunterActionType === 'find' ? (
@@ -717,10 +717,10 @@ export default function AcquisitionStep2Discovery({
                                 <button
                                   type="button"
                                   onClick={(e) => startEditEmail(c.id, "", e)}
-                                  className="p-1.5 px-2 rounded-none bg-[#131929] hover:bg-[#1E293B] border border-[#334155] text-[#94A3B8] hover:text-white flex items-center gap-1 text-[11px] font-semibold transition-all cursor-pointer"
+                                  className="p-1.5 px-2 rounded-lg bg-[#141417] hover:bg-[#222227] border border-[#2a2a30] text-[#A1A1AA] hover:text-white flex items-center gap-1 text-[11px] font-semibold transition-all cursor-pointer"
                                   title="Manually enter email address"
                                 >
-                                  <Pencil className="w-2.5 h-2.5 text-[#64748B]" />
+                                  <Pencil className="w-2.5 h-2.5 text-[#71717A]" />
                                   <span>Edit</span>
                                 </button>
                               </div>
@@ -732,16 +732,16 @@ export default function AcquisitionStep2Discovery({
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-none text-[11px] font-bold bg-[#131929] hover:bg-[#1E293B] text-[#94A3B8] hover:text-white border border-[#334155] transition-all flex-shrink-0"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-[#141417] hover:bg-[#222227] text-[#A1A1AA] hover:text-white border border-[#2a2a30] transition-all flex-shrink-0"
                               title="Open creator profile in new tab"
                             >
                               <span>Channel</span>
-                              <ExternalLink className="w-3 h-3 text-[#64748B]" />
+                              <ExternalLink className="w-3 h-3 text-[#71717A]" />
                             </a>
                           </div>
 
                           {apifyStatusMsg[c.id] && (
-                            <p className="text-[10px] text-[#94A3B8] font-mono px-1">
+                            <p className="text-[10px] text-[#A1A1AA] font-mono px-1">
                               {apifyStatusMsg[c.id]}
                             </p>
                           )}
@@ -753,15 +753,15 @@ export default function AcquisitionStep2Discovery({
               })}
               {/* Subtle trailing candidate card if background discovery is still pulling more profiles */}
               {discovering && validCreators.length < (creatorsBatchCount || 25) && (
-                <div className="p-5 rounded-none border-2 border-dashed border-[#334155] bg-[#0D121F] flex flex-col items-center justify-center text-center space-y-2.5 min-h-[260px] animate-pulse">
-                  <div className="w-10 h-10 rounded-none bg-[#1A111E] border border-rose-900/50 flex items-center justify-center text-[#C81E3C]">
+                <div className="p-5 rounded-lg border-2 border-dashed border-[#2a2a30] bg-[#0C0C0E] flex flex-col items-center justify-center text-center space-y-2.5 min-h-[260px] animate-pulse">
+                  <div className="w-10 h-10 rounded-lg bg-[#1A0B10] border border-rose-900/50 flex items-center justify-center text-[#C81E3C]">
                     <RotateCw className="w-5 h-5 animate-spin text-[#C81E3C]" />
                   </div>
                   <div className="space-y-0.5">
                     <div className="text-xs font-bold text-white">
                       Scouting Candidate #{validCreators.length + 1}...
                     </div>
-                    <p className="text-[11px] text-[#94A3B8] max-w-[200px]">
+                    <p className="text-[11px] text-[#A1A1AA] max-w-[200px]">
                       Extracting engagement metrics and verified contact endpoints
                     </p>
                   </div>

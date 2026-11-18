@@ -11,9 +11,9 @@ import { formatConceptPricing } from "../../../utils/pricing";
  * Amber pending states.
  * ────────────────────────────────────────────────────────────────────────── */
 const C = {
-  bg: "#08090c", sheet: "#10131a", row: "#0c0e13", raised: "#171b24",
+  bg: "#050506", sheet: "#111114", row: "#0c0c0e", raised: "#18181c",
   line: "rgba(255,255,255,0.08)", lineStrong: "rgba(255,255,255,0.18)",
-  text: "#f3f4f6", body: "#cdd1da", muted: "#9ba1ae", faint: "#6c7280",
+  text: "#fafafa", body: "#d4d4d8", muted: "#a1a1aa", faint: "#71717a",
   crimson: "#c81e3c", crimsonHover: "#d92a49",
   crimsonSoft: "rgba(200,30,60,0.15)", crimsonLine: "rgba(200,30,60,0.45)", crimsonText: "#ff8fa3",
   ok: "#6fcf9b", okSoft: "rgba(111,207,155,0.13)", okLine: "rgba(111,207,155,0.38)",

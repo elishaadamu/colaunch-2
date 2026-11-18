@@ -15,8 +15,9 @@ import {
   Lightbulb,
   Loader2,
   RotateCcw,
+  Check,
 } from "lucide-react";
-import { extractBrandColorFromAvatar, getHarmoniousConceptColors, getFriendlyColorName } from "../../utils/avatarColorExtractor";
+import { getHarmoniousConceptColors, getFriendlyColorName } from "../../utils/avatarColorExtractor";
 import { resolveCreatorTheme } from "../../utils/creatorTheme";
 import { deleteAllCreators } from "../../services/opsApi";
 import { getExpiringItem, setExpiringItem, ONE_HOUR_MS } from "../../utils/expiringStorage";
@@ -3168,91 +3169,29 @@ export default function AcquisitionEngine({
   const [showStep5EmailModal, setShowStep5EmailModal] = useState(false);
   const [expandedConceptDetailsMap, setExpandedConceptDetailsMap] = useState({});
 
-  // Step 5 Creator Avatar AI Vision & Brand Color state
+  // Step 5 brand colour state — CoLaunch crimson (#c81e3c) by default, operator can override manually.
   const [creatorBrandColorMap, setCreatorBrandColorMap] = useState(() => {
     try {
-      const stored = localStorage.getItem("forge_creator_brand_color_map");
-      return stored ? JSON.parse(stored) : {};
+      const stored = JSON.parse(localStorage.getItem("forge_creator_brand_color_map") || "{}");
+      // Drop legacy auto-extracted avatar colours; only keep explicit manual picks.
+      return Object.fromEntries(
+        Object.entries(stored || {}).filter(([, v]) => v && v.source === "manual_custom")
+      );
     } catch (e) {
       return {};
     }
   });
-  const [isExtractingAvatarColor, setIsExtractingAvatarColor] = useState(false);
 
-  // Automatically inspect creator avatar and extract signature brand color via AI Vision
+  // Keep the operator studio theme in sync with the creator's (manual or default) brand colour.
   useEffect(() => {
-    if (!selectedCreator) return;
-    const cId = selectedCreator.id;
-    const avatarUrl = getCreatorAvatar(selectedCreator);
-    const existing = creatorBrandColorMap[cId];
-
-    // Explicit manual or preset brand color on creator
-    const directBrandColor = selectedCreator.brand_color || selectedCreator.brandColor;
-
-    if (!existing || (directBrandColor && existing.primaryHex.toLowerCase() !== directBrandColor.toLowerCase() && existing.source !== "manual_custom")) {
-      setIsExtractingAvatarColor(true);
-      extractBrandColorFromAvatar(avatarUrl, selectedCreator)
-        .then((result) => {
-          const rawHex = directBrandColor || result.primaryHex;
-          const primaryHex = (rawHex && !['#16a34a', '#10b981'].includes(rawHex.toLowerCase())) ? rawHex : "#c81e3c";
-          const harmonious = getHarmoniousConceptColors(primaryHex);
-          const colorName = result.name || getFriendlyColorName(primaryHex);
-
-          const newEntry = {
-            primaryHex,
-            name: colorName,
-            source: result.source || "avatar_vision",
-            colors: harmonious,
-          };
-
-          setCreatorBrandColorMap((prev) => {
-            const next = { ...prev, [cId]: newEntry };
-            try {
-              localStorage.setItem("forge_creator_brand_color_map", JSON.stringify(next));
-            } catch (e) {}
-            return next;
-          });
-
-          // Dynamically sync creator concepts with the newly detected signature brand color
-          setCreators((prev) =>
-            prev.map((c) => {
-              if (c.id !== cId) return c;
-              const currentConcepts = c.productConcepts || ensureCreatorConcepts(c);
-              const updatedConcepts = currentConcepts.map((cp, idx) => ({
-                ...cp,
-                brandColor: cp.isCustomColor ? cp.brandColor : harmonious[idx % harmonious.length],
-              }));
-              return {
-                ...c,
-                brandColor: primaryHex,
-                brand_color: primaryHex,
-                productConcepts: updatedConcepts,
-              };
-            })
-          );
-
-          // Sync with Creator Dashboard and Operator Studio theme
-          if (typeof window !== "undefined") {
-            window.dispatchEvent(
-              new CustomEvent("forge_theme_changed", {
-                detail: resolveCreatorTheme(primaryHex, selectedCreator.niche, selectedCreator.name),
-              })
-            );
-          }
-        })
-        .finally(() => {
-          setIsExtractingAvatarColor(false);
-        });
-    } else if (existing?.primaryHex) {
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(
-          new CustomEvent("forge_theme_changed", {
-            detail: resolveCreatorTheme(existing.primaryHex, selectedCreator.niche, selectedCreator.name),
-          })
-        );
-      }
-    }
-  }, [selectedCreator?.id, selectedCreator?.avatar_url, activeStep]);
+    if (!selectedCreator || typeof window === "undefined") return;
+    const primaryHex = creatorBrandColorMap[selectedCreator.id]?.primaryHex || "#c81e3c";
+    window.dispatchEvent(
+      new CustomEvent("forge_theme_changed", {
+        detail: resolveCreatorTheme(primaryHex, selectedCreator.niche, selectedCreator.name),
+      })
+    );
+  }, [selectedCreator?.id, creatorBrandColorMap]);
 
   const handleSetCreatorBrandColor = (newHex) => {
     if (!selectedCreator || !newHex) return;
@@ -6093,7 +6032,7 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
       conceptName: concepts[0]?.name || "Recommended Concept",
       reasoning: `Creator reply received ("${latestBody.slice(0, 50)}..."), but no clear concept choice or agreement detected. Awaiting concrete confirmation before executing Project OS.`,
       color: "cyan",
-      badgeClass: "bg-cyan-50 text-cyan-800 border-cyan-200",
+      badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200",
     };
   };
 
@@ -6459,7 +6398,7 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
           let waitAction = "Awaiting Pitch Feedback";
           let waitReason = `Opportunity pitch presenting 3 concepts was dispatched to ${c.name || "creator"}. Monitoring inbox for their feedback, concept choice, or questions before taking action.`;
           let waitColor = "cyan";
-          let waitBadge = "bg-cyan-50 text-cyan-800 border-cyan-200";
+          let waitBadge = "bg-emerald-50 text-emerald-800 border-emerald-200";
 
           if (aTime > pTime && aTime >= perTime) {
             waitAction = "Answers Sent — Awaiting Reply";
@@ -6570,40 +6509,40 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
   };
 
   return (
-    <div className="space-y-6 selection:bg-[#C81E3C] selection:text-white">
-      {/* ── PHASE NAVIGATION STEPPER WITH FLOATING POLYGONS (30% Secondary Card Foundation) ── */}
-      <div id="tour-s1-header" className="relative overflow-hidden rounded-none bg-[#0D121F] border border-[#334155] p-3 sm:p-4 shadow-md">
-        {/* Subtle Canvas Dot Grid Background */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-20 -z-0"
-          style={{
-            backgroundImage: 'radial-gradient(#334155 1px, transparent 1px)',
-            backgroundSize: '24px 24px'
-          }}
-        />
+    <div className="acq-os space-y-6">
+      {/* ── SECTION 1 HEADER: workspace scope + 6-step pipeline progress ── */}
+      <div id="tour-s1-header" className="acq-card relative overflow-hidden p-4 sm:p-5">
+        {/* Crimson ambient glow + hairline */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#FF4D6D]/70 to-transparent pointer-events-none" aria-hidden="true" />
+        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[70%] h-48 rounded-full bg-[#C81E3C]/15 blur-3xl pointer-events-none" aria-hidden="true" />
 
-        {/* Top Control Bar: Pipeline Scope + Set Focus URL / Reset URL triggers */}
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-3 border-b border-[#334155]">
+        {/* Title row */}
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 mb-4 border-b border-[#222227]">
+          <div className="min-w-0 space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FF4D6D]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D6D] shadow-[0_0_10px_rgba(255,77,109,0.9)]" />
+                Acquisition OS
+              </span>
+              <span className="text-[10px] font-mono text-[#71717A]">Step {activeStep} of 6</span>
+            </div>
+            <h2 className="m-0 text-lg sm:text-xl font-bold tracking-tight text-white">Creator pipeline workspace</h2>
           <div className="flex items-center gap-2 flex-wrap min-w-0">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#94A3B8] font-display">
-              Pipeline Workspace
-            </span>
-            <span className="text-[#334155]">•</span>
             {scopedCreatorId ? (
-              <div className="flex items-center gap-2 px-3 py-1 rounded-none bg-[#131929] border border-[#334155] text-white text-xs shadow-2xs">
+              <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#141417] border border-[#2a2a30] text-white text-xs shadow-2xs">
                 <span className="w-2 h-2 rounded-full bg-[#C81E3C] flex-shrink-0" />
                 <span className="font-medium truncate max-w-[240px]">
                   Individual Focus: <strong className="text-white">{scopedIndividualCreator?.name || scopedIndividualCreator?.handle || scopedCreatorId}</strong>
                 </span>
-                <span className="text-[10px] font-mono text-[#C81E3C] bg-[#090D16] px-1.5 py-0.5 rounded-none border border-[#334155]">
+                <span className="text-[10px] font-mono text-[#C81E3C] bg-[#050506] px-1.5 py-0.5 rounded-lg border border-[#2a2a30]">
                   ID: {scopedCreatorId.slice(0, 8)}...
                 </span>
               </div>
             ) : (
-              <span className="text-xs text-[#94A3B8] font-medium flex items-center gap-1.5">
+              <span className="text-xs text-[#A1A1AA] font-medium flex items-center gap-1.5">
                 <span className={`w-2 h-2 rounded-full ${loadingCreatorsFromDb ? 'bg-amber-400' : 'bg-[#C81E3C]'}`} />
                 Collective Cohort View ({loadingCreatorsFromDb ? (
-                  <span className="inline-flex items-center gap-1.5 text-[#94A3B8] font-normal">
+                  <span className="inline-flex items-center gap-1.5 text-[#A1A1AA] font-normal">
                     <Loader2 className="w-3.5 h-3.5 animate-spin text-[#C81E3C]" />
                     <span>Syncing from DB...</span>
                   </span>
@@ -6617,13 +6556,14 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
               </span>
             )}
           </div>
+          </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
             {scopedCreatorId && (
               <button
                 type="button"
                 onClick={() => setShowResetUrlModal(true)}
-                className="h-8 px-3 rounded-none bg-[#131929] hover:bg-[#1A2236] border border-[#334155] text-[#FF4D6D] text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                className="h-9 px-3.5 rounded-lg bg-[#141417] hover:bg-[#1C1C20] border border-[#2a2a30] hover:border-[#C81E3C]/60 text-[#FF4D6D] text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 active:scale-95"
                 title="Reset URL to remove creator ID and return to collective pipeline across all steps"
               >
                 <RotateCcw className="w-3.5 h-3.5 text-[#C81E3C]" />
@@ -6637,7 +6577,7 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
                 setInputUrlTargetStep(activeStep || 4);
                 setShowSetUrlModal(true);
               }}
-              className="h-8 px-3 rounded-none bg-[#C81E3C] hover:bg-[#B01732] active:bg-[#99142B] text-white text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95"
+              className="acq-btn-primary h-9 px-3.5 rounded-lg text-xs font-bold cursor-pointer flex items-center gap-1.5"
               title="Set or customize the creator ID in the URL to focus any individual creator"
             >
               <ExternalLink className="w-3.5 h-3.5 text-white" />
@@ -6646,77 +6586,77 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
           </div>
         </div>
 
-        {/* Stepper Buttons (10% Accent on active step with white text, 30% secondary on idle) */}
-        <div id="tour-s1-stepper" className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 w-full min-w-0">
-          {[
-            { step: 1, num: "Step 01", label: "Campaign Setup", icon: Target },
-            { step: 2, num: "Step 02", label: "Find & Qualify", icon: Search },
-            { step: 3, num: "Step 03", label: "Direct Outreach", icon: Send },
-            { step: 4, num: "Step 04", label: "Interested Review", icon: MessageSquare },
-            { step: 5, num: "Step 05", label: "Audience & Ideas", icon: Lightbulb },
-            { step: 6, num: "Step 06", label: "Pitch & Select", icon: Award },
-          ].map((item) => {
-            const Icon = item.icon;
-            const isActive = activeStep === item.step;
-            return (
-              <button
-                key={item.step}
-                id={`tour-s1-step-${item.step}`}
-                onClick={() => {
-                  if (item.step === 1 && scopedCreatorId) {
-                    setShowResetUrlModal(true);
-                  } else {
-                    setActiveStep(item.step);
-                  }
-                }}
-                className={`relative flex items-center gap-3 p-3 rounded-none text-left transition cursor-pointer group min-w-0 ${
-                  isActive
-                    ? "bg-[#C81E3C] text-white border border-[#C81E3C] shadow-md font-bold"
-                    : "bg-[#0D121F] hover:bg-[#131929] border border-[#334155] text-[#94A3B8] hover:text-white shadow-2xs"
-                }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-none flex items-center justify-center flex-shrink-0 transition-colors ${
-                    isActive
-                      ? "bg-white/20 text-white"
-                      : "bg-[#131929] text-[#94A3B8] group-hover:bg-[#1A2236] group-hover:text-white"
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className={`text-[10px] font-bold uppercase tracking-wider block ${
-                        isActive
-                          ? "text-white/80"
-                          : "text-[#64748B] group-hover:text-[#94A3B8]"
-                      }`}
-                    >
-                      {item.num}
-                    </span>
-                  </div>
-                  <span
-                    className={`text-xs truncate block ${
+        {/* Progress track */}
+        <div className="relative z-10 mb-3 h-1 w-full rounded-full bg-[#1C1C20] overflow-hidden" aria-hidden="true">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-[#C81E3C] to-[#FF4D6D] transition-all duration-500"
+            style={{ width: `${(Math.min(Math.max(activeStep, 1), 6) / 6) * 100}%` }}
+          />
+        </div>
+
+        {/* Stepper */}
+        <nav aria-label="Acquisition pipeline steps">
+          <ol id="tour-s1-stepper" className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 w-full min-w-0 list-none m-0 p-0">
+            {[
+              { step: 1, label: "Campaign Setup", hint: "Niche & targets", icon: Target },
+              { step: 2, label: "Find & Qualify", hint: "Discover leads", icon: Search },
+              { step: 3, label: "Direct Outreach", hint: "Send emails", icon: Send },
+              { step: 4, label: "Interested Review", hint: "Triage replies", icon: MessageSquare },
+              { step: 5, label: "Audience & Ideas", hint: "3 concepts", icon: Lightbulb },
+              { step: 6, label: "Pitch & Select", hint: "Close the deal", icon: Award },
+            ].map((item) => {
+              const Icon = item.icon;
+              const isActive = activeStep === item.step;
+              const isDone = activeStep > item.step;
+              const state = isActive ? "active" : isDone ? "done" : "idle";
+              return (
+                <li key={item.step} className="min-w-0">
+                  <button
+                    type="button"
+                    id={`tour-s1-step-${item.step}`}
+                    data-state={state}
+                    aria-current={isActive ? "step" : undefined}
+                    onClick={() => {
+                      if (item.step === 1 && scopedCreatorId) {
+                        setShowResetUrlModal(true);
+                      } else {
+                        setActiveStep(item.step);
+                      }
+                    }}
+                    className={`acq-step w-full flex items-center gap-3 p-2.5 sm:p-3 rounded-xl border text-left cursor-pointer group min-w-0 ${
                       isActive
-                        ? "font-bold text-white"
-                        : "font-medium text-[#94A3B8] group-hover:text-white"
+                        ? "text-white"
+                        : "bg-[#0C0C0E] hover:bg-[#141417] border-[#222227] hover:border-[#2a2a30] text-[#A1A1AA] hover:text-white"
                     }`}
                   >
-                    {item.label}
-                  </span>
-                </div>
-                {isActive && (
-                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white shadow-sm" />
-                )}
-              </button>
-            );
-          })}
-        </div>
+                    <span
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-[11px] font-bold transition-colors ${
+                        isActive
+                          ? "bg-[#C81E3C] text-white shadow-[0_6px_16px_-6px_rgba(200,30,60,0.9)]"
+                          : isDone
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                          : "bg-[#141417] text-[#71717A] border border-[#222227] group-hover:text-white"
+                      }`}
+                    >
+                      {isDone ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
+                    </span>
+                    <span className="min-w-0">
+                      <span className={`block text-[10px] font-mono font-semibold ${isActive ? "text-[#FF8FA3]" : "text-[#71717A]"}`}>
+                        {String(item.step).padStart(2, "0")} · {item.hint}
+                      </span>
+                      <span className={`block text-xs truncate ${isActive ? "font-bold text-white" : "font-medium"}`}>
+                        {item.label}
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </nav>
       </div>
 
-
-
+      <div key={`acq-step-${activeStep}`} className="acq-panel space-y-6">
       {/* STEP 1: CAMPAIGN SETUP */}
       {activeStep === 1 && (
         <AcquisitionStep1Setup
@@ -6866,7 +6806,6 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
           handleSetCreatorBrandColor={handleSetCreatorBrandColor}
           handleSynthesizeStep5Ai={handleSynthesizeStep5Ai}
           interestedCreators={interestedCreators}
-          isExtractingAvatarColor={isExtractingAvatarColor}
           isSendingPitch={isSendingPitch}
           isSynthesizingStep5Ai={isSynthesizingStep5Ai}
           pitchSentMap={pitchSentMap}
@@ -6949,6 +6888,8 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
           syncImapReplies={syncImapReplies}
         />
       )}
+
+      </div>
 
       {/* Shared Modals, Notifications & Tooling */}
       <AcquisitionModals

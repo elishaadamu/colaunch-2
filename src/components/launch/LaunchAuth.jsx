@@ -50,8 +50,8 @@ export function logoutLaunchAuth() {
 
 export default function LaunchAuth({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(() => isLaunchAuthenticated())
-  const [identifier, setIdentifier] = useState('admin')
-  const [password, setPassword] = useState('colaunch2026')
+  const [identifier, setIdentifier] = useState('')
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -103,8 +103,8 @@ export default function LaunchAuth({ children }) {
     return () => clearInterval(interval)
   }, [isAuthenticated])
 
-  const establishLaunchSession = (cleanEmail) => {
-    const token = `op_${Date.now()}`
+  // `token` is the signed operator session token issued by /api/auth/launch-login.
+  const establishLaunchSession = (cleanEmail, token) => {
     localStorage.setItem(LAUNCH_AUTH_SESSION_KEY, token)
     localStorage.setItem(LAUNCH_AUTH_EMAIL_KEY, cleanEmail || 'admin@colaunch.com')
     localStorage.setItem(LAUNCH_AUTH_TIMESTAMP_KEY, Date.now().toString())
@@ -179,41 +179,20 @@ export default function LaunchAuth({ children }) {
 
       const data = await res.json().catch(() => ({}))
 
-      if (res.ok && data.status === 'success') {
-        establishLaunchSession(cleanIdentifier)
-        return
-      }
-
-      // Friendly fallback validation for dev & testing accounts
-      if (
-        (cleanIdentifier === 'admin' && (cleanPass === 'creatorforge2026' || cleanPass === 'colaunch2026' || cleanPass === 'Upworkproject')) ||
-        (cleanIdentifier === 'admin@colaunch.com' && (cleanPass === 'creatorforge2026' || cleanPass === 'colaunch2026' || cleanPass === 'Upworkproject'))
-      ) {
-        establishLaunchSession(cleanIdentifier.includes('@') ? cleanIdentifier : 'admin@colaunch.com')
+      if (res.ok && data.status === 'success' && data.token) {
+        establishLaunchSession(data.user?.email || cleanIdentifier, data.token)
         return
       }
 
       setError(data.detail || 'Invalid email or password.')
       setLoading(false)
     } catch (err) {
-      // Direct offline fallback for verified credentials
-      if (
-        (cleanIdentifier === 'admin' && (cleanPass === 'creatorforge2026' || cleanPass === 'colaunch2026' || cleanPass === 'Upworkproject')) ||
-        (cleanIdentifier === 'admin@colaunch.com' && (cleanPass === 'creatorforge2026' || cleanPass === 'colaunch2026' || cleanPass === 'Upworkproject'))
-      ) {
-        establishLaunchSession(cleanIdentifier.includes('@') ? cleanIdentifier : 'admin@colaunch.com')
-        return
-      }
-      setError('Authentication failed. Please verify credentials.')
+      setError('Could not reach the server. Please try again.')
       setLoading(false)
     }
   }
 
-  const handleAutoFillDemo = () => {
-    setIdentifier('admin')
-    setPassword('colaunch2026')
-    setError('')
-  }
+
 
   const logout = useCallback(() => {
     logoutLaunchAuth()
@@ -349,17 +328,6 @@ export default function LaunchAuth({ children }) {
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
-            </div>
-
-            {/* Quick-fill helper */}
-            <div className="flex items-center justify-between text-xs pt-0.5">
-              <button
-                type="button"
-                onClick={handleAutoFillDemo}
-                className="font-mono text-[11px] text-slate-400 hover:text-white underline decoration-slate-600 underline-offset-2 transition cursor-pointer"
-              >
-                Quick-fill Admin Credentials
-              </button>
             </div>
 
             {/* Submit Button */}

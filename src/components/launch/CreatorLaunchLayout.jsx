@@ -123,12 +123,12 @@ export default function CreatorLaunchLayout({
   }, [])
 
   const SECTION1_STEPS = [
-    { step: 1, label: '1. Campaign Setup', desc: 'Target Niches & Autonomous Engine', icon: Target, color: 'text-white', bg: 'bg-[#131929]' },
-    { step: 2, label: '2. Find & Qualify', desc: 'Discover & Score Creator Candidates', icon: Search, color: 'text-white', bg: 'bg-[#131929]' },
-    { step: 3, label: '3. Autonomous Outreach', desc: 'Personalized Inquiries & SMTP Delivery', icon: Send, color: 'text-white', bg: 'bg-[#131929]' },
-    { step: 4, label: '4. Interested Review', desc: 'Live Creator Inquiries & Replies CRM', icon: MessageSquare, color: 'text-white', bg: 'bg-[#131929]' },
-    { step: 5, label: '5. Audience & Ideas', desc: 'Audience Analysis & 3 Engineered Concepts', icon: Sparkles, color: 'text-white', bg: 'bg-[#131929]' },
-    { step: 6, label: '6. Pitch & Select', desc: '50/50 Co-Founder Launch Agreement', icon: Award, color: 'text-white', bg: 'bg-[#131929]' },
+    { step: 1, label: '1. Campaign Setup', desc: 'Target Niches & Autonomous Engine', icon: Target, color: 'text-white', bg: 'bg-[#141417]' },
+    { step: 2, label: '2. Find & Qualify', desc: 'Discover & Score Creator Candidates', icon: Search, color: 'text-white', bg: 'bg-[#141417]' },
+    { step: 3, label: '3. Autonomous Outreach', desc: 'Personalized Inquiries & SMTP Delivery', icon: Send, color: 'text-white', bg: 'bg-[#141417]' },
+    { step: 4, label: '4. Interested Review', desc: 'Live Creator Inquiries & Replies CRM', icon: MessageSquare, color: 'text-white', bg: 'bg-[#141417]' },
+    { step: 5, label: '5. Audience & Ideas', desc: 'Audience Analysis & 3 Engineered Concepts', icon: Sparkles, color: 'text-white', bg: 'bg-[#141417]' },
+    { step: 6, label: '6. Pitch & Select', desc: '50/50 Co-Founder Launch Agreement', icon: Award, color: 'text-white', bg: 'bg-[#141417]' },
   ]
 
   const fetchCrmData = async () => {
@@ -999,25 +999,35 @@ export default function CreatorLaunchLayout({
   };
 
   return (
-    <div className="min-h-screen bg-[#090D16] text-[#F8FAFC] font-sans flex flex-col overflow-x-clip w-full max-w-[100vw] relative">
-      {/* 60% Dominant Canvas: Subtle Ambient Core Dark Gradients */}
+    <div className="min-h-screen bg-[#050506] text-[#FAFAFA] font-sans flex flex-col overflow-x-clip w-full max-w-[100vw] relative">
+      {/* Canvas: true black with a restrained crimson aura */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        <div className="absolute -top-[15%] -left-[10%] w-[55vw] h-[55vw] rounded-none bg-gradient-to-br from-[#c81e3c]/10 via-[#0d121f]/60 to-transparent blur-3xl" />
-        <div className="absolute top-[25%] -right-[15%] w-[50vw] h-[50vw] rounded-none bg-gradient-to-bl from-[#131929] via-[#0d121f]/80 to-transparent blur-3xl" />
-        <div className="absolute -bottom-[20%] left-[20%] w-[60vw] h-[60vw] rounded-none bg-gradient-to-tr from-[#c81e3c]/5 via-[#090d16] to-transparent blur-3xl" />
-        <div className="absolute inset-0 bg-[#090D16]/60" />
+        <div className="absolute -top-[30%] left-1/2 -translate-x-1/2 w-[80vw] h-[60vh] rounded-full bg-[#C81E3C]/[0.09] blur-[120px]" />
+        <div className="absolute -bottom-[25%] -right-[10%] w-[45vw] h-[45vw] rounded-full bg-[#FF4D6D]/[0.04] blur-[120px]" />
+        <div
+          className="absolute inset-0 opacity-[0.35]"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)',
+            backgroundSize: '28px 28px',
+            maskImage: 'radial-gradient(ellipse at top, black 20%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at top, black 20%, transparent 70%)',
+          }}
+        />
       </div>
 
       {/* Shallow Asymmetrical Polygons (Strictly BEHIND the cards - z-0, pointer-events-none) */}
-      <div className="absolute top-14 inset-x-0 h-[920px] pointer-events-none overflow-hidden select-none z-0 opacity-20" aria-hidden="true">
-        <HeroShallowPolygons className="z-0" />
-      </div>
+      {activeSection !== 'section1' && (
+        <div className="absolute top-14 inset-x-0 h-[920px] pointer-events-none overflow-hidden select-none z-0 opacity-20" aria-hidden="true">
+          <HeroShallowPolygons className="z-0" />
+        </div>
+      )}
 
       {/* 30% Secondary Header Navbar */}
-      <header className="h-14 border-b border-[#1E293B] bg-[#0D121F]/95 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 relative shadow-md">
+      <header className="h-14 border-b border-[#1C1C20] bg-[#050506]/80 backdrop-blur-xl sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 relative">
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#C81E3C]/50 to-transparent pointer-events-none" aria-hidden="true" />
         {/* Workspace Switching Progress Bar */}
         {isSwitchingCreator && (
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] z-50 overflow-hidden bg-[#1E293B]">
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] z-50 overflow-hidden bg-[#222227]">
             <div className="h-full bg-gradient-to-r from-transparent via-[#C81E3C] to-transparent animate-pulse w-full" />
           </div>
         )}
@@ -1030,16 +1040,16 @@ export default function CreatorLaunchLayout({
           >
             <CoLaunchLogo size={28} showWordmark={true} theme="dark" />
             <div className="hidden xl:flex items-center">
-              <span className="text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded-none bg-[#131929] text-[#94A3B8] border border-[#1E293B]">
+              <span className="text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded-lg bg-[#141417] text-[#A1A1AA] border border-[#222227]">
                 OPERATOR STUDIO
               </span>
             </div>
           </div>
 
-          <div className="h-4 w-px bg-[#1E293B] hidden md:block" />
+          <div className="h-4 w-px bg-[#222227] hidden md:block" />
 
           {/* Clean Suite Navigation Tabs (Tablet & Desktop) */}
-          <div id="tour-header-nav" className="hidden md:flex items-center p-1 rounded-none bg-[#090D16] border border-[#1E293B]">
+          <div id="tour-header-nav" className="hidden md:flex items-center gap-0.5 p-1 rounded-xl bg-[#0C0C0E] border border-[#222227]">
             <button
               id="tour-nav-acquisition"
               onClick={() => {
@@ -1053,28 +1063,28 @@ export default function CreatorLaunchLayout({
                   })
                 } catch { }
               }}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-none text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${activeSection === 'section1'
-                  ? 'bg-[#C81E3C] text-white border-transparent shadow-sm'
-                  : 'text-[#94A3B8] hover:text-white hover:bg-[#131929] border-transparent'
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${activeSection === 'section1'
+                  ? 'acq-btn-primary text-white'
+                  : 'text-[#A1A1AA] hover:text-white hover:bg-[#141417] border-transparent'
                 }`}
             >
-              <Target className={`w-3.5 h-3.5 ${activeSection === 'section1' ? 'text-white' : 'text-[#94A3B8]'}`} />
+              <Target className={`w-3.5 h-3.5 ${activeSection === 'section1' ? 'text-white' : 'text-[#A1A1AA]'}`} />
               <span className={activeSection === 'section1' ? 'text-white font-bold' : ''}>Acquisition OS</span>
             </button>
             <a
               id="tour-nav-project-os"
               href={activeProject?.id ? `/project-os?project=${activeProject.id}` : '/project-os'}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-semibold whitespace-nowrap transition-all cursor-pointer text-[#94A3B8] hover:text-white hover:bg-[#131929] border border-transparent"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer text-[#A1A1AA] hover:text-white hover:bg-[#141417] border border-transparent"
               title="Open Dedicated Co-Launch Operations Center"
             >
-              <Layers className="w-3.5 h-3.5 text-[#94A3B8]" />
+              <Layers className="w-3.5 h-3.5 text-[#A1A1AA]" />
               <span>Project OS</span>
-              <ExternalLink className="w-3 h-3 text-[#64748B]" />
+              <ExternalLink className="w-3 h-3 text-[#71717A]" />
             </a>
             <a
               id="tour-nav-participation"
               href="/participation-manager"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-semibold whitespace-nowrap transition-all cursor-pointer text-[#94A3B8] hover:text-white hover:bg-[#131929] border border-transparent"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer text-[#A1A1AA] hover:text-white hover:bg-[#141417] border border-transparent"
               title="Dedicated Creator Participation & Co-Builder Console"
             >
               <Zap className="w-3.5 h-3.5 text-amber-400" />
@@ -1087,7 +1097,7 @@ export default function CreatorLaunchLayout({
                 )}
                 )
               </span>
-              <ExternalLink className="w-3 h-3 text-[#64748B]" />
+              <ExternalLink className="w-3 h-3 text-[#71717A]" />
             </a>
           </div>
 
@@ -1097,10 +1107,10 @@ export default function CreatorLaunchLayout({
               <button
                 type="button"
                 onClick={() => setShowPartnerMenu(!showPartnerMenu)}
-                className="flex items-center gap-2 px-2.5 py-1 rounded-none bg-[#0D121F] hover:bg-[#131929] border border-[#1E293B] text-xs font-semibold text-white transition-all cursor-pointer shadow-sm"
+                className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[#0C0C0E] hover:bg-[#141417] border border-[#222227] text-xs font-semibold text-white transition-all cursor-pointer shadow-sm"
                 title="Switch Co-Launch Partner"
               >
-                <div className="w-5 h-5 rounded-none overflow-hidden bg-[#131929] border border-[#1E293B] flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                <div className="w-5 h-5 rounded-lg overflow-hidden bg-[#141417] border border-[#222227] flex items-center justify-center text-[10px] font-bold text-white shrink-0">
                   {isSwitchingCreator ? (
                     <Loader2 className="w-3 h-3 text-[#C81E3C] animate-spin" />
                   ) : activeProject?.creatorAvatar ? (
@@ -1120,7 +1130,7 @@ export default function CreatorLaunchLayout({
                 {isSwitchingCreator ? (
                   <Loader2 className="w-3.5 h-3.5 text-[#C81E3C] animate-spin shrink-0" />
                 ) : (
-                  <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] shrink-0 transition-transform ${showPartnerMenu ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-[#A1A1AA] shrink-0 transition-transform ${showPartnerMenu ? 'rotate-180' : ''}`} />
                 )}
               </button>
 
@@ -1130,8 +1140,8 @@ export default function CreatorLaunchLayout({
                     className="fixed inset-0 z-40"
                     onClick={() => setShowPartnerMenu(false)}
                   />
-                  <div className="absolute left-0 mt-2 w-72 rounded-none bg-[#0D121F] border border-[#1E293B] shadow-2xl p-2 z-50 space-y-1 animate-in fade-in">
-                    <div className="px-3 py-2 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider flex items-center justify-between border-b border-[#1E293B]">
+                  <div className="absolute left-0 mt-2 w-72 rounded-lg bg-[#0C0C0E] border border-[#222227] shadow-2xl p-2 z-50 space-y-1 animate-in fade-in">
+                    <div className="px-3 py-2 text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center justify-between border-b border-[#222227]">
                       <span>Co-Launch Partners ({(() => {
                         const seen = new Set()
                         return (allProjects || []).filter(p => {
@@ -1163,12 +1173,12 @@ export default function CreatorLaunchLayout({
                                 handleSwitchToCreatorProject(p);
                                 setShowPartnerMenu(false);
                               }}
-                              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-left transition-all cursor-pointer ${isCur
-                                ? 'bg-[#131929] border border-[#C81E3C] text-white font-semibold'
-                                : 'hover:bg-[#131929] text-[#94A3B8] hover:text-white border border-transparent'
+                              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-all cursor-pointer ${isCur
+                                ? 'bg-[#141417] border border-[#C81E3C] text-white font-semibold'
+                                : 'hover:bg-[#141417] text-[#A1A1AA] hover:text-white border border-transparent'
                                 }`}
                             >
-                              <div className="w-7 h-7 rounded-none overflow-hidden bg-[#1A2236] shrink-0 flex items-center justify-center text-xs font-bold text-white">
+                              <div className="w-7 h-7 rounded-lg overflow-hidden bg-[#1C1C20] shrink-0 flex items-center justify-center text-xs font-bold text-white">
                                 {p.creatorAvatar ? (
                                   <img src={p.creatorAvatar} alt="" className="w-full h-full object-cover" />
                                 ) : (
@@ -1179,7 +1189,7 @@ export default function CreatorLaunchLayout({
                                 <div className="text-xs font-bold truncate text-white">
                                   {p.creatorName || p.creatorHandle}
                                 </div>
-                                <div className="text-[10px] text-[#94A3B8] truncate">
+                                <div className="text-[10px] text-[#A1A1AA] truncate">
                                   {p.productName} • <span className="text-[#C81E3C] font-mono">Phase {p.currentPhase || 1}</span>
                                 </div>
                               </div>
@@ -1193,14 +1203,14 @@ export default function CreatorLaunchLayout({
                         })
                       })()}
                     </div>
-                    <div className="pt-1 border-t border-[#1E293B]">
+                    <div className="pt-1 border-t border-[#222227]">
                       <button
                         type="button"
                         onClick={() => {
                           setShowPartnerMenu(false);
                           setActiveSection('section1');
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-none text-xs font-semibold text-[#FF4D6D] hover:bg-[#131929] transition-all cursor-pointer"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-[#FF4D6D] hover:bg-[#141417] transition-all cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Launch Another Creator (Section 1)</span>
@@ -1219,7 +1229,7 @@ export default function CreatorLaunchLayout({
           <button
             type="button"
             onClick={() => startSection1Tour(true)}
-            className="flex items-center gap-1.5 px-3 h-8 rounded-none text-xs font-bold whitespace-nowrap bg-[#C81E3C] hover:bg-[#B01732] active:bg-[#99142B] text-white transition-all cursor-pointer shadow-md"
+            className="flex items-center gap-1.5 px-3 h-8 rounded-lg text-xs font-bold whitespace-nowrap bg-[#C81E3C] hover:bg-[#B01732] active:bg-[#99142B] text-white transition-all cursor-pointer shadow-md"
             title="Start Interactive Guided Walkthrough (Driver.js)"
           >
             <Sparkles className="w-3.5 h-3.5 text-white flex-shrink-0" />
@@ -1231,12 +1241,12 @@ export default function CreatorLaunchLayout({
             id="tour-nav-crm"
             type="button"
             onClick={() => window.open('/follow-up-crm', '_blank')}
-            className="flex items-center gap-1.5 px-2.5 h-8 rounded-none text-xs font-semibold whitespace-nowrap bg-[#0D121F] hover:bg-[#131929] text-[#E2E8F0] hover:text-white border border-[#1E293B] transition-all cursor-pointer shadow-2xs"
+            className="flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-xs font-semibold whitespace-nowrap bg-[#0C0C0E] hover:bg-[#141417] text-[#E4E4E7] hover:text-white border border-[#222227] transition-all cursor-pointer shadow-2xs"
             title="Open Creator Outreach & Follow-Up CRM in a new tab (/follow-up-crm)"
           >
-            <Users className="w-3.5 h-3.5 text-[#94A3B8] flex-shrink-0" />
+            <Users className="w-3.5 h-3.5 text-[#A1A1AA] flex-shrink-0" />
             <span>Follow-Up CRM</span>
-            <ExternalLink className="w-3 h-3 text-[#64748B]" />
+            <ExternalLink className="w-3 h-3 text-[#71717A]" />
           </button>
 
           {/* Admin Pipeline & Exception Lookup Button */}
@@ -1244,7 +1254,7 @@ export default function CreatorLaunchLayout({
             id="tour-nav-admin"
             type="button"
             onClick={() => window.open('/admin-error-log', '_blank')}
-            className="flex items-center gap-1.5 px-2.5 h-8 rounded-none text-xs font-semibold whitespace-nowrap bg-[#0D121F] hover:bg-[#131929] text-[#FF4D6D] border border-[#1E293B] hover:border-[#C81E3C]/40 transition-all cursor-pointer shadow-2xs"
+            className="flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-xs font-semibold whitespace-nowrap bg-[#0C0C0E] hover:bg-[#141417] text-[#FF4D6D] border border-[#222227] hover:border-[#C81E3C]/40 transition-all cursor-pointer shadow-2xs"
             title="Open Admin Pipeline Oversight & Error Log in a new tab (/admin-error-log)"
           >
             <ShieldAlert className="w-3.5 h-3.5 text-[#C81E3C] flex-shrink-0" />
@@ -1256,9 +1266,9 @@ export default function CreatorLaunchLayout({
           <button
             onClick={handleLogout}
             title={`Logout ${userDisplayName}`}
-            className="flex items-center gap-1.5 text-xs font-semibold text-[#94A3B8] hover:text-white px-2.5 h-8 rounded-none bg-[#0D121F] hover:bg-[#131929] border border-[#1E293B] transition-all cursor-pointer shadow-2xs whitespace-nowrap"
+            className="flex items-center gap-1.5 text-xs font-semibold text-[#A1A1AA] hover:text-white px-2.5 h-8 rounded-lg bg-[#0C0C0E] hover:bg-[#141417] border border-[#222227] transition-all cursor-pointer shadow-2xs whitespace-nowrap"
           >
-            <LogOut className="w-3.5 h-3.5 text-[#64748B] hover:text-white" />
+            <LogOut className="w-3.5 h-3.5 text-[#71717A] hover:text-white" />
             <span>Logout</span>
           </button>
         </div>
@@ -1295,30 +1305,30 @@ export default function CreatorLaunchLayout({
           <button
             type="button"
             onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
-            className="p-2 rounded-none bg-[#0D121F] hover:bg-[#131929] border border-[#1E293B] text-white transition-colors cursor-pointer shadow-sm"
+            className="p-2 rounded-lg bg-[#0C0C0E] hover:bg-[#141417] border border-[#222227] text-white transition-colors cursor-pointer shadow-sm"
             aria-label="Toggle Mobile Menu"
           >
-            {mobileDrawerOpen ? <X className="w-4 h-4 text-white" /> : <Menu className="w-4 h-4 text-[#94A3B8]" />}
+            {mobileDrawerOpen ? <X className="w-4 h-4 text-white" /> : <Menu className="w-4 h-4 text-[#A1A1AA]" />}
           </button>
         </div>
       </header>
 
       {/* Mobile Drawer Slide-Down Menu (< md) */}
       {mobileDrawerOpen && (
-        <div className="md:hidden fixed inset-x-0 top-14 bottom-0 z-40 bg-[#090D16]/80 backdrop-blur-md animate-in fade-in">
-          <div className="bg-[#0D121F] border-b border-[#1E293B] p-4 space-y-4 max-h-[calc(100dvh-3.5rem)] overflow-y-auto shadow-2xl">
+        <div className="md:hidden fixed inset-x-0 top-14 bottom-0 z-40 bg-[#050506]/80 backdrop-blur-md animate-in fade-in">
+          <div className="bg-[#0C0C0E] border-b border-[#222227] p-4 space-y-4 max-h-[calc(100dvh-3.5rem)] overflow-y-auto shadow-2xl">
             {/* Mobile Section Switcher */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider block">Studio Pipeline Sections</span>
+              <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider block">Studio Pipeline Sections</span>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => {
                     setActiveSection('section1')
                     setMobileDrawerOpen(false)
                   }}
-                  className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all ${activeSection === 'section1'
+                  className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold transition-all ${activeSection === 'section1'
                     ? 'bg-[#C81E3C] text-white shadow-sm'
-                    : 'bg-[#131929] text-[#94A3B8] border border-[#1E293B]'
+                    : 'bg-[#141417] text-[#A1A1AA] border border-[#222227]'
                     }`}
                 >
                   <Target className="w-3.5 h-3.5" />
@@ -1326,19 +1336,19 @@ export default function CreatorLaunchLayout({
                 </button>
                 <a
                   href={activeProject?.id ? `/project-os?project=${activeProject.id}` : '/project-os'}
-                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all bg-[#131929] hover:bg-[#1A2236] text-[#94A3B8] hover:text-white border border-[#1E293B]"
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold transition-all bg-[#141417] hover:bg-[#1C1C20] text-[#A1A1AA] hover:text-white border border-[#222227]"
                   title="Open Dedicated Co-Launch Operations Center"
                 >
-                  <Layers className="w-3.5 h-3.5 text-[#94A3B8]" />
+                  <Layers className="w-3.5 h-3.5 text-[#A1A1AA]" />
                   <span>Project OS</span>
-                  <ExternalLink className="w-3 h-3 text-[#64748B]" />
+                  <ExternalLink className="w-3 h-3 text-[#71717A]" />
                 </a>
               </div>
             </div>
 
             {/* Quick Access Tools */}
-            <div className="space-y-1.5 pt-2 border-t border-[#1E293B]">
-              <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider block">Studio Tools & Portals</span>
+            <div className="space-y-1.5 pt-2 border-t border-[#222227]">
+              <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider block">Studio Tools & Portals</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -1346,7 +1356,7 @@ export default function CreatorLaunchLayout({
                     window.open('/participation-manager', '_blank')
                     setMobileDrawerOpen(false)
                   }}
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-none bg-[#131929] hover:bg-[#1A2236] text-amber-400 border border-[#1E293B] text-xs font-bold transition-all"
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-[#141417] hover:bg-[#1C1C20] text-amber-400 border border-[#222227] text-xs font-bold transition-all"
                 >
                   <span className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-amber-400" />
@@ -1369,13 +1379,13 @@ export default function CreatorLaunchLayout({
                     window.open('/follow-up-crm', '_blank')
                     setMobileDrawerOpen(false)
                   }}
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-none bg-[#131929] hover:bg-[#1A2236] text-white border border-[#1E293B] text-xs font-bold transition-all"
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-[#141417] hover:bg-[#1C1C20] text-white border border-[#222227] text-xs font-bold transition-all"
                 >
                   <span className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-[#C81E3C]" />
                     <span>Creator Follow-Up CRM</span>
                   </span>
-                  <ExternalLink className="w-3 h-3 text-[#64748B]" />
+                  <ExternalLink className="w-3 h-3 text-[#71717A]" />
                 </button>
 
                 <button
@@ -1384,7 +1394,7 @@ export default function CreatorLaunchLayout({
                     window.open('/admin-error-log', '_blank')
                     setMobileDrawerOpen(false)
                   }}
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-none bg-[#131929] hover:bg-[#1A2236] text-[#FF4D6D] border border-[#1E293B] text-xs font-bold transition-all"
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-[#141417] hover:bg-[#1C1C20] text-[#FF4D6D] border border-[#222227] text-xs font-bold transition-all"
                 >
                   <span className="flex items-center gap-2">
                     <ShieldAlert className="w-4 h-4 text-[#C81E3C]" />
@@ -1396,10 +1406,10 @@ export default function CreatorLaunchLayout({
             </div>
 
             {/* Session Footer */}
-            <div className="pt-2 border-t border-[#1E293B] flex items-center justify-end">
+            <div className="pt-2 border-t border-[#222227] flex items-center justify-end">
               <button
                 onClick={handleLogout}
-                className="px-3.5 py-1.5 rounded-none bg-[#131929] text-[#FF4D6D] hover:bg-[#1A2236] text-xs font-semibold border border-[#1E293B] flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 rounded-lg bg-[#141417] text-[#FF4D6D] hover:bg-[#1C1C20] text-xs font-semibold border border-[#222227] flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Logout</span>
@@ -1411,16 +1421,16 @@ export default function CreatorLaunchLayout({
 
       {/* Slide-out Section 1 Sidebar Drawer */}
       {showSection1Sidebar && (
-        <div className="fixed inset-0 z-50 bg-[#090D16]/80 backdrop-blur-md animate-in fade-in">
+        <div className="fixed inset-0 z-50 bg-[#050506]/80 backdrop-blur-md animate-in fade-in">
           <div
             className="fixed inset-0"
             onClick={() => setShowSection1Sidebar(false)}
           />
-          <div className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-[#0D121F] border-r border-[#1E293B] shadow-2xl z-50 flex flex-col justify-between p-4 overflow-y-auto animate-in slide-in-from-left duration-200">
+          <div className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-[#0C0C0E] border-r border-[#222227] shadow-2xl z-50 flex flex-col justify-between p-4 overflow-y-auto animate-in slide-in-from-left duration-200">
             <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#1E293B]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#222227]">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-none bg-[#131929] border border-[#1E293B] flex items-center justify-center text-white">
+                  <div className="w-8 h-8 rounded-lg bg-[#141417] border border-[#222227] flex items-center justify-center text-white">
                     <Target className="w-4 h-4 text-[#C81E3C]" />
                   </div>
                   <div>
@@ -1431,14 +1441,14 @@ export default function CreatorLaunchLayout({
                 <button
                   type="button"
                   onClick={() => setShowSection1Sidebar(false)}
-                  className="p-1.5 rounded-none bg-[#131929] hover:bg-[#1A2236] text-[#94A3B8] hover:text-white border border-[#1E293B] transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg bg-[#141417] hover:bg-[#1C1C20] text-[#A1A1AA] hover:text-white border border-[#222227] transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#94A3B8] block px-1">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#A1A1AA] block px-1">
                   Pipeline Steps
                 </span>
                 {SECTION1_STEPS.map((s) => {
@@ -1458,34 +1468,34 @@ export default function CreatorLaunchLayout({
                         setAcquisitionNavState({ step: s.step, nonce: Date.now() })
                         setShowSection1Sidebar(false)
                       }}
-                      className={`w-full flex items-start gap-3 p-3 rounded-none text-left transition-all cursor-pointer ${isCur
+                      className={`w-full flex items-start gap-3 p-3 rounded-lg text-left transition-all cursor-pointer ${isCur
                           ? 'bg-[#C81E3C] text-white shadow-sm border border-transparent font-semibold'
                           : isDone
-                            ? 'bg-[#131929] hover:bg-[#1A2236] text-white border border-[#1E293B]'
-                            : 'bg-[#0D121F] hover:bg-[#131929] text-[#94A3B8] hover:text-white border border-[#1E293B]'
+                            ? 'bg-[#141417] hover:bg-[#1C1C20] text-white border border-[#222227]'
+                            : 'bg-[#0C0C0E] hover:bg-[#141417] text-[#A1A1AA] hover:text-white border border-[#222227]'
                         }`}
                     >
-                      <div className={`w-8 h-8 rounded-none shrink-0 flex items-center justify-center mt-0.5 ${isCur ? 'bg-white/20 text-white' : isDone ? 'bg-[#131929] text-[#C81E3C]' : 'bg-[#131929] text-[#94A3B8]'
+                      <div className={`w-8 h-8 rounded-lg shrink-0 flex items-center justify-center mt-0.5 ${isCur ? 'bg-white/20 text-white' : isDone ? 'bg-[#141417] text-[#C81E3C]' : 'bg-[#141417] text-[#A1A1AA]'
                         }`}>
                         {isDone && !isCur ? <Check className="w-4 h-4 stroke-[2.5]" /> : <Icon className="w-4 h-4" />}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="text-xs font-bold truncate flex items-center gap-1.5">
-                          <span className={isCur ? 'text-white' : 'text-[#F8FAFC]'}>{s.label}</span>
+                          <span className={isCur ? 'text-white' : 'text-[#FAFAFA]'}>{s.label}</span>
                           {isDone && !isCur && (
-                            <span className="text-[9px] font-semibold text-[#FF4D6D] bg-[#C81E3C]/20 border border-[#C81E3C]/30 px-1 py-0.5 rounded-none leading-none">
+                            <span className="text-[9px] font-semibold text-[#FF4D6D] bg-[#C81E3C]/20 border border-[#C81E3C]/30 px-1 py-0.5 rounded-lg leading-none">
                               Done
                             </span>
                           )}
                         </div>
-                        <div className={`text-[11px] leading-tight mt-0.5 ${isCur ? 'text-white/80 font-medium' : 'text-[#94A3B8]'}`}>
+                        <div className={`text-[11px] leading-tight mt-0.5 ${isCur ? 'text-white/80 font-medium' : 'text-[#A1A1AA]'}`}>
                           {s.desc}
                         </div>
                       </div>
                       {isCur ? (
                         <span className="w-2 h-2 rounded-full bg-white mt-1.5 shrink-0" />
                       ) : isDone ? (
-                        <span className="w-4 h-4 rounded-none bg-[#C81E3C] text-white flex items-center justify-center mt-1 shrink-0">
+                        <span className="w-4 h-4 rounded-lg bg-[#C81E3C] text-white flex items-center justify-center mt-1 shrink-0">
                           <Check className="w-2.5 h-2.5 stroke-[3]" />
                         </span>
                       ) : null}
@@ -1495,14 +1505,14 @@ export default function CreatorLaunchLayout({
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[#1E293B] space-y-2">
+            <div className="pt-4 border-t border-[#222227] space-y-2">
               <button
                 type="button"
                 onClick={() => {
                   setShowSection1Sidebar(false)
                   setActiveSection('section2')
                 }}
-                className="w-full py-2.5 px-3 rounded-none bg-[#C81E3C] hover:bg-[#B01732] active:bg-[#99142B] text-white border border-transparent text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+                className="w-full py-2.5 px-3 rounded-lg bg-[#C81E3C] hover:bg-[#B01732] active:bg-[#99142B] text-white border border-transparent text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
               >
                 <Layers className="w-3.5 h-3.5 text-white" />
                 <span className="text-white font-bold">Switch to Section 2: Project OS</span>
@@ -1515,27 +1525,27 @@ export default function CreatorLaunchLayout({
       {/* Main Content View */}
       <main className="flex-1 w-full max-w-[1720px] mx-auto px-2.5 sm:px-5 py-4 space-y-5 overflow-x-clip min-w-0 relative z-10">
         {/* Mobile Section Switcher */}
-        <div className="flex md:hidden items-center p-1 rounded-none bg-[#090D16] border border-[#1E293B] gap-1 overflow-x-auto no-scrollbar">
+        <div className="flex md:hidden items-center p-1 rounded-lg bg-[#050506] border border-[#222227] gap-1 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveSection('section1')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-none text-[11px] font-semibold whitespace-nowrap transition-all ${activeSection === 'section1' ? 'bg-[#C81E3C] text-white border-transparent shadow-xs font-bold' : 'text-[#94A3B8]'
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all ${activeSection === 'section1' ? 'bg-[#C81E3C] text-white border-transparent shadow-xs font-bold' : 'text-[#A1A1AA]'
               }`}
           >
-            <Target className={`w-3.5 h-3.5 ${activeSection === 'section1' ? 'text-white' : 'text-[#94A3B8]'}`} />
+            <Target className={`w-3.5 h-3.5 ${activeSection === 'section1' ? 'text-white' : 'text-[#A1A1AA]'}`} />
             <span className={activeSection === 'section1' ? 'text-white' : ''}>Acquisition</span>
           </button>
           <a
             href={activeProject?.id ? `/project-os?project=${activeProject.id}` : '/project-os'}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-none text-[11px] font-semibold whitespace-nowrap text-[#94A3B8] hover:text-white transition-all"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-[11px] font-semibold whitespace-nowrap text-[#A1A1AA] hover:text-white transition-all"
             title="Open Dedicated Co-Launch Operations Center"
           >
-            <Layers className="w-3.5 h-3.5 text-[#94A3B8]" />
+            <Layers className="w-3.5 h-3.5 text-[#A1A1AA]" />
             <span>Project OS</span>
-            <ExternalLink className="w-2.5 h-2.5 text-[#64748B]" />
+            <ExternalLink className="w-2.5 h-2.5 text-[#71717A]" />
           </a>
           <a
             href="/participation-manager"
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-none text-[11px] font-semibold whitespace-nowrap text-[#94A3B8] hover:text-white transition-all"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-[11px] font-semibold whitespace-nowrap text-[#A1A1AA] hover:text-white transition-all"
             title="Dedicated Creator Participation & Co-Builder Console"
           >
             <Zap className="w-3.5 h-3.5 text-amber-400" />
@@ -1624,7 +1634,7 @@ export default function CreatorLaunchLayout({
               <button
                 type="button"
                 onClick={handleCreateDemoProject}
-                className="relative inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-medium text-xs shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+                className="relative inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F0F12] hover:bg-[#222227] text-white font-medium text-xs shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
               >
                 <span className="absolute -top-1 -right-1 flex h-2 w-2">
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
