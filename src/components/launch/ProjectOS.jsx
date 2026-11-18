@@ -29,31 +29,31 @@ import { startSection2Tour } from '../../utils/driverTour'
 import { PUBLIC_APP_URL } from '../../utils/publicUrl'
 /* ── Section 2 Dark Palette (aligned with Section 1 Steps 5 & 6) ── */
 const C = {
-  bg: '#08090c',
-  sheet: '#10131a',
-  row: '#0c0e13',
-  raised: '#171b24',
+  bg: '#050506',
+  sheet: '#0c0c0e',
+  row: '#111114',
+  raised: '#1c1c20',
   line: 'rgba(255,255,255,0.08)',
   lineStrong: 'rgba(255,255,255,0.18)',
-  text: '#f3f4f6',
-  body: '#cdd1da',
-  muted: '#9ba1ae',
-  faint: '#6c7280',
+  text: '#fafafa',
+  body: '#d4d4d8',
+  muted: '#a1a1aa',
+  faint: '#71717a',
   crimson: '#c81e3c',
   crimsonHover: '#d92a49',
   crimsonSoft: 'rgba(200,30,60,0.15)',
   crimsonLine: 'rgba(200,30,60,0.45)',
   crimsonText: '#ff8fa3',
-  ok: '#6fcf9b',
-  okSoft: 'rgba(111,207,155,0.13)',
-  okLine: 'rgba(111,207,155,0.38)',
-  warn: '#f0b46a',
-  warnSoft: 'rgba(240,180,106,0.13)',
-  warnLine: 'rgba(240,180,106,0.40)',
-  sky: '#38bdf8',
-  skySoft: 'rgba(56,189,248,0.12)',
-  skyLine: 'rgba(56,189,248,0.36)',
-  skyText: '#7dd3fc',
+  ok: '#34d399',
+  okSoft: 'rgba(52, 211, 153,0.13)',
+  okLine: 'rgba(52, 211, 153,0.38)',
+  warn: '#fbbf24',
+  warnSoft: 'rgba(251, 191, 36,0.13)',
+  warnLine: 'rgba(251, 191, 36,0.40)',
+  sky: '#d4d4d8',
+  skySoft: 'rgba(255, 255, 255,0.12)',
+  skyLine: 'rgba(255, 255, 255,0.36)',
+  skyText: '#e4e4e7',
   violet: '#f59e0b',
   violetSoft: 'rgba(245, 158, 11,0.14)',
   violetLine: 'rgba(245, 158, 11,0.40)',
@@ -1071,7 +1071,7 @@ partnerships@colaunch.com`
                     const isActive = currentPhase === p
                     const activeStyle =
                       p === 2
-                        ? { background: '#0284c7', color: '#ffffff', border: '1px solid #38bdf8' }
+                        ? { background: '#0284c7', color: '#ffffff', border: '1px solid #d4d4d8' }
                         : p === 3
                         ? isLiveLaunch
                           ? { background: '#059669', color: '#ffffff', border: '1px solid #34d399' }
@@ -1282,10 +1282,10 @@ partnerships@colaunch.com`
                     type="button"
                     onClick={() => startSection2Tour(true)}
                     className="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap hover:opacity-90"
-                    style={{ background: C.violetSoft, borderColor: C.violetLine, color: C.violetText }}
+                    style={{ background: C.raised, borderColor: C.line, color: C.body }}
                     title="Start Interactive Guided Walkthrough (Driver.js)"
                   >
-                    <Sparkles className="w-3.5 h-3.5" style={{ color: C.violet }} />
+                    <Sparkles className="w-3.5 h-3.5" style={{ color: C.muted }} />
                     <span>Workflow Tour</span>
                   </button>
                 )}
@@ -1342,12 +1342,23 @@ partnerships@colaunch.com`
                       { label: 'Platform', value: (prof.platform || 'YouTube').replace(/^./, (c) => c.toUpperCase()) },
                     ]
                     const niche = (Array.isArray(prof.niche) && prof.niche.length ? prof.niche : [project?.niche].flat()).filter(Boolean).slice(0, 3)
+                    // AI fields can be strings, objects ({ text | quote | question | description }) or arrays.
+                    const asText = (v) => {
+                      if (v == null) return ''
+                      if (typeof v === 'string' || typeof v === 'number') return String(v).trim()
+                      if (Array.isArray(v)) return v.map(asText).filter(Boolean).slice(0, 2).join(' · ')
+                      if (typeof v === 'object') return asText(v.text || v.quote || v.question || v.description || v.headline || v.title || v.value || '')
+                      return ''
+                    }
                     const insights = [
-                      intel?.painPoints?.description && { label: 'Pain point', text: intel.painPoints.description },
-                      intel?.recurringQuestions?.quote && { label: 'They keep asking', text: `“${intel.recurringQuestions.quote}”` },
-                      intel?.topContent?.headline && { label: 'Content that works', text: intel.topContent.headline },
-                      intel?.demographics?.description && { label: 'Buyers', text: intel.demographics.description },
-                    ].filter(Boolean).slice(0, 3)
+                      { label: 'Pain point', text: asText(intel?.painPoints?.description ?? intel?.painPoints) },
+                      { label: 'They keep asking', text: asText(intel?.recurringQuestions?.quote ?? intel?.recurringQuestions), quote: true },
+                      { label: 'Content that works', text: asText(intel?.topContent?.headline ?? intel?.topContent) },
+                      { label: 'Buyers', text: asText(intel?.demographics?.description ?? intel?.demographics) },
+                    ]
+                      .filter((it) => it.text && it.text !== '[object Object]')
+                      .map((it) => (it.quote ? { ...it, text: `“${it.text.replace(/^["“]|["”]$/g, '')}”` } : it))
+                      .slice(0, 3)
                     const conceptFacts = [
                       { label: 'Solves', text: chosenConcept?.problem || project?.problem },
                       { label: 'For', text: chosenConcept?.customer || project?.targetAudience },
@@ -1455,7 +1466,11 @@ partnerships@colaunch.com`
                                           {thumb && <img src={thumb} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />}
                                         </div>
                                         <p className="m-0 mt-1 text-[11px] leading-snug line-clamp-2">{title}</p>
-                                        {views ? <p className="m-0 text-[10px]" style={{ color: C.faint }}>{fmtNum(views)} views</p> : null}
+                                        {views ? (
+                                          <p className="m-0 text-[10px]" style={{ color: C.faint }}>
+                                            {/views?$/i.test(String(views).trim()) ? String(views).trim() : `${fmtNum(views)} views`}
+                                          </p>
+                                        ) : null}
                                       </Tag>
                                     )
                                   })}
@@ -2941,7 +2956,7 @@ partnerships@colaunch.com`
       {showShareModal && typeof document !== 'undefined' && createPortal(
         <div
           className="fixed inset-0 z-[9999] backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-hidden"
-          style={{ background: 'rgba(8, 9, 12, 0.82)' }}
+          style={{ background: 'rgba(5, 5, 6, 0.82)' }}
         >
           <div
             className="max-w-2xl w-full p-5 sm:p-6 rounded-2xl space-y-4 shadow-2xl max-h-[92vh] flex flex-col overscroll-contain"
@@ -3316,7 +3331,7 @@ partnerships@colaunch.com`
       {previewingFile && typeof document !== 'undefined' && createPortal(
         <div
           className="fixed inset-0 z-[99999] backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-hidden"
-          style={{ background: 'rgba(8, 9, 12, 0.85)' }}
+          style={{ background: 'rgba(5, 5, 6, 0.85)' }}
         >
           <div
             className="max-w-3xl w-full max-h-[85vh] flex flex-col rounded-3xl p-6 shadow-2xl space-y-4"

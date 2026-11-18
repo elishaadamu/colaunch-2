@@ -486,7 +486,7 @@ export default function Phase1Step3Campaign({
                       key={task.id || idx}
                       className="p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors"
                       style={{
-                        background: isDone ? 'rgba(111,207,155,0.04)' : C.row,
+                        background: isDone ? 'rgba(52, 211, 153,0.04)' : C.row,
                         borderColor: isDone ? C.okLine : C.line
                       }}
                     >

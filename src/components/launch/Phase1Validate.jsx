@@ -59,31 +59,31 @@ import Phase1Step5Gate from './phase1/Phase1Step5Gate'
 
 import { PUBLIC_APP_URL } from '../../utils/publicUrl'
 const C = {
-  bg: '#08090c',
-  sheet: '#10131a',
-  row: '#0c0e13',
-  raised: '#171b24',
+  bg: '#050506',
+  sheet: '#0c0c0e',
+  row: '#111114',
+  raised: '#1c1c20',
   line: 'rgba(255,255,255,0.08)',
   lineStrong: 'rgba(255,255,255,0.18)',
-  text: '#f3f4f6',
-  body: '#cdd1da',
-  muted: '#9ba1ae',
-  faint: '#6c7280',
+  text: '#fafafa',
+  body: '#d4d4d8',
+  muted: '#a1a1aa',
+  faint: '#71717a',
   crimson: '#c81e3c',
   crimsonHover: '#d92a49',
   crimsonSoft: 'rgba(200,30,60,0.15)',
   crimsonLine: 'rgba(200,30,60,0.45)',
   crimsonText: '#ff8fa3',
-  ok: '#6fcf9b',
-  okSoft: 'rgba(111,207,155,0.13)',
-  okLine: 'rgba(111,207,155,0.38)',
-  warn: '#f0b46a',
-  warnSoft: 'rgba(240,180,106,0.13)',
-  warnLine: 'rgba(240,180,106,0.40)',
-  sky: '#38bdf8',
-  skySoft: 'rgba(56,189,248,0.12)',
-  skyLine: 'rgba(56,189,248,0.36)',
-  skyText: '#7dd3fc',
+  ok: '#34d399',
+  okSoft: 'rgba(52, 211, 153,0.13)',
+  okLine: 'rgba(52, 211, 153,0.38)',
+  warn: '#fbbf24',
+  warnSoft: 'rgba(251, 191, 36,0.13)',
+  warnLine: 'rgba(251, 191, 36,0.40)',
+  sky: '#d4d4d8',
+  skySoft: 'rgba(255, 255, 255,0.12)',
+  skyLine: 'rgba(255, 255, 255,0.36)',
+  skyText: '#e4e4e7',
   violet: '#f59e0b',
   violetSoft: 'rgba(245, 158, 11,0.14)',
   violetLine: 'rgba(245, 158, 11,0.40)',
@@ -2041,7 +2041,7 @@ export default function Phase1Validate({
                       </span>
                       <span className="font-sans font-extrabold whitespace-nowrap" style={{ color: '#ffffff' }}>{step.label}</span>
                       {isDone ? (
-                        <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.ok, color: '#08090c' }}>
+                        <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0" style={{ background: C.ok, color: '#050506' }}>
                           <Check className="w-2 h-2 stroke-[3]" />
                         </div>
                       ) : isInProgress ? (
@@ -2054,7 +2054,7 @@ export default function Phase1Validate({
                     </>
                   ) : isDone ? (
                     <>
-                      <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: C.ok, color: '#08090c' }}>
+                      <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: C.ok, color: '#050506' }}>
                         <Check className="w-2.5 h-2.5 stroke-[3]" />
                       </div>
                       <span className="font-sans font-bold whitespace-nowrap" style={{ color: C.text }}>{step.label}</span>

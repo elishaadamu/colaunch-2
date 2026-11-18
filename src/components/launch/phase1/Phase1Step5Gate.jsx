@@ -152,7 +152,7 @@ export default function Phase1Step5Gate({
                 showNotification('All prerequisite validation steps marked complete.')
               }}
               className="px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
-              style={{ background: C.warn, color: '#08090c' }}
+              style={{ background: C.warn, color: '#050506' }}
             >
               <CheckCircle2 className="w-3.5 h-3.5 text-black" />
               <span>Mark All 1–4 Prerequisites Complete</span>
@@ -321,10 +321,10 @@ export default function Phase1Step5Gate({
           className="p-2 rounded-lg shrink-0 mt-0.5 border"
           style={
             isGatePassed
-              ? { background: C.ok, color: '#08090c', borderColor: C.okLine }
+              ? { background: C.ok, color: '#050506', borderColor: C.okLine }
               : !allPriorStepsDone
               ? { background: C.raised, color: C.muted, borderColor: C.line }
-              : { background: C.warn, color: '#08090c', borderColor: C.warnLine }
+              : { background: C.warn, color: '#050506', borderColor: C.warnLine }
           }
         >
           {isGatePassed ? <CheckCircle2 className="w-4 h-4" /> : !allPriorStepsDone ? <Lock className="w-4 h-4" /> : <Flame className="w-4 h-4" />}
@@ -424,7 +424,7 @@ export default function Phase1Step5Gate({
               }
             }}
             className="py-3 px-3 rounded-xl font-bold text-xs flex flex-col items-center justify-center gap-1 transition-all cursor-pointer shadow-md active:scale-95 disabled:opacity-50"
-            style={{ background: C.ok, color: '#08090c' }}
+            style={{ background: C.ok, color: '#050506' }}
           >
             <div className="flex items-center justify-center gap-1.5 flex-wrap">
               {isAdvancingPhase ? (

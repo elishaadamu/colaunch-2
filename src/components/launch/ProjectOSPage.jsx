@@ -22,31 +22,31 @@ import { updatePageSEO } from '../../utils/seo'
 
 // Section 2 Base Dark Palette (matches Section 1 Steps 5 & 6)
 const C = {
-  bg: '#08090c',
-  sheet: '#10131a',
-  row: '#0c0e13',
-  raised: '#171b24',
+  bg: '#050506',
+  sheet: '#0c0c0e',
+  row: '#111114',
+  raised: '#1c1c20',
   line: 'rgba(255,255,255,0.08)',
   lineStrong: 'rgba(255,255,255,0.18)',
-  text: '#f3f4f6',
-  body: '#cdd1da',
-  muted: '#9ba1ae',
-  faint: '#6c7280',
+  text: '#fafafa',
+  body: '#d4d4d8',
+  muted: '#a1a1aa',
+  faint: '#71717a',
   crimson: '#c81e3c',
   crimsonHover: '#d92a49',
   crimsonSoft: 'rgba(200,30,60,0.15)',
   crimsonLine: 'rgba(200,30,60,0.45)',
   crimsonText: '#ff8fa3',
-  ok: '#6fcf9b',
-  okSoft: 'rgba(111,207,155,0.13)',
-  okLine: 'rgba(111,207,155,0.38)',
-  warn: '#f0b46a',
-  warnSoft: 'rgba(240,180,106,0.13)',
-  warnLine: 'rgba(240,180,106,0.40)',
-  sky: '#38bdf8',
-  skySoft: 'rgba(56,189,248,0.12)',
-  skyLine: 'rgba(56,189,248,0.36)',
-  skyText: '#7dd3fc',
+  ok: '#34d399',
+  okSoft: 'rgba(52, 211, 153,0.13)',
+  okLine: 'rgba(52, 211, 153,0.38)',
+  warn: '#fbbf24',
+  warnSoft: 'rgba(251, 191, 36,0.13)',
+  warnLine: 'rgba(251, 191, 36,0.40)',
+  sky: '#d4d4d8',
+  skySoft: 'rgba(255, 255, 255,0.12)',
+  skyLine: 'rgba(255, 255, 255,0.36)',
+  skyText: '#e4e4e7',
   violet: '#f59e0b',
   violetSoft: 'rgba(245, 158, 11,0.14)',
   violetLine: 'rgba(245, 158, 11,0.40)',
@@ -576,9 +576,10 @@ export default function ProjectOSPage() {
 
       {/* Top Universal Operator Command Bar */}
       <header
-        className="sticky top-0 z-40 backdrop-blur-md px-2.5 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4 w-full max-w-full"
-        style={{ background: 'rgba(16, 19, 26, 0.94)', borderBottom: `1px solid ${C.line}` }}
+        className="sticky top-0 z-40 backdrop-blur-xl px-2.5 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4 w-full max-w-full relative"
+        style={{ background: 'rgba(5, 5, 6, 0.82)', borderBottom: '1px solid #1c1c20' }}
       >
+        <div className="absolute inset-x-0 bottom-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(200,30,60,0.5), transparent)' }} aria-hidden="true" />
         {/* Left: Branding & Back Navigation */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <a
@@ -738,20 +739,20 @@ export default function ProjectOSPage() {
           <a
             href="/participation-manager"
             className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-xs font-bold hover:opacity-90"
-            style={{ background: C.warnSoft, border: `1px solid ${C.warnLine}`, color: C.warn }}
+            style={{ background: C.raised, border: `1px solid ${C.line}`, color: C.body }}
             title="Open Dedicated Creator Participation & Co-Builder Console"
           >
-            <Zap className="w-3.5 h-3.5" style={{ color: C.warn }} />
+            <Zap className="w-3.5 h-3.5" style={{ color: C.muted }} />
             <span className="flex items-center gap-1">
               Co-Builder Passes (
               {isPassPriceLoading ? (
-                <Loader2 className="w-3 h-3 animate-spin inline-block" style={{ color: C.warn }} />
+                <Loader2 className="w-3 h-3 animate-spin inline-block" style={{ color: C.muted }} />
               ) : (
                 `$${cobuilderPassPrice || 0}`
               )}
               )
             </span>
-            <ExternalLink className="w-3 h-3" style={{ color: C.warn }} />
+            <ExternalLink className="w-3 h-3" style={{ color: C.faint }} />
           </a>
 
           <a
@@ -759,12 +760,12 @@ export default function ProjectOSPage() {
             target="_blank"
             rel="noreferrer"
             className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-xs font-semibold hover:opacity-90"
-            style={{ background: C.skySoft, border: `1px solid ${C.skyLine}`, color: C.skyText }}
+            style={{ background: C.raised, border: `1px solid ${C.line}`, color: C.body }}
             title="Open Standalone Creator Follow-Up CRM"
           >
-            <Users className="w-3.5 h-3.5" style={{ color: C.sky }} />
+            <Users className="w-3.5 h-3.5" style={{ color: C.muted }} />
             <span>CRM & Replies</span>
-            <ExternalLink className="w-3 h-3" style={{ color: C.skyText }} />
+            <ExternalLink className="w-3 h-3" style={{ color: C.faint }} />
           </a>
 
           {/* Driver.js Interactive Tour Trigger */}
@@ -772,10 +773,10 @@ export default function ProjectOSPage() {
             type="button"
             onClick={() => startSection2Tour(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-xs font-bold cursor-pointer hover:opacity-90"
-            style={{ background: C.violetSoft, border: `1px solid ${C.violetLine}`, color: C.violetText }}
+            style={{ background: C.raised, border: `1px solid ${C.line}`, color: C.body }}
             title="Start Interactive Guided Walkthrough (Driver.js)"
           >
-            <Sparkles className="w-3.5 h-3.5" style={{ color: C.violet }} />
+            <Sparkles className="w-3.5 h-3.5" style={{ color: C.muted }} />
             <span className="hidden sm:inline">Workflow Tour</span>
           </button>
 
@@ -784,7 +785,7 @@ export default function ProjectOSPage() {
             type="button"
             onClick={() => setShowWorkflowTutorial(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-xs font-bold cursor-pointer hover:opacity-90"
-            style={{ background: C.raised, border: `1px solid ${C.lineStrong}`, color: C.body }}
+            style={{ background: C.raised, border: `1px solid ${C.line}`, color: C.body }}
             title="Open Interactive Workflow Wiring Architecture Guide"
           >
             <Workflow className="w-3.5 h-3.5" style={{ color: C.muted }} />

@@ -307,7 +307,7 @@ export default function Phase1Step4Optimize({
                 <div className="flex items-center justify-between">
                   <span
                     className="w-8 h-8 rounded-lg flex items-center justify-center"
-                    style={{ background: m.unlocked ? C.ok : C.sheet, color: m.unlocked ? '#08090c' : C.faint, border: m.unlocked ? 'none' : `1px solid ${C.line}` }}
+                    style={{ background: m.unlocked ? C.ok : C.sheet, color: m.unlocked ? '#050506' : C.faint, border: m.unlocked ? 'none' : `1px solid ${C.line}` }}
                   >
                     {m.unlocked ? <Check className="w-4 h-4" /> : isNext ? <Icon className="w-4 h-4" style={{ color: C.crimsonText }} /> : <Lock className="w-3.5 h-3.5" />}
                   </span>
@@ -487,7 +487,7 @@ export default function Phase1Step4Optimize({
                     <span className="font-bold block" style={{ color: C.muted }}>Variant A:</span>
                     <span style={{ color: C.body }}>{exp.variantA}</span>
                   </div>
-                  <div className="p-2 rounded border" style={{ background: 'rgba(111,207,155,0.06)', borderColor: C.okLine }}>
+                  <div className="p-2 rounded border" style={{ background: 'rgba(52, 211, 153,0.06)', borderColor: C.okLine }}>
                     <span className="font-bold block" style={{ color: C.ok }}>Variant B (suggested):</span>
                     <span style={{ color: C.text }}>{exp.variantB}</span>
                   </div>
