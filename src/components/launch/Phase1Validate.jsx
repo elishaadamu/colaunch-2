@@ -1236,6 +1236,11 @@ export default function Phase1Validate({
     }
   }
 
+  const handleToggleAutonomous = (enabled) => {
+    const nextState = typeof enabled === 'boolean' ? enabled : !isAutonomousEnabled
+    return handleToggleAutonomousEmail(nextState)
+  }
+
   const handleDownloadAsset = (url, defaultName) => {
     if (!url) return
     const a = document.createElement('a')
