@@ -41,15 +41,18 @@ const PAGE_CSS = `
 .s5 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;white-space:nowrap;font-size:.8125rem;font-weight:600;border-radius:.625rem;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s;border:1px solid transparent}
 .s5 .btn:disabled{opacity:.5;cursor:not-allowed}
 .s5 .btn:focus-visible,.s5 .chip:focus-visible,.s5 .tile:focus-visible{outline:2px solid ${C.crimson};outline-offset:2px}
-.s5 .btn-primary{background:${C.crimson};color:#fff}
-.s5 .btn-primary:hover:not(:disabled){background:${C.crimsonHover}}
+.s5 .btn-primary{background:linear-gradient(180deg,#d62546 0%,#c81e3c 55%,#ad1833 100%);color:#fff;border-color:rgba(255,77,109,.35);box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 10px 26px -12px rgba(200,30,60,.6)}
+.s5 .btn-primary:hover:not(:disabled){filter:brightness(1.08)}
+.s5 .btn-primary:active:not(:disabled){transform:translateY(1px)}
 .s5 .btn-quiet{background:${C.raised};color:${C.body};border-color:${C.line}}
 .s5 .btn-quiet:hover:not(:disabled){border-color:${C.lineStrong};color:${C.text}}
 .s5 .chip{display:inline-flex;align-items:center;gap:.4rem;border-radius:999px;font-size:.75rem;font-weight:500;cursor:pointer;transition:border-color .15s,color .15s;border:1px solid ${C.line};background:${C.row};color:${C.muted}}
 .s5 .chip:hover{border-color:${C.lineStrong};color:${C.text}}
 .s5 .chip[aria-pressed="true"]{background:${C.crimson};border-color:${C.crimson};color:#fff}
-.s5 .tile{transition:border-color .15s}
-.s5 .tile:hover{border-color:${C.lineStrong}}
+.s5 .tile{position:relative;transition:border-color .18s,transform .18s,box-shadow .18s}
+.s5 .tile:hover{border-color:${C.lineStrong};transform:translateY(-3px);box-shadow:0 24px 50px -28px rgba(0,0,0,.95),0 0 0 1px rgba(255,255,255,.05)}
+.s5 .tile .tile-thumb{transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.s5 .tile:hover .tile-thumb{transform:scale(1.015)}
 @media (prefers-reduced-motion:reduce){.s5 *{animation:none!important;transition:none!important}}
 `;
 
@@ -473,11 +476,14 @@ function ConceptCard({
     .trim();
 
   return (
-    <article className="tile p-4 sm:p-5 rounded-2xl flex flex-col justify-between gap-4" style={{ background: C.sheet, border: `1px solid ${C.line}`, color: C.text }}>
+    <article className="tile p-4 sm:p-5 flex flex-col justify-between gap-4 overflow-hidden" style={{ background: `linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0) 120px), ${C.sheet}`, border: `1px solid ${C.line}`, color: C.text }}>
+      <span className="absolute inset-x-0 top-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${accentHex}, transparent)` }} aria-hidden="true" />
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-2">
-          <span className="flex items-center gap-2 text-xs font-medium" style={{ color: C.muted }}>
-            <span className="w-2.5 h-2.5 rounded-full" style={{ background: accentHex }} aria-hidden="true" />
+          <span className="flex items-center gap-2 text-xs font-semibold" style={{ color: C.body }}>
+            <span className="w-6 h-6 flex items-center justify-center text-[11px] font-bold" style={{ background: `${accentHex}22`, color: accentHex, border: `1px solid ${accentHex}55` }} aria-hidden="true">
+              {index + 1}
+            </span>
             Concept {index + 1}
           </span>
           {concept.opportunityScore ? (
@@ -485,15 +491,29 @@ function ConceptCard({
           ) : null}
         </div>
 
-        <ConceptLandingPage
-          concept={concept}
-          conceptIndex={index}
-          creator={creator}
-          brandColor={brandColor}
-          mode="thumb"
-          getCreatorAvatar={getCreatorAvatar}
-          generateCreatorAvatarSvg={generateCreatorAvatarSvg}
-        />
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={onOpenLanding}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onOpenLanding();
+            }
+          }}
+          className="tile-thumb block w-full cursor-zoom-in"
+          aria-label={`Open the ${concept.name} landing page`}
+        >
+          <ConceptLandingPage
+            concept={concept}
+            conceptIndex={index}
+            creator={creator}
+            brandColor={brandColor}
+            mode="thumb"
+            getCreatorAvatar={getCreatorAvatar}
+            generateCreatorAvatarSvg={generateCreatorAvatarSvg}
+          />
+        </div>
 
         <div>
           <div className="flex items-baseline justify-between gap-2">
@@ -614,7 +634,7 @@ export default function AcquisitionStep5Concepts({
   const goToStep6 = () => setActiveStep(6);
 
   return (
-    <div className="s5 p-4 sm:p-6 rounded-2xl space-y-5" style={{ background: C.bg, color: C.text, border: `1px solid ${C.line}` }}>
+    <div className="s5 acq-card p-5 sm:p-7 space-y-6" style={{ color: C.text }}>
       <style>{PAGE_CSS}</style>
 
       {positiveAdvanceNotice && (
@@ -640,8 +660,11 @@ export default function AcquisitionStep5Concepts({
 
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-4" style={{ borderBottom: `1px solid ${C.line}` }}>
         <div className="min-w-0">
-          <h2 className="serif m-0 text-3xl leading-tight flex items-center gap-2.5" style={{ color: C.text }}>
-            <Lightbulb className="w-5 h-5 shrink-0" style={{ color: "#ff8fa3" }} aria-hidden="true" />
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "#ff4d6d" }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#ff4d6d", boxShadow: "0 0 10px rgba(255,77,109,0.9)" }} />
+            Step 05 · Audience & ideas
+          </span>
+          <h2 className="serif m-0 mt-2 text-2xl sm:text-3xl leading-tight flex items-center gap-2.5" style={{ color: C.text }}>
             <span>3 product ideas for {creatorName}</span>
           </h2>
           <p className="mt-1 mb-0 text-sm" style={{ color: C.muted }}>
@@ -727,7 +750,7 @@ export default function AcquisitionStep5Concepts({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+          <div className="acq-stagger grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
             {concepts.map((concept, index) => {
               const key = conceptKey(concept, index);
               return (

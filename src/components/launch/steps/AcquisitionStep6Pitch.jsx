@@ -4,6 +4,8 @@ import {
 } from "lucide-react";
 import FormattedMarkdownBody from "../FormattedMarkdownBody";
 import { formatConceptPricing } from "../../../utils/pricing";
+import ConceptLandingPage from "../ConceptLandingPage";
+import { resolveConceptLandingColor } from "../../../utils/projectLanding";
 
 /* ──────────────────────────────────────────────────────────────────────────
  * Palette: dark slate surfaces with Crimson primary CTAs, Emerald verified/
@@ -18,25 +20,27 @@ const C = {
   crimsonSoft: "rgba(200,30,60,0.15)", crimsonLine: "rgba(200,30,60,0.45)", crimsonText: "#ff8fa3",
   ok: "#6fcf9b", okSoft: "rgba(111,207,155,0.13)", okLine: "rgba(111,207,155,0.38)",
   warn: "#f0b46a", warnSoft: "rgba(240,180,106,0.13)", warnLine: "rgba(240,180,106,0.40)",
-  sky: "#38bdf8", skySoft: "rgba(56,189,248,0.12)", skyLine: "rgba(56,189,248,0.36)", skyText: "#7dd3fc",
-  violet: "#a78bfa", violetSoft: "rgba(167,139,250,0.14)", violetLine: "rgba(167,139,250,0.40)", violetText: "#c4b5fd",
+  sky: "#d4d4d8", skySoft: "rgba(255,255,255,0.06)", skyLine: "rgba(255,255,255,0.18)", skyText: "#e4e4e7",
+  violet: "#ff4d6d", violetSoft: "rgba(255,77,109,0.10)", violetLine: "rgba(255,77,109,0.38)", violetText: "#ff8fa3",
 };
 
-const CONCEPT_SWATCHES = ["#c81e3c", "#10b981", "#38bdf8"];
+/* Concept colours follow the Step 5 rule so the selected concept matches its approved landing page. */
+const conceptColor = (concept, i) => resolveConceptLandingColor(concept, i);
 
 const PAGE_CSS = `
 .s6 .serif{font-family:'Roboto',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:700;letter-spacing:-0.015em}
 .s6 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;white-space:nowrap;font-size:.8125rem;font-weight:600;border-radius:.625rem;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s;border:1px solid transparent}
 .s6 .btn:disabled{opacity:.5;cursor:not-allowed}
 .s6 .btn:focus-visible,.s6 .chip:focus-visible,.s6 .field:focus-visible{outline:2px solid ${C.crimson};outline-offset:2px}
-.s6 .btn-primary{background:${C.crimson};color:#fff}
-.s6 .btn-primary:hover:not(:disabled){background:${C.crimsonHover}}
+.s6 .btn-primary{background:linear-gradient(180deg,#d62546 0%,#c81e3c 55%,#ad1833 100%);color:#fff;border-color:rgba(255,77,109,.35);box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 10px 26px -12px rgba(200,30,60,.6)}
+.s6 .btn-primary:hover:not(:disabled){filter:brightness(1.08)}
+.s6 .btn-primary:active:not(:disabled){transform:translateY(1px)}
 .s6 .btn-quiet{background:${C.raised};color:${C.body};border-color:${C.line}}
 .s6 .btn-quiet:hover:not(:disabled){border-color:${C.lineStrong};color:${C.text}}
 .s6 .btn-ai{background:${C.violetSoft};color:${C.violetText};border-color:${C.violetLine}}
-.s6 .btn-ai:hover:not(:disabled){background:rgba(167,139,250,0.22);border-color:${C.violet};color:#ede9fe}
+.s6 .btn-ai:hover:not(:disabled){background:rgba(255,77,109,0.2);border-color:${C.violet};color:#fff}
 .s6 .btn-sky{background:${C.skySoft};color:${C.skyText};border-color:${C.skyLine}}
-.s6 .btn-sky:hover:not(:disabled){background:rgba(56,189,248,0.20);border-color:${C.sky};color:#e0f2fe}
+.s6 .btn-sky:hover:not(:disabled){background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.3);color:#fff}
 .s6 .btn-danger{background:transparent;color:${C.crimsonText};border-color:${C.crimsonLine}}
 .s6 .btn-danger:hover:not(:disabled){background:${C.crimsonSoft}}
 .s6 .chip{display:inline-flex;align-items:center;gap:.5rem;border-radius:999px;font-size:.75rem;font-weight:500;cursor:pointer;transition:border-color .15s,color .15s,background-color .15s;border:1px solid ${C.line};background:${C.row};color:${C.muted}}
@@ -45,7 +49,7 @@ const PAGE_CSS = `
 .s6 .field{width:100%;background:${C.row};border:1px solid ${C.line};color:${C.text};border-radius:.625rem;font-size:.8125rem;transition:border-color .15s}
 .s6 .field::placeholder{color:${C.faint}}
 .s6 .field:hover{border-color:${C.lineStrong}}
-.s6 .field:focus{border-color:${C.skyLine};outline:none}
+.s6 .field:focus{border-color:rgba(200,30,60,.7);box-shadow:0 0 0 3px rgba(200,30,60,.18);outline:none}
 .s6 .seg{flex:1;padding:.4rem .75rem;border-radius:.5rem;font-size:.8125rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;color:${C.muted};transition:color .15s,background-color .15s,box-shadow .15s}
 .s6 .seg:hover{color:${C.text}}
 .s6 .seg[aria-selected="true"]{background:${C.raised};color:${C.text};box-shadow:inset 0 0 0 1px ${C.lineStrong}}
@@ -188,7 +192,7 @@ export default function AcquisitionStep6Pitch({
   };
 
   return (
-    <div className="s6 p-4 sm:p-6 rounded-2xl space-y-5" style={{ background: C.bg, color: C.text, border: `1px solid ${C.line}` }}>
+    <div className="s6 acq-card p-5 sm:p-7 space-y-6" style={{ color: C.text }}>
       <style>{PAGE_CSS}</style>
 
       {/* Creator switcher */}
@@ -263,7 +267,11 @@ export default function AcquisitionStep6Pitch({
             <Avatar creator={creator} {...av} className="w-14 h-14" />
           </button>
           <div className="min-w-0">
-            <h2 className="serif m-0 text-3xl leading-tight truncate">{nameOf(creator)}</h2>
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "#ff4d6d" }}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#ff4d6d", boxShadow: "0 0 10px rgba(255,77,109,0.9)" }} />
+              Step 06 · Pitch & select
+            </span>
+            <h2 className="serif m-0 mt-1 text-2xl sm:text-3xl leading-tight truncate">{nameOf(creator)}</h2>
             <p className="m-0 mt-0.5 text-sm break-all" style={{ color: emailOf(creator) ? C.skyText : C.muted }}>{emailOf(creator) || "No email on file"}</p>
             <p className="m-0 mt-1 text-xs" style={{ color: C.muted }}>
               Review the concepts, talk with the creator, then create the project once they commit.
@@ -316,7 +324,7 @@ export default function AcquisitionStep6Pitch({
           <div
             className="p-4 rounded-xl flex flex-col lg:flex-row lg:items-center justify-between gap-3"
             style={{
-              background: hasCommitment ? C.okSoft : "rgba(240,180,106,0.06)",
+              background: hasCommitment ? C.okSoft : "rgba(251,191,36,0.06)",
               border: `1px solid ${hasCommitment ? C.okLine : C.warnLine}`,
               borderLeftWidth: "3px",
               borderLeftColor: hasCommitment ? C.ok : C.warn,
@@ -324,7 +332,8 @@ export default function AcquisitionStep6Pitch({
           >
             <div className="flex items-start gap-3 min-w-0">
               <span
-                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                key={hasCommitment ? "committed" : "waiting"}
+                className="acq-check-in w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
                 style={{
                   background: hasCommitment ? C.okSoft : C.warnSoft,
                   border: `1px solid ${hasCommitment ? C.okLine : C.warnLine}`,
@@ -343,6 +352,23 @@ export default function AcquisitionStep6Pitch({
                     ? "Create the project to send the kickoff email and open it in ProjectOS."
                     : "ProjectOS stays locked until the creator confirms a concept or agrees to the co-launch terms."}
                 </p>
+                <ol className="list-none m-0 mt-2.5 p-0 flex items-center gap-2 text-[11px] font-semibold" aria-label="Progress to Section 2">
+                  {[
+                    { label: "Proposal sent", done: true },
+                    { label: "Creator committed", done: hasCommitment },
+                    { label: "Project created", done: alreadyLaunched },
+                  ].map((st, i, arr) => (
+                    <li key={st.label} className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5" style={{ color: st.done ? C.ok : C.faint }}>
+                        <span className="w-4 h-4 rounded-full flex items-center justify-center" style={{ background: st.done ? C.okSoft : "transparent", border: `1px solid ${st.done ? C.okLine : C.line}` }}>
+                          {st.done ? <CheckCircle2 className="w-3 h-3" aria-hidden="true" /> : <span className="text-[9px]">{i + 1}</span>}
+                        </span>
+                        {st.label}
+                      </span>
+                      {i < arr.length - 1 && <span className="w-5 h-px" style={{ background: st.done ? C.okLine : C.line }} aria-hidden="true" />}
+                    </li>
+                  ))}
+                </ol>
               </div>
             </div>
 
@@ -397,7 +423,7 @@ export default function AcquisitionStep6Pitch({
                   type="button"
                   disabled={!hasCommitment || isLaunchingProject}
                   onClick={() => handlePitchAndCreateProject()}
-                  className="btn btn-primary h-9 px-4"
+                  className={`btn btn-primary h-10 px-5 ${hasCommitment && !isLaunchingProject ? "acq-glow-pulse" : ""}`}
                   title={
                     hasCommitment
                       ? `Create the project and send the $${cobuilderPassPrice} DIY / managed-track offer email`
@@ -424,7 +450,7 @@ export default function AcquisitionStep6Pitch({
           concepts.find((c) => c.id === detected?.conceptId) ||
           concepts[0];
         const chosenIndex = Math.max(0, concepts.findIndex((c) => c.id === chosen?.id));
-        const chosenAccent = chosen?.brandColor || CONCEPT_SWATCHES[chosenIndex % CONCEPT_SWATCHES.length];
+        const chosenAccent = conceptColor(chosen, chosenIndex);
         const hasFeedback = Boolean(detected?.isStep6Reply && !hasCommitment && !rejected);
         const hunter = hunterDataMap[creator.id];
         const hunterScore = hunter?.score || creator.hunter_score;
@@ -443,7 +469,7 @@ export default function AcquisitionStep6Pitch({
           : { tone: "warn", text: "Awaiting creator reply" };
 
         return (
-          <div className="grid lg:grid-cols-12 gap-5">
+          <div className="acq-stagger grid lg:grid-cols-12 gap-5">
             {/* Left */}
             <div className="lg:col-span-5 space-y-4">
               <div role="tablist" aria-label="Concept or profile" className="p-1 rounded-xl flex gap-1" style={{ background: C.row, border: `1px solid ${C.line}` }}>
@@ -555,6 +581,23 @@ export default function AcquisitionStep6Pitch({
                       )}
                     </div>
 
+                    {chosen && (
+                      <div key={chosen.id || chosenIndex} className="acq-pop space-y-1.5">
+                        <p className="m-0 text-[11px] font-medium" style={{ color: C.faint }}>Landing page that ships to Section 2</p>
+                        <div style={{ border: `1px solid ${C.line}` }}>
+                          <ConceptLandingPage
+                            concept={chosen}
+                            conceptIndex={chosenIndex}
+                            creator={creator}
+                            brandColor={chosenAccent}
+                            mode="thumb"
+                            getCreatorAvatar={getCreatorAvatar}
+                            generateCreatorAvatarSvg={generateCreatorAvatarSvg}
+                          />
+                        </div>
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-2 gap-2">
                       <Stat label="Time to first version" value={chosen?.mvpDifficulty || "2 weeks"} />
                       <div className="p-3 rounded-xl" style={{ background: C.row, border: `1px solid ${C.line}` }}>
@@ -569,7 +612,7 @@ export default function AcquisitionStep6Pitch({
                         <div className="flex gap-2">
                           {concepts.map((c, i) => {
                             const current = chosen?.id === c.id || (!chosen && i === 0);
-                            const dotColor = c.brandColor || CONCEPT_SWATCHES[i % CONCEPT_SWATCHES.length];
+                            const dotColor = conceptColor(c, i);
                             return (
                               <button
                                 key={c.id || i}
@@ -593,7 +636,7 @@ export default function AcquisitionStep6Pitch({
                   <div
                     className="p-4 rounded-xl text-xs space-y-1.5"
                     style={{
-                      background: rejected ? C.row : "rgba(111,207,155,0.06)",
+                      background: rejected ? C.row : "rgba(52,211,153,0.06)",
                       border: `1px solid ${rejected ? C.line : C.okLine}`,
                       borderLeftWidth: "3px",
                       borderLeftColor: rejected ? C.crimsonLine : C.ok,

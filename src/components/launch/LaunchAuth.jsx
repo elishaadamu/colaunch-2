@@ -56,39 +56,6 @@ export default function LaunchAuth({ children }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Google reCAPTCHA v3 state (runs silently in background)
-  const [recaptchaToken, setRecaptchaToken] = useState('')
-  const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6Ldo3xEuAAAAAJJQyF4Ro2fdv-WlZfdra7NatG0X'
-
-  useEffect(() => {
-    let checkTimer = null
-    const initV3 = () => {
-      if (typeof window !== 'undefined' && window.grecaptcha) {
-        if (window.grecaptcha.ready) {
-          window.grecaptcha.ready(() => {
-            try {
-              window.grecaptcha.execute(siteKey, { action: 'launch_login_init' }).then(tok => {
-                if (tok) setRecaptchaToken(tok)
-              }).catch(() => { })
-            } catch (_) { }
-          })
-        }
-        if (checkTimer) clearInterval(checkTimer)
-      }
-    }
-
-    initV3()
-    checkTimer = setInterval(initV3, 300)
-    const fallbackTimer = setTimeout(() => {
-      if (checkTimer) clearInterval(checkTimer)
-    }, 2500)
-
-    return () => {
-      if (checkTimer) clearInterval(checkTimer)
-      clearTimeout(fallbackTimer)
-    }
-  }, [siteKey])
-
   // Periodic expiration watcher: check every 10 seconds for session timeout
   useEffect(() => {
     const checkExpiration = () => {
@@ -154,17 +121,6 @@ export default function LaunchAuth({ children }) {
 
     setLoading(true)
 
-    // Execute Google reCAPTCHA v3 token acquisition silently
-    let token = recaptchaToken
-    if (typeof window !== 'undefined' && window.grecaptcha && window.grecaptcha.execute) {
-      try {
-        const fresh = await window.grecaptcha.execute(siteKey, { action: 'acquisition_login' })
-        if (fresh) token = fresh
-      } catch (err) {
-        console.warn('[reCAPTCHA Notice]', err)
-      }
-    }
-
     try {
       // Call backend auth API
       const res = await fetch('/api/auth/launch-login', {
@@ -172,8 +128,7 @@ export default function LaunchAuth({ children }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: cleanIdentifier,
-          password: cleanPass,
-          recaptcha_token: token
+          password: cleanPass
         })
       })
 

@@ -78,7 +78,7 @@ export default function App() {
   }
 
   // Operator-protected routes wrapped in LaunchAuth:
-  // First page without session is the Acquisition Login (with reCAPTCHA v3, #c81e3c brand red, dark mode, border-radius 0)
+  // First page without session is the Acquisition Login (#c81e3c brand red, dark mode, border-radius 0)
   return (
     <ForgeContext.Provider value={forgeValue}>
       <LaunchAuth>

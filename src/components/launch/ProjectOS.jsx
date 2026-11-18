@@ -12,7 +12,8 @@ import {
 import Phase1Validate from './Phase1Validate'
 import Phase2BuildMVP from './Phase2BuildMVP'
 import Phase3Launch from './Phase3Launch'
-import DynamicConceptMockup from './DynamicConceptMockup'
+import ConceptLandingPage from './ConceptLandingPage'
+import { resolveProjectLanding } from '../../utils/projectLanding'
 import WorkflowWiringTutorial from './WorkflowWiringTutorial'
 import { getFrontendUrl, recordGateDecision } from '../../services/opsApi'
 import { ProjectOSSkeleton } from './Section2Skeletons'
@@ -1445,41 +1446,56 @@ partnerships@colaunch.com`
                         )}
                       </div>
 
-                      {/* Right: Mockup Preview Card */}
-                      <div
-                        id="tour-s2-mockup-card"
-                        className="lg:col-span-5 rounded-2xl overflow-hidden shadow-md"
-                        style={{ background: C.bg, border: `1px solid ${C.lineStrong}` }}
-                      >
-                        <div
-                          className="px-3.5 py-2.5 flex items-center justify-between"
-                          style={{ background: C.raised, borderBottom: `1px solid ${C.line}` }}
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-                            <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-                            <span className="text-[10px] font-mono ml-2" style={{ color: C.muted }}>
-                              Simulated Architecture ({chosenConcept.mockupType || 'saas_os'})
-                            </span>
+                      {/* Right: Approved landing page — identical to the Step 5 concept the creator approved */}
+                      {(() => {
+                        const landing = resolveProjectLanding(project, chosenConcept)
+                        const landingSlug = (project?.slug || project?.productName || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+                        return (
+                          <div
+                            id="tour-s2-mockup-card"
+                            className="s2-landing-card lg:col-span-5 overflow-hidden"
+                            style={{ background: C.bg, border: `1px solid ${C.lineStrong}` }}
+                          >
+                            <div
+                              className="px-3.5 py-2.5 flex items-center justify-between gap-2"
+                              style={{ background: C.raised, borderBottom: `1px solid ${C.line}` }}
+                            >
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: '#3f3f46' }} />
+                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: '#3f3f46' }} />
+                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: '#3f3f46' }} />
+                                <span className="text-[10px] font-mono ml-2 truncate" style={{ color: C.muted }}>
+                                  /preorder/{landingSlug}
+                                </span>
+                              </div>
+                              <a
+                                href={`/preorder/${landingSlug}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-1"
+                                style={{ color: '#fff', background: C.crimson }}
+                              >
+                                Open live page
+                              </a>
+                            </div>
+                            <div className="relative">
+                              <ConceptLandingPage
+                                concept={landing.concept}
+                                conceptIndex={landing.conceptIndex}
+                                creator={landing.creator}
+                                brandColor={landing.brandColor}
+                                mode="thumb"
+                              />
+                              <span
+                                className="absolute bottom-3 left-3 text-[10px] font-semibold px-2 py-1"
+                                style={{ background: 'rgba(5,5,6,0.85)', color: C.text, border: `1px solid ${C.line}` }}
+                              >
+                                Approved in Step 5 · same layout as the live page
+                              </span>
+                            </div>
                           </div>
-                          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: C.crimson }} />
-                        </div>
-                        <div className="p-3 sm:p-4">
-                          <DynamicConceptMockup
-                            concept={chosenConcept}
-                            creator={{
-                              name: cleanCreatorName,
-                              handle: cleanCreatorHandle,
-                              niche: project.niche
-                            }}
-                            theme={BASE_MOCKUP_THEME}
-                            conceptIndex={
-                              chosenConcept.mockupType === 'knowledge_hub' ? 2 : chosenConcept.mockupType === 'ai_copilot' ? 1 : 0
-                            }
-                          />
-                        </div>
-                      </div>
+                        )
+                      })()}
                     </div>
                   </div>
 

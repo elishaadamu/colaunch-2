@@ -16,9 +16,11 @@ import {
   Loader2,
   RotateCcw,
   Check,
+  Lock,
 } from "lucide-react";
 import { getHarmoniousConceptColors, getFriendlyColorName } from "../../utils/avatarColorExtractor";
 import { resolveCreatorTheme } from "../../utils/creatorTheme";
+import { resolveConceptLandingColor } from "../../utils/projectLanding";
 import { deleteAllCreators } from "../../services/opsApi";
 import { getExpiringItem, setExpiringItem, ONE_HOUR_MS } from "../../utils/expiringStorage";
 import { fetchCreatorComments } from "../../services/scraper";
@@ -3055,8 +3057,8 @@ export default function AcquisitionEngine({
     // 1. Creator was explicitly approved by human operator in Step 4
     if (status === "approved" || c.isApproved) return true;
 
-    // 2. Creator was explicitly selected to advance to Step 5 or 6
-    if (selectedCreatorId && (c.id === selectedCreatorId || c.handle === selectedCreatorId)) return true;
+    // (Selecting/clicking a creator is NOT a qualification — it previously let un-replied
+    //  creators reach Step 5 just by being highlighted in Step 4.)
 
     // 3. Check persistent localStorage stage map
     try {
@@ -3106,24 +3108,23 @@ export default function AcquisitionEngine({
 
   // Qualified creators = strictly those who replied positively to Step 4 outreach and are not rejected
   const interestedCreators = scopedIndividualCreator
-    ? [scopedIndividualCreator]
+    ? (isCreatorQualifiedForPitch(scopedIndividualCreator) ? [scopedIndividualCreator] : [])
     : eligibleCreators.filter((c) => isCreatorQualifiedForPitch(c));
 
   // Awaiting = those who haven't replied yet
   const awaitingCreators = scopedIndividualCreator
-    ? []
+    ? (isCreatorQualifiedForPitch(scopedIndividualCreator) ? [] : [scopedIndividualCreator])
     : eligibleCreators.filter((c) => !isCreatorQualifiedForPitch(c));
 
   // In Step 5 and 6, pick selected creator ONLY from interestedCreators (never fall back to unreplied, launched or rejected creators)
-  const rawSelectedCreator = scopedIndividualCreator || (
-    activeStep >= 5
-      ? interestedCreators.find((c) => c.id === selectedCreatorId) ||
+  const rawSelectedCreator = activeStep >= 5
+    ? (
+      interestedCreators.find((c) => c.id === selectedCreatorId) ||
       interestedCreators.find((c) => selectedCreatorId && (c.handle === selectedCreatorId || c.email === selectedCreatorId)) ||
       interestedCreators[0] ||
-      (selectedCreatorId ? unlaunchedCreators.find((c) => c.id === selectedCreatorId) : null) ||
-      unlaunchedCreators.find((c) => (c.status || "").toLowerCase() !== "rejected") ||
       null
-      : unlaunchedCreators.find((c) => c.id === selectedCreatorId && (c.status || "").toLowerCase() !== "rejected") ||
+    )
+    : scopedIndividualCreator || ( unlaunchedCreators.find((c) => c.id === selectedCreatorId && (c.status || "").toLowerCase() !== "rejected") ||
       unlaunchedCreators.find((c) => (c.status || "").toLowerCase() !== "rejected") ||
       null
   );
@@ -5091,7 +5092,17 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
       creatorScore: selectedCreator.creatorScore || selectedCreator.score || 85,
       opportunityScore: concept?.opportunityScore || 80,
       selectedConceptId: concept?.id,
-      selectedConcept: concept,
+      // Freeze the exact Step 5 landing page inputs (layout variant + base-palette colour)
+      // so Section 2 and /preorder render the same approved landing page.
+      selectedConcept: (() => {
+        const landingIndex = Math.max(0, concepts.findIndex((p) => p === concept || (concept?.id && p.id === concept.id)));
+        const basePrimary = creatorBrandColorMap[selectedCreator.id]?.primaryHex || "#c81e3c";
+        return {
+          ...concept,
+          landingIndex,
+          landingBrandColor: resolveConceptLandingColor(concept, landingIndex, basePrimary),
+        };
+      })(),
       validationSeed,
       presaleTarget: parsedTargetVal,
       targetRevenue: parsedTargetVal,
@@ -6596,7 +6607,7 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
 
         {/* Stepper */}
         <nav aria-label="Acquisition pipeline steps">
-          <ol id="tour-s1-stepper" className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 w-full min-w-0 list-none m-0 p-0">
+          <ol id="tour-s1-stepper" className="acq-stagger relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 w-full min-w-0 list-none m-0 p-0">
             {[
               { step: 1, label: "Campaign Setup", hint: "Niche & targets", icon: Target },
               { step: 2, label: "Find & Qualify", hint: "Discover leads", icon: Search },
@@ -6619,6 +6630,14 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
                     onClick={() => {
                       if (item.step === 1 && scopedCreatorId) {
                         setShowResetUrlModal(true);
+                      } else if (item.step >= 5 && interestedCreators.length === 0) {
+                        notify(
+                          "warning",
+                          "Step locked",
+                          "Step 5 opens once a creator replies with interest and you approve them in Step 4.",
+                          4500
+                        );
+                        setActiveStep(4);
                       } else {
                         setActiveStep(item.step);
                       }
@@ -6790,8 +6809,32 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
         />
       )}
 
+      {/* Steps 5–6 are gated: only creators who replied with interest and were approved in Step 4 */}
+      {activeStep >= 5 && !selectedCreator && (
+        <div className="acq-card acq-pop p-8 sm:p-12 text-center space-y-4">
+          <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center bg-[#C81E3C]/15 border border-[#C81E3C]/40">
+            <Lock className="w-5 h-5 text-[#FF4D6D]" />
+          </div>
+          <div className="space-y-1.5">
+            <h2 className="m-0 text-xl font-bold text-white">Step {activeStep} is locked</h2>
+            <p className="m-0 text-sm text-[#A1A1AA] max-w-md mx-auto">
+              {scopedIndividualCreator
+                ? `${scopedIndividualCreator.name || scopedIndividualCreator.handle || "This creator"} hasn't replied with interest yet. Review their reply in Step 4 first.`
+                : "No creator has replied with interest yet. Once someone does, approve them in Step 4 to generate their concepts."}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActiveStep(4)}
+            className="acq-btn-primary h-10 px-5 inline-flex items-center gap-2 text-sm font-bold cursor-pointer"
+          >
+            Go to Step 4: replies
+          </button>
+        </div>
+      )}
+
       {/* STEP 5: AUDIENCE ANALYSIS & PRODUCT IDEAS */}
-      {activeStep === 5 && (
+      {activeStep === 5 && selectedCreator && (
         <AcquisitionStep5Concepts
           awaitingCreators={awaitingCreators}
           creatorBrandColorMap={creatorBrandColorMap}
@@ -6831,7 +6874,7 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
       )}
 
       {/* STEP 6: PITCH & SELECT PRODUCT (SIMPLIFIED HUMAN-IN-THE-LOOP STUDIO) */}
-      {activeStep === 6 && (
+      {activeStep === 6 && selectedCreator && (
         <AcquisitionStep6Pitch
           activeAutoDraftAngle={activeAutoDraftAngle}
           aiDetectedChoiceMap={aiDetectedChoiceMap}

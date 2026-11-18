@@ -606,6 +606,7 @@ function LandingPageSurface({
   creator,
   palette,
   isThumb,
+  onCtaClick,
   isEditing = false,
   onFieldChange,
   onFeatureChange,
@@ -722,6 +723,10 @@ function LandingPageSurface({
   const tabIndexProp = isThumb ? { tabIndex: -1 } : {};
   const triggerPreviewNote = (actionLabel) => {
     if (isThumb) return;
+    if (typeof onCtaClick === "function") {
+      onCtaClick(actionLabel);
+      return;
+    }
     setPreviewNote(`${actionLabel} opens after launch when your checkout is connected.`);
   };
 
@@ -2149,6 +2154,7 @@ export default function ConceptLandingPage({
   onRemoveFeature,
   getCreatorAvatar,
   generateCreatorAvatarSvg,
+  onCtaClick,
 }) {
   const wrapRef = useRef(null);
   const [scale, setScale] = useState(0.3);
@@ -2244,6 +2250,7 @@ export default function ConceptLandingPage({
         palette={palette}
         isThumb={false}
         isEditing={isEditing}
+        onCtaClick={onCtaClick}
         onFieldChange={onFieldChange}
         onFeatureChange={onFeatureChange}
         onAddFeature={onAddFeature}

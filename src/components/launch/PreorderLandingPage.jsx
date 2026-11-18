@@ -15,6 +15,8 @@ import {
 import { sanitizeAccentColor, getContrastTextColor } from './DynamicConceptMockup'
 import { hexToRgba } from '../../utils/avatarColorExtractor'
 import { PreorderLandingSkeleton } from './Section2Skeletons'
+import ConceptLandingPage from './ConceptLandingPage'
+import { resolveProjectLanding } from '../../utils/projectLanding'
 
 export default function PreorderLandingPage({ slug }) {
   const [isLoading, setIsLoading] = useState(true)
@@ -76,6 +78,9 @@ export default function PreorderLandingPage({ slug }) {
     return '#c81e3c'
   })()
   const brandContrastText = getContrastTextColor(brandColor)
+
+  // Same inputs Step 5 used for the approved concept (layout variant + base-palette colour)
+  const approvedLanding = resolveProjectLanding(project || {}, selectedConcept)
 
   const productName = project?.productName || selectedConcept?.name || project?.title || 'Software Co-Launch'
   const creatorName = project?.creatorName || project?.creatorHandle || 'Creator Partner'
@@ -448,7 +453,7 @@ export default function PreorderLandingPage({ slug }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#080A0C] text-[#F5F3EA] selection:bg-[#c81e3c] selection:text-[#080A0C] font-sans antialiased overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#050506] text-[#FAFAFA] selection:bg-[#c81e3c] selection:text-white font-sans antialiased overflow-x-hidden relative">
       {/* Top Dynamic API Loading Indicator Bar */}
       {isLoading && (
         <div
@@ -468,364 +473,52 @@ export default function PreorderLandingPage({ slug }) {
         </div>
       )}
 
-      {/* Top Launch Notification Banner */}
-      <div className="bg-[#0D1014] border-b border-[#252B32] py-2.5 px-3 sm:px-4 text-center text-xs">
-        <div className="flex items-center justify-center gap-1.5 sm:gap-2 font-medium flex-wrap">
-          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: brandColor }} />
-          <span className="text-[#969DA6]">Exclusive Co-Founder Early Launch by</span>
-          <span className="text-[#F5F3EA] font-semibold">{creatorName}</span>
-          <span
-            className="px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider shrink-0"
-            style={{
-              backgroundColor: `${brandColor}18`,
-              color: brandColor,
-              borderColor: `${brandColor}40`,
-              borderWidth: '1px'
-            }}
-          >
-            50% Off Lifetime Tier
-          </span>
-        </div>
+      {/* Approved landing page — the exact Step 5 concept page (same layout + base palette).
+          Every CTA on it opens the real reservation checkout below. */}
+      <div className="pb-24">
+        <ConceptLandingPage
+          concept={approvedLanding.concept}
+          conceptIndex={approvedLanding.conceptIndex}
+          creator={approvedLanding.creator}
+          brandColor={approvedLanding.brandColor}
+          mode="full"
+          onCtaClick={() => openCheckout(availableTiers.find((t) => t.highlight) || availableTiers[0])}
+        />
       </div>
 
-      {/* Navigation Bar */}
-      <header className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          {creatorAvatar ? (
-            <img
-              src={creatorAvatar}
-              alt={creatorName}
-              className="w-8 sm:w-9 h-8 sm:h-9 rounded-xl object-cover border border-[#252B32] shrink-0"
-            />
-          ) : (
-            <div
-              className="w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-[#171C22] border border-[#252B32] flex items-center justify-center font-display font-black text-xs sm:text-sm shadow-sm shrink-0"
-              style={{ color: brandColor }}
-            >
-              {productName.slice(0, 2).toUpperCase()}
-            </div>
-          )}
+      {/* Sticky reservation bar */}
+      <div
+        className="preorder-reserve-bar fixed bottom-0 inset-x-0 z-40 border-t backdrop-blur-xl"
+        style={{ background: 'rgba(5,5,6,0.88)', borderColor: hexToRgba(approvedLanding.brandColor, 0.35) }}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <span className="font-display font-bold text-[#F5F3EA] text-sm sm:text-base tracking-tight block truncate">{productName}</span>
-            <span className="text-[10px] text-[#969DA6] font-mono truncate block">co-built with @{creatorHandle}</span>
+            <p className="m-0 text-sm font-bold text-white truncate">{productName}</p>
+            <p className="m-0 text-[11px] text-[#A1A1AA] truncate">
+              Founding price <span className="text-white font-semibold">${foundingPrice}/yr</span>
+              {' '}· or reserve with a ${depositPrice} refundable deposit
+            </p>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0">
-          <button
-            onClick={() => openCheckout({ name: `Founding Annual Pass ($${foundingPrice})`, price: foundingPrice, deposit: false })}
-            className="px-3.5 sm:px-4 py-2 rounded-xl font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer hover:opacity-90"
-            style={{ backgroundColor: brandColor, color: brandContrastText }}
-          >
-            <CreditCard className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Claim Access</span>
-            <span>(${foundingPrice})</span>
-          </button>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <main className="max-w-5xl mx-auto px-6 pt-10 pb-24 text-center space-y-8">
-        <div
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#101419] border text-xs font-mono font-bold tracking-wider uppercase"
-          style={{ borderColor: `${brandColor}40`, color: brandColor }}
-        >
-          <Sparkles className="w-3.5 h-3.5" style={{ color: brandColor }} />
-          <span>Co-Created with {creatorName}’s Community</span>
-        </div>
-
-        <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-black text-[#F5F3EA] tracking-tight leading-[1.12]">
-          {headline}
-        </h1>
-
-        <p className="text-base sm:text-lg text-[#969DA6] max-w-2xl mx-auto leading-relaxed">
-          {subheadline}
-        </p>
-
-        {/* Action Buttons */}
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={() => openCheckout({ name: `Founding Annual Pass ($${foundingPrice})`, price: foundingPrice, deposit: false })}
-              className="w-full sm:w-auto px-7 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 cursor-pointer hover:opacity-90"
-              style={{
-                backgroundColor: brandColor,
-                color: brandContrastText,
-                boxShadow: `0 8px 24px -4px ${hexToRgba(brandColor, 0.35)}`
-              }}
+              type="button"
+              onClick={() => openCheckout(availableTiers.find((t) => t.deposit) || availableTiers[availableTiers.length - 1])}
+              className="hidden sm:inline-flex h-10 px-4 items-center text-xs font-semibold text-[#D4D4D8] border border-[#2a2a30] hover:border-[#3f3f46] hover:text-white bg-[#111114] transition-colors cursor-pointer"
+            >
+              Reserve for ${depositPrice}
+            </button>
+            <button
+              type="button"
+              onClick={() => openCheckout(availableTiers.find((t) => t.highlight) || availableTiers[0])}
+              className="h-10 px-5 inline-flex items-center gap-2 text-xs font-bold transition-[filter] hover:brightness-110 cursor-pointer"
+              style={{ backgroundColor: approvedLanding.brandColor, color: getContrastTextColor(approvedLanding.brandColor) }}
             >
               <CreditCard className="w-4 h-4" />
-              <span>Claim Founding Access (${foundingPrice})</span>
-            </button>
-
-            <button
-              onClick={() => openCheckout({ name: `VIP Deposit ($${depositPrice})`, price: depositPrice, deposit: true })}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#101419] hover:bg-[#171C22] text-[#F5F3EA] border border-[#252B32] font-semibold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              <ShieldCheck className="w-4 h-4" style={{ color: brandColor }} />
-              <span>Reserve with ${depositPrice} Deposit</span>
+              Claim founding access
             </button>
           </div>
-
-          {/* Perks Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-[#969DA6] pt-2">
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4" style={{ color: brandColor }} />
-              <span>100% Refundable Guarantee</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4" style={{ color: brandColor }} />
-              <span>{perksText}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4" style={{ color: brandColor }} />
-              <span>Direct Co-Founder Access</span>
-            </div>
-          </div>
         </div>
-
-        {/* Saved Product Illustration Showcase */}
-        {savedMockupImage && (
-          <div className="pt-6 max-w-4xl mx-auto space-y-2">
-            <div className="overflow-hidden rounded-xl border border-[#252B32] bg-[#101419] shadow-2xl">
-              <img
-                src={savedMockupImage}
-                alt={productName || 'Planned product'}
-                className="w-full h-auto object-cover"
-              />
-            </div>
-            <p className="text-xs text-[#969DA6] text-center">
-              Illustration of the planned product. The final design may differ.
-            </p>
-          </div>
-        )}
-
-        {/* Creator's Approved Blueprint Spotlight Card */}
-        <div className="pt-6 text-left">
-          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-[#101419] to-[#0A0D10] border border-[#252B32] relative overflow-hidden shadow-2xl space-y-6">
-            {/* Top Badge */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#252B32] pb-5">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-2xl bg-[#171C22] border flex items-center justify-center font-bold"
-                  style={{ borderColor: `${brandColor}40`, color: brandColor }}
-                >
-                  <Award className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-[10px] font-mono uppercase tracking-widest font-bold"
-                      style={{ color: brandColor }}
-                    >
-                      Creator's Selected Co-Launch Concept
-                    </span>
-                    <span
-                      className="px-2 py-0.5 rounded-full border text-[9px] font-mono font-bold"
-                      style={{
-                        backgroundColor: `${brandColor}15`,
-                        borderColor: `${brandColor}35`,
-                        color: brandColor
-                      }}
-                    >
-                      Verified
-                    </span>
-                  </div>
-                  <h2 className="text-xl font-display font-black text-[#F5F3EA] mt-0.5">{productName}</h2>
-                </div>
-              </div>
-
-              <div className="px-3.5 py-1.5 rounded-xl bg-[#171C22] border border-[#252B32] text-xs font-mono text-[#F5F3EA]">
-                <span className="text-[#969DA6] mr-1.5">Model:</span>
-                <span className="font-bold" style={{ color: brandColor }}>{conceptPricing}</span>
-              </div>
-            </div>
-
-            {/* Target Audience & Core Problem Solved Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-2xl bg-[#080A0C] border border-[#252B32] space-y-2">
-                <div
-                  className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider"
-                  style={{ color: brandColor }}
-                >
-                  <Target className="w-3.5 h-3.5" />
-                  <span>Target Audience & Demographic</span>
-                </div>
-                <p className="text-xs text-[#F5F3EA] leading-relaxed font-medium">
-                  {targetAudience}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-[#080A0C] border border-[#252B32] space-y-2">
-                <div
-                  className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider"
-                  style={{ color: brandColor }}
-                >
-                  <Zap className="w-3.5 h-3.5" />
-                  <span>Core Problem Solved</span>
-                </div>
-                <p className="text-xs text-[#F5F3EA] leading-relaxed font-medium">
-                  {problemSolved}
-                </p>
-              </div>
-            </div>
-
-            {/* Built-in Features */}
-            <div className="space-y-3">
-              <span className="text-xs font-mono text-[#969DA6] uppercase tracking-wider block font-bold">
-                Built-in Software Capabilities
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {keyFeatures.map((feat, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-xl bg-[#080A0C] border border-[#252B32] flex items-center gap-2.5 text-xs text-[#F5F3EA]"
-                  >
-                    <CheckCircle className="w-4 h-4 shrink-0" style={{ color: brandColor }} />
-                    <span className="font-medium">{feat}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing Tiers & Reservation Selector */}
-        <div className="pt-10 text-left space-y-6">
-          <div className="text-center space-y-2 max-w-xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-display font-black text-[#F5F3EA]">
-              Choose Your Reservation Tier
-            </h2>
-            <p className="text-xs sm:text-sm text-[#969DA6]">
-              Lock in guaranteed founder pricing for {productName} before public release.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-            {availableTiers.map((t, idx) => {
-              const isSelected = selectedTier.name.includes(String(t.price)) || (t.deposit && selectedTier.deposit)
-              return (
-                <div
-                  key={idx}
-                  onClick={() => openCheckout({ name: t.name, price: t.price, deposit: t.deposit })}
-                  className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden group ${
-                    isSelected || t.highlight
-                      ? 'bg-gradient-to-b from-[#14181E] to-[#101419]'
-                      : 'bg-[#101419] border-[#252B32] hover:border-[#252B32]/80'
-                  }`}
-                  style={
-                    isSelected || t.highlight
-                      ? {
-                          borderColor: brandColor,
-                          boxShadow: `0 8px 24px -4px ${hexToRgba(brandColor, 0.2)}`
-                        }
-                      : {}
-                  }
-                >
-                  {/* Top Badge */}
-                  <div className="flex items-center justify-between gap-2 pb-3">
-                    <span
-                      className="text-[9px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full border"
-                      style={
-                        t.highlight
-                          ? {
-                              backgroundColor: `${brandColor}20`,
-                              color: brandColor,
-                              borderColor: `${brandColor}40`
-                            }
-                          : {
-                              backgroundColor: '#171C22',
-                              color: '#969DA6',
-                              borderColor: '#252B32'
-                            }
-                      }
-                    >
-                      {t.badge}
-                    </span>
-                    {isSelected && (
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: brandColor }} />
-                    )}
-                  </div>
-
-                  <div className="space-y-1.5 my-2">
-                    <h3 className="text-sm font-bold text-[#F5F3EA]">{t.name}</h3>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-2xl sm:text-3xl font-black font-display text-[#F5F3EA]">${t.price}</span>
-                      {t.period && <span className="text-xs text-[#969DA6] font-mono">{t.period}</span>}
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      openCheckout({ name: t.name, price: t.price, deposit: t.deposit })
-                    }}
-                    className={`w-full mt-4 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      t.highlight || isSelected
-                        ? 'shadow-md hover:opacity-90'
-                        : 'bg-[#171C22] hover:bg-[#252B32] text-[#F5F3EA] border border-[#252B32]'
-                    }`}
-                    style={
-                      t.highlight || isSelected
-                        ? {
-                            backgroundColor: brandColor,
-                            color: brandContrastText
-                          }
-                        : {}
-                    }
-                  >
-                    <span>Pre-Order (${t.price})</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Value Pillars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-12 text-left">
-          <div className="p-6 rounded-2xl bg-[#101419] border border-[#252B32] hover:border-[#252B32]/90 space-y-2.5 transition-all">
-            <div
-              className="w-9 h-9 rounded-xl bg-[#171C22] border border-[#252B32] flex items-center justify-center"
-              style={{ color: brandColor }}
-            >
-              <Zap className="w-5 h-5" />
-            </div>
-            <h3 className="text-sm font-bold text-[#F5F3EA]">Built for Your Workflow</h3>
-            <p className="text-xs text-[#969DA6] leading-relaxed">
-              Designed specifically around the exact bottlenecks faced by {creatorName}’s audience in {niche}.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-[#101419] border border-[#252B32] hover:border-[#252B32]/90 space-y-2.5 transition-all">
-            <div
-              className="w-9 h-9 rounded-xl bg-[#171C22] border border-[#252B32] flex items-center justify-center"
-              style={{ color: brandColor }}
-            >
-              <Star className="w-5 h-5" />
-            </div>
-            <h3 className="text-sm font-bold text-[#F5F3EA]">Lifetime Founder Perks</h3>
-            <p className="text-xs text-[#969DA6] leading-relaxed">
-              Lock in 50% lifetime pricing (${foundingPrice > 0 ? `$${foundingPrice}/yr` : 'exclusive founder rate'}) and priority feature requests forever on day one.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-[#101419] border border-[#252B32] hover:border-[#252B32]/90 space-y-2.5 transition-all">
-            <div
-              className="w-9 h-9 rounded-xl bg-[#171C22] border border-[#252B32] flex items-center justify-center"
-              style={{ color: brandColor }}
-            >
-              <Lock className="w-5 h-5" />
-            </div>
-            <h3 className="text-sm font-bold text-[#F5F3EA]">Direct Co-Founder Line</h3>
-            <p className="text-xs text-[#969DA6] leading-relaxed">
-              Join the private VIP Slack & direct alpha advisory channels with {creatorName} & CoLaunch.
-            </p>
-          </div>
-        </div>
-      </main>
+      </div>
 
       {/* Checkout Modal (Stripe & PayPal Options) */}
       {checkoutModalOpen && (

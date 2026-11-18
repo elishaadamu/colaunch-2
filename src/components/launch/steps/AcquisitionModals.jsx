@@ -21,6 +21,8 @@ import Step5ProposalEmailModal from "../Step5ProposalEmailModal";
 import AdminPipelineLookup from "../AdminPipelineLookup";
 import ActionNotificationToast from "../../ui/ActionNotificationToast";
 import ConfirmationModal from "../../ui/ConfirmationModal";
+import ConceptLandingPage from "../ConceptLandingPage";
+import { resolveConceptLandingColor } from "../../../utils/projectLanding";
 import { PARTNERSHIP_EMAIL, VENTURE_ARTIFACTS } from "./acquisitionConstants";
 
 export default function AcquisitionModals({
@@ -784,136 +786,164 @@ export default function AcquisitionModals({
     </div>
   )}
 
-  {/* ── Precision Workspace Provisioning Modal (Linear / Vercel Aesthetic) ── */}
+  {/* ── Section 2 hand-off: Workspace Provisioning Modal (black + crimson) ── */}
   {isLaunchingProject && typeof document !== "undefined" && createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-150 overflow-hidden">
+    <div
+      className="acq-fade fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto"
+      style={{ background: "rgba(0,0,0,0.78)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="acq-provision-title"
+    >
       {(() => {
         const concepts = selectedCreator?.productConcepts || (selectedCreator ? ensureCreatorConcepts(selectedCreator) : []);
-        const concept = concepts?.find((p) => p.id === selectedConceptId) || concepts?.[0];
+        const detected = aiDetectedChoiceMap?.[selectedCreator?.id];
+        const concept =
+          concepts?.find((p) => p.id === selectedConceptId) ||
+          concepts?.find((p) => p.id === detected?.conceptId) ||
+          concepts?.find((p) => p.id === selectedCreator?.selectedConceptId) ||
+          concepts?.[0];
+        const conceptIdx = Math.max(0, (concepts || []).findIndex((p) => p === concept || (concept?.id && p.id === concept.id)));
+        const landingColor = resolveConceptLandingColor(
+          concept,
+          conceptIdx,
+          creatorBrandColorMap?.[selectedCreator?.id]?.primaryHex || "#c81e3c"
+        );
         const cleanHandle = (selectedCreator?.handle || "partner").replace(/^@/, "");
         const creatorDisplayName = selectedCreator?.name || selectedCreator?.display_name || `@${cleanHandle}`;
+        const pct = Math.min(100, Math.max(0, launchStepIndex * 25));
+        const steps = [
+          { id: 1, text: "Locking the approved concept & landing page" },
+          { id: 2, text: "Sending the co-founder portal link" },
+          { id: 3, text: "Setting validation milestones & targets" },
+          { id: 4, text: "Opening the Project OS workspace" },
+        ];
 
         return (
-          <div className="w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 text-left space-y-5 relative overflow-hidden">
-            {/* Hairline subtle top glow */}
-            <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
+          <div
+            className="acq-pop relative w-full max-w-2xl overflow-hidden text-left my-auto"
+            style={{
+              background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 140px), #0c0c0e",
+              border: "1px solid #2a2a30",
+              boxShadow: "0 40px 80px -30px rgba(0,0,0,0.95), 0 0 0 1px rgba(200,30,60,0.12)",
+            }}
+          >
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#FF4D6D] to-transparent" aria-hidden="true" />
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[70%] h-48 rounded-full bg-[#C81E3C]/20 blur-3xl pointer-events-none" aria-hidden="true" />
 
-            {/* Partner Header */}
-            <div className="flex items-center gap-3">
-              <div className="relative flex-shrink-0">
-                <img
-                  src={selectedCreator?.avatar || generateCreatorAvatarSvg(selectedCreator?.name || selectedCreator?.handle || "Creator")}
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = generateCreatorAvatarSvg(selectedCreator?.name || selectedCreator?.handle || "Creator");
-                  }}
-                  alt=""
-                  className="w-10 h-10 rounded-lg object-cover border border-[#2a2a30]"
-                />
-                <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
-                  <Rocket className="w-2 h-2 text-white" />
-                </span>
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    Initializing Workspace
-                  </span>
-                  <span className="text-[11px] font-mono text-slate-500">
-                    {launchStepIndex} / 4
-                  </span>
-                </div>
-                <h3 className="text-sm font-bold text-slate-900 tracking-tight truncate mt-0.5">
-                  {creatorDisplayName}
-                </h3>
-              </div>
-            </div>
-
-            {/* Real Venture Specs */}
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">Concept</span>
-                <p className="font-semibold text-slate-800 truncate mt-0.5">
-                  {concept?.name || "Co-Launch Venture"}
-                </p>
-              </div>
-              <div>
-                <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">Terms</span>
-                <p className="font-semibold text-emerald-700 font-mono truncate mt-0.5">
-                  50 / 50 Net Split
-                </p>
-              </div>
-              <div className="col-span-2 pt-2 border-t border-slate-200">
-                <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">Co-Founder Portal Link</span>
-                <p className="font-mono text-[11px] text-slate-600 truncate mt-0.5 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-                  <span>{selectedCreator?.email || selectedCreator?.email_public || "Direct Magic Link Generated"}</span>
-                </p>
-              </div>
-            </div>
-
-            {/* Linear-Style Provisioning Checklist */}
-            <div className="space-y-2 py-1">
-              {[
-                { id: 1, text: "Configuring product architecture & concept specs" },
-                { id: 2, text: "Generating secure Co-Founder Portal access" },
-                { id: 3, text: "Initializing validation telemetry & revenue milestones" },
-                { id: 4, text: "Connecting Project OS workspace" },
-              ].map((step) => {
-                const isComplete = launchStepIndex > step.id;
-                const isCurrent = launchStepIndex === step.id;
-                return (
-                  <div
-                    key={step.id}
-                    className={`flex items-center gap-2.5 text-xs transition-colors duration-200 ${isComplete
-                        ? "text-slate-600"
-                        : isCurrent
-                          ? "text-slate-900 font-bold"
-                          : "text-slate-400"
-                      }`}
-                  >
-                    <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
-                      {isComplete ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : isCurrent ? (
-                        <Loader2 className="w-3.5 h-3.5 text-emerald-600 animate-spin" />
-                      ) : (
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-                      )}
-                    </div>
-                    <span className="truncate">{step.text}</span>
+            <div className="relative grid md:grid-cols-[1fr_260px]">
+              {/* Left: progress */}
+              <div className="p-6 space-y-5">
+                <div className="flex items-center gap-3">
+                  <div className="relative shrink-0 w-12 h-12">
+                    <span className="acq-ring absolute inset-0 rounded-full border-2 border-transparent border-t-[#FF4D6D] border-r-[#C81E3C]/60" aria-hidden="true" />
+                    <img
+                      src={selectedCreator?.avatar || selectedCreator?.avatar_url || generateCreatorAvatarSvg(selectedCreator?.name || selectedCreator?.handle || "Creator")}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = generateCreatorAvatarSvg(selectedCreator?.name || selectedCreator?.handle || "Creator");
+                      }}
+                      alt=""
+                      className="absolute inset-1 w-10 h-10 rounded-full object-cover"
+                    />
                   </div>
-                );
-              })}
-            </div>
+                  <div className="min-w-0">
+                    <p className="m-0 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FF4D6D]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D6D] animate-pulse" />
+                      Moving to Section 2
+                    </p>
+                    <h3 id="acq-provision-title" className="m-0 mt-0.5 text-lg font-bold text-white tracking-tight truncate">
+                      Setting up {creatorDisplayName}'s workspace
+                    </h3>
+                  </div>
+                </div>
 
-            {/* Segmented Micro-Progress Indicator */}
-            <div className="space-y-2 pt-1 border-t border-slate-100">
-              <div className="grid grid-cols-4 gap-1.5">
-                {[1, 2, 3, 4].map((idx) => (
-                  <div
-                    key={idx}
-                    className={`h-1 rounded-full transition-all duration-300 ${launchStepIndex >= idx
-                        ? "bg-emerald-500 shadow-2xs"
-                        : "bg-slate-200"
-                      }`}
-                  />
-                ))}
+                <dl className="grid grid-cols-2 gap-px bg-[#222227] border border-[#222227] m-0 text-xs">
+                  <div className="bg-[#111114] p-3">
+                    <dt className="text-[10px] uppercase tracking-wider text-[#71717A]">Concept</dt>
+                    <dd className="m-0 mt-1 font-semibold text-white truncate">{concept?.name || "Co-launch venture"}</dd>
+                  </div>
+                  <div className="bg-[#111114] p-3">
+                    <dt className="text-[10px] uppercase tracking-wider text-[#71717A]">Terms</dt>
+                    <dd className="m-0 mt-1 font-semibold text-white">50 / 50 net split</dd>
+                  </div>
+                  <div className="bg-[#111114] p-3 col-span-2">
+                    <dt className="text-[10px] uppercase tracking-wider text-[#71717A]">Portal link sent to</dt>
+                    <dd className="m-0 mt-1 text-[#D4D4D8] truncate">
+                      {selectedCreator?.email || selectedCreator?.email_public || "Magic link generated (no email on file)"}
+                    </dd>
+                  </div>
+                </dl>
+
+                <ol className="list-none m-0 p-0 space-y-2.5" aria-live="polite">
+                  {steps.map((step) => {
+                    const isComplete = launchStepIndex > step.id;
+                    const isCurrent = launchStepIndex === step.id;
+                    return (
+                      <li
+                        key={step.id}
+                        className={`flex items-center gap-3 text-[13px] transition-colors duration-300 ${
+                          isComplete ? "text-[#A1A1AA]" : isCurrent ? "text-white font-semibold" : "text-[#52525B]"
+                        }`}
+                      >
+                        <span
+                          className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border transition-colors duration-300 ${
+                            isComplete
+                              ? "bg-emerald-500/15 border-emerald-500/40"
+                              : isCurrent
+                                ? "bg-[#C81E3C]/20 border-[#FF4D6D]/60"
+                                : "bg-[#111114] border-[#2a2a30]"
+                          }`}
+                        >
+                          {isComplete ? (
+                            <Check key="done" className="acq-check-in w-3.5 h-3.5 text-emerald-400" />
+                          ) : isCurrent ? (
+                            <Loader2 className="w-3.5 h-3.5 text-[#FF4D6D] animate-spin" />
+                          ) : (
+                            <span className="text-[10px] font-mono">{step.id}</span>
+                          )}
+                        </span>
+                        <span className="truncate">{step.text}</span>
+                      </li>
+                    );
+                  })}
+                </ol>
+
+                <div className="space-y-2">
+                  <div className="h-1.5 w-full bg-[#1C1C20] overflow-hidden" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+                    <div
+                      className="acq-shimmer h-full bg-gradient-to-r from-[#C81E3C] to-[#FF4D6D] transition-all duration-500 ease-out"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-[#71717A]">
+                    <span>Step {Math.max(1, launchStepIndex)} of 4</span>
+                    <span className="tabular-nums text-white font-semibold">{pct}%</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span>
-                    {launchStepIndex === 1
-                      ? "Binding specifications..."
-                      : launchStepIndex === 2
-                        ? "Deploying founder portal..."
-                        : launchStepIndex === 3
-                          ? "Setting up validation gates..."
-                          : "Opening workspace..."}
-                  </span>
-                </span>
-                <span>{launchStepIndex * 25}%</span>
+
+              {/* Right: the exact approved landing page that Section 2 will publish */}
+              <div className="hidden md:flex flex-col border-l border-[#222227] bg-[#050506] p-4 gap-3">
+                <p className="m-0 text-[10px] font-bold uppercase tracking-wider text-[#71717A]">Approved landing page</p>
+                {concept ? (
+                  <div className="acq-slide-in border border-[#222227] overflow-hidden" style={{ height: 300 }}>
+                    <ConceptLandingPage
+                      concept={concept}
+                      conceptIndex={conceptIdx}
+                      creator={selectedCreator}
+                      brandColor={landingColor}
+                      mode="thumb"
+                      getCreatorAvatar={getCreatorAvatar}
+                      generateCreatorAvatarSvg={generateCreatorAvatarSvg}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex-1 border border-dashed border-[#2a2a30]" />
+                )}
+                <p className="m-0 text-[11px] leading-relaxed text-[#A1A1AA]">
+                  This exact page becomes the live pre-order page in Section 2.
+                </p>
               </div>
             </div>
           </div>

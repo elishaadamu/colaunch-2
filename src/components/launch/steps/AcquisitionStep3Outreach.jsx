@@ -1,14 +1,33 @@
 import {
   Send,
-  CheckCircle2,
   ArrowRight,
   Clock,
   Check,
-  Users,
   X,
   Pencil,
   AlertTriangle,
+  Mail,
+  MailPlus,
+  OctagonX,
+  Youtube,
+  Instagram,
+  Music2,
+  Loader2,
+  Radio,
 } from "lucide-react";
+
+const PLATFORM_META = {
+  youtube: { label: "YouTube", Icon: Youtube, color: "#ef4444" },
+  instagram: { label: "Instagram", Icon: Instagram, color: "#ec4899" },
+  tiktok: { label: "TikTok", Icon: Music2, color: "#e4e4e7" },
+};
+
+function getQueueStatus(c, emailVal) {
+  if (c.status === "rejected") return { label: "Archived", dot: "#71717a", text: "#a1a1aa" };
+  if (c.status === "approved") return { label: "Approved", dot: "#34d399", text: "#34d399" };
+  if (emailVal) return { label: "Ready to send", dot: "#34d399", text: "#d4d4d8" };
+  return { label: "Needs email", dot: "#fbbf24", text: "#fbbf24" };
+}
 
 export default function AcquisitionStep3Outreach({
   cancelEditEmail,
@@ -27,271 +46,347 @@ export default function AcquisitionStep3Outreach({
   tempEmailValue,
   unlaunchedCreators,
 }) {
+  const queue = unlaunchedCreators || [];
+  const total = queue.length;
+  const readyCount = queue.filter(
+    (c) => (c.email || c.email_public) && c.status !== "rejected"
+  ).length;
+  const missingCount = queue.filter(
+    (c) => !(c.email || c.email_public) && c.status !== "rejected"
+  ).length;
+  const readyPct = total > 0 ? Math.round((readyCount / total) * 100) : 0;
+  const sendDisabled = sendingBulk || creators.length === 0;
+
+  const sequence = [
+    {
+      key: "send",
+      Icon: Send,
+      title: "Initial email",
+      value: `${creators.length} creator${creators.length === 1 ? "" : "s"}`,
+      note: "100K–1M audience, verified",
+      accent: "#ff4d6d",
+    },
+    {
+      key: "follow",
+      Icon: Clock,
+      title: "Auto follow-up",
+      value: `After ${followUpDays} day${Number(followUpDays) === 1 ? "" : "s"}`,
+      note: "Only if there's no reply",
+      accent: "#fbbf24",
+    },
+    {
+      key: "stop",
+      Icon: OctagonX,
+      title: "Sequence stops",
+      value: "On any reply",
+      note: "Replies are tracked live",
+      accent: "#34d399",
+    },
+  ];
+
   return (
-  <div className="p-6 acq-card space-y-6 text-white">
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#2a2a30] pb-4">
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 uppercase tracking-wider inline-flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Outreach Wave
+    <div className="acq-card p-5 sm:p-7 space-y-7 text-white">
+      {/* ── Header ── */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
+        <div className="space-y-2 min-w-0">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FF4D6D]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D6D] shadow-[0_0_10px_rgba(255,77,109,0.9)]" />
+            Step 03 · Direct outreach
           </span>
+          <h2 className="m-0 text-xl sm:text-2xl font-bold tracking-tight text-white">
+            Outreach queue
+          </h2>
+          <p className="m-0 text-sm text-[#A1A1AA]">
+            <span className="text-white font-semibold">{readyCount}</span> ready to send
+            {missingCount > 0 && (
+              <>
+                {" "}·{" "}
+                <span className="text-amber-400 font-semibold">{missingCount}</span> need an email
+                before they can be contacted
+              </>
+            )}
+          </p>
         </div>
-        <h2 className="text-base font-bold text-white flex items-center gap-2 mt-1.5 font-display uppercase tracking-wide">
-          <Send className="w-4 h-4 text-[#C81E3C]" />
-          <span>Outreach Queue</span>
-        </h2>
+
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setActiveStep(4)}
+            className="h-11 px-4 bg-[#111114] hover:bg-[#1C1C20] text-[#D4D4D8] hover:text-white border border-[#2a2a30] hover:border-[#3a3a42] font-semibold text-sm flex items-center gap-2 transition-colors cursor-pointer"
+          >
+            <span>Go to replies</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSendBulkOutreach({ autoAdvance: true })}
+            disabled={sendDisabled}
+            className="acq-btn-primary h-11 px-5 font-bold text-sm inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {sendingBulk ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+            <span>
+              {sendingBulk
+                ? "Sending…"
+                : readyCount > 0
+                  ? `Send to ${readyCount} creator${readyCount === 1 ? "" : "s"}`
+                  : "Send outreach"}
+            </span>
+          </button>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-        <button
-          onClick={() => handleSendBulkOutreach({ autoAdvance: true })}
-          disabled={sendingBulk || creators.length === 0}
-          className="relative inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg acq-btn-primary text-white font-bold text-xs shadow-md transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <Send
-            className={`w-3.5 h-3.5 text-white ${sendingBulk ? "animate-pulse" : ""}`}
+      {/* ── Readiness meter ── */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-[11px] font-semibold">
+          <span className="text-[#A1A1AA] uppercase tracking-wider">Queue readiness</span>
+          <span className="text-white tabular-nums">
+            {readyCount}/{total} <span className="text-[#71717A] font-normal">· {readyPct}%</span>
+          </span>
+        </div>
+        <div className="h-1.5 w-full bg-[#1C1C20] overflow-hidden" role="progressbar" aria-valuenow={readyPct} aria-valuemin={0} aria-valuemax={100} aria-label="Creators with an email address">
+          <div
+            className="h-full bg-gradient-to-r from-[#C81E3C] to-[#FF4D6D] transition-all duration-500"
+            style={{ width: `${readyPct}%` }}
           />
-          <span>
-            {sendingBulk ? "Dispatching..." : "Dispatch Email"}
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveStep(4)}
-          className="px-4 py-2.5 rounded-lg bg-[#141417] hover:bg-[#222227] text-white border border-[#2a2a30] hover:border-slate-500 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+        </div>
+      </div>
+
+      {/* ── Live dispatch log ── */}
+      {outreachLog && (
+        <div
+          className="flex items-start gap-3 px-4 py-3 bg-[#050506] border border-[#222227] border-l-2"
+          style={{ borderLeftColor: sendingBulk ? "#FF4D6D" : "#34d399" }}
+          role="status"
+          aria-live="polite"
         >
-          <span>Proceed to Step 4: Creator Replies</span>
-          <ArrowRight className="w-3.5 h-3.5 text-[#A1A1AA]" />
-        </button>
-      </div>
-    </div>
-
-    {outreachLog && (
-      <div className="p-4 rounded-lg bg-[#141417] border border-[#2a2a30] text-xs font-mono text-emerald-400">
-        {outreachLog}
-      </div>
-    )}
-
-    {/* Sequence Automation Cards with Rich Ambient Accents */}
-    <div className="grid md:grid-cols-3 gap-4 text-xs">
-      {/* Card 1: Batch Size */}
-      <div className="p-4 rounded-xl bg-[#111114] border border-[#222227] space-y-2 relative overflow-hidden group">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#C81E3C] via-rose-500 to-[#C81E3C]" />
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase font-bold text-[#A1A1AA] tracking-wider font-display">Target Outreach Batch</span>
-          <div className="w-7 h-7 rounded-lg bg-[#1A0B10] text-[#FF4D6D] border border-rose-900/50 flex items-center justify-center">
-            <Users className="w-3.5 h-3.5" />
+          <span className="mt-0.5 shrink-0">
+            {sendingBulk ? (
+              <Radio className="w-4 h-4 text-[#FF4D6D] animate-pulse" />
+            ) : (
+              <Check className="w-4 h-4 text-emerald-400" />
+            )}
+          </span>
+          <div className="min-w-0">
+            <p className="m-0 text-[10px] font-bold uppercase tracking-wider text-[#71717A]">
+              {sendingBulk ? "Sending now" : "Last activity"}
+            </p>
+            <p className="m-0 mt-0.5 text-[13px] text-[#D4D4D8] font-mono break-words">{outreachLog}</p>
           </div>
         </div>
-        <p className="text-2xl font-black text-white font-display font-mono">
-          {creators.length} Creators
-        </p>
-        <div className="flex items-center justify-between pt-1 border-t border-[#222227]">
-          <span className="text-[11px] text-[#71717A]">Audience Size</span>
-          <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-1.5 py-0.5 rounded-lg">
-            100K–1M Verified
-          </span>
-        </div>
+      )}
+
+      {/* ── Sequence timeline ── */}
+      <div className="space-y-3">
+        <h3 className="m-0 text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA]">
+          How the sequence runs
+        </h3>
+        <ol className="acq-stagger grid md:grid-cols-3 gap-px bg-[#222227] border border-[#222227] list-none m-0 p-0">
+          {sequence.map((item, i) => {
+            const Icon = item.Icon;
+            return (
+              <li key={item.key} className="relative bg-[#0C0C0E] p-5 flex items-start gap-4">
+                <div className="flex flex-col items-center gap-1 shrink-0">
+                  <span
+                    className="w-10 h-10 flex items-center justify-center border"
+                    style={{
+                      color: item.accent,
+                      borderColor: `${item.accent}55`,
+                      background: `${item.accent}14`,
+                    }}
+                  >
+                    <Icon className="w-[18px] h-[18px]" />
+                  </span>
+                  <span className="text-[10px] font-mono text-[#71717A]">0{i + 1}</span>
+                </div>
+                <div className="min-w-0 space-y-1">
+                  <p className="m-0 text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA]">
+                    {item.title}
+                  </p>
+                  <p className="m-0 text-lg font-bold text-white tracking-tight">{item.value}</p>
+                  <p className="m-0 text-xs text-[#71717A]">{item.note}</p>
+                </div>
+                {i < sequence.length - 1 && (
+                  <ArrowRight
+                    className="hidden md:block absolute -right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 p-0.5 text-[#71717A] bg-[#0C0C0E] border border-[#222227] z-10"
+                    aria-hidden="true"
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ol>
       </div>
 
-      {/* Card 2: Auto Follow-up Rule */}
-      <div className="p-4 rounded-xl bg-[#111114] border border-[#222227] space-y-2 relative overflow-hidden group">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500" />
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase font-bold text-[#A1A1AA] tracking-wider font-display">Auto Follow-up Rule</span>
-          <div className="w-7 h-7 rounded-lg bg-amber-950/40 text-amber-400 border border-amber-500/40 flex items-center justify-center">
-            <Clock className="w-3.5 h-3.5" />
-          </div>
+      {/* ── Queue table ── */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h3 className="m-0 text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA]">
+            Recipients <span className="text-white">({total})</span>
+          </h3>
+          {missingCount > 0 && (
+            <span className="inline-flex items-center gap-1.5 text-xs text-amber-400">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              Add an email to {missingCount} creator{missingCount === 1 ? "" : "s"} to include them in this send
+            </span>
+          )}
         </div>
-        <p className="text-2xl font-black text-amber-300 font-display font-mono">
-          {followUpDays} Days Timing
-        </p>
-        <div className="flex items-center justify-between pt-1 border-t border-[#222227]">
-          <span className="text-[11px] text-[#71717A]">Sequence Step 2</span>
-          <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/40 border border-amber-500/30 px-1.5 py-0.5 rounded-lg">
-            Auto-Follow In {followUpDays}d
-          </span>
-        </div>
-      </div>
 
-      {/* Card 3: Sequence Termination */}
-      <div className="p-4 rounded-xl bg-[#111114] border border-[#222227] space-y-2 relative overflow-hidden group">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-emerald-500 to-emerald-500" />
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase font-bold text-[#A1A1AA] tracking-wider font-display">Sequence Termination</span>
-          <div className="w-7 h-7 rounded-lg bg-emerald-950/40 text-emerald-400 border border-emerald-500/40 flex items-center justify-center">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-          </div>
-        </div>
-        <p className="text-2xl font-black text-emerald-300 font-display font-mono">
-          Response → Stop
-        </p>
-        <div className="flex items-center justify-between pt-1 border-t border-[#222227]">
-          <span className="text-[11px] text-[#71717A]">Compliance</span>
-          <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-1.5 py-0.5 rounded-lg">
-            Live Response Tracking
-          </span>
-        </div>
-      </div>
-    </div>
-
-
-    {/* Queue preview table */}
-    <div className="space-y-3 pt-2">
-      <h3 className="text-xs font-bold text-white uppercase tracking-wider font-display flex items-center gap-2">
-        <span className="w-2 h-2 rounded-lg bg-[#C81E3C]" />
-        <span>Active Outreach Queue ({unlaunchedCreators.length})</span>
-      </h3>
-      <div className="overflow-x-auto rounded-lg border border-[#2a2a30] bg-[#0C0C0E]">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-[#141417] text-[#A1A1AA] text-[11px] border-b border-[#2a2a30] font-mono uppercase tracking-wider">
-            <tr>
-              <th className="p-3">Creator</th>
-              <th className="p-3">Platform</th>
-              <th className="p-3">Followers</th>
-              <th className="p-3">Recipient Email</th>
-              <th className="p-3">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#222227]">
-            {unlaunchedCreators.map((c) => {
-              const emailVal = c.email || c.email_public || "";
-              const isEditing = editingEmailCreatorId === c.id;
-              const pSlug = (c.platform || "youtube").toLowerCase();
-
-              return (
-                <tr key={c.id} className="hover:bg-[#141417]/70 transition-colors">
-                  <td className="p-3 font-bold text-white flex items-center gap-2.5 font-display">
-                    <img
-                      src={getCreatorAvatar(c)}
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = generateCreatorAvatarSvg(c.name || c.display_name || c.handle);
-                      }}
-                      alt=""
-                      className="w-7 h-7 rounded-lg object-cover border border-[#2a2a30] bg-[#141417]"
-                    />
-                    <span className="truncate max-w-[180px] text-white">
-                      {c.name || c.display_name}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    {pSlug === "youtube" ? (
-                      <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold font-mono bg-red-950/40 text-red-400 border border-red-500/30">
-                        YouTube
-                      </span>
-                    ) : pSlug === "instagram" ? (
-                      <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold font-mono bg-pink-950/40 text-pink-400 border border-pink-500/30">
-                        Instagram
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold font-mono bg-emerald-950/40 text-emerald-400 border border-emerald-500/30">
-                        TikTok
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-3 font-mono text-white font-bold">
-                    {c.followerStr || c.follower_count}
-                  </td>
-                  <td className="p-3 font-mono">
-                    {isEditing ? (
-                      <div className="flex items-center gap-1.5 min-w-[220px]">
-                        <input
-                          type="email"
-                          autoFocus
-                          value={tempEmailValue}
-                          onChange={(e) =>
-                            setTempEmailValue(e.target.value)
-                          }
-                          onBlur={(e) => {
-                            if (tempEmailValue.trim()) {
-                              saveEditEmail(c.id, e);
-                            }
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") saveEditEmail(c.id, e);
-                            if (e.key === "Escape") cancelEditEmail(e);
-                          }}
-                          className="bg-[#030304] border border-[#2a2a30] rounded-lg px-2 py-0.5 text-xs text-white focus:outline-none focus:border-[#C81E3C] flex-1 font-mono"
-                        />
-                        <button
-                          type="button"
-                          onClick={(e) => saveEditEmail(c.id, e)}
-                          className="p-1 rounded-lg acq-btn-primary text-white cursor-pointer"
-                          title="Save"
-                        >
-                          <Check className="w-3 h-3" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => cancelEditEmail(e)}
-                          className="p-1 rounded-lg bg-[#222227] hover:bg-[#2E2E34] text-[#A1A1AA] hover:text-white cursor-pointer"
-                          title="Cancel"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 group">
-                        {emailVal ? (
-                          <span className="text-emerald-400 font-mono font-bold flex items-center gap-1 text-[11px]">
-                            <Check className="w-3 h-3 text-emerald-400" />
-                            <span>{emailVal}</span>
-                          </span>
-                        ) : (
-                          <span className="text-amber-400 text-[10px] font-mono italic bg-amber-950/40 border border-amber-500/30 px-1.5 py-0.5 rounded-lg inline-flex items-center gap-1">
-                            <AlertTriangle className="w-3 h-3 text-amber-400" />
-                            <span>No email set</span>
-                          </span>
-                        )}
-                        <button
-                          type="button"
-                          onClick={(e) =>
-                            startEditEmail(c.id, emailVal, e)
-                          }
-                          className="p-1 text-[#71717A] hover:text-[#FF4D6D] rounded-lg opacity-80 group-hover:opacity-100 transition-opacity cursor-pointer"
-                          title="Edit Email"
-                        >
-                          <Pencil className="w-3 h-3" />
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-0.5 rounded-lg text-[10px] font-bold font-mono border inline-flex items-center gap-1 ${
-                        c.status === "rejected"
-                          ? "bg-rose-950/40 text-rose-400 border-rose-500/30"
-                          : c.status === "approved"
-                            ? "bg-emerald-950/40 text-emerald-400 border-emerald-500/30"
-                            : emailVal
-                              ? "bg-emerald-950/40 text-emerald-400 border-emerald-500/30"
-                              : "bg-amber-950/40 text-amber-400 border-amber-500/30"
-                      }`}
-                    >
-                      {emailVal && c.status !== "rejected" && c.status !== "approved" && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      )}
-                      {!emailVal && c.status !== "rejected" && c.status !== "approved" && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                      )}
-                      {c.status === "rejected"
-                        ? "Archived (Rejected)"
-                        : c.status === "approved"
-                          ? "Approved (Active)"
-                          : emailVal
-                            ? "Ready in Queue"
-                            : "Email Needed"}
-                    </span>
+        <div className="overflow-x-auto border border-[#222227] bg-[#0C0C0E]">
+          <table className="w-full text-left text-sm min-w-[760px]">
+            <thead>
+              <tr className="bg-[#111114] text-[#71717A] text-[11px] uppercase tracking-wider border-b border-[#222227]">
+                <th scope="col" className="px-4 py-3 font-semibold">Creator</th>
+                <th scope="col" className="px-4 py-3 font-semibold">Platform</th>
+                <th scope="col" className="px-4 py-3 font-semibold text-right">Followers</th>
+                <th scope="col" className="px-4 py-3 font-semibold">Recipient email</th>
+                <th scope="col" className="px-4 py-3 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody className="acq-stagger divide-y divide-[#1C1C20]">
+              {total === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-4 py-12 text-center">
+                    <Mail className="w-6 h-6 mx-auto text-[#71717A]" />
+                    <p className="m-0 mt-2 text-sm font-semibold text-white">No creators in the queue</p>
+                    <p className="m-0 mt-1 text-xs text-[#71717A]">Qualify creators in Step 2 to add them here.</p>
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              )}
+              {queue.map((c) => {
+                const emailVal = c.email || c.email_public || "";
+                const isEditing = editingEmailCreatorId === c.id;
+                const pSlug = (c.platform || "youtube").toLowerCase();
+                const platform = PLATFORM_META[pSlug] || PLATFORM_META.youtube;
+                const PIcon = platform.Icon;
+                const status = getQueueStatus(c, emailVal);
+                const handle = c.handle ? `@${String(c.handle).replace(/^@/, "")}` : "";
+
+                return (
+                  <tr
+                    key={c.id}
+                    className={`transition-colors hover:bg-[#111114] ${c.status === "rejected" ? "opacity-60" : ""}`}
+                  >
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <img
+                          src={getCreatorAvatar(c)}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = generateCreatorAvatarSvg(c.name || c.display_name || c.handle);
+                          }}
+                          alt=""
+                          className="w-9 h-9 rounded-full object-cover border border-[#2a2a30] bg-[#141417] shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <p className="m-0 font-semibold text-white truncate max-w-[220px]">
+                            {c.name || c.display_name || handle || "Creator"}
+                          </p>
+                          {handle && (
+                            <p className="m-0 text-xs text-[#71717A] truncate max-w-[220px]">{handle}</p>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="px-4 py-3.5">
+                      <span className="inline-flex items-center gap-1.5 text-[13px] text-[#D4D4D8]">
+                        <PIcon className="w-4 h-4" style={{ color: platform.color }} />
+                        {platform.label}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-3.5 text-right font-semibold text-white tabular-nums">
+                      {c.followerStr || c.follower_count || "—"}
+                    </td>
+
+                    <td className="px-4 py-3.5">
+                      {isEditing ? (
+                        <div className="flex items-center gap-1.5 min-w-[260px]">
+                          <input
+                            type="email"
+                            autoFocus
+                            placeholder="name@example.com"
+                            aria-label={`Email for ${c.name || c.display_name || "creator"}`}
+                            value={tempEmailValue}
+                            onChange={(e) => setTempEmailValue(e.target.value)}
+                            onBlur={(e) => {
+                              if (tempEmailValue.trim()) saveEditEmail(c.id, e);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") saveEditEmail(c.id, e);
+                              if (e.key === "Escape") cancelEditEmail(e);
+                            }}
+                            className="h-8 px-2.5 text-[13px] text-white flex-1"
+                          />
+                          <button
+                            type="button"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={(e) => saveEditEmail(c.id, e)}
+                            className="acq-btn-primary w-8 h-8 flex items-center justify-center cursor-pointer"
+                            title="Save email"
+                            aria-label="Save email"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={(e) => cancelEditEmail(e)}
+                            className="w-8 h-8 flex items-center justify-center bg-[#1C1C20] hover:bg-[#2E2E34] text-[#A1A1AA] hover:text-white border border-[#2a2a30] cursor-pointer"
+                            title="Cancel"
+                            aria-label="Cancel editing"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : emailVal ? (
+                        <div className="group flex items-center gap-2 min-w-0">
+                          <Mail className="w-3.5 h-3.5 text-[#71717A] shrink-0" />
+                          <span className="text-[13px] text-[#D4D4D8] truncate max-w-[240px]" title={emailVal}>
+                            {emailVal}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => startEditEmail(c.id, emailVal, e)}
+                            className="p-1 text-[#71717A] hover:text-white opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity cursor-pointer"
+                            title="Edit email"
+                            aria-label={`Edit email for ${c.name || c.display_name || "creator"}`}
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => startEditEmail(c.id, "", e)}
+                          className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 hover:border-amber-400/60 transition-colors cursor-pointer"
+                        >
+                          <MailPlus className="w-3.5 h-3.5" />
+                          Add email
+                        </button>
+                      )}
+                    </td>
+
+                    <td className="px-4 py-3.5">
+                      <span className="inline-flex items-center gap-2 text-[13px] font-medium" style={{ color: status.text }}>
+                        <span
+                          className="w-2 h-2 rounded-full shrink-0"
+                          style={{ background: status.dot, boxShadow: `0 0 8px ${status.dot}99` }}
+                        />
+                        {status.label}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
   );
 }
