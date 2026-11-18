@@ -398,12 +398,18 @@ export default function ProjectOSPage() {
         }
         setActiveProject(enhancedTarget)
 
-        // If target has no posts yet, fetch live from YouTube
-        if (resolvedPosts.length === 0 && handleClean && !/^[0-9a-f-]{15,}$/i.test(handleClean)) {
+        // Refresh the selected creator's live uploads on every Section 2 load.
+        // This prevents an authenticated account or a stale cached creator feed
+        // from replacing the creator currently open in the dashboard.
+        if (handleClean && !/^[0-9a-f-]{15,}$/i.test(handleClean)) {
           import('../../services/scraper').then(({ fetchCreatorYouTubeVideos }) => {
-            fetchCreatorYouTubeVideos(handleClean).then((vids) => {
+            fetchCreatorYouTubeVideos(handleClean, 8, true).then((vids) => {
               if (vids && vids.length > 0) {
-                setActiveProject((prev) => (prev && prev.id === target.id ? { ...prev, recentPosts: vids, videos: vids } : prev))
+                setActiveProject((prev) => (
+                  prev && prev.id === target.id
+                    ? { ...prev, recentPosts: vids, videos: vids }
+                    : prev
+                ))
               }
             }).catch(() => { })
           })

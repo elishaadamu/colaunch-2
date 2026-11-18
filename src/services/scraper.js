@@ -945,55 +945,29 @@ export async function fetchCreatorYouTubeVideos(handleOrUrl, limit = 8, bypassCa
   }
   if (!clean || /^[0-9a-f-]{15,}$/i.test(clean)) return []
 
-  // Check active authenticated user email
-  let activeEmail = ''
-  try {
-    const raw = localStorage.getItem('forge_user_profile')
-    if (raw) {
-      const p = JSON.parse(raw)
-      activeEmail = p.email || p.username || ''
-    }
-  } catch (_) {}
-
   const cacheKey = `forge_creator_videos_${clean.toLowerCase()}`
-  if (!bypassCache) {
-    try {
-      const cached = sessionStorage.getItem(cacheKey) || localStorage.getItem(cacheKey)
-      if (cached) {
-        const parsed = JSON.parse(cached)
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed
-      }
-    } catch (e) {}
-  }
-
   let videos = []
 
-  // 0. Try authenticated YouTube Data API v3 endpoint first with user's email/identifier
-  try {
-    const targetId = activeEmail || clean
-    const res = await fetch(`/api/youtube/videos?identifier=${encodeURIComponent(targetId)}&email=${encodeURIComponent(targetId)}&limit=${limit}`)
-    if (res.ok) {
-      const data = await res.json()
-      if (Array.isArray(data.videos) && data.videos.length > 0) {
-        videos = data.videos
-      }
-    }
-  } catch (e) {}
-
-  // 0b. If no videos and clean is different from activeEmail, try with clean identifier
-  if ((!videos || videos.length === 0) && clean && clean !== activeEmail) {
+  // Primary: fetch the explicitly requested creator channel through Apify.
+  // Do not use the logged-in user's connected YouTube account or email here.
+  const { apifyToken } = loadKeys()
+  const envToken = import.meta.env?.VITE_APIFY_API_KEY
+  const token = apifyToken || envToken
+  if (token) {
     try {
-      const res = await fetch(`/api/youtube/videos?identifier=${encodeURIComponent(clean)}&limit=${limit}`)
-      if (res.ok) {
-        const data = await res.json()
-        if (Array.isArray(data.videos) && data.videos.length > 0) {
-          videos = data.videos
-        }
+      const channelUrl = String(handleOrUrl).includes('youtube.com/')
+        ? String(handleOrUrl)
+        : `https://www.youtube.com/@${clean}`
+      const scraped = await _scrapeYouTubeApify(channelUrl, token)
+      if (Array.isArray(scraped?.recentPosts) && scraped.recentPosts.length > 0) {
+        videos = scraped.recentPosts
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[Forge] Apify creator video fetch failed:', e.message)
+    }
   }
 
-  // 1. Try backend YouTube video scraper endpoint
+  // Fallback: backend YouTube channel scraper/RSS for the requested handle.
   if (!videos || videos.length === 0) {
     try {
       const res = await fetch(`/api/creators/youtube-videos?handle=${encodeURIComponent(clean)}&limit=${limit}`)
@@ -1006,7 +980,7 @@ export async function fetchCreatorYouTubeVideos(handleOrUrl, limit = 8, bypassCa
     } catch (e) {}
   }
 
-  // 2. Try proxy feed endpoint
+  // Final live fallback: server-side YouTube RSS/proxy feed.
   if (!videos || videos.length === 0) {
     try {
       const res = await fetch(`/api/proxy/youtube-feed?handle=${encodeURIComponent(clean)}`)
@@ -1017,22 +991,6 @@ export async function fetchCreatorYouTubeVideos(handleOrUrl, limit = 8, bypassCa
         }
       }
     } catch (e) {}
-  }
-
-  // 3. Fallback to Apify scraper if key available
-  if (!videos || videos.length === 0) {
-    const { apifyToken } = loadKeys()
-    const envToken = import.meta.env?.VITE_APIFY_API_KEY
-    const token = apifyToken || envToken
-    if (token) {
-      try {
-        const channelUrl = `https://www.youtube.com/@${clean}`
-        const scraped = await _scrapeYouTubeApify(channelUrl, token)
-        if (Array.isArray(scraped?.recentPosts) && scraped.recentPosts.length > 0) {
-          videos = scraped.recentPosts
-        }
-      } catch (e) {}
-    }
   }
 
   // Format and cache
@@ -1057,6 +1015,17 @@ export async function fetchCreatorYouTubeVideos(handleOrUrl, limit = 8, bypassCa
     } catch (e) {}
 
     return formatted
+  }
+
+  // Cache is only a last-resort fallback for a creator's previous successful fetch.
+  if (!bypassCache) {
+    try {
+      const cached = sessionStorage.getItem(cacheKey) || localStorage.getItem(cacheKey)
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch (e) {}
   }
 
   return []
