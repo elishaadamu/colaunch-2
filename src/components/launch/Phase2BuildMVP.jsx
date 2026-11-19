@@ -22,6 +22,7 @@ import { verifyProjectTaskWithAI } from '../../services/ai'
 import { computeReadiness, evaluateLaunchGate } from '../../utils/launchGate'
 import Phase2Step4Gate from './phase2/Phase2Step4Gate'
 import BuildAgentPanel from './phase2/BuildAgentPanel'
+import Phase2PlanView from './phase2/Phase2PlanView'
 import AutomatedQASuite from './AutomatedQASuite'
 import { getPhase2StepGuards } from '../../utils/stepGuards'
 
@@ -2130,7 +2131,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           ) : (
             <>
               {/* SUBTAB A: PRODUCT SPEC */}
-              {specSubtab === 'spec' && (
+              {specSubtab === 'spec' && !isEditingSpec && <Phase2PlanView section='spec' buildPlan={buildPlan} project={project} />}
+              {specSubtab === 'spec' && isEditingSpec && (
             <div className="space-y-4">
               {/* Target Customer, Core Problem & Value Proposition Grid (Direct from Phase 1) */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
@@ -2390,7 +2392,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           )}
 
           {/* SUBTAB B: TECHNICAL PLAN */}
-          {specSubtab === 'technical' && (
+          {specSubtab === 'technical' && !isEditingSpec && <Phase2PlanView section='technical' buildPlan={buildPlan} project={project} />}
+          {specSubtab === 'technical' && isEditingSpec && (
             <div className="space-y-4">
               {/* Architecture Overview */}
               <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2.5">
@@ -2515,7 +2518,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           )}
 
           {/* SUBTAB C: SCOPE BOUNDARIES */}
-          {specSubtab === 'scope' && (
+          {specSubtab === 'scope' && !isEditingSpec && <Phase2PlanView section='scope' buildPlan={buildPlan} project={project} />}
+          {specSubtab === 'scope' && isEditingSpec && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* What IS Included */}
