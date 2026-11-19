@@ -6,6 +6,7 @@ import {
 import { updatePageSEO } from '../../utils/seo'
 import { getBetaSession, postBetaEvent, postBetaFeedback } from '../../services/opsApi'
 import { compileSandboxPreviewDocument } from './CloudCodeStudio'
+import { buildStudioDocument } from '../../utils/studioRuntime'
 import { resolveProjectLanding } from '../../utils/projectLanding'
 
 const CATEGORY_META = {
@@ -67,6 +68,7 @@ export default function BetaTestingPortal({ slug }) {
   const previewDoc = useMemo(() => {
     if (staging?.url) return ''
     if (!staging?.files?.length) return ''
+    if (staging.runtime === 'studio') return buildStudioDocument(staging.files.map((f) => ({ path: f.name, content: f.content })), { title: productName })
     const entry = staging.files.find((f) => f.name === staging.entry) || staging.files[0]
     return compileSandboxPreviewDocument(entry, staging.files)
   }, [staging])

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Loader2, Lock, LifeBuoy, Maximize2 } from 'lucide-react'
 import { getProductAccess } from '../../services/opsApi'
 import { compileSandboxPreviewDocument } from './CloudCodeStudio'
+import { buildStudioDocument } from '../../utils/studioRuntime'
 import { trackLaunch } from '../../utils/launchTracker'
 import { updatePageSEO } from '../../utils/seo'
 
@@ -49,8 +50,9 @@ export default function HostedAppPage({ slug }) {
     if (data?.release?.url) return ''
     const files = data?.release?.files || []
     if (!files.length) return ''
-    const entry = files.find((f) => f.name === data.release.entry) || files[0]
-    const html = compileSandboxPreviewDocument(entry, files)
+    const html = data.release.runtime === 'studio'
+      ? buildStudioDocument(files.map((f) => ({ path: f.name, content: f.content })), { title: data?.project?.productName })
+      : compileSandboxPreviewDocument(files.find((f) => f.name === data.release.entry) || files[0], files)
     return html.includes('</head>') ? html.replace('</head>', `${ERROR_BRIDGE}</head>`) : ERROR_BRIDGE + html
   }, [data])
 

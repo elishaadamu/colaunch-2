@@ -505,3 +505,44 @@ export const createBuildAgentKey = (pid, label) => req('POST', `/build/${pid}/ke
 export const revokeBuildAgentKey = (pid, prefix) => req('DELETE', `/build/${pid}/keys/${prefix}`)
 export const syncBuildCi = (pid) => req('POST', `/build/${pid}/github/sync`)
 export const getBuildTaskRuns = (pid, taskId) => req('GET', `/build/${pid}/runs/${encodeURIComponent(taskId)}`)
+
+// ── Phase 2 Build Studio (streamed AI build) ──────────────────────────────────────────────
+/** POST and read a Server-Sent Events stream. onEvent(event, data) for each message. */
+export async function streamSSE(path, body, onEvent, signal) {
+  const operatorToken = typeof localStorage !== 'undefined'
+    ? (localStorage.getItem('forge_launch_auth_token') || localStorage.getItem('forge_op_token') || '')
+    : ''
+  const headers = { 'Content-Type': 'application/json', Accept: 'text/event-stream' }
+  if (operatorToken) {
+    headers.Authorization = `Bearer ${operatorToken}`
+    headers['X-Operator-Token'] = operatorToken
+  }
+  const res = await fetch(buildApiUrl(path), { method: 'POST', headers, body: JSON.stringify(body || {}), signal })
+  if (!res.ok || !res.body) {
+    let msg = `Request failed (${res.status})`
+    try { const j = await res.json(); msg = j.detail || j.message || msg } catch { /* not json */ }
+    throw new Error(msg)
+  }
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buf = ''
+  for (;;) {
+    const { value, done } = await reader.read()
+    if (done) break
+    buf += decoder.decode(value, { stream: true })
+    let idx
+    while ((idx = buf.indexOf('\n\n')) !== -1) {
+      const raw = buf.slice(0, idx)
+      buf = buf.slice(idx + 2)
+      let event = 'message'
+      let data = ''
+      for (const line of raw.split('\n')) {
+        if (line.startsWith('event: ')) event = line.slice(7).trim()
+        else if (line.startsWith('data: ')) data += line.slice(6)
+      }
+      try { onEvent(event, data ? JSON.parse(data) : null) } catch (e) { console.warn('[SSE] handler', e) }
+    }
+  }
+}
+export const getStudio = (pid) => req('GET', `/studio/${pid}`)
+export const restoreStudioCheckpoint = (pid, cp) => req('POST', `/studio/${pid}/restore/${cp}`)

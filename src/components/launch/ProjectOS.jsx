@@ -543,14 +543,15 @@ partnerships@colaunch.com`
       ...updated
     }))
     if (project?.id) {
-      import('../../services/opsApi').then(({ updateCoLaunchProject, recordGateDecision }) => {
+      import('../../services/opsApi').then(async ({ updateCoLaunchProject, recordGateDecision }) => {
+        // Sequential: the gate endpoint rewrites the whole project, so it must finish before the phase update
         if (recordGateDecision) {
-          recordGateDecision(project.id, {
+          await recordGateDecision(project.id, {
             decision: nextPhase === 2 ? 'pass_to_phase2' : 'pass_to_phase3',
             notes: nextPhase === 2 ? 'Phase 1 completed. Advanced to Phase 2: Build MVP.' : 'Phase 2 completed. Advanced to Phase 3: Launch.'
           }).catch(e => console.warn(e))
         }
-        updateCoLaunchProject(project.id, {
+        await updateCoLaunchProject(project.id, {
           currentPhase: nextPhase,
           current_phase: nextPhase,
           currentStep: initialStep,

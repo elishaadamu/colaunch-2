@@ -19,6 +19,7 @@ import { verifyProjectTaskWithAI } from '../../services/ai'
 import { computeReadiness, evaluateLaunchGate } from '../../utils/launchGate'
 import Phase2Step4Gate from './phase2/Phase2Step4Gate'
 import BuildAgentPanel from './phase2/BuildAgentPanel'
+import BuildStudio from './phase2/BuildStudio'
 import Phase2PlanView from './phase2/Phase2PlanView'
 import AutomatedQASuite from './AutomatedQASuite'
 import { getPhase2StepGuards } from '../../utils/stepGuards'
@@ -2964,6 +2965,15 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
       {/* STEP 2: BUILD MVP (CLOUD CODEBASE STUDIO & IDE) */}
       {activeStep === 'build' && (
         <div className="space-y-5">
+          {/* Build Studio: describe it, watch it get built (frontend only) */}
+          <BuildStudio project={project} buildPlan={buildPlan} showToast={showToast} onUpdateProject={onUpdateProject} />
+
+          <details className="group" style={{ background: '#0c0c0e', border: '1px solid #26262b' }}>
+            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-[#d4d4d8] flex items-center justify-between">
+              <span>Advanced: connect your own coding agent (Claude Code / Cursor) and track engineering tasks</span>
+              <span className="text-xs text-[#71717a] group-open:hidden">Show</span>
+            </summary>
+            <div className="p-4 space-y-5" style={{ borderTop: '1px solid #26262b' }}>
           {/* Work tracker: every task, who owns it, and whether QA verified it */}
           {(() => {
             const total = engineeringTasks.length
@@ -3029,34 +3039,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
             }}
           />
 
-          <details className="group">
-            <summary className="cursor-pointer text-xs font-semibold text-[#A1A1AA] py-2">Quick prototype in the browser studio (not a real build)</summary>
-          <div className="keep-dark cloud-code-studio rounded-3xl overflow-hidden shadow-xl border border-[#2a2a30]">
-            <CloudCodeStudio
-              project={project}
-              engineeringTasks={engineeringTasks}
-              buildPlan={buildPlan}
-              qaResults={qaResults}
-              setQaResults={setQaResults}
-              onUpdateTasks={setEngineeringTasks}
-              onSaveProjectFiles={handleSaveCodeFiles}
-              onUpdateProject={onUpdateProject}
-              handleSavePlan={handleSavePlan}
-              handleToggleTaskStatus={handleToggleTaskStatus}
-              handleReassignTask={handleReassignTask}
-              handleSwitchAllToAI={handleSwitchAllToAI}
-              handleSwitchToAIAndDispatch={handleSwitchToAIAndDispatch}
-              handleAutoDistributeDivisionOfLabor={handleAutoDistributeDivisionOfLabor}
-              handleAddDefaultHumanTask={handleAddDefaultHumanTask}
-              onAutoBuildPlan={() => handleRegenerateMVPPlan(false)}
-              isBuildingPlan={isGenerating}
-              onRunQA={() => handleRunAutomatedQA(qaResults)}
-              qaRunning={qaRunning}
-              currentPhase={2}
-              executingTaskId={executingTaskId}
-              showToast={showToast}
-            />
-          </div>
+            </div>
           </details>
 
           {/* Step 2 Footer */}
