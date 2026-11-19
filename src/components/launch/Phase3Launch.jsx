@@ -9,7 +9,7 @@ import {
   updateCoLaunchProject, updateValidationCampaign, toggleAutonomousCampaignDelivery, sendCampaignPostEmail,
   getLaunchState, saveLaunchConfig, goLive, pauseLaunch, getLaunchMetrics, postLaunchDecision, listLaunchDecisions,
 } from '../../services/opsApi'
-import { generateLaunchPlanAI, writeLaunchActionAI, summarizeLaunchReportAI } from '../../services/ai'
+import { streamSSE } from '../../services/opsApi'
 import { XLogo } from './PostVisualMockup'
 import { C, P1_SHARED_CSS } from './phase1/phase1Constants'
 import { PUBLIC_APP_URL } from '../../utils/publicUrl'
@@ -50,6 +50,77 @@ const CH_ICON = { instagram: Instagram, video: Youtube, x: XLogo, newsletter: Ma
 const money = (n) => `$${Math.round(Number(n) || 0).toLocaleString()}`
 const BACKEND = (import.meta.env.VITE_BACKEND_URL || 'https://creator-forge-backend-jj1y.onrender.com').replace(/\/$/, '')
 const STATUS_ICON = { pass: [CheckCircle2, C.ok], warn: [AlertTriangle, C.warn], fail: [XCircle, C.crimsonText] }
+
+const WORK_LABEL = {
+  step: 'Analysing', summary: 'Summarising', launchDate: 'Choosing the date', channel: 'Choosing channels', offer: 'Setting the offer',
+  message: 'Writing the messaging', post: 'Writing post', task: 'Building the checklists', faq: 'Answering FAQs', welcome: 'Writing the welcome email',
+  read: 'Reading the numbers', rec: 'Recommending', draft: 'Drafting', learning: 'Drawing lessons', creator: 'Reviewing creator posts',
+  usage: 'Reviewing usage', theme: 'Grouping feedback', next: 'Choosing the next move',
+}
+
+function useAiStream() {
+  const [run, setRun] = useState(null)
+  const [, tick] = useState(0)
+  const abortRef = useRef(null)
+  useEffect(() => {
+    if (!run) return undefined
+    const id = setInterval(() => tick((n) => n + 1), 1000)
+    return () => clearInterval(id)
+  }, [run])
+  const start = async (path, body) => {
+    const ctrl = new AbortController()
+    abortRef.current = ctrl
+    setRun({ text: '', model: null, startedAt: Date.now() })
+    let result = null
+    let error = null
+    try {
+      await streamSSE(path, body, (event, data) => {
+        if (event === 'model') setRun((r) => r && { ...r, model: data.model })
+        if (event === 'delta') setRun((r) => r && { ...r, text: r.text + data.t })
+        if (event === 'done') { if (data?.error) error = data.error; else result = data }
+        if (event === 'error') error = data?.message || 'The AI request failed.'
+      }, ctrl.signal)
+    } catch (e) { error = e.name === 'AbortError' ? 'Stopped.' : e.message } finally { setRun(null); abortRef.current = null }
+    if (error) throw new Error(error)
+    return result
+  }
+  return { run, start, stop: () => abortRef.current?.abort() }
+}
+
+function AiWorkLog({ run, onStop, title }) {
+  if (!run) return null
+  const text = run.text || ''
+  const steps = [...text.matchAll(/<step>([\s\S]*?)<\/step>/g)].map((m) => m[1].trim())
+  const opens = [...text.matchAll(/<(\w+)((?:\s+\w+="[^"]*")*)\s*>/g)]
+  const last = opens[opens.length - 1]
+  const lastTag = last?.[1]
+  const lastTitle = last ? ((last[2].match(/title="([^"]*)"/) || [])[1] || '') : ''
+  const isOpen = last && text.lastIndexOf(`</${lastTag}>`) < last.index
+  const counts = ['post', 'rec', 'task', 'faq', 'learning'].map((t) => [t, (text.match(new RegExp(`</${t}>`, 'g')) || []).length]).filter(([, n]) => n)
+  const elapsed = Math.round((Date.now() - run.startedAt) / 1000)
+  return (
+    <div className="p-4 space-y-2.5" style={{ background: C.sheet, border: `1px solid ${C.crimsonLine}` }} role="status" aria-live="polite">
+      <div className="flex items-center gap-2 text-sm" style={{ color: C.crimsonText }}>
+        <Loader2 className="w-4 h-4 animate-spin" />
+        <span className="font-semibold">{title}</span>
+        <span className="ml-auto text-xs" style={{ color: C.faint }}>{elapsed}s{run.model ? ` · ${run.model}` : ''}</span>
+      </div>
+      {!text && <p className="m-0 text-xs" style={{ color: C.muted }}>Thinking it through before writing…</p>}
+      {steps.length > 0 && (
+        <ul className="list-none m-0 p-0 space-y-1">
+          {steps.map((st, i) => <li key={i} className="flex items-start gap-1.5 text-xs" style={{ color: C.body }}><Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: C.ok }} />{st}</li>)}
+        </ul>
+      )}
+      {isOpen && lastTag !== 'step' && (
+        <p className="m-0 text-xs flex items-center gap-1.5" style={{ color: C.text }}>
+          <span className="w-1.5 h-1.5 live" style={{ background: C.crimson }} />{WORK_LABEL[lastTag] || 'Writing'}{lastTitle ? `: ${lastTitle}` : ''}
+        </p>
+      )}
+      {counts.length > 0 && <p className="m-0 text-[11px]" style={{ color: C.faint }}>{counts.map(([t, n]) => `${n} ${t === 'rec' ? 'recommendations' : t + 's'}`).join(' · ')} written</p>}
+      <button type="button" className="btn btn-quiet" onClick={onStop}><X className="w-3.5 h-3.5" />Stop</button>
+    </div>
+  )
+}
 
 export default function Phase3Launch({ project, onUpdateProject, activeStepId, onSelectStep }) {
   const pid = project?.id
@@ -138,12 +209,15 @@ function PrepareStep({ project, pid, state, refresh, plan, kit, save, say, slug,
     })
   }, [state]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const ai = useAiStream()
   const generate = async () => {
     setGenerating(true); setGenError('')
     try {
       const evidence = buildLaunchEvidence(project, { config: cfg, publicUrl: PUBLIC_APP_URL, slug })
-      const res = await generateLaunchPlanAI(project, evidence)
-      const next = { ...res, generatedAt: new Date().toISOString(), creatorChecklist: (res.creatorChecklist || []).map((t, i) => ({ ...t, id: `cc-${i}`, done: false })), opsChecklist: (res.opsChecklist || []).map((t, i) => ({ ...t, id: `oc-${i}`, done: false })) }
+      const out = await ai.start(`/launch-ai/${pid}/plan`, { evidence })
+      const res = out?.plan
+      if (!res) throw new Error('The plan came back empty. Try again.')
+      const next = { ...res, generatedAt: new Date().toISOString() }
       await save({ launchPlan: next, launchStrategy: { creatorChecklist: next.creatorChecklist, opsChecklist: next.opsChecklist } })
       // FAQs, onboarding and date feed the product readiness checks
       await saveLaunchConfig(pid, { faqs: cfg.faqs?.length ? cfg.faqs : res.faqs, onboarding: cfg.onboarding?.subject ? cfg.onboarding : res.onboarding, launchDate: cfg.launchDate || res.launchDate })
@@ -200,6 +274,7 @@ function PrepareStep({ project, pid, state, refresh, plan, kit, save, say, slug,
           </div>
           <button type="button" className="btn btn-primary shrink-0" onClick={generate} disabled={generating}>{generating ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Planning…</> : <><Sparkles className="w-3.5 h-3.5" />{plan ? 'Re-plan' : 'Generate launch plan'}</>}</button>
         </div>
+        <AiWorkLog run={ai.run} onStop={ai.stop} title="Launch strategist is planning from your evidence" />
         {genError && <p className="m-0 text-sm" style={{ color: C.crimsonText }}>{genError}</p>}
         {plan && (
           <>
@@ -486,50 +561,64 @@ function MonitorStep({ project, pid, state, metrics, refresh, refreshedAt, isLiv
   )
 }
 
-/* ─── Step 3: AI launch manager ──────────────────────────────────────────────────────── */
+/* ─── Step 3: AI launch manager (advises, you decide) ──────────────────────────────────── */
 function ManagerStep({ project, pid, state, metrics, isLive, kit, actions, save, say, slug }) {
   const signals = useMemo(() => detectSignals(metrics, { liveAt: metrics?.liveAt }), [metrics])
-  const [autopilot, setAutopilot] = useState(project?.launchAutopilot !== false)
-  const [working, setWorking] = useState(null)
+  const ai = useAiStream()
+  const advice = project?.launchAdvice || null
+  const [drafts, setDrafts] = useState({})
+  const [busyRec, setBusyRec] = useState(null)
   const [sending, setSending] = useState(null)
-  const doneKeys = useRef(new Set(actions.map((a) => a.signalKey)))
-  useEffect(() => { actions.forEach((a) => doneKeys.current.add(a.signalKey)) }, [actions])
-
+  const [err, setErr] = useState('')
   const quotes = (project?.surveyResponses || []).flatMap((r) => Object.values(r.answers || {})).filter((a) => String(a).length > 15)
   const offer = state?.config?.price ? `$${state.config.price}${state.config.priceLabel ? ` ${state.config.priceLabel}` : ''}` : 'the launch price'
+  const links = Object.fromEntries(['instagram', 'video', 'x', 'newsletter', 'dm'].map((c) => [c, `${PUBLIC_APP_URL}/preorder/${slug}?ref=lm_${c}`]))
 
-  const act = async (sig) => {
-    if (doneKeys.current.has(sig.key)) return
-    doneKeys.current.add(sig.key)
-    setWorking(sig.key)
+  const analyse = async () => {
+    setErr('')
     try {
-      const link = `${PUBLIC_APP_URL}/preorder/${slug}?ref=lm_${sig.channel || 'x'}`
-      const out = await writeLaunchActionAI(sig, project, { link, quotes, offer })
-      const entry = { id: `la-${Date.now()}`, signalKey: sig.key, kind: sig.kind, title: sig.title, evidence: sig.evidence, why: sig.why, createdAt: new Date().toISOString() }
-      if (sig.kind === 'creator') {
-        const { kit: nextKit, created } = addCreatorTasks(kit, [{ title: out.title || sig.title, channel: sig.channel, content: out.content, description: sig.why }], { prefix: 'lm', fields: { fromLaunchManager: entry.id } })
-        await updateValidationCampaign(pid, { campaign_kit: nextKit, campaignKit: nextKit })
-        entry.taskId = created[0].id
-        entry.content = out.content
-        await save({ campaignKit: nextKit, launchActions: [entry, ...actions], launchManagerDone: true })
-      } else {
-        const task = { id: `eng-lm-${Date.now()}`, title: out.title || sig.title, category: out.category || 'Bug fix', assignedTo: out.assignedTo || 'Human Engineer', status: 'Ready', estimate: '1 Day', priority: 1, fromLaunchManager: entry.id, acceptanceCriteria: out.acceptanceCriteria || [], notes: `${sig.evidence}. ${out.notes || ''}` }
-        entry.taskId = task.id
-        await save({ engineeringTasks: [task, ...(project?.engineeringTasks || [])], launchActions: [entry, ...actions], launchManagerDone: true })
-      }
-      say(sig.kind === 'creator' ? `Creator task created: ${out.title || sig.title}` : `Engineering task created: ${out.title || sig.title}`)
-    } catch (e) {
-      doneKeys.current.delete(sig.key)
-      say(`Couldn't create the action: ${e.message}`)
-    } finally { setWorking(null) }
+      const t = metrics?.totals || {}
+      const out = await ai.start(`/launch-ai/${pid}/manager`, {
+        metrics: { totals: t, channels: metrics?.channels, content: metrics?.content, health: metrics?.health, periods: metrics?.periods, liveAt: metrics?.liveAt },
+        signals, links, offer, quotes: quotes.slice(0, 6),
+      })
+      await save({ launchAdvice: { ...out, decided: {} }, launchManagerDone: true })
+      setDrafts({})
+    } catch (e) { setErr(e.message) }
   }
 
-  // Continuous: new signals become actions automatically while autopilot is on
+  // Re-read automatically when new signals appear and the last read is more than 3 hours old
+  const autoRef = useRef(false)
   useEffect(() => {
-    if (!autopilot || !isLive || working) return
-    const next = signals.find((s) => !doneKeys.current.has(s.key))
-    if (next) act(next)
-  }, [signals, autopilot, isLive, working]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (autoRef.current || !isLive || !signals.length || ai.run) return
+    const stale = !advice?.at || Date.now() - new Date(advice.at).getTime() > 3 * 36e5
+    const newKeys = signals.some((sg) => !(advice?.recommendations || []).some((r) => r.signal === sg.key))
+    if (stale && newKeys) { autoRef.current = true; analyse() }
+  }, [signals, isLive]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const decided = advice?.decided || {}
+  const accept = async (rec) => {
+    setBusyRec(rec.signal)
+    try {
+      const draft = drafts[rec.signal] ?? rec.draft
+      const entry = { id: `la-${Date.now()}`, signalKey: rec.signal, kind: rec.kind, title: rec.title, evidence: rec.why, createdAt: new Date().toISOString() }
+      if (rec.kind === 'creator') {
+        const sig = signals.find((x) => x.key === rec.signal)
+        const { kit: nextKit, created } = addCreatorTasks(kit, [{ title: rec.title, channel: sig?.channel || 'instagram', content: draft, description: rec.why }], { prefix: 'lm', fields: { fromLaunchManager: entry.id } })
+        await updateValidationCampaign(pid, { campaign_kit: nextKit, campaignKit: nextKit })
+        entry.taskId = created[0].id
+        entry.content = draft
+        await save({ campaignKit: nextKit, launchActions: [entry, ...actions], launchAdvice: { ...advice, decided: { ...decided, [rec.signal]: 'accepted' } } })
+      } else {
+        const criteria = String(draft || '').split('\n').filter((l) => /^\s*-\s+/.test(l)).map((l) => l.replace(/^\s*-\s+/, '').trim())
+        const task = { id: `eng-lm-${Date.now()}`, title: rec.title, category: 'Bug fix', assignedTo: 'Human Engineer', status: 'Ready', estimate: '1 Day', priority: rec.priority === 'high' ? 1 : 2, fromLaunchManager: entry.id, acceptanceCriteria: criteria, notes: `${rec.why}\n\n${draft}` }
+        entry.taskId = task.id
+        await save({ engineeringTasks: [task, ...(project?.engineeringTasks || [])], launchActions: [entry, ...actions], launchAdvice: { ...advice, decided: { ...decided, [rec.signal]: 'accepted' } } })
+      }
+      say(rec.kind === 'creator' ? 'Added to the creator’s daily email queue.' : 'Engineering task created in Phase 2.')
+    } catch (e) { say(`Couldn't create it: ${e.message}`) } finally { setBusyRec(null) }
+  }
+  const dismiss = (rec) => save({ launchAdvice: { ...advice, decided: { ...decided, [rec.signal]: 'dismissed' } } })
 
   const schedule = kit.postingSchedule || []
   const engTasks = project?.engineeringTasks || []
@@ -541,50 +630,69 @@ function ManagerStep({ project, pid, state, metrics, isLive, kit, actions, save,
     const t = engTasks.find((x) => x.id === a.taskId)
     return !t ? ['Removed', C.faint] : t.verified ? ['Fixed & verified', C.ok] : ['Completed', 'done'].includes(t.status) ? ['Built, awaiting QA', C.warn] : [t.status || 'Ready', C.warn]
   }
-
   const sendNow = async (a) => {
     setSending(a.id)
     try { await sendCampaignPostEmail(pid, { taskId: a.taskId }); say('Emailed to the creator.') } catch (e) { say(`Email failed: ${e.message}`) } finally { setSending(null) }
   }
+  const PRIORITY = { high: C.crimsonText, medium: C.warn, low: C.muted }
 
   return (
     <div className="space-y-6">
-      <section className="card p-4 sm:p-5 space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <section className="card p-4 sm:p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div>
-            <p className="eyebrow m-0 flex items-center gap-1.5"><Bot className="w-3 h-3" />AI launch manager</p>
-            <h3 className="serif m-0 mt-1 text-2xl" style={{ color: C.text }}>{isLive ? `${signals.length} ${signals.length === 1 ? 'signal' : 'signals'} in the live data` : 'Starts once you go live'}</h3>
-            <p className="m-0 mt-1 text-sm max-w-2xl" style={{ color: C.muted }}>Checks the live numbers every minute. When a channel outperforms or something breaks, it writes the content or the fix, creates the task and tracks it to completion.</p>
+            <p className="eyebrow m-0 flex items-center gap-1.5"><Bot className="w-3 h-3" />AI launch manager · advises, you decide</p>
+            <h3 className="serif m-0 mt-1 text-2xl" style={{ color: C.text }}>{isLive ? 'What the live numbers say' : 'Starts once you go live'}</h3>
+            <p className="m-0 mt-1 text-sm max-w-2xl" style={{ color: C.muted }}>
+              It reads the live dashboard ({signals.length} {signals.length === 1 ? 'signal' : 'signals'} detected), explains what's happening and recommends what to do, with the post or task already drafted. Nothing happens until you accept it.
+            </p>
           </div>
-          <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: C.body }}>
-            <input type="checkbox" checked={autopilot} onChange={(e) => { setAutopilot(e.target.checked); save({ launchAutopilot: e.target.checked }) }} style={{ accentColor: C.crimson }} />Create tasks automatically
-          </label>
+          <button type="button" className="btn btn-primary shrink-0" onClick={analyse} disabled={!!ai.run || !isLive}>
+            {ai.run ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}{advice ? 'Read the numbers again' : 'Ask the launch manager'}
+          </button>
         </div>
-        {signals.length > 0 && (
-          <ul className="list-none m-0 p-0 space-y-2">
-            {signals.map((s) => {
-              const handled = doneKeys.current.has(s.key)
-              return (
-                <li key={s.key} className="well p-3 flex flex-col sm:flex-row sm:items-center gap-3">
-                  <span className="shrink-0" style={{ color: s.kind === 'creator' ? C.ok : C.crimsonText }}>{s.kind === 'creator' ? <TrendingUp className="w-4 h-4" /> : <Bug className="w-4 h-4" />}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="m-0 text-sm font-semibold" style={{ color: C.text }}>{s.title}</p>
-                    <p className="m-0 text-xs" style={{ color: C.body }}>{s.evidence}</p>
-                    <p className="m-0 text-[11px]" style={{ color: C.faint }}>{s.why}</p>
-                  </div>
-                  {handled ? <span className="text-xs font-semibold shrink-0" style={{ color: C.ok }}>Task created</span>
-                    : <button type="button" className="btn btn-primary shrink-0" disabled={!!working} onClick={() => act(s)}>{working === s.key ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}{s.kind === 'creator' ? 'Write post & create task' : 'Create engineering task'}</button>}
-                </li>
-              )
-            })}
-          </ul>
+        <AiWorkLog run={ai.run} onStop={ai.stop} title="Launch manager is reading the live numbers" />
+        {err && <p className="m-0 text-sm" style={{ color: C.crimsonText }}>{err}</p>}
+        {!ai.run && advice?.read && (
+          <div className="well p-4 space-y-1">
+            <p className="m-0 text-[11px]" style={{ color: C.faint }}>Read {new Date(advice.at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</p>
+            <p className="m-0 text-[15px] leading-relaxed" style={{ color: C.body }}>{advice.read}</p>
+          </div>
         )}
-        {isLive && !signals.length && <p className="well m-0 p-4 text-sm" style={{ color: C.faint }}>Nothing needs action right now. Signals need enough data, for example 20+ visitors per channel or 8+ checkouts a day.</p>}
+        {!ai.run && (advice?.recommendations || []).map((rec) => {
+          const state2 = decided[rec.signal]
+          const Icon = rec.kind === 'creator' ? TrendingUp : Bug
+          return (
+            <article key={rec.signal} className="well p-4 space-y-3" style={state2 ? { opacity: 0.6 } : { borderColor: C.lineStrong }}>
+              <div className="flex flex-wrap items-start gap-3">
+                <Icon className="w-4 h-4 mt-0.5 shrink-0" style={{ color: rec.kind === 'creator' ? C.ok : C.crimsonText }} />
+                <div className="flex-1 min-w-0">
+                  <p className="m-0 text-sm font-semibold" style={{ color: C.text }}>{rec.title}</p>
+                  <p className="m-0 mt-1 text-xs leading-relaxed" style={{ color: C.body }}>{rec.why}</p>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: PRIORITY[rec.priority] || C.muted }}>{rec.priority} · {rec.kind === 'creator' ? 'creator post' : 'engineering'}</span>
+              </div>
+              {!state2 ? (
+                <>
+                  <label className="block">
+                    <span className="lbl">{rec.kind === 'creator' ? 'Draft post (edit before accepting)' : 'Draft task (edit before accepting)'}</span>
+                    <textarea className="in" rows={rec.kind === 'creator' ? 6 : 5} value={drafts[rec.signal] ?? rec.draft} onChange={(e) => setDrafts((d) => ({ ...d, [rec.signal]: e.target.value }))} />
+                  </label>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <button type="button" className="btn btn-quiet" onClick={() => dismiss(rec)}>Dismiss</button>
+                    <button type="button" className="btn btn-primary" onClick={() => accept(rec)} disabled={busyRec === rec.signal}>{busyRec === rec.signal ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}{rec.kind === 'creator' ? 'Accept: add to creator emails' : 'Accept: create engineering task'}</button>
+                  </div>
+                </>
+              ) : <p className="m-0 text-xs" style={{ color: C.faint }}>{state2 === 'accepted' ? 'Accepted' : 'Dismissed'}</p>}
+            </article>
+          )
+        })}
+        {!ai.run && isLive && advice && !(advice.recommendations || []).length && <p className="well m-0 p-4 text-sm" style={{ color: C.faint }}>No action needed right now.</p>}
       </section>
 
       <section className="card p-4 sm:p-5 space-y-3">
-        <p className="eyebrow m-0">Actions taken · {actions.length}</p>
-        {!actions.length ? <p className="well m-0 p-4 text-sm" style={{ color: C.faint }}>No actions yet.</p> : (
+        <p className="eyebrow m-0">Accepted actions · {actions.length}</p>
+        {!actions.length ? <p className="well m-0 p-4 text-sm" style={{ color: C.faint }}>Nothing accepted yet.</p> : (
           <ol className="list-none m-0 p-0 space-y-2">
             {actions.map((a) => {
               const [label, col] = statusOf(a)
@@ -595,8 +703,7 @@ function ManagerStep({ project, pid, state, metrics, isLive, kit, actions, save,
                     <span className="text-sm font-semibold flex-1" style={{ color: C.text }}>{a.title}</span>
                     <span className="text-[11px] font-semibold" style={{ color: col }}>{label}</span>
                   </div>
-                  <p className="m-0 text-xs" style={{ color: C.muted }}>{a.evidence} · {new Date(a.createdAt).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</p>
-                  {a.content && <pre className="m-0 text-xs whitespace-pre-wrap p-2" style={{ background: C.row, color: C.body, fontFamily: 'inherit' }}>{a.content}</pre>}
+                  <p className="m-0 text-xs" style={{ color: C.muted }}>{new Date(a.createdAt).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</p>
                   {a.kind === 'creator' && label === 'Queued for daily email' && (
                     <button type="button" className="btn btn-quiet" onClick={() => sendNow(a)} disabled={sending === a.id}>{sending === a.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}Email it now</button>
                   )}
@@ -638,10 +745,12 @@ function ReportStep({ project, pid, metrics, plan, actions, save, say, go }) {
   }
   const narrative = project?.launchReport?.narrative
 
+  const ai = useAiStream()
   const writeSummary = async () => {
     setWriting(true)
     try {
-      const n = await summarizeLaunchReportAI(report, project)
+      const out = await ai.start(`/launch-ai/${pid}/report`, { report })
+      const n = out?.narrative
       await save({ launchReport: { ...report, narrative: n, score: Math.round(Math.min(100, (t.conversion || 0) * 20 + (t.activationRate || 0) * 0.3)), generatedAt: new Date().toISOString() } })
       say('Launch report written.')
     } catch (e) { say(`Couldn't write the summary: ${e.message}`) } finally { setWriting(false) }
@@ -680,9 +789,11 @@ function ReportStep({ project, pid, metrics, plan, actions, save, say, go }) {
             <p className="eyebrow m-0">Launch report · {decision.daysLive} days live</p>
             <h3 className="serif m-0 mt-1 text-2xl" style={{ color: C.text }}>{money(t.revenue)} from {t.customers ?? 0} customers</h3>
             {narrative?.summary && <p className="m-0 mt-2 text-sm max-w-3xl" style={{ color: C.body }}>{narrative.summary}</p>}
+            {narrative?.next && <p className="m-0 mt-2 text-sm max-w-3xl" style={{ color: C.text }}><strong>Next move:</strong> {narrative.next}</p>}
           </div>
           <button type="button" className="btn btn-quiet shrink-0" onClick={writeSummary} disabled={writing || !metrics}>{writing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}{narrative ? 'Rewrite summary' : 'Write AI summary'}</button>
         </div>
+        <AiWorkLog run={ai.run} onStop={ai.stop} title="Launch analyst is reading the results" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
           {[
             ['Revenue (7d)', money(p.last7d?.revenue), revTrend === null ? 'no prior week' : `${revTrend >= 0 ? '+' : ''}${Math.round(revTrend)}% vs last week`],
