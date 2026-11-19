@@ -3,7 +3,7 @@ import {
   Rocket, Check, Copy, Eye, Send, FileText, ExternalLink, Menu, X, Users,
   Zap, Share2, Sparkles, Plus,
 } from 'lucide-react'
-import { getFrontendUrl, updateCoLaunchProject, getCoLaunchProject, getThreads, getWorkflowState } from '../../services/opsApi'
+import { getFrontendUrl, updateCoLaunchProject, getCoLaunchProject, getThreads, getWorkflowState, getCreatorSession, creatorMe } from '../../services/opsApi'
 import { updatePageSEO } from '../../utils/seo'
 import { CreatorPortalSkeleton } from './Section2Skeletons'
 import { deduplicateAndSortMessages } from './CreatorWhatsAppChat'
@@ -305,12 +305,19 @@ export default function CreatorPortal({ portalId, slug }) {
     project?.diyOfferStatus === 'paid'
   )
 
-  const urlToken = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('token') : null
-  const urlPaidParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('paid') : null
-  const isExplicitUrlPaid = urlToken === 'cf_diy_paid' || urlPaidParam === 'true'
+  // The database is the only source of truth for payment status (no URL or localStorage unlocks).
+  const isDiyActive = isDiyFromDb
 
-  // The database is the ONLY source of truth for payment status. No localStorage mocking!
-  const isDiyActive = Boolean(isDiyFromDb || isExplicitUrlPaid)
+  // A DIY pass paid on Stripe comes with an email + password account: the workspace opens only for
+  // that signed-in creator (or an operator). Passes from before accounts existed keep their old access.
+  const needsCreatorLogin = Boolean(isDiyActive && (project?.creatorAccount || project?.diySubscription?.paymentMethod === 'Stripe'))
+  const isOperatorSession = typeof localStorage !== 'undefined' && Boolean(localStorage.getItem('forge_launch_auth_token') || localStorage.getItem('forge_op_token'))
+  const [ownedProjectIds, setOwnedProjectIds] = useState(null)
+  useEffect(() => {
+    if (!needsCreatorLogin || isOperatorSession || !getCreatorSession()) { setOwnedProjectIds([]); return }
+    creatorMe().then((r) => setOwnedProjectIds((r.projects || []).map((p) => p.id))).catch(() => setOwnedProjectIds([]))
+  }, [needsCreatorLogin, isOperatorSession, project?.id])
+  const canOpenWorkspace = !needsCreatorLogin || isOperatorSession || (ownedProjectIds || []).includes(project?.id)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -1084,10 +1091,32 @@ export default function CreatorPortal({ portalId, slug }) {
           </section>
         ) : activeMainView === 'projectos' ? (
           /* ── Project OS ───────────────────────────────────────────────── */
-          isDiyActive ? (
+          isDiyActive && canOpenWorkspace ? (
             <div id="tour-portal-workspace">
               <ProjectOS project={project} onUpdateProject={handleUpdateProject} userRole="creator" isDIY={isDiyActive} />
             </div>
+          ) : isDiyActive ? (
+            <section className="cp-card p-6 sm:p-8 max-w-xl" aria-label="Sign in">
+              {needsCreatorLogin && ownedProjectIds === null ? (
+                <p className="m-0" style={{ color: C.muted }}>Checking your sign-in…</p>
+              ) : project?.creatorAccount ? (
+                <>
+                  <h2 className="serif m-0 text-3xl">Sign in to open your workspace</h2>
+                  <p className="m-0 mt-2" style={{ color: C.body }}>Your DIY pass is active. Sign in with the email and password you created{project.creatorAccount.email ? <> (<strong style={{ color: C.text }}>{project.creatorAccount.email}</strong>)</> : null}.</p>
+                  <a className="cp-btn cp-btn-primary mt-5 no-underline" href={`/creator/login?email=${encodeURIComponent(project.creatorAccount.email || '')}&next=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Sign in</a>
+                </>
+              ) : (
+                <>
+                  <h2 className="serif m-0 text-3xl">Create your account to continue</h2>
+                  <p className="m-0 mt-2" style={{ color: C.body }}>Your DIY pass is paid. Finish by creating your account (name, email, password); you'll use it to sign in from now on.</p>
+                  {(() => { try { return localStorage.getItem(`colaunch_diy_session_${project?.id}`) } catch { return null } })() ? (
+                    <a className="cp-btn cp-btn-primary mt-5 no-underline" href={`/creator/signup?session_id=${encodeURIComponent(localStorage.getItem(`colaunch_diy_session_${project?.id}`))}`}>Create your account</a>
+                  ) : (
+                    <p className="m-0 mt-4 text-sm" style={{ color: C.muted }}>Use the page Stripe sent you back to after paying (it's also linked in your Stripe receipt email), or contact the CoLaunch team and we'll send you the sign-up link.</p>
+                  )}
+                </>
+              )}
+            </section>
           ) : (
             <section className="cp-card p-6 space-y-6" aria-label="Studio progress">
               <div>

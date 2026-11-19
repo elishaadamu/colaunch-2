@@ -25,8 +25,8 @@ const S = `
 const SEV_W = { High: 3, Critical: 3, Medium: 2, Low: 1 }
 const SEV_COLOR = { High: C.crimsonText, Critical: C.crimsonText, Medium: C.warn, Low: C.muted }
 const VERDICT = {
-  launch: { Icon: Rocket, color: C.ok, soft: C.okSoft, line: C.okLine },
-  continue_beta: { Icon: RotateCcw, color: C.warn, soft: C.warnSoft, line: C.warnLine },
+  launch: { Icon: Rocket, color: C.crimsonText, soft: C.crimsonSoft, line: C.crimsonLine },
+  continue_beta: { Icon: RotateCcw, color: C.crimsonText, soft: C.crimsonSoft, line: C.crimsonLine },
   kill: { Icon: Archive, color: C.crimsonText, soft: C.crimsonSoft, line: C.crimsonLine },
 }
 const STEP_LABEL = { plan: '1 · Plan', build: '2 · Build', beta: '3 · Beta', gate: '4 · This step' }
@@ -208,10 +208,10 @@ export default function Phase2Step4Gate({
             const isRec = o.id === recommendedId
             return (
               <button key={o.id} type="button" disabled={busy} onClick={() => decide(o.id)} className="p-4 text-left flex flex-col gap-2 cursor-pointer disabled:opacity-50"
-                style={{ background: isRec ? `linear-gradient(160deg, ${o.color}22, transparent 60%), ${C.sheet}` : C.sheet, border: `1px solid ${isRec ? o.color : C.line}` }}>
+                style={{ background: isRec ? `linear-gradient(160deg, ${C.crimsonSoft}, transparent 60%), ${C.sheet}` : C.sheet, border: `1px solid ${isRec ? C.crimsonLine : C.line}` }}>
                 <span className="flex items-center justify-between gap-2">
-                  <span className="flex items-center gap-2 text-sm font-semibold" style={{ color: C.text }}><o.Icon className="w-4 h-4" style={{ color: o.color }} />{o.title}</span>
-                  {isRec ? <span className="on-accent text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5" style={{ background: o.color }}>Recommended</span>
+                  <span className="flex items-center gap-2 text-sm font-semibold" style={{ color: C.text }}><o.Icon className="w-4 h-4" style={{ color: C.body }} />{o.title}</span>
+                  {isRec ? <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5" style={{ background: C.crimson, color: "#fff" }}>Recommended</span>
                     : needsReason(o.id) ? <span className="text-[10px] font-semibold flex items-center gap-1" style={{ color: C.faint }}><ShieldAlert className="w-3 h-3" />Needs a reason</span> : null}
                 </span>
                 <span className="text-xs" style={{ color: C.muted }}>{o.desc}</span>
@@ -220,13 +220,13 @@ export default function Phase2Step4Gate({
           })}
         </div>
         {override && (
-          <div className="p-4 space-y-3" style={{ background: C.warnSoft, border: `1px solid ${C.warnLine}` }}>
-            <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.warn }}><ShieldAlert className="w-4 h-4" />This goes against the recommendation</p>
+          <div className="p-4 space-y-3" style={{ background: C.sheet, border: `1px solid ${C.crimsonLine}` }}>
+            <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.text }}><ShieldAlert className="w-4 h-4" style={{ color: C.crimsonText }} />This goes against the recommendation</p>
             <p className="m-0 text-xs" style={{ color: C.body }}>The data says <strong>{gate.headline.toLowerCase()}</strong>. Say why you're choosing to {override === 'launch' ? 'launch' : 'kill'}; it's saved with the decision.</p>
             <textarea className="in" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="At least 15 characters" />
             <div className="flex justify-end gap-2">
               <button type="button" className="btn btn-quiet" onClick={() => { setOverride(null); setReason('') }}>Cancel</button>
-              <button type="button" className="btn on-accent" style={{ background: C.warn }} disabled={reason.trim().length < 15 || busy} onClick={() => decide(override)}>Confirm {override === 'launch' ? 'launch' : 'kill'} anyway</button>
+              <button type="button" className="btn btn-primary" disabled={reason.trim().length < 15 || busy} onClick={() => decide(override)}>Confirm {override === 'launch' ? 'launch' : 'kill'} anyway</button>
             </div>
           </div>
         )}

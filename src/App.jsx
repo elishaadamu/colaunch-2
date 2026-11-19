@@ -11,6 +11,7 @@ import ProjectOSPage from './components/launch/ProjectOSPage'
 import CreatorParticipationManager from './components/launch/CreatorParticipationManager'
 import BetaTestingPortal from './components/launch/BetaTestingPortal'
 import HostedAppPage from './components/launch/HostedAppPage'
+import CreatorAccountPage from './components/launch/CreatorAccountPage'
 
 // Re-export ForgeContext & useForge for compatibility with shared components
 export const ForgeContext = createContext(null)
@@ -49,6 +50,10 @@ export default function App() {
   if (currentPath.startsWith('/survey') || currentPath.startsWith('/research')) {
     const slug = getSlug(currentPath.startsWith('/survey') ? '/survey/' : '/research/')
     return <PublicSurveyPage slug={slug} />
+  }
+
+  if (currentPath.startsWith('/creator/')) {
+    return <CreatorAccountPage mode={currentPath.startsWith('/creator/signup') ? 'signup' : 'login'} />
   }
 
   if (currentPath.startsWith('/app/')) {

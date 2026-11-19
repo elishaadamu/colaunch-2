@@ -37,6 +37,10 @@ export function buildStudioDocument(files = [], { title = 'App' } = {}) {
 <script>
 (function(){
   var DATA = ${payload};
+  // Never let the app inside the preview scroll the page around it (focus() would scroll ancestors too)
+  var _focus = HTMLElement.prototype.focus;
+  HTMLElement.prototype.focus = function(opts){ return _focus.call(this, Object.assign({}, opts || {}, { preventScroll: true })); };
+  Element.prototype.scrollIntoView = (function(orig){ return function(){ try { var r = this.getBoundingClientRect(); window.scrollBy(0, r.top - 16); } catch(e) { return orig && orig.apply(this, arguments); } }; })(Element.prototype.scrollIntoView);
   var byPath = new Map(DATA.files.map(function(f){ return [f.path, f.content]; }));
   var urls = new Map(), visiting = new Set();
   function report(msg){

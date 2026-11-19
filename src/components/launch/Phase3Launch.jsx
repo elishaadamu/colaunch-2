@@ -472,12 +472,12 @@ function MonitorStep({ project, pid, state, metrics, refresh, refreshedAt, isLiv
           </div>
         </div>
         {blocked && (
-          <div className="p-3 space-y-2" style={{ background: C.warnSoft, border: `1px solid ${C.warnLine}` }}>
-            <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.warn }}><ShieldAlert className="w-4 h-4" />Not ready: {blocked}</p>
+          <div className="p-3 space-y-2" style={{ background: C.sheet, border: `1px solid ${C.crimsonLine}` }}>
+            <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.text }}><ShieldAlert className="w-4 h-4" style={{ color: C.crimsonText }} />Not ready: {blocked}</p>
             <div className="flex flex-col sm:flex-row gap-2">
               <button type="button" className="btn btn-quiet" onClick={() => go('prep')}>Fix in Prepare</button>
               <input className="in" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Or explain why you're launching anyway (15+ characters)" />
-              <button type="button" className="btn on-accent" style={{ background: C.warn }} disabled={reason.trim().length < 15 || busy} onClick={launch}>Launch anyway</button>
+              <button type="button" className="btn btn-primary" disabled={reason.trim().length < 15 || busy} onClick={launch}>Launch anyway</button>
             </div>
           </div>
         )}
@@ -779,7 +779,7 @@ function ReportStep({ project, pid, metrics, plan, actions, save, say, go }) {
     ['maintain', 'Maintain', 'Keep it running steadily with light creator support.', Minus, C.body],
     ['kill', 'Kill', 'Close sales, stop campaigns and archive.', Archive, C.crimsonText],
   ]
-  const V = { scale: C.ok, iterate: C.warn, maintain: C.body, kill: C.crimsonText }[decision.verdict]
+  const V = C.crimson
 
   return (
     <div className="space-y-6">
@@ -813,7 +813,7 @@ function ReportStep({ project, pid, metrics, plan, actions, save, say, go }) {
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <section className="p-5 space-y-3" style={{ background: C.row, border: `1px solid ${V}` }}>
+        <section className="p-5 space-y-3" style={{ background: `linear-gradient(160deg, ${C.crimsonSoft}, transparent 55%), ${C.row}`, border: `1px solid ${C.crimsonLine}` }}>
           <p className="eyebrow m-0 flex items-center gap-1.5"><Scale className="w-3 h-3" />Recommendation · {decision.confidence} confidence</p>
           <h4 className="serif m-0 text-3xl" style={{ color: C.text }}>{decision.headline}</h4>
           {decision.reasons.map((r) => <p key={r} className="m-0 text-sm flex gap-2" style={{ color: C.body }}><span className="mt-2 w-1.5 h-1.5 shrink-0" style={{ background: V }} />{r}</p>)}
@@ -835,10 +835,10 @@ function ReportStep({ project, pid, metrics, plan, actions, save, say, go }) {
           {options.map(([id, title, desc, I, col]) => {
             const rec = id === decision.verdict
             return (
-              <button key={id} type="button" disabled={busy} onClick={() => decide(id)} className="p-4 text-left flex flex-col gap-2 cursor-pointer disabled:opacity-50" style={{ background: rec ? `linear-gradient(160deg, ${col}22, transparent 60%), ${C.sheet}` : C.sheet, border: `1px solid ${rec ? col : C.line}` }}>
+              <button key={id} type="button" disabled={busy} onClick={() => decide(id)} className="p-4 text-left flex flex-col gap-2 cursor-pointer disabled:opacity-50" style={{ background: rec ? `linear-gradient(160deg, ${C.crimsonSoft}, transparent 60%), ${C.sheet}` : C.sheet, border: `1px solid ${rec ? C.crimsonLine : C.line}` }}>
                 <span className="flex items-center justify-between gap-2">
-                  <span className="flex items-center gap-2 text-sm font-semibold" style={{ color: C.text }}><I className="w-4 h-4" style={{ color: col }} />{title}</span>
-                  {rec ? <span className="on-accent text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5" style={{ background: col }}>Recommended</span> : id !== 'iterate' ? <span className="text-[10px] flex items-center gap-1" style={{ color: C.faint }}><ShieldAlert className="w-3 h-3" />Needs a reason</span> : null}
+                  <span className="flex items-center gap-2 text-sm font-semibold" style={{ color: C.text }}><I className="w-4 h-4" style={{ color: C.body }} />{title}</span>
+                  {rec ? <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5" style={{ background: C.crimson, color: "#fff" }}>Recommended</span> : id !== 'iterate' ? <span className="text-[10px] flex items-center gap-1" style={{ color: C.faint }}><ShieldAlert className="w-3 h-3" />Needs a reason</span> : null}
                 </span>
                 <span className="text-xs" style={{ color: C.muted }}>{desc}</span>
               </button>
@@ -846,12 +846,12 @@ function ReportStep({ project, pid, metrics, plan, actions, save, say, go }) {
           })}
         </div>
         {override && (
-          <div className="p-4 space-y-3" style={{ background: C.warnSoft, border: `1px solid ${C.warnLine}` }}>
-            <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.warn }}><ShieldAlert className="w-4 h-4" />The data says {decision.headline.toLowerCase()}. Why {override}?</p>
+          <div className="p-4 space-y-3" style={{ background: C.sheet, border: `1px solid ${C.crimsonLine}` }}>
+            <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.text }}><ShieldAlert className="w-4 h-4" style={{ color: C.crimsonText }} />The data says {decision.headline.toLowerCase()}. Why {override}?</p>
             <textarea className="in" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="At least 15 characters; saved with the decision" />
             <div className="flex justify-end gap-2">
               <button type="button" className="btn btn-quiet" onClick={() => { setOverride(null); setReason('') }}>Cancel</button>
-              <button type="button" className="btn on-accent" style={{ background: C.warn }} disabled={reason.trim().length < 15 || busy} onClick={() => decide(override)}>Confirm {override}</button>
+              <button type="button" className="btn btn-primary" disabled={reason.trim().length < 15 || busy} onClick={() => decide(override)}>Confirm {override}</button>
             </div>
           </div>
         )}

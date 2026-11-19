@@ -50,16 +50,17 @@ const C = {
   okSoft: 'rgba(52, 211, 153,0.13)',
   okLine: 'rgba(52, 211, 153,0.38)',
   warn: '#fbbf24',
-  warnSoft: 'rgba(251, 191, 36,0.13)',
-  warnLine: 'rgba(251, 191, 36,0.40)',
+  warnSoft: 'rgba(255, 255, 255,0.05)',
+  warnLine: 'rgba(255, 255, 255,0.22)',
   sky: '#d4d4d8',
   skySoft: 'rgba(255, 255, 255,0.12)',
   skyLine: 'rgba(255, 255, 255,0.36)',
   skyText: '#e4e4e7',
-  violet: '#f59e0b',
-  violetSoft: 'rgba(245, 158, 11,0.14)',
-  violetLine: 'rgba(245, 158, 11,0.40)',
-  violetText: '#fcd34d',
+  // Phases use the default palette only; these names are kept so existing references stay neutral
+  violet: '#d4d4d8',
+  violetSoft: 'rgba(255, 255, 255,0.06)',
+  violetLine: 'rgba(255, 255, 255,0.22)',
+  violetText: '#e4e4e7',
 }
 
 // Base Crimson theme passed to DynamicConceptMockup (ignores avatar-extracted colors)
@@ -970,10 +971,10 @@ partnerships@colaunch.com`
             <button
               onClick={handleResetPhasesToStart}
               className="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap active:scale-95 hover:opacity-90"
-              style={{ background: C.warnSoft, borderColor: C.warnLine, color: C.warn }}
+              style={{ background: C.raised, borderColor: C.lineStrong, color: C.body }}
               title="Reset all project phases back to Phase 1 (Audience Validation)"
             >
-              <RotateCcw className="w-3.5 h-3.5" style={{ color: C.warn }} />
+              <RotateCcw className="w-3.5 h-3.5" style={{ color: C.body }} />
               <span>Reset Phases to Start</span>
             </button>
 
@@ -1085,14 +1086,7 @@ partnerships@colaunch.com`
                   {[1, 2, 3].map(p => {
                     const isDone = p === 1 ? isP1Done : p === 2 ? isP2Done : isP3Done
                     const isActive = currentPhase === p
-                    const activeStyle =
-                      p === 2
-                        ? { background: '#0284c7', color: '#ffffff', border: '1px solid #d4d4d8' }
-                        : p === 3
-                        ? isLiveLaunch
-                          ? { background: '#059669', color: '#ffffff', border: '1px solid #34d399' }
-                          : { background: '#d97706', color: '#ffffff', border: '1px solid #f59e0b' }
-                        : { background: C.crimson, color: '#ffffff', border: `1px solid ${C.crimsonLine}` }
+                    const activeStyle = { background: C.crimson, color: '#ffffff', border: `1px solid ${C.crimsonLine}` }
                     const idleStyle = isDone
                       ? { background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }
                       : { background: C.raised, color: C.muted, border: `1px solid ${C.line}` }
@@ -1158,10 +1152,10 @@ partnerships@colaunch.com`
                         type="button"
                         onClick={handleResetPhasesToStart}
                         className="mt-1 w-full py-1 px-2 rounded-lg border text-[10px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer hover:opacity-90"
-                        style={{ background: C.warnSoft, borderColor: C.warnLine, color: C.warn }}
+                        style={{ background: C.raised, borderColor: C.lineStrong, color: C.body }}
                         title="Reset all phases back to Phase 1: Validate"
                       >
-                        <RotateCcw className="w-3 h-3" style={{ color: C.warn }} />
+                        <RotateCcw className="w-3 h-3" style={{ color: C.body }} />
                         <span>Reset to Phase 1</span>
                       </button>
                     )
@@ -1393,7 +1387,7 @@ partnerships@colaunch.com`
                         className="acq-pop relative overflow-hidden"
                         style={{ background: `linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0) 140px), ${C.row}`, border: `1px solid ${C.lineStrong}` }}
                       >
-                        <span className="absolute inset-x-0 top-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${landing.brandColor}, transparent)` }} aria-hidden="true" />
+                        <span className="absolute inset-x-0 top-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${C.crimson}, transparent)` }} aria-hidden="true" />
                         <div className="px-4 sm:px-5 py-3 flex flex-wrap items-center justify-between gap-2" style={{ borderBottom: `1px solid ${C.line}` }}>
                           <div>
                             <p className="m-0 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: '#ff4d6d' }}>Venture foundation</p>
@@ -1502,7 +1496,7 @@ partnerships@colaunch.com`
                           {/* Approved concept (Step 5) */}
                           <div className="p-4 sm:p-5 space-y-4">
                             <div className="flex items-center gap-2.5">
-                              <span className="w-8 h-8 flex items-center justify-center text-xs font-bold shrink-0" style={{ background: landing.brandColor, color: getContrastTextColor(landing.brandColor) }}>
+                              <span className="w-8 h-8 flex items-center justify-center text-xs font-bold shrink-0" style={{ background: C.crimson, color: '#ffffff' }}>
                                 {landing.conceptIndex + 1}
                               </span>
                               <div className="min-w-0">
@@ -1525,7 +1519,7 @@ partnerships@colaunch.com`
                                   const title = typeof ft === 'string' ? ft.split(':')[0] : (ft.title || ft.name || 'Feature')
                                   return (
                                     <li key={i} className="flex items-center gap-2 text-xs px-2.5 py-1.5" style={{ background: C.sheet, border: `1px solid ${C.line}`, color: C.text }}>
-                                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: landing.brandColor }} />
+                                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: C.crimson }} />
                                       <span className="truncate">{title}</span>
                                     </li>
                                   )
@@ -2405,7 +2399,7 @@ partnerships@colaunch.com`
                               className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer"
                               style={
                                 decisionViewPhase === 2
-                                  ? { background: '#0284c7', color: '#ffffff' }
+                                  ? { background: C.crimson, color: '#ffffff' }
                                   : { background: 'transparent', color: C.muted }
                               }
                             >

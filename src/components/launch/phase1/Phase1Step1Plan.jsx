@@ -41,14 +41,14 @@ const GROUPS = [
     ],
   },
   {
-    n: '02', title: 'The offer', hint: 'What founding members get and what it costs.', Icon: Gift, accent: '#fbbf24',
+    n: '02', title: 'The offer', hint: 'What founding members get and what it costs.', Icon: Gift, accent: '#ff4d6d',
     fields: [
       { key: 'offer', label: 'Founding co-builder offer', help: 'What a founding member receives today.', rows: 3, ph: 'Founding Member Pass ($49 deposit): instant private beta and cross-device sync...' },
       { key: 'pricing', label: 'Pricing and deposit model', help: 'Price, deposit, refund terms.', rows: 2, ph: '$19/mo Player Pass, $49/mo Collector Suite (50/50 revenue split)...' },
     ],
   },
   {
-    n: '03', title: 'The test', hint: 'How you will know people want it.', Icon: FlaskConical, accent: '#34d399',
+    n: '03', title: 'The test', hint: 'How you will know people want it.', Icon: FlaskConical, accent: '#ff4d6d',
     fields: [
       { key: 'testMethod', label: 'Validation method', help: 'The concrete steps you will run.', rows: 4, ph: '1) Video demo, 2) 48-hour founding member presale, 3) 50 beta slots...' },
       { key: 'period', label: 'Validation period', help: 'How long the test runs.', rows: 1, ph: '14-day validation sprint' },

@@ -41,6 +41,22 @@ function proxyAvatars(obj) {
   return res
 }
 
+// ── Signed-in DIY creator session (email + password account) ───────────────
+const CREATOR_SESSION_KEY = 'colaunch_creator_session'
+export function getCreatorSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem(CREATOR_SESSION_KEY) || 'null')
+    if (!s?.token || (s.expiresAt && s.expiresAt < Date.now())) return null
+    return s
+  } catch { return null }
+}
+export function setCreatorSession(s) {
+  try {
+    if (s) localStorage.setItem(CREATOR_SESSION_KEY, JSON.stringify(s))
+    else localStorage.removeItem(CREATOR_SESSION_KEY)
+  } catch { /* storage unavailable */ }
+}
+
 async function req(method, path, body, customSignal = null) {
   const aiKeys = loadAiKeys()
   const scrapeKeys = loadKeys()
@@ -57,7 +73,7 @@ async function req(method, path, body, customSignal = null) {
   }
 
   const operatorToken = typeof localStorage !== 'undefined'
-    ? (localStorage.getItem('forge_launch_auth_token') || localStorage.getItem('forge_op_token') || '')
+    ? (localStorage.getItem('forge_launch_auth_token') || localStorage.getItem('forge_op_token') || getCreatorSession()?.token || '')
     : ''
   const portalToken = typeof window !== 'undefined'
     ? (new URLSearchParams(window.location.search).get('token') || sessionStorage.getItem('creator_portal_token') || '')
@@ -510,7 +526,7 @@ export const getBuildTaskRuns = (pid, taskId) => req('GET', `/build/${pid}/runs/
 /** POST and read a Server-Sent Events stream. onEvent(event, data) for each message. */
 export async function streamSSE(path, body, onEvent, signal) {
   const operatorToken = typeof localStorage !== 'undefined'
-    ? (localStorage.getItem('forge_launch_auth_token') || localStorage.getItem('forge_op_token') || '')
+    ? (localStorage.getItem('forge_launch_auth_token') || localStorage.getItem('forge_op_token') || getCreatorSession()?.token || '')
     : ''
   const headers = { 'Content-Type': 'application/json', Accept: 'text/event-stream' }
   if (operatorToken) {
@@ -546,3 +562,11 @@ export async function streamSSE(path, body, onEvent, signal) {
 }
 export const getStudio = (pid) => req('GET', `/studio/${pid}`)
 export const restoreStudioCheckpoint = (pid, cp) => req('POST', `/studio/${pid}/restore/${cp}`)
+
+// ── DIY pass + creator accounts ────────────────────────────────────────────
+export const getDiyPrice = (projectId) => req('GET', `/creator-auth/diy/price?project=${encodeURIComponent(projectId)}`)
+export const startDiyCheckout = (projectId, email) => req('POST', '/creator-auth/diy/checkout', { projectId, email: email || null })
+export const confirmDiyPayment = (sessionId) => req('POST', '/creator-auth/diy/confirm', { sessionId })
+export const creatorSignup = (body) => req('POST', '/creator-auth/signup', body)
+export const creatorLogin = (email, password) => req('POST', '/creator-auth/login', { email, password })
+export const creatorMe = () => req('GET', '/creator-auth/me')

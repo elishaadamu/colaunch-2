@@ -56,7 +56,9 @@ export default function BuildStudio({ project, buildPlan, showToast, onUpdatePro
   const [deploying, setDeploying] = useState(false)
   const [, tick] = useState(0)
   const abortRef = useRef(null)
-  const chatEndRef = useRef(null)
+  const chatBoxRef = useRef(null)
+  const adviceBoxRef = useRef(null)
+  const stick = useRef({ chat: true, advice: true })
 
   useEffect(() => {
     if (!pid) return
@@ -79,7 +81,17 @@ export default function BuildStudio({ project, buildPlan, showToast, onUpdatePro
     const id = setInterval(() => tick((n) => n + 1), 1000)
     return () => clearInterval(id)
   }, [running])
-  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }) }, [messages.length, running?.text?.length])
+  // Follow the stream inside its own panel only (scrollIntoView would also drag the page/modal),
+  // and only while the reader is at the bottom, so they can scroll up and read freely.
+  const nearBottom = (el) => !el || el.scrollHeight - el.scrollTop - el.clientHeight < 80
+  useEffect(() => {
+    const el = chatBoxRef.current
+    if (el && stick.current.chat) el.scrollTop = el.scrollHeight
+  }, [messages.length, running?.text?.length])
+  useEffect(() => {
+    const el = adviceBoxRef.current
+    if (el && running?.kind === 'advice' && stick.current.advice) el.scrollTop = el.scrollHeight
+  }, [running?.kind, running?.text?.length])
 
   const live = useMemo(() => (running?.kind === 'build' ? parseLive(running.text) : null), [running])
   // While streaming, the preview updates every time a file is finished
@@ -109,6 +121,7 @@ export default function BuildStudio({ project, buildPlan, showToast, onUpdatePro
     setMessages((m) => [...m, { role: 'user', text: p, at: new Date().toISOString() }])
     const ctrl = new AbortController()
     abortRef.current = ctrl
+    stick.current.chat = true
     setRunning({ kind: 'build', text: '', model: null, startedAt: Date.now(), stage: 'thinking' })
     try {
       await streamSSE(`/studio/${pid}/generate`, { prompt: p, previewError: previewErr || null }, (event, data) => {
@@ -135,6 +148,7 @@ export default function BuildStudio({ project, buildPlan, showToast, onUpdatePro
     setTab('backend')
     const ctrl = new AbortController()
     abortRef.current = ctrl
+    stick.current.advice = true
     setRunning({ kind: 'advice', text: '', model: null, startedAt: Date.now() })
     try {
       await streamSSE(`/studio/${pid}/backend-advice`, {}, (event, data) => {
@@ -190,7 +204,7 @@ export default function BuildStudio({ project, buildPlan, showToast, onUpdatePro
       <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr]" style={{ minHeight: 720 }}>
         {/* Chat */}
         <aside className="flex flex-col" style={{ borderRight: '1px solid #1f1f24', maxHeight: 820 }}>
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          <div ref={chatBoxRef} onScroll={(e) => { stick.current.chat = nearBottom(e.currentTarget) }} className="flex-1 overflow-y-auto p-4 space-y-3">
             {!loaded && <p className="text-xs text-[#71717a]">Loading…</p>}
             {loaded && !messages.length && !running && (
               <div className="p-4 space-y-2" style={{ background: '#0f0f12', border: '1px dashed #2a2a30' }}>
@@ -246,7 +260,6 @@ export default function BuildStudio({ project, buildPlan, showToast, onUpdatePro
                 </div>
               </div>
             )}
-            <div ref={chatEndRef} />
           </div>
 
           {previewError && !running && (
@@ -318,7 +331,7 @@ export default function BuildStudio({ project, buildPlan, showToast, onUpdatePro
           )}
 
           {tab === 'backend' && (
-            <div className="flex-1 overflow-y-auto p-5 space-y-4" style={{ maxHeight: 780 }}>
+            <div ref={adviceBoxRef} onScroll={(e) => { stick.current.advice = nearBottom(e.currentTarget) }} className="flex-1 overflow-y-auto p-5 space-y-4" style={{ maxHeight: 780 }}>
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                 <div>
                   <p className="serif m-0 text-2xl text-white">How to structure the backend</p>

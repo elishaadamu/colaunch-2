@@ -27,9 +27,9 @@ const S5_CSS = `
 const money = (n) => `$${Math.round(Number(n) || 0).toLocaleString()}`
 
 const VERDICT_STYLE = {
-  build: { Icon: CheckCircle2, color: C.ok, soft: C.okSoft, line: C.okLine },
-  iterate: { Icon: RefreshCw, color: C.warn, soft: C.warnSoft, line: C.warnLine },
-  keep_running: { Icon: Hourglass, color: C.skyText, soft: 'rgba(255,255,255,0.05)', line: C.lineStrong },
+  build: { Icon: CheckCircle2, color: C.crimsonText, soft: C.crimsonSoft, line: C.crimsonLine },
+  iterate: { Icon: RefreshCw, color: C.crimsonText, soft: C.crimsonSoft, line: C.crimsonLine },
+  keep_running: { Icon: Hourglass, color: C.crimsonText, soft: C.crimsonSoft, line: C.crimsonLine },
   kill: { Icon: Archive, color: C.crimsonText, soft: C.crimsonSoft, line: C.crimsonLine },
 }
 const SIGNAL_ICON = {
@@ -147,8 +147,8 @@ export default function Phase1Step5Gate(props) {
       <StepRail current="gate" />
 
       {!allPriorStepsDone && (
-        <div className="p-4 space-y-3" style={{ background: C.warnSoft, border: `1px solid ${C.warnLine}` }}>
-          <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.warn }}><Lock className="w-4 h-4" />Some earlier steps aren't finished</p>
+        <div className="p-4 space-y-3" style={{ background: C.sheet, border: `1px solid ${C.crimsonLine}` }}>
+          <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.text }}><Lock className="w-4 h-4" style={{ color: C.crimsonText }} />Some earlier steps aren't finished</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[['plan', '1. Plan', isStep1Done, true], ['assets', '2. Assets', isStep2Done, canAccessStep2], ['campaign', '3. Campaign', isStep3Done, canAccessStep3], ['optimize', '4. Optimise', isStep4Done, canAccessStep4]].map(([id, label, done, can]) => (
               <button key={id} type="button" disabled={!can} onClick={() => handleStepChange(id)} className="p-2.5 text-left text-xs font-semibold flex items-center justify-between cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
@@ -255,12 +255,12 @@ export default function Phase1Step5Gate(props) {
             return (
               <button key={o.id} type="button" disabled={busy} onClick={o.onClick}
                 className="p-4 text-left flex flex-col gap-2 cursor-pointer transition-colors disabled:opacity-50"
-                style={{ background: isRec ? `linear-gradient(160deg, ${o.color}22, transparent 60%), ${C.sheet}` : C.sheet, border: `1px solid ${isRec ? o.color : C.line}` }}>
+                style={{ background: isRec ? `linear-gradient(160deg, ${C.crimsonSoft}, transparent 60%), ${C.sheet}` : C.sheet, border: `1px solid ${isRec ? C.crimsonLine : C.line}` }}>
                 <span className="flex items-center justify-between gap-2">
                   <span className="flex items-center gap-2 text-sm font-semibold" style={{ color: C.text }}>
-                    {o.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <o.Icon className="w-4 h-4" style={{ color: o.color }} />}{o.title}
+                    {o.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <o.Icon className="w-4 h-4" style={{ color: C.body }} />}{o.title}
                   </span>
-                  {isRec ? <span className="on-accent text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5" style={{ background: o.color }}>Recommended</span>
+                  {isRec ? <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5" style={{ background: C.crimson, color: "#fff" }}>Recommended</span>
                     : gated ? <span className="text-[10px] font-semibold flex items-center gap-1" style={{ color: C.faint }}><ShieldAlert className="w-3 h-3" />Needs a reason</span> : null}
                 </span>
                 <span className="text-xs" style={{ color: C.muted }}>{o.desc}</span>
@@ -270,8 +270,8 @@ export default function Phase1Step5Gate(props) {
         </div>
 
         {overrideFor && (
-          <div className="p-4 space-y-3" style={{ background: C.warnSoft, border: `1px solid ${C.warnLine}` }}>
-            <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.warn }}><ShieldAlert className="w-4 h-4" />This goes against the recommendation</p>
+          <div className="p-4 space-y-3" style={{ background: C.sheet, border: `1px solid ${C.crimsonLine}` }}>
+            <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.text }}><ShieldAlert className="w-4 h-4" style={{ color: C.crimsonText }} />This goes against the recommendation</p>
             <p className="m-0 text-xs" style={{ color: C.body }}>
               The data says <strong>{result.headline.toLowerCase()}</strong>. Explain why you're choosing to {overrideFor === 'pass_to_phase2' ? 'build anyway' : 'stop'}; it's saved with the decision.
             </p>
@@ -279,8 +279,7 @@ export default function Phase1Step5Gate(props) {
               placeholder={overrideFor === 'pass_to_phase2' ? 'e.g. A brand partner pre-committed $20k offline, which isn’t in these numbers.' : 'e.g. The creator has stepped away from the project.'} />
             <div className="flex flex-wrap justify-end gap-2">
               <button type="button" className="btn btn-quiet" onClick={() => { setOverrideFor(null); setOverrideReason('') }}>Cancel</button>
-              <button type="button" className="btn on-accent" disabled={!overrideOk || busy} onClick={overrideFor === 'pass_to_phase2' ? decideBuild : decideKill}
-                style={{ background: C.warn }}>
+              <button type="button" className="btn btn-primary" disabled={!overrideOk || busy} onClick={overrideFor === 'pass_to_phase2' ? decideBuild : decideKill}>
                 Confirm {overrideFor === 'pass_to_phase2' ? 'build' : 'stop'} anyway
               </button>
             </div>

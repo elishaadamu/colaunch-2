@@ -103,7 +103,6 @@ export default function Phase1Step3Campaign(props) {
 
   const landing = useMemo(() => resolveProjectLanding(project || {}), [project])
   const accent = landing.brandColor || C.crimson
-  const accentInk = isLight(accent) ? '#0a0c10' : '#ffffff'
   const creatorName = project?.creatorName || 'Creator'
   const handle = String(project?.creatorHandle || creatorName).replace(/^@/, '').replace(/\s+/g, '').toLowerCase()
   const avatar = project?.creatorAvatar || ''
@@ -404,7 +403,7 @@ export default function Phase1Step3Campaign(props) {
               const on = campaignSubTab === id
               return (
                 <button key={id} role="tab" aria-selected={on} type="button" className="tab" onClick={() => setCampaignSubTab(id)}
-                  style={on ? { color: C.text, borderBottom: `2px solid ${accent}`, marginBottom: -1 } : undefined}>
+                  style={on ? { color: C.text, borderBottom: `2px solid ${C.crimson}`, marginBottom: -1 } : undefined}>
                   <Icon className="w-3.5 h-3.5" />{label}
                 </button>
               )
@@ -462,7 +461,7 @@ export default function Phase1Step3Campaign(props) {
               </section>
 
               {nextTask && (
-                <section className="p-4 sm:p-5 space-y-3" style={{ background: `linear-gradient(160deg, ${accent}1f, transparent 55%), ${C.row}`, border: `1px solid ${C.lineStrong}` }}>
+                <section className="p-4 sm:p-5 space-y-3" style={{ background: `linear-gradient(160deg, ${C.crimsonSoft}, transparent 55%), ${C.row}`, border: `1px solid ${C.lineStrong}` }}>
                   <p className="eyebrow m-0" style={{ color: C.crimsonText }}>Up next · Day {nextTask.day}</p>
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="min-w-0">
@@ -471,7 +470,7 @@ export default function Phase1Step3Campaign(props) {
                     </div>
                     <div className="flex flex-wrap gap-2 shrink-0">
                       <button type="button" className="btn btn-quiet" onClick={() => setViewDraftTask(nextTask)}><Eye className="w-3.5 h-3.5" />Preview</button>
-                      <button type="button" className="btn btn-primary" style={{ background: accent, color: accentInk }} disabled={sendingEmailTaskId === nextTask.id || isSendingTodayEmail} onClick={() => handleSendPostKitEmail?.(nextTask)}>
+                      <button type="button" className="btn btn-primary" disabled={sendingEmailTaskId === nextTask.id || isSendingTodayEmail} onClick={() => handleSendPostKitEmail?.(nextTask)}>
                         {sendingEmailTaskId === nextTask.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}Email it now
                       </button>
                     </div>
@@ -601,7 +600,7 @@ export default function Phase1Step3Campaign(props) {
                 <PublishRow kind="video" />
                 <section className="space-y-2.5">
                   <div className="flex items-center justify-between"><span className="lbl m-0">Script</span><CopyBtn text={campaignKit?.videoScript} id="video" /></div>
-                  <ScriptBeats text={campaignKit?.videoScript} accent={accent} />
+                  <ScriptBeats text={campaignKit?.videoScript} accent={C.crimson} />
                   <details className="card">
                     <summary className="px-4 py-3 text-sm cursor-pointer flex items-center gap-2" style={{ color: C.body }}><Pencil className="w-3.5 h-3.5" />Edit script</summary>
                     <div className="px-4 pb-4">{editor({ field: "videoScript", rows: 12, mono: true })}</div>
