@@ -20,6 +20,7 @@ const S5_CSS = `
 .s5 .btn-quiet:hover:not(:disabled){border-color:${C.lineStrong};color:${C.text}}
 .s5 .in{width:100%;background:${C.sheet};border:1px solid ${C.line};color:${C.text};padding:.6rem .8rem;font-size:.875rem;outline:none;resize:vertical}
 .s5 .in:focus{border-color:${C.crimsonLine}}
+.s5 .on-accent,.s5 .on-accent *{color:#050506!important}
 .s5 :focus-visible{outline:2px solid ${C.crimson};outline-offset:2px}
 `
 
@@ -259,7 +260,7 @@ export default function Phase1Step5Gate(props) {
                   <span className="flex items-center gap-2 text-sm font-semibold" style={{ color: C.text }}>
                     {o.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <o.Icon className="w-4 h-4" style={{ color: o.color }} />}{o.title}
                   </span>
-                  {isRec ? <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5" style={{ background: o.color, color: '#050506' }}>Recommended</span>
+                  {isRec ? <span className="on-accent text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5" style={{ background: o.color }}>Recommended</span>
                     : gated ? <span className="text-[10px] font-semibold flex items-center gap-1" style={{ color: C.faint }}><ShieldAlert className="w-3 h-3" />Needs a reason</span> : null}
                 </span>
                 <span className="text-xs" style={{ color: C.muted }}>{o.desc}</span>
@@ -278,8 +279,8 @@ export default function Phase1Step5Gate(props) {
               placeholder={overrideFor === 'pass_to_phase2' ? 'e.g. A brand partner pre-committed $20k offline, which isn’t in these numbers.' : 'e.g. The creator has stepped away from the project.'} />
             <div className="flex flex-wrap justify-end gap-2">
               <button type="button" className="btn btn-quiet" onClick={() => { setOverrideFor(null); setOverrideReason('') }}>Cancel</button>
-              <button type="button" className="btn" disabled={!overrideOk || busy} onClick={overrideFor === 'pass_to_phase2' ? decideBuild : decideKill}
-                style={{ background: C.warn, color: '#050506' }}>
+              <button type="button" className="btn on-accent" disabled={!overrideOk || busy} onClick={overrideFor === 'pass_to_phase2' ? decideBuild : decideKill}
+                style={{ background: C.warn }}>
                 Confirm {overrideFor === 'pass_to_phase2' ? 'build' : 'stop'} anyway
               </button>
             </div>
