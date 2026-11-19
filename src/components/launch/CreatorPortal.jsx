@@ -147,6 +147,7 @@ function ModalShell({ title, subtitle, onClose, children, footer, wide = false }
 
 export default function CreatorPortal({ portalId, slug }) {
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
   const [project, setProject] = useState(null)
   const [selectedTrack, setSelectedTrack] = useState('interactive') // 'interactive' | 'managed'
   const [trackChoiceDismissed, setTrackChoiceDismissed] = useState(false)
@@ -215,37 +216,31 @@ export default function CreatorPortal({ portalId, slug }) {
     const fetchProject = async () => {
       try {
         const params = new URLSearchParams(window.location.search)
-        const targetId = portalId || slug || params.get('project') || params.get('id') || params.get('creator')
-        const { getCoLaunchProject, getCoLaunchProjects } = await import('../../services/opsApi')
+        // The exact project id in the link wins over the handle in the path
+        const candidates = [params.get('project'), portalId, slug, params.get('id'), params.get('creator')]
+          .filter((t, i, a) => t && t !== 'portal' && a.indexOf(t) === i)
+        const { getCoLaunchProject } = await import('../../services/opsApi')
 
         let fetched = null
-        if (targetId && (targetId === 'retrogaming' || targetId === 'retro' || targetId === 'proj_retrovault_gaming' || targetId === 'c_retro_gaming')) {
+        let lastErr = null
+        if (candidates.some((t) => ['retrogaming', 'retro', 'proj_retrovault_gaming', 'c_retro_gaming'].includes(t))) {
           fetched = RETRO_GAMING_PROJECT
-        } else if (targetId && targetId !== 'portal') {
-          try {
-            fetched = await getCoLaunchProject(targetId)
-          } catch (e) {
-            console.warn('[CreatorPortal] Specific project fetch failed:', e)
-          }
-        }
-
-        if (!fetched) {
-          try {
-            const all = await getCoLaunchProjects()
-            if (Array.isArray(all) && all.length > 0) {
-              fetched = all.find(p => p.id === targetId || p.creatorHandle === targetId || p.creatorId === targetId) || all[0]
+        } else {
+          for (const t of candidates) {
+            try {
+              fetched = await getCoLaunchProject(t)
+              if (fetched) break
+            } catch (e) {
+              lastErr = e
+              console.warn('[CreatorPortal] project fetch failed:', t, e)
             }
-          } catch (e) {
-            console.warn('[CreatorPortal] All projects fetch failed:', e)
           }
         }
 
-        if (!fetched) {
-          fetched = RETRO_GAMING_PROJECT
-        }
-
-        if (isMounted && fetched) {
-          setProject(fetched)
+        // Never show someone else's (or a demo) project in place of the one asked for
+        if (isMounted) {
+          if (fetched) setProject(fetched)
+          else setLoadError(/^40[13]/.test(String(lastErr?.message || '')) ? 'auth' : candidates.length ? 'missing' : 'nolink')
         }
       } catch (err) {
         console.warn('[CreatorPortal] Failed to sync project from API:', err)
@@ -758,32 +753,23 @@ export default function CreatorPortal({ portalId, slug }) {
   }
 
   if (!project) {
+    const here = window.location.pathname + window.location.search
+    const copy = loadError === 'auth'
+      ? ['Sign in to open your portal', 'This workspace belongs to a creator account. Sign in with the email and password you created after paying.']
+      : loadError === 'nolink'
+        ? ['Open your portal link', 'Use the portal link CoLaunch sent you, or sign in with your creator account.']
+        : ['We couldn’t find this project', 'The link may be out of date. Sign in to see your projects, or ask the CoLaunch team for a fresh link.']
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: C.bg, color: C.text }}>
-        <div
-          className="max-w-md w-full p-8 rounded-2xl text-center space-y-4 shadow-xl"
-          style={{ background: C.sheet, border: `1px solid ${C.lineStrong}` }}
-        >
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto"
-            style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.crimsonText }}
-          >
-            <Rocket className="w-6 h-6" />
+      <div className="cp-root min-h-screen flex items-center justify-center p-6" style={{ background: C.bg, color: C.text }}>
+        <style>{PORTAL_CSS}</style>
+        <div className="cp-card max-w-md w-full p-8 space-y-4" style={{ borderTop: `2px solid ${C.crimson}` }}>
+          <p className="m-0 text-[13px] font-bold tracking-[0.18em] uppercase">Co<span style={{ color: C.crimson }}>Launch</span></p>
+          <h1 className="serif m-0 text-3xl">{copy[0]}</h1>
+          <p className="m-0 text-sm" style={{ color: C.muted }}>{copy[1]}</p>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <a className="cp-btn cp-btn-primary no-underline" href={`/creator/login?next=${encodeURIComponent(here)}`}>Sign in</a>
+            <button type="button" className="cp-btn cp-btn-quiet" onClick={() => window.location.reload()}>Try again</button>
           </div>
-          <h2 className="text-lg font-bold" style={{ color: C.text, fontFamily: HEADING_FONT }}>
-            No Active Creator Project Loaded
-          </h2>
-          <p className="text-xs" style={{ color: C.muted }}>
-            Please ask your co-founder operator to initialize your partnership project and share your link.
-          </p>
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
-            style={{ background: C.crimson, color: '#ffffff' }}
-          >
-            Retry Connection
-          </button>
         </div>
       </div>
     )
