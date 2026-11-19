@@ -1805,7 +1805,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
             <button
               onClick={handleGenerateAIPlan}
               disabled={isGenerating}
-              className="px-3.5 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="px-3.5 py-2.5 rounded-xl bg-[#C81E3C] hover:bg-[#B01732] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               {isGenerating ? (
                 <>
@@ -1822,7 +1822,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
             <button
               onClick={handleSaveToProjectFiles}
-              className="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+              className="px-3.5 py-2.5 rounded-xl bg-[#1C1C20] hover:bg-[#26262B] border border-[#3a3a42] text-[#E4E4E7] shadow-xs text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
               title="Save this build plan into Project Files"
             >
               <Save className="w-3.5 h-3.5 text-white" />
@@ -2058,7 +2058,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               <button
                 onClick={handleGenerateAIPlan}
                 disabled={isGenerating}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50 active:scale-95 cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#C81E3C] hover:bg-[#B01732] text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50 active:scale-95 cursor-pointer whitespace-nowrap"
                 title="Synthesizes Product Spec, Technical Plan, Scope Boundaries & Sprint Tasks in 1 go"
               >
                 {isGenerating ? (
@@ -2087,7 +2087,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
               <button
                 onClick={handleSaveToProjectFiles}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs text-xs font-bold transition-all active:scale-95 cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#1C1C20] hover:bg-[#26262B] border border-[#3a3a42] text-[#E4E4E7] shadow-xs text-xs font-bold transition-all active:scale-95 cursor-pointer whitespace-nowrap"
               >
                 <Save className="w-3.5 h-3.5 text-white" />
                 <span>Save</span>
@@ -2111,7 +2111,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 <button
                   onClick={handleGenerateAIPlan}
                   disabled={isGenerating}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50 active:scale-95 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#C81E3C] hover:bg-[#B01732] text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50 active:scale-95 cursor-pointer"
                 >
                   {isGenerating ? (
                     <>
@@ -2557,7 +2557,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                         onChange={e => setNewIncludedItem(e.target.value)}
                         className="flex-1 px-3 py-1.5 rounded-lg bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#FAFAFA] outline-none shadow-2xs"
                       />
-                      <button type="submit" className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs cursor-pointer">
+                      <button type="submit" className="px-3 py-1.5 rounded-lg bg-[#1C1C20] hover:bg-[#26262B] border border-[#3a3a42] text-[#E4E4E7] font-bold text-xs shadow-xs cursor-pointer">
                         Add
                       </button>
                     </form>
@@ -2885,7 +2885,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 onClick={handleSaveToProjectFiles}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs text-xs font-bold flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#1C1C20] hover:bg-[#26262B] border border-[#3a3a42] text-[#E4E4E7] shadow-xs text-xs font-bold flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
                 <Save className="w-3.5 h-3.5 text-white" />
                 <span>Save to Project Files</span>
