@@ -69,7 +69,7 @@ function escapeRegExp(string) {
 }
 
 // Helper function to compile and bundle HTML, JSX, React components, CSS, and JS into a runnable sandbox document
-function compileSandboxPreviewDocument(file, allFiles = []) {
+export function compileSandboxPreviewDocument(file, allFiles = []) {
   if (!file || !file.content) {
     return `<!DOCTYPE html><html><body style="font-family:system-ui,sans-serif;background:#090b0e;color:#64748b;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;"><div style="text-align:center;padding:24px;border:1px dashed rgba(255,255,255,0.1);border-radius:16px;"><h3 style="color:#fff;margin:0 0 8px 0;">No Previewable Content</h3><p style="font-size:12px;margin:0;">Write code or prompt Assistant to generate previewable content.</p></div></body></html>`
   }
@@ -1304,9 +1304,9 @@ export default function CloudCodeStudio({
                 TEST SUITE QUICK STATUS
               </span>
               <div className="p-2.5 rounded-xl bg-[#090b0e] border border-[#2a2a30]/[0.06] space-y-1">
-                <div className="text-emerald-400 font-semibold">{qaResults?.unitTests?.passed || 0} / 34 Unit Tests</div>
-                <div className="text-[#FF8FA3] font-semibold">{qaResults?.integrationTests?.passed || 0} / 18 Integration</div>
-                <div className="text-[#FF8FA3] font-semibold">{qaResults?.e2eWorkflows?.passed || 0} / 8 E2E Journeys</div>
+                <div className="text-emerald-400 font-semibold">{qaResults?.passed || 0} / {qaResults?.total || 0} tasks pass QA</div>
+                <div className="text-[#FF8FA3] font-semibold">{qaResults?.failed || 0} failing{qaResults?.unverified ? ` · ${qaResults.unverified} couldn't run` : ''}</div>
+                <div className="text-[#A1A1AA]">{qaResults?.executedAt ? `Last run ${new Date(qaResults.executedAt).toLocaleString()}` : 'QA has not run'}</div>
               </div>
               <button
                 onClick={() => setActiveView('qa')}

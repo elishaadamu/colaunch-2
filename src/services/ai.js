@@ -4584,6 +4584,15 @@ export async function generateMVPProductBuildPlanAI(
     : (Array.isArray(projectData?.features) ? projectData.features.join('; ') : "");
 
   const takeaways = (projectData?.surveyData?.keyTakeaways || []).join("; ") || projectData?.surveyAnalysis?.summary || "";
+  // Phase 1 evidence: what real people said and paid for
+  const surveyRs = Array.isArray(projectData?.surveyResponses) ? projectData.surveyResponses : [];
+  const surveyQs = projectData?.surveyData?.questions || [];
+  const qLabel = (id) => (surveyQs.find((q) => String(q.id) === String(id)) || {}).question || "Answer";
+  const voice = surveyRs.flatMap((r) => Object.entries(r.answers || {}).map(([k, a]) => `"${String(a).slice(0, 180)}" (${qLabel(k)})`)).slice(0, 14).join("\n- ");
+  const supportSplit = ["yes", "maybe", "no"].map((k) => `${k}: ${surveyRs.filter((r) => r?.support?.decision === k).length}`).join(", ");
+  const pricePts = Object.entries(surveyRs.reduce((a, r) => { const p = r?.support?.pricePoint; if (p) a[p] = (a[p] || 0) + 1; return a; }, {})).map(([k, n]) => `${k} (${n})`).join(", ");
+  const tierMix = Object.entries((projectData?.reservations || []).reduce((a, r) => { const t = r.tier || r.passType || "Pre-order"; a[t] = (a[t] || 0) + 1; return a; }, {})).map(([k, n]) => `${k}: ${n}`).join(", ");
+  const appliedExps = (projectData?.experimentsData?.experiments || projectData?.experiments || []).filter((e) => e.status === "applied").map((e) => `${e.category}: ${e.variant}`).join("; ");
 
   const system = `You are a Principal Software Architect, VP of Product, and Technical Co-Founder. You formulate exhaustive, production-grade Product Specifications and Technical Build Plans for an early-stage SaaS MVP based strictly on real validation inputs from Phase 1. Return ONLY valid JSON.`;
   const prompt = `Construct the complete Phase 2 MVP Product Spec & Technical Build Plan for:
@@ -4598,12 +4607,17 @@ Validated Offer & Value Prop (from Phase 1): ${offer}
 ${validatedFeatures ? `Validated Core Features (from Phase 1 Campaign Kit): ${validatedFeatures}` : ''}
 Validated Pricing Model & Tiers: ${pricing}
 Customer Discovery & Survey Insights: ${takeaways || "Validated via presales pledges"}
-Validated Demand: $${presales} in presales from ${backers} founding backers.
+Validated Demand: $${presales} in presales from ${backers} founding backers.${tierMix ? ` Tier mix: ${tierMix}.` : ""}
+${surveyRs.length ? `Survey (${surveyRs.length} responses) · would support: ${supportSplit}${pricePts ? ` · price answers: ${pricePts}` : ""}` : ""}
+${voice ? `What real customers said (use these to choose P0 features and to write user flows):\n- ${voice}` : ""}
+${appliedExps ? `Winning Phase 1 experiments: ${appliedExps}` : ""}
 
 CRITICAL ARCHITECTURAL MANDATES:
 1. Ensure all features, user flows, database schemas, and engineering sprint tasks directly address the validated problem: "${problem}" for target customer: "${customer}".
 2. Inherit and expand upon the Phase 1 validated features: "${validatedFeatures || 'Core workflow features'}".
 3. Do not invent unrelated generic features; build directly upon the Phase 1 validated solution.
+4. This is the SMALLEST USABLE VERSION: at most 5 P0 features; everything else goes in excludedFromMVP with a one-line reason.
+5. Every engineering task needs 2-4 testable acceptanceCriteria, a dependsOn list of task ids, and assignedTo "AI Agent" for routine UI/CRUD/API work or "Human Engineer" for architecture, integrations, security, payments and hard bugs.
 
 Return JSON with exact structure:
 {
@@ -4658,7 +4672,7 @@ Return JSON with exact structure:
       "aiInference": "AI stack"
     },
     "engineeringTasks": [
-      { "id": "t1", "title": "Scaffold UI Canvas & Workspace Components", "category": "Frontend", "assignedTo": "AI Agent", "status": "Ready", "estimate": "2 Days", "notes": "Frontend views" },
+      { "id": "t1", "title": "Scaffold UI Canvas & Workspace Components", "category": "Frontend", "assignedTo": "AI Agent", "status": "Ready", "estimate": "2 Days", "notes": "Frontend views", "acceptanceCriteria": ["Testable criterion 1", "Testable criterion 2"], "dependsOn": [], "milestone": "Milestone 1" },
       { "id": "t2", "title": "Implement PostgreSQL DB Models & CRUD APIs", "category": "Backend", "assignedTo": "AI Agent", "status": "Ready", "estimate": "1 Day", "notes": "Backend APIs" },
       { "id": "t3", "title": "OAuth JWT Session Rotation & Security Hardening", "category": "Security / Auth", "assignedTo": "Human Engineer", "status": "Ready", "estimate": "1 Day", "notes": "Hardened auth & CORS" },
       { "id": "t4", "title": "Stripe Webhook Signature Verification & Entitlements", "category": "Payments", "assignedTo": "Human Engineer", "status": "Ready", "estimate": "1 Day", "notes": "Secure payment hooks" }
@@ -4772,14 +4786,21 @@ export async function analyzeAndClusterBetaFeedbackAI(feedbackItems, projectData
   const product = projectData?.productName || 'Product'
   const creator = projectData?.creatorName || 'Creator'
   const niche = projectData?.niche || 'Software'
-  const rawList = feedbackItems.map(f => `[${f.type || 'Feedback'}] "${f.text || f.message}" (${f.author || 'User'})`).join('\n')
+  const rawList = feedbackItems.map((f, i) => `#${i} [${f.category || f.type || 'Feedback'}] "${f.text || f.message}" (${f.email || f.author || 'User'})`).join('\n')
 
   const system = `You are a Principal Product Manager and QA Lead. You analyze raw customer beta feedback, bugs, support tickets, and objections, grouping them into quantified, recurring thematic clusters with clear counts and severity. Return ONLY valid JSON.`
   const prompt = `Analyze and group recurring beta feedback for:
 Product: ${product} (${niche}) × ${creator}
 
-Incoming Raw Feedback Items:
+Incoming Raw Feedback Items (${feedbackItems.length} total, numbered):
 ${rawList}
+
+RULES:
+- Group items that describe the same underlying issue. Every cluster MUST list "itemIndexes": the # numbers of the items in it.
+- Title each cluster as what users experienced, e.g. "confused by onboarding", "requested CSV export", "hit a crash on save".
+- category is one of: Bug, Feature request, Objection, Support question, Onboarding / UX, Praise.
+- severity: High (blocks use, loses data, or many users), Medium, Low.
+- Do not invent items or counts; only use the items above.
 
 Return JSON with exact structure:
 {
@@ -4788,8 +4809,8 @@ Return JSON with exact structure:
     {
       "id": "cluster-1",
       "title": "Short descriptive title of recurring issue",
-      "count": 23,
-      "category": "UX / Onboarding",
+      "itemIndexes": [0, 3, 7],
+      "category": "Onboarding / UX",
       "severity": "Medium",
       "description": "Clear explanation of what users experienced",
       "exampleQuote": "Representative direct user quote",
@@ -4810,6 +4831,13 @@ Return JSON with exact structure:
     }
 
     if (resObj && Array.isArray(resObj.clusters) && resObj.clusters.length > 0) {
+      // Counts come from the actual reports in each cluster (distinct people), never from the model
+      resObj.clusters = resObj.clusters.map((c, ci) => {
+        const idx = (Array.isArray(c.itemIndexes) ? c.itemIndexes : []).map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n < feedbackItems.length)
+        const items = idx.map((n) => feedbackItems[n])
+        const people = new Set(items.map((f) => String(f.email || f.author || f.id || '').toLowerCase()))
+        return { ...c, id: c.id || `cluster-${ci + 1}`, itemIds: items.map((f) => f.id), count: items.length ? people.size : Math.min(Number(c.count) || 1, feedbackItems.length), reports: items.length || 1, status: 'Open', exampleQuote: c.exampleQuote || items[0]?.message || '' }
+      })
       return {
         summary: resObj.summary || 'AI clustered recurring beta feedback into prioritized action items.',
         clusters: resObj.clusters
@@ -6698,17 +6726,16 @@ Return ONLY a valid JSON object in this exact schema:
     throw new Error('Invalid QA evaluation schema')
   } catch (err) {
     if (err.name === 'AbortError') throw err
-    console.warn('[Forge AI] Task verification fallback:', err)
+    console.warn('[Forge AI] Task verification could not run:', err)
+    // Never report a pass when the check itself failed
     return {
-      passed: true,
-      score: 90,
-      summary: `Task verified against active project files.`,
-      checks: [
-        { name: "Code Syntax & Structure", status: "Passed", detail: "Code files present and validated." },
-        { name: "Task Functional Match", status: "Passed", detail: `Requirements for '${taskTitle || 'Task'}' verified in codebase.` }
-      ],
-      issues: [],
-      recommendation: "Ready for deployment."
+      passed: false,
+      unverified: true,
+      score: 0,
+      summary: 'Verification could not run (AI service unavailable). Retry before counting this task as done.',
+      checks: [],
+      issues: [err?.message || 'Verification service error'],
+      recommendation: 'Retry the QA run.'
     }
   }
 }

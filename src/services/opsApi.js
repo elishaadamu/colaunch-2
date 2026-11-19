@@ -487,3 +487,11 @@ export const getCampaignSimulationStatus = (projectId) =>
 export const stopCampaignSimulation = (projectId) =>
   req('POST', `/projects/${projectId}/campaign/stop-simulation`)
 
+
+// ── Phase 2 beta program & staging ─────────────────────────────────────────────────────────
+export const getBetaSession = (slug, token = '') =>
+  req('GET', `/beta/session?slug=${encodeURIComponent(slug)}${token ? `&token=${encodeURIComponent(token)}` : ''}`)
+export const postBetaEvent = (payload) => req('POST', '/beta/event', payload)
+export const postBetaFeedback = (payload) => req('POST', '/beta/feedback', payload)
+export const deployStaging = (projectId, payload) => req('POST', `/beta/staging/${projectId}`, payload)
+export const deleteBetaFeedback = (projectId, feedbackId) => req('DELETE', `/beta/feedback/${projectId}/${feedbackId}`)

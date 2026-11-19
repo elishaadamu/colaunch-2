@@ -1,14 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  Code, Cpu, Terminal, CheckCircle2, ShieldCheck, Sparkles, Layers,
-  Database, Server, Lock, CreditCard, BarChart3, AlertCircle, ArrowRight,
-  ExternalLink, FileText, Check, Plus, Trash2, RefreshCw, Loader2,
-  ChevronRight, Laptop, Workflow, Milestone, ShieldAlert, Download, Sliders,
-  Edit3, Bot, UserCheck, Play, MessageSquare, Bug, HelpCircle, Send, Copy,
-  CheckCircle, Globe, Activity, Rocket, User, Zap, XCircle, AlertTriangle,
-  Flame, RotateCcw, Award, CheckCheck, Compass, CheckSquare, Save, Code2,
-  FileCode, Info, X, Mail, Square, Eye, Settings2, Link2, Users
+  Code, Cpu, Terminal, CheckCircle2, ShieldCheck, Sparkles, Layers, Database, Server, Lock, CreditCard, BarChart3, AlertCircle, ArrowRight, ExternalLink, FileText, Check, Plus, Trash2, RefreshCw, Loader2, ChevronRight, Laptop, Workflow, Milestone, ShieldAlert, Download, Sliders, Edit3, Bot, UserCheck, Play, MessageSquare, Bug, HelpCircle, Send, Copy, CheckCircle, Globe, Activity, Rocket, User, Zap, XCircle, AlertTriangle, Flame, RotateCcw, Award, CheckCheck, Compass, CheckSquare, Save, Code2, FileCode, Info, X, Mail, Square, Eye, Settings2, Link2, Users, Package
 } from 'lucide-react'
 import {
   generateMVPProductBuildPlanAI,
@@ -23,6 +16,11 @@ import {
 import { getFrontendUrl, sendDirectEmail } from '../../services/opsApi'
 import { Phase2BuildMVPSkeleton, FeedbackClusterSkeleton } from './Section2Skeletons'
 import CloudCodeStudio from './CloudCodeStudio'
+import { emailToken, bumpVersion } from '../../utils/betaTokens'
+import { deployStaging } from '../../services/opsApi'
+import { verifyProjectTaskWithAI } from '../../services/ai'
+import { computeReadiness, evaluateLaunchGate } from '../../utils/launchGate'
+import Phase2Step4Gate from './phase2/Phase2Step4Gate'
 import AutomatedQASuite from './AutomatedQASuite'
 import { getPhase2StepGuards } from '../../utils/stepGuards'
 
@@ -134,6 +132,32 @@ export function buildUniqueBetaCohort(reservations = []) {
   }))
 }
 
+function buildFullBetaCohort(project = {}) {
+  const cohort = buildUniqueBetaCohort(project?.reservations).map((b) => ({ ...b, source: 'presale' }))
+  const seen = new Set(cohort.map((b) => (b.email || '').toLowerCase()).filter(Boolean))
+  const add = (email, name, source, extra = {}) => {
+    const key = String(email || '').trim().toLowerCase()
+    if (!key || seen.has(key)) return
+    seen.add(key)
+    cohort.push({
+      id: `${source}-${emailToken(key).slice(6)}`, name: name || key.split('@')[0], email: key, tiers: [source === 'waitlist' ? 'Waitlist' : 'Survey supporter'],
+      tier: source === 'waitlist' ? 'Waitlist' : 'Survey supporter', displayTier: source === 'waitlist' ? 'Waitlist' : 'Survey supporter',
+      totalAmount: 0, txIds: [], status: 'Invited', token: emailToken(key), source, inviteStatus: 'Pending', lastInviteSentAt: null, ...extra,
+    })
+  }
+  ;(Array.isArray(project?.waitlist) ? project.waitlist : []).forEach((w) => add(typeof w === 'string' ? w : w?.email, w?.name, 'waitlist'))
+  ;(Array.isArray(project?.surveyResponses) ? project.surveyResponses : []).forEach((r) => {
+    if (r?.support?.decision === 'yes' && r?.support?.consent && r.email && !String(r.email).includes('@example.com')) add(r.email, r.name, 'survey')
+  })
+  // Keep invite status saved on the project, plus testers added by hand
+  const saved = Array.isArray(project?.betaCohort) ? project.betaCohort : []
+  saved.filter((b) => b?.email && !seen.has(b.email.toLowerCase()) && b.source === 'invited').forEach((b) => { seen.add(b.email.toLowerCase()); cohort.push({ ...b, token: b.token || emailToken(b.email) }) })
+  return cohort.map((b) => {
+    const prev = saved.find((x) => (x.email || '').toLowerCase() === (b.email || '').toLowerCase())
+    return prev ? { ...b, inviteStatus: prev.inviteStatus || b.inviteStatus, lastInviteSentAt: prev.lastInviteSentAt || b.lastInviteSentAt, token: b.token || prev.token } : b
+  })
+}
+
 export default function Phase2BuildMVP({
   project,
   api,
@@ -226,18 +250,12 @@ export default function Phase2BuildMVP({
     if (project?.qaResults && project.qaResults.executedAt) {
       return project.qaResults
     }
-    return {
-      unitTests: { passed: 0, failed: 0, total: 34, coverage: '0%' },
-      integrationTests: { passed: 0, failed: 0, total: 18 },
-      e2eWorkflows: { passed: 0, failed: 0, total: 8 },
-      lastRun: 'Not Run Yet',
-      status: 'Awaiting Execution'
-    }
+    return { status: 'Not run', total: 0, passed: 0, failed: 0, unverified: 0, results: {} }
   })
 
   // Beta Cohort State (Deduplicated Real Presales & Waitlist from Phase 1)
   const [betaCohort, setBetaCohort] = useState(() => {
-    return buildUniqueBetaCohort(project?.reservations)
+    return buildFullBetaCohort(project || {})
   })
 
   // Raw Beta Feedback Feed (Inherits real project betaFeedback only - zero hardcoded fakes)
@@ -258,7 +276,7 @@ export default function Phase2BuildMVP({
 
   const [isClusteringAI, setIsClusteringAI] = useState(false)
   const [newFeedbackAuthor, setNewFeedbackAuthor] = useState('')
-  const [newFeedbackType, setNewFeedbackType] = useState('UX / Onboarding')
+  const [newFeedbackType, setNewFeedbackType] = useState('Bug')
   const [newFeedbackMsg, setNewFeedbackMsg] = useState('')
 
   // AI Task Execution State
@@ -354,21 +372,11 @@ export default function Phase2BuildMVP({
     if (project.qaResults && project.qaResults.executedAt) {
       setQaResults(project.qaResults)
     } else {
-      setQaResults({
-        unitTests: { passed: 0, failed: 0, total: 34, coverage: '0%' },
-        integrationTests: { passed: 0, failed: 0, total: 18 },
-        e2eWorkflows: { passed: 0, failed: 0, total: 8 },
-        lastRun: 'Not Run Yet',
-        status: 'Awaiting Execution'
-      })
+      setQaResults({ status: 'Not run', total: 0, passed: 0, failed: 0, unverified: 0, results: {} })
     }
 
     // 3. Beta Cohort (Grouped & Deduplicated by backer email)
-    if (Array.isArray(project.reservations) && project.reservations.length > 0) {
-      setBetaCohort(buildUniqueBetaCohort(project.reservations))
-    } else {
-      setBetaCohort([])
-    }
+    setBetaCohort(buildFullBetaCohort(project))
 
     // 4. Feedback Clusters & Readiness Report (Null until generated by AI)
     if (project.feedbackClusters && Array.isArray(project.feedbackClusters) && project.feedbackClusters.length > 0) {
@@ -396,6 +404,13 @@ export default function Phase2BuildMVP({
       setAppliedPatches([])
     }
   }, [project?.id, project?.creatorId, project?.productName])
+
+  useEffect(() => {
+    if (Array.isArray(project?.betaFeedback)) setRawFeedback(project.betaFeedback)
+  }, [project?.betaFeedback])
+  useEffect(() => {
+    setBetaCohort(buildFullBetaCohort(project || {}))
+  }, [project?.reservations, project?.waitlist, project?.surveyResponses]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const showToast = (msg, type = 'success', duration = 4500) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
@@ -653,7 +668,10 @@ export async function execute${name}(options = {}) {
           assignedTo: t.assignedTo || (t.category === 'Security / Auth' || t.category === 'Architecture' ? 'Human Engineer' : 'AI Agent'),
           status: 'Ready',
           estimate: t.estimate || '1 Day',
-          notes: t.notes || `Engineered for ${project?.productName || 'MVP'}`
+          notes: t.notes || `Engineered for ${project?.productName || 'MVP'}`,
+          acceptanceCriteria: Array.isArray(t.acceptanceCriteria) ? t.acceptanceCriteria : [],
+          dependsOn: Array.isArray(t.dependsOn) ? t.dependsOn : [],
+          milestone: t.milestone || null
         }))
         setEngineeringTasks(updatedTasks)
       }
@@ -948,23 +966,84 @@ export async function execute${name}(options = {}) {
     }
   }
 
-  // Run Automated QA Test Suite
-  const handleRunQA = () => {
+  const isTaskBuilt = (t) => ['Completed', 'done', 'Done'].includes(t.status) || Boolean(t.aiOutput || t.executedAt)
+  const taskCriteria = (t) => {
+    const list = Array.isArray(t.acceptanceCriteria) && t.acceptanceCriteria.length ? t.acceptanceCriteria : []
+    return list.length ? list.map((c, i) => `${i + 1}. ${c}`).join('\n') : `The code fully implements: "${t.title}". ${t.notes || ''}`
+  }
+  const taskCodeFiles = (t) => {
+    const files = Array.isArray(project?.projectFiles) ? [...project.projectFiles] : []
+    const out = t.aiOutput || {}
+    const snippets = [out.code, out.codeSnippet, out.implementation].filter((x) => typeof x === 'string' && x.trim())
+    snippets.forEach((code, i) => files.push({ name: `${t.id}-agent-output-${i + 1}.txt`, content: code }))
+    ;(Array.isArray(out.files) ? out.files : []).forEach((f) => f?.content && files.push({ name: f.name || f.path || `${t.id}.txt`, content: f.content }))
+    return files
+  }
+
+  // Automated QA: every built task is reviewed against its acceptance criteria in the real code.
+  // A task only counts as verified when the review passes. Failed or unreachable reviews never pass.
+  const handleRunAutomatedQA = async (_prev, onlyTaskIds = null) => {
+    const targets = (engineeringTasks || []).filter((t) => isTaskBuilt(t) && (!onlyTaskIds || onlyTaskIds.includes(t.id)))
+    if (!targets.length) {
+      showToast('Nothing to test yet. Build at least one task first.', 'warning')
+      return null
+    }
     setQaRunning(true)
-    showToast('Running automated QA verification suite...', 'info', 2500)
-    setTimeout(() => {
-      const newResults = {
-        unitTests: { passed: 34, failed: 0, total: 34, coverage: '99%' },
-        integrationTests: { passed: 18, failed: 0, total: 18 },
-        e2eWorkflows: { passed: 8, failed: 0, total: 8 },
-        lastRun: 'Just now',
-        executedAt: new Date().toISOString(),
-        status: 'Passing (100% Green)'
+    showToast(`Testing ${targets.length} ${targets.length === 1 ? 'task' : 'tasks'} against their acceptance criteria…`, 'info', 6000)
+    const results = { ...(qaResults?.results || {}) }
+    let updated = [...engineeringTasks]
+    for (const t of targets) {
+      try {
+        const r = await verifyProjectTaskWithAI({ taskTitle: t.title, testPrompt: taskCriteria(t), files: taskCodeFiles(t), project })
+        results[t.id] = { passed: !!r.passed, unverified: !!r.unverified, score: r.score, summary: r.summary, issues: r.issues || [], checks: r.checks || [], at: new Date().toISOString() }
+      } catch (e) {
+        results[t.id] = { passed: false, unverified: true, score: 0, summary: e.message || 'Verification failed to run', issues: [], at: new Date().toISOString() }
       }
-      setQaResults(newResults)
-      setQaRunning(false)
-      showToast('Automated QA Test Suite completed successfully with 100% pass rate!', 'success')
-    }, 1800)
+      const res = results[t.id]
+      updated = updated.map((x) => x.id === t.id ? { ...x, verified: res.passed, verifiedAt: res.passed ? res.at : null, qa: res, status: res.passed ? 'Completed' : (x.status === 'Completed' ? 'Needs fixes' : x.status) } : x)
+    }
+    const built = updated.filter(isTaskBuilt)
+    const vals = built.map((t) => results[t.id]).filter(Boolean)
+    const summary = {
+      mode: 'ai_code_review',
+      total: built.length,
+      passed: vals.filter((r) => r.passed).length,
+      failed: vals.filter((r) => !r.passed && !r.unverified).length,
+      unverified: vals.filter((r) => r.unverified).length,
+      results,
+      executedAt: new Date().toISOString(),
+      lastRun: new Date().toLocaleString(),
+    }
+    summary.status = summary.failed ? 'Failing' : summary.unverified ? 'Incomplete' : summary.passed === summary.total ? 'Passing' : 'Partial'
+    setQaResults(summary)
+    setEngineeringTasks(updated)
+    await handleSavePlan(buildPlan, updated, { qaResults: summary })
+    setQaRunning(false)
+    showToast(`QA: ${summary.passed} passed, ${summary.failed} failed${summary.unverified ? `, ${summary.unverified} couldn't run` : ''}.`, summary.failed || summary.unverified ? 'warning' : 'success', 6000)
+    return { summary, tasks: updated }
+  }
+  const handleRunQA = () => handleRunAutomatedQA(qaResults)
+  const handleRegenerateMVPPlan = () => handleGenerateAIPlan()
+
+  // Staging deployment: snapshot of the current code that beta testers run at /beta/<slug>
+  const [isDeployingStaging, setIsDeployingStaging] = useState(false)
+  const currentVersion = project?.staging?.version || project?.mvpVersion || 'v0.0.0'
+  const handleDeployStaging = async ({ part = 'minor', notes = '' } = {}) => {
+    const files = Array.isArray(project?.projectFiles) ? project.projectFiles : []
+    if (!files.length) { showToast('No code files yet. Build in the code studio first.', 'warning'); return null }
+    setIsDeployingStaging(true)
+    try {
+      const version = bumpVersion(currentVersion === 'v1.0.0-GA' ? 'v0.0.0' : currentVersion, part)
+      const res = await deployStaging(project.id, { version, files: files.map((f) => ({ name: f.name || f.path, content: f.content, language: f.language })), notes })
+      setMvpVersion(version)
+      onUpdateProject?.((prev) => ({ ...(prev || {}), staging: res.staging, mvpVersion: version, stagingDeployedAt: res.staging.deployedAt }))
+      await handleSavePlan(buildPlan, engineeringTasks, { mvpVersion: version, stagingDeployedAt: res.staging.deployedAt })
+      showToast(`Staging ${version} deployed. Testers see it at /beta/${productSlug}.`, 'success', 6000)
+      return res.staging
+    } catch (e) {
+      showToast(`Staging deploy failed: ${e.message}`, 'error', 7000)
+      return null
+    } finally { setIsDeployingStaging(false) }
   }
 
   // Add raw customer feedback
@@ -975,6 +1054,8 @@ export async function execute${name}(options = {}) {
       id: `f-${Date.now()}`,
       author: newFeedbackAuthor.trim() || 'Beta Backer',
       type: newFeedbackType,
+      category: newFeedbackType,
+      createdAt: new Date().toISOString(),
       message: newFeedbackMsg.trim(),
       timestamp: 'Just now'
     }
@@ -988,6 +1069,7 @@ export async function execute${name}(options = {}) {
 
   // Delete raw customer feedback
   const handleDeleteFeedback = (id) => {
+    if (project?.id) import('../../services/opsApi').then((m) => m.deleteBetaFeedback(project.id, id)).catch(() => {})
     const updated = rawFeedback.filter(f => f.id !== id)
     setRawFeedback(updated)
     handleSavePlan(buildPlan, engineeringTasks, { betaFeedback: updated })
@@ -1048,50 +1130,77 @@ export async function execute${name}(options = {}) {
     showToast(`Converted cluster to sprint task: ${newTask.title}`, 'success')
   }
 
-  // Step 4: Apply AI Auto-Fixes & Update MVP
+  // Step 4: AI prioritises issues, creates fix tasks, builds them, retests and releases a new staging version
+  const SEVERITY_W = { High: 3, Critical: 3, Medium: 2, Low: 1 }
+  const priorityOf = (c) => (SEVERITY_W[c?.severity] || 1) * Math.max(1, Number(c?.count || c?.userCount || 1))
   const handleApplyAIAutoFixes = async () => {
+    const open = (feedbackClusters || []).filter((c) => c.status !== 'Resolved')
+    if (!open.length) { showToast('No open issues to fix. Cluster the beta feedback first.', 'warning'); return }
     setIsAutoFixing(true)
-    setAiError(null)
-    showToast('AI is applying auto-fixes and generating code patches...', 'info', 8000)
     try {
-      const res = await autoImplementFixesAI(feedbackClusters, project)
-      const patches = res.patchesApplied || []
-      setAppliedPatches(patches)
-      setMvpVersion('v1.0.0-GA')
+      // 1. Prioritise (severity x users affected) and create one fix task per issue
+      const ranked = [...open].sort((x, y) => priorityOf(y) - priorityOf(x))
+      const existingIds = new Set((engineeringTasks || []).map((t) => t.fromClusterId).filter(Boolean))
+      const created = ranked.filter((c) => !existingIds.has(c.id || c.title)).map((c, i) => {
+        const cat = String(c.category || '').toLowerCase()
+        const human = c.severity === 'High' && /security|payment|auth|data/.test(cat)
+        return {
+          id: `fix-${Date.now()}-${i}`,
+          title: `Fix: ${c.title}`,
+          category: cat.includes('bug') ? 'Bug fix' : cat.includes('feature') ? 'Feature' : cat.includes('onboarding') || cat.includes('ux') ? 'Frontend' : 'Backend',
+          assignedTo: human ? 'Human Engineer' : 'AI Agent',
+          status: 'Ready',
+          estimate: c.severity === 'High' ? '1 Day' : '4 Hours',
+          priority: i + 1,
+          fromClusterId: c.id || c.title,
+          notes: `${c.count || c.userCount || 1} beta users: ${c.description || c.summary || ''}`,
+          acceptanceCriteria: [`The issue "${c.title}" no longer occurs`, ...(c.suggestedFix ? [c.suggestedFix] : [])],
+        }
+      })
+      let tasks = [...created, ...(engineeringTasks || [])]
+      let clusters = (feedbackClusters || []).map((c) => (open.includes(c) ? { ...c, status: 'Fix in progress', priority: ranked.indexOf(c) + 1 } : c))
+      setEngineeringTasks(tasks); setFeedbackClusters(clusters)
+      await handleSavePlan(buildPlan, tasks, { feedbackClusters: clusters })
+      showToast(`Prioritised ${ranked.length} issues and created ${created.length} fix tasks. AI is building the ones it can…`, 'info', 7000)
 
-      // Mark feedback clusters as resolved / completed
-      const updatedClusters = (feedbackClusters || []).map(c => ({ ...c, status: 'Resolved' }))
-      setFeedbackClusters(updatedClusters)
-
-      // Re-run QA suite to show clean pass
-      const retestedQA = {
-        unitTests: { passed: 36, failed: 0, total: 36, coverage: '99.4%' },
-        integrationTests: { passed: 20, failed: 0, total: 20 },
-        e2eWorkflows: { passed: 8, failed: 0, total: 8 },
-        lastRun: 'Just now (Post-Patch Retest)',
-        executedAt: new Date().toISOString(),
-        status: 'Passing (100% Green)'
+      // 2. AI agents implement the AI-suitable fixes
+      const aiFixes = tasks.filter((t) => t.fromClusterId && t.assignedTo === 'AI Agent' && !isTaskBuilt(t))
+      for (const t of aiFixes) {
+        setExecutingTaskId(t.id)
+        try {
+          const out = await executeAICodingTaskAI(t, project)
+          tasks = tasks.map((x) => (x.id === t.id ? { ...x, status: 'Completed', executedAt: new Date().toISOString(), aiOutput: out, notes: out?.implementationNotes || x.notes } : x))
+        } catch (e) {
+          tasks = tasks.map((x) => (x.id === t.id ? { ...x, status: 'Blocked', notes: `${x.notes} · Agent error: ${e.message}` } : x))
+        }
       }
-      setQaResults(retestedQA)
-      await handleSavePlan(buildPlan, engineeringTasks, {
-        feedbackClusters: updatedClusters,
-        appliedPatches: patches,
-        mvpVersion: 'v1.0.0-GA',
-        qaResults: retestedQA
-      })
+      setExecutingTaskId(null)
+      setEngineeringTasks(tasks)
 
-      showToast(`AI Auto-Fixes applied! ${patches.length} patches generated, MVP upgraded to v1.0.0-GA.`, 'success')
-    } catch (e) {
-      console.warn('Auto-fix error:', e)
-      const errorMsg = e.message || 'AI service failed to generate code patches.'
-      setAiError({
-        source: 'Step 4: AI Auto-Fixes & Patch Generation',
-        message: errorMsg,
-        action: 'auto_fix'
+      // 3. Retest the fixes against their acceptance criteria
+      const fixIds = tasks.filter((t) => t.fromClusterId && isTaskBuilt(t)).map((t) => t.id)
+      const qa = fixIds.length ? await handleRunAutomatedQA(qaResults, fixIds) : null
+      const finalTasks = qa?.tasks || tasks
+      clusters = clusters.map((c) => {
+        const fix = finalTasks.find((t) => t.fromClusterId === (c.id || c.title))
+        if (!fix) return c
+        return { ...c, status: fix.verified ? 'Resolved' : 'Fix in progress', fixTaskId: fix.id }
       })
-      showToast(`AI Auto-Fix failed: ${errorMsg}`, 'error', 7000)
+      const resolvedNow = clusters.filter((c) => c.status === 'Resolved' && open.some((o) => (o.id || o.title) === (c.id || c.title)))
+      const patches = resolvedNow.map((c) => ({ id: `patch-${c.id || c.title}`, title: c.title, users: c.count || c.userCount || 1, appliedAt: new Date().toISOString() }))
+      setFeedbackClusters(clusters)
+      setAppliedPatches((p) => [...patches, ...p])
+      await handleSavePlan(buildPlan, finalTasks, { feedbackClusters: clusters, appliedPatches: [...patches, ...appliedPatches] })
+
+      // 4. Update the MVP: release a patch version to staging if anything was fixed
+      if (patches.length) await handleDeployStaging({ part: 'patch', notes: `Fixes: ${patches.map((x) => x.title).join('; ')}` })
+      const humanLeft = finalTasks.filter((t) => t.fromClusterId && t.assignedTo === 'Human Engineer' && !t.verified).length
+      showToast(`${patches.length} issues fixed and verified${humanLeft ? `, ${humanLeft} need a human engineer` : ''}.`, patches.length ? 'success' : 'warning', 8000)
+    } catch (e) {
+      showToast(`Fix cycle failed: ${e.message}`, 'error', 7000)
     } finally {
       setIsAutoFixing(false)
+      setExecutingTaskId(null)
     }
   }
 
@@ -1101,7 +1210,16 @@ export async function execute${name}(options = {}) {
     setAiError(null)
     showToast('AI Lead Auditor is evaluating product launch readiness scorecard...', 'info', 8000)
     try {
-      const report = await generateProductReadinessReportAI(project)
+      const computed = computeReadiness({ project, tasks: engineeringTasks, qa: qaResults, clusters: feedbackClusters || [], feedback: rawFeedback, cohort: betaCohort })
+      let narrative = null
+      try { narrative = await generateProductReadinessReportAI({ ...(project || {}), engineeringTasks, feedbackClusters, _readiness: computed }) } catch (e) { narrative = null }
+      const report = {
+        ...computed,
+        summary: narrative?.summary || computed.summary,
+        aiNotes: narrative?.blockers || [],
+        overallScore: computed.score,
+        generatedAt: new Date().toISOString(),
+      }
       setReadinessReport(report)
       await handleSavePlan(buildPlan, engineeringTasks, { readinessReport: report })
       showToast('Generated fresh AI Product-Readiness Audit Report & saved to database!', 'success')
@@ -1309,7 +1427,6 @@ ${project?.creatorName || 'The Team'}`)
       // Non-blocking background sync to ensure UI never freezes
       Promise.race([
         handleSavePlan(buildPlan, engineeringTasks, {
-          reservations: updatedCohort,
           betaCohort: updatedCohort,
           lastBetaInviteSentAt: new Date().toISOString()
         }),
@@ -1481,7 +1598,8 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
   // OS Progress calculation
   const completedCount = (engineeringTasks || []).filter(t => t.status === 'Completed').length
   const totalTasksCount = (engineeringTasks || []).length || 1
-  const progressPercent = Math.round((completedCount / totalTasksCount) * 100)
+  const verifiedCount = (engineeringTasks || []).filter(t => t.verified).length
+  const progressPercent = Math.round((verifiedCount / totalTasksCount) * 100)
 
   // Dynamic Product Readiness Score calculation (Real Phase 2 Metrics)
   const isQaPassed = Boolean(qaResults?.status?.includes('Passing') || (qaResults?.passed && qaResults?.passed > 0))
@@ -1498,7 +1616,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
   const presaleGoal = Number(project?.presaleTarget || project?.validationPlan?.threshold || 5000)
   const demandPts = Math.min(15, Math.max(5, Math.round((presalesRevenue / (presaleGoal || 1)) * 15)))
 
-  const dynamicReadinessScore = buildPts + qaPts + betaPts + demandPts
+  const dynamicReadinessScore = computeReadiness({ project, tasks: engineeringTasks || [], qa: qaResults, clusters: feedbackClusters || [], feedback: rawFeedback || [], cohort: betaCohort || [] }).score
 
   let dynamicVerdict = 'BUILD IN PROGRESS'
   let dynamicConfidence = 'Preliminary'
@@ -2205,7 +2323,25 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                 </div>
               </div>
 
-              {/* Integrations, Payments & Auth */}
+              {/* Integrations */}
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2 border-b border-[#2a2a30] pb-2.5 m-0">
+                  <Layers className="w-4 h-4 text-[#D4D4D8]" />
+                  <span>Integrations</span>
+                </h3>
+                {(buildPlan.productSpec?.integrations || []).length ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {buildPlan.productSpec.integrations.map((it, idx) => (
+                      <div key={idx} className="p-3 bg-[#111114] border border-[#2a2a30] text-xs">
+                        <span className="font-bold text-[#FAFAFA] block">{typeof it === 'string' ? it : it.name}</span>
+                        {typeof it !== 'string' && it.purpose && <span className="text-[11px] text-[#A1A1AA]">{it.purpose}</span>}
+                      </div>
+                    ))}
+                  </div>
+                ) : <p className="text-xs text-[#71717A] m-0">No third-party integrations in the MVP.</p>}
+              </div>
+
+              {/* Payments, Auth & Analytics */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2">
                   <div className="flex items-center gap-2 text-xs font-bold text-emerald-300">
@@ -2334,6 +2470,21 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Dependencies */}
+              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
+                <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2 border-b border-[#2a2a30] pb-2.5 m-0">
+                  <Package className="w-4 h-4 text-[#D4D4D8]" />
+                  <span>Dependencies</span>
+                </h3>
+                {(buildPlan.technicalPlan?.dependencies || []).length ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {buildPlan.technicalPlan.dependencies.map((d, idx) => (
+                      <span key={idx} className="px-2.5 py-1 text-[11px] font-mono bg-[#111114] border border-[#2a2a30] text-[#E4E4E7]">{typeof d === 'string' ? d : d.name}</span>
+                    ))}
+                  </div>
+                ) : <p className="text-xs text-[#71717A] m-0">No external dependencies listed.</p>}
               </div>
 
               {/* Sprints & Milestones */}
@@ -2807,6 +2958,54 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
       {/* STEP 2: BUILD MVP (CLOUD CODEBASE STUDIO & IDE) */}
       {activeStep === 'build' && (
         <div className="space-y-5">
+          {/* Work tracker: every task, who owns it, and whether QA verified it */}
+          {(() => {
+            const total = engineeringTasks.length
+            const built = engineeringTasks.filter(isTaskBuilt).length
+            const verified = engineeringTasks.filter((t) => t.verified).length
+            const ai = engineeringTasks.filter((t) => t.assignedTo === 'AI Agent')
+            const human = engineeringTasks.filter((t) => t.assignedTo !== 'AI Agent')
+            const failing = engineeringTasks.filter((t) => t.qa && !t.qa.passed && !t.qa.unverified).length
+            const stat = (label, value, sub, color) => (
+              <div className="p-3.5 bg-[#0C0C0E] border border-[#2a2a30] space-y-1">
+                <p className="m-0 text-[11px] text-[#A1A1AA]">{label}</p>
+                <p className="m-0 text-2xl leading-none" style={{ fontFamily: "'Instrument Serif', Georgia, serif", color: color || '#FAFAFA' }}>{value}</p>
+                <p className="m-0 text-[11px] text-[#71717A]">{sub}</p>
+              </div>
+            )
+            return (
+              <section className="p-4 sm:p-5 bg-[#111114] border border-[#2a2a30] space-y-4">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                  <div>
+                    <p className="m-0 text-[11px] font-bold uppercase tracking-[0.14em] text-[#71717A]">Build tracker</p>
+                    <p className="m-0 mt-1 text-sm text-[#D4D4D8]">A task counts as done only when automated QA verifies it against its acceptance criteria.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => handleRunAutomatedQA(qaResults)} disabled={qaRunning || !built} className="px-3.5 py-2 text-xs font-semibold bg-[#1C1C20] border border-[#2a2a30] text-[#E4E4E7] flex items-center gap-1.5 cursor-pointer disabled:opacity-45">
+                      {qaRunning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}Run QA on {built} built
+                    </button>
+                    <button type="button" onClick={() => handleDeployStaging({ part: project?.staging ? 'minor' : 'minor' })} disabled={isDeployingStaging} className="px-3.5 py-2 text-xs font-semibold bg-[#C81E3C] text-white flex items-center gap-1.5 cursor-pointer disabled:opacity-45">
+                      {isDeployingStaging ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Rocket className="w-3.5 h-3.5" />}Deploy to staging
+                    </button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+                  {stat('Verified', `${verified}/${total}`, `${total ? Math.round((verified / total) * 100) : 0}% of the MVP`, verified === total && total ? '#34d399' : undefined)}
+                  {stat('Built', `${built}/${total}`, `${total - built} not started or in progress`)}
+                  {stat('AI agents', `${ai.filter((t) => t.verified).length}/${ai.length}`, 'routine UI, CRUD and API work')}
+                  {stat('Human engineering', `${human.filter((t) => t.verified).length}/${human.length}`, 'architecture, integrations, security, hard bugs')}
+                  {stat('Staging', project?.staging?.version || '—', project?.staging ? `deployed ${new Date(project.staging.deployedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}` : 'not deployed yet', project?.staging ? '#34d399' : undefined)}
+                </div>
+                {failing > 0 && <p className="m-0 text-xs text-[#FF8FA3]">{failing} {failing === 1 ? 'task fails' : 'tasks fail'} QA. Open the task in the studio to see the issues, fix, then run QA again.</p>}
+                {total > 0 && (
+                  <div className="h-2 w-full bg-[#0C0C0E] border border-[#2a2a30] flex">
+                    <div style={{ width: `${(verified / total) * 100}%`, background: '#34d399' }} />
+                    <div style={{ width: `${((built - verified) / total) * 100}%`, background: '#fbbf24' }} />
+                  </div>
+                )}
+              </section>
+            )
+          })()}
           <div className="keep-dark cloud-code-studio rounded-3xl overflow-hidden shadow-xl border border-[#2a2a30]">
             <CloudCodeStudio
               project={project}
@@ -2886,6 +3085,40 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
       {/* STEP 3: BETA TEST (CUSTOMER COHORT & AI FEEDBACK CLUSTERING) */}
       {activeStep === 'beta' && (
         <div className="space-y-5">
+          {/* Beta usage: who was invited, who is using it, what they report */}
+          {(() => {
+            const usage = project?.betaUsage || {}
+            const invited = betaCohort.filter((b) => b.inviteStatus === 'Sent' || b.lastInviteSentAt).length
+            const bySource = ['presale', 'waitlist', 'survey'].map((k) => [k, betaCohort.filter((b) => (b.source || 'presale') === k).length])
+            const cats = ['Bug', 'Feature request', 'Objection', 'Support question', 'Onboarding / UX', 'Praise'].map((c) => [c, rawFeedback.filter((f) => (f.category || f.type) === c).length])
+            return (
+              <section className="p-4 sm:p-5 bg-[#111114] border border-[#2a2a30] space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <p className="m-0 text-[11px] font-bold uppercase tracking-[0.14em] text-[#71717A]">Beta usage</p>
+                  <a href={`${origin}/beta/${productSlug}?token=preview`} target="_blank" rel="noreferrer" className="text-xs text-[#E4E4E7] flex items-center gap-1.5">Open the tester page <ExternalLink className="w-3 h-3" /></a>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                  {[
+                    ['Cohort', betaCohort.length, bySource.filter(([, n]) => n).map(([k, n]) => `${n} ${k}`).join(' · ') || 'no customers yet'],
+                    ['Invited', invited, `${betaCohort.length - invited} not invited yet`],
+                    ['Active testers', usage.testersActive || 0, `${usage.opens || 0} sessions${usage.lastOpenAt ? ` · last ${new Date(usage.lastOpenAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}` : ''}`],
+                    ['Reports', rawFeedback.length, `${(feedbackClusters || []).length} issues grouped`],
+                  ].map(([label, value, sub]) => (
+                    <div key={label} className="p-3.5 bg-[#0C0C0E] border border-[#2a2a30] space-y-1">
+                      <p className="m-0 text-[11px] text-[#A1A1AA]">{label}</p>
+                      <p className="m-0 text-2xl leading-none text-[#FAFAFA]" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>{value}</p>
+                      <p className="m-0 text-[11px] text-[#71717A]">{sub}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {cats.map(([c, n]) => (
+                    <span key={c} className="px-2 py-1 text-[11px] font-semibold border" style={{ borderColor: n ? '#3a3a42' : '#222227', color: n ? '#E4E4E7' : '#71717A', background: '#0C0C0E' }}>{c} · {n}</span>
+                  ))}
+                </div>
+              </section>
+            )
+          })()}
           {/* Subtabs for Step 3 */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-[#2a2a30] pb-3">
             <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-[#18181C] border border-[#2a2a30]/80 max-w-full overflow-x-auto">
@@ -3184,7 +3417,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                       tier: cur.tier.includes(tier) ? cur.tier : `${cur.tier} • ${tier}`
                     }
                     setBetaCohort(updated)
-                    handleSavePlan(buildPlan, engineeringTasks, { reservations: updated, betaCohort: updated })
+                    handleSavePlan(buildPlan, engineeringTasks, { betaCohort: updated })
                     form.reset()
                     showToast(`Updated access tier for existing member ${name}!`)
                     return
@@ -3197,14 +3430,15 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                     tier,
                     totalAmount: 0,
                     status: 'Active in Beta',
-                    token: `beta_${Math.random().toString(36).substring(2, 8)}`,
+                    token: emailToken(email),
+                    source: 'invited',
                     lastActive: 'Just now',
                     inviteStatus: 'Pending',
                     lastInviteSentAt: null
                   }
                   const updated = [newBacker, ...betaCohort]
                   setBetaCohort(updated)
-                  handleSavePlan(buildPlan, engineeringTasks, { reservations: updated, betaCohort: updated })
+                  handleSavePlan(buildPlan, engineeringTasks, { betaCohort: updated })
                   form.reset()
                   showToast(`Invited ${name} to private beta!`)
                 }}
@@ -3364,10 +3598,12 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                   onChange={e => setNewFeedbackType(e.target.value)}
                   className="px-3 py-2 rounded-xl bg-[#0C0C0E] border border-[#3a3a42] text-xs text-[#D4D4D8] outline-none shadow-2xs"
                 >
-                  <option value="UX / Onboarding">UX / Onboarding</option>
-                  <option value="Feature Request">Feature Request</option>
-                  <option value="Bug">Bug Report</option>
-                  <option value="Objection">Customer Objection</option>
+                  <option value="Bug">Bug</option>
+                  <option value="Feature request">Feature request</option>
+                  <option value="Objection">Objection</option>
+                  <option value="Support question">Support question</option>
+                  <option value="Onboarding / UX">Onboarding / UX</option>
+                  <option value="Praise">Praise</option>
                 </select>
                 <input
                   type="text"
@@ -3466,330 +3702,37 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
 
       {/* STEP 4: ITERATE + LAUNCH GATE */}
       {activeStep === 'gate' && (
-        <div className="space-y-5">
-          {/* Prerequisite Check Banner if prior steps are incomplete */}
-          {!p2Guards.allPriorStepsDone && (
-            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-2.5 shadow-2xs">
-              <div className="flex items-center gap-2 font-bold text-amber-300">
-                <Lock className="w-4 h-4 text-amber-300 shrink-0" />
-                <span>Phase 2 Launch Gate is Locked: Prerequisite Steps Incomplete</span>
-              </div>
-              <p className="text-[11px] text-amber-300 leading-relaxed">
-                The Launch Gate requires completing product specifications, the MVP codebase build tasks, and beta cohort testing before public release.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
-                <button
-                  onClick={() => setActiveStep('plan')}
-                  className={`p-2.5 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all cursor-pointer ${
-                    p2Guards.isStep1Done ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15'
-                  }`}
-                >
-                  <span>1. Product + Build Plan</span>
-                  <span>{p2Guards.isStep1Done ? '✓ Done' : '❌ Required'}</span>
-                </button>
-                <button
-                  onClick={() => setActiveStep('build')}
-                  disabled={!p2Guards.canAccessStep2}
-                  className={`p-2.5 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all ${
-                    p2Guards.isStep2Done
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 cursor-pointer'
-                      : p2Guards.canAccessStep2
-                      ? 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15 cursor-pointer'
-                      : 'opacity-40 border-[#2a2a30] text-[#71717A] cursor-not-allowed'
-                  }`}
-                >
-                  <span>2. Build MVP</span>
-                  <span>{p2Guards.isStep2Done ? '✓ Done' : '❌ Required'}</span>
-                </button>
-                <button
-                  onClick={() => setActiveStep('beta')}
-                  disabled={!p2Guards.canAccessStep3}
-                  className={`p-2.5 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all ${
-                    p2Guards.isStep3Done
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 cursor-pointer'
-                      : p2Guards.canAccessStep3
-                      ? 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15 cursor-pointer'
-                      : 'opacity-40 border-[#2a2a30] text-[#71717A] cursor-not-allowed'
-                  }`}
-                >
-                  <span>3. Beta Test</span>
-                  <span>{p2Guards.isStep3Done ? '✓ Done' : '❌ Required'}</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Executive Header Banner */}
-          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2a2a30] pb-3">
-              <div>
-                <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-[#A1A1AA]" />
-                  <span>Step 4: Iterate + Launch Gate</span>
-                </span>
-                <h3 className="text-base font-black text-[#FAFAFA]">
-                  Executive Product-Readiness Audit & Launch Gate
-                </h3>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleApplyAIAutoFixes}
-                  disabled={isAutoFixing}
-                  className="px-4 py-2 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
-                >
-                  {isAutoFixing ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#D4D4D8]" />
-                      <span>Applying Fixes & Retesting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Apply AI Fixes & Update MVP</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  onClick={handleGenerateReadinessAudit}
-                  disabled={isAuditing}
-                  className="px-3.5 py-2 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#3a3a42] shadow-2xs font-semibold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
-                >
-                  {isAuditing ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#71717A]" /> : <RefreshCw className="w-3.5 h-3.5 text-[#A1A1AA]" />}
-                  <span>Re-Audit</span>
-                </button>
-              </div>
-            </div>
-
-            <p className="text-xs text-[#A1A1AA] leading-relaxed">
-              AI prioritizes feedback issues, applies targeted code hotfixes, updates the MVP build version, and verifies product readiness.
-            </p>
-          </div>
-
-          {/* Decision Notice (if Continue Beta or Killed) */}
-          {decisionNotice && (
-            <div className="p-4 rounded-2xl bg-[#C81E3C]/10 border border-[#C81E3C]/45 text-[#FF8FA3] text-xs flex items-center gap-2 font-medium shadow-2xs">
-              <Compass className="w-4 h-4 text-[#FF8FA3] shrink-0" />
-              <span>{decisionNotice}</span>
-            </div>
-          )}
-
-          {/* 1. AI Product-Readiness Audit Score Card */}
-          <div className={`p-5 rounded-3xl bg-[#0C0C0E] border ${activeReadiness.cardBorderClass} shadow-2xs space-y-4`}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <span className={`text-[10px] font-bold uppercase tracking-wider ${activeReadiness.textVerdictClass}`}>
-                  AI Product-Readiness Score
-                </span>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-3xl sm:text-4xl font-black text-[#FAFAFA] font-mono">
-                    {activeReadiness.score}<span className="text-[#71717A] text-xl font-normal">/100</span>
-                  </span>
-                  <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${activeReadiness.verdictBadgeClass}`}>
-                    {activeReadiness.verdict}
-                  </span>
-                </div>
-              </div>
-
-              <div className="text-xs text-[#A1A1AA] text-left sm:text-right space-y-0.5">
-                <div>Confidence Level: <strong className="text-[#FAFAFA]">{activeReadiness.confidence}</strong></div>
-                <div>MVP Build Release: <strong className="text-[#E4E4E7] font-mono">{mvpVersion}</strong></div>
-              </div>
-            </div>
-
-            <p className="text-xs text-[#D4D4D8] leading-relaxed font-medium bg-[#111114] p-3 rounded-xl border border-[#2a2a30]">
-              "{activeReadiness.summary}"
-            </p>
-
-            {/* 4 Pillars Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              {(activeReadiness.pillars || []).map((p, idx) => (
-                <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5">
-                      <CheckCircle className={`w-3.5 h-3.5 ${p.score >= 70 ? 'text-emerald-300' : 'text-amber-300'}`} />
-                      <span>{p.name}</span>
-                    </span>
-                    <span className={`font-mono font-bold ${p.score >= 70 ? 'text-emerald-300' : 'text-amber-300'}`}>{p.score}% • {p.status}</span>
-                  </div>
-                  <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{p.detail}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 2. Automated Hotfixes & MVP Update Log */}
-          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
-            <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
-              <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-500" />
-                <span>AI Automated Code Hotfixes ({appliedPatches.length} Patches Applied)</span>
-              </h3>
-              <span className="text-[10px] font-mono text-emerald-300 font-bold">All Patches Verified ✓</span>
-            </div>
-
-            <div className="space-y-2">
-              {appliedPatches.map((patch, idx) => (
-                <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#FAFAFA]">{patch.issueTitle}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
-                      Verified Fix ✓
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-[#A1A1AA]">{patch.fixSummary}</p>
-                  <div className="text-[10px] text-[#A1A1AA] font-mono">
-                    Files patched: {patch.filesModified.join(', ')}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 3. Post-Patch Retest Results */}
-          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
-            <div className="flex items-center justify-between border-b border-[#2a2a30] pb-2.5">
-              <h3 className="text-xs font-black text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
-                <CheckCheck className="w-4 h-4 text-emerald-300" />
-                <span>Updated MVP Retest Summary</span>
-              </h3>
-              <span className="text-[10px] font-mono text-[#A1A1AA] font-medium">Target: Zero Launch Blockers</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1">
-                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase">Unit & Integration Tests</span>
-                <div className="text-base font-black text-emerald-300 font-mono">
-                  {qaResults.unitTests.passed + qaResults.integrationTests.passed} Tests Passing (100%)
-                </div>
-                <span className="text-[10px] text-[#71717A]">0 failures, 0 regressions</span>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1">
-                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase">Critical P0 Bugs</span>
-                <div className="text-base font-black text-emerald-300 font-mono">
-                  0 Open Blockers
-                </div>
-                <span className="text-[10px] text-[#71717A]">All P0 criteria met</span>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-1">
-                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase">Beta Backer Provisioning</span>
-                <div className="text-base font-black text-emerald-300 font-mono">
-                  {backersCount} Ready for Public Access
-                </div>
-                <span className="text-[10px] text-[#71717A]">Tokens activated</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 4. Human Executive Decision Gate */}
-          <div className="p-6 rounded-3xl bg-[#0C0C0E] border-2 border-[#C81E3C] shadow-md space-y-4">
-            <div>
-              <span className="text-[10px] font-black text-[#FF8FA3] uppercase tracking-widest block">
-                Human Executive Decision
-              </span>
-              <h3 className="text-lg font-black text-[#FAFAFA] tracking-tight">
-                Choose the Next Strategic Milestone
-              </h3>
-              <p className="text-xs text-[#A1A1AA] mt-1">
-                As the technical operator, choose whether to launch generally, continue the private beta cycle, or kill/pivot the project.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-              {/* Choice 1: Launch Product */}
-              <button
-                disabled={!p2Guards.allPriorStepsDone}
-                onClick={p2Guards.allPriorStepsDone ? onAdvanceToPhase3 : undefined}
-                className={`p-4 rounded-2xl text-left space-y-2 transition-all group border ${
-                  p2Guards.allPriorStepsDone
-                    ? 'bg-[#C81E3C] hover:bg-[#B01732] text-white shadow-md active:scale-[0.98] border-[#C81E3C] cursor-pointer'
-                    : 'bg-[#18181C] text-[#71717A] border-[#2a2a30] shadow-none cursor-not-allowed opacity-60'
-                }`}
-                title={!p2Guards.allPriorStepsDone ? 'Complete Steps 1–3 before advancing to Phase 3' : 'Advance to Phase 3'}
-              >
-                <div className="flex items-center justify-between">
-                  <div className={`p-2 rounded-xl ${p2Guards.allPriorStepsDone ? 'bg-white/10 text-white' : 'bg-[#222227] text-[#71717A]'}`}>
-                    {!p2Guards.allPriorStepsDone ? <Lock className="w-5 h-5" /> : <Rocket className="w-5 h-5" />}
-                  </div>
-                  <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                    p2Guards.allPriorStepsDone ? 'bg-emerald-400 text-[#FAFAFA]' : 'bg-[#222227] text-[#A1A1AA]'
-                  }`}>
-                    {p2Guards.allPriorStepsDone ? 'Recommended' : 'Locked'}
-                  </span>
-                </div>
-                <div>
-                  <h4 className={`text-sm font-black transition-colors ${p2Guards.allPriorStepsDone ? 'text-white' : 'text-[#A1A1AA]'}`}>
-                    1. Launch Product
-                  </h4>
-                  <p className={`text-[11px] leading-relaxed mt-0.5 ${p2Guards.allPriorStepsDone ? 'text-[#FFD1DA]' : 'text-[#71717A]'}`}>
-                    {p2Guards.allPriorStepsDone
-                      ? 'Advance to Phase 3 (Scale / General Launch), open public onboarding, and activate marketing engine.'
-                      : 'Locked — Complete Steps 1–3 (Product Plan, MVP Engineering Build, and Beta Test) first.'}
-                  </p>
-                </div>
-              </button>
-
-              {/* Choice 2: Continue Beta */}
-              <button
-                onClick={() => {
-                  setActiveStep('beta')
-                  setDecisionNotice('Beta cycle extended. Continue collecting usage data and inviting cohort testers.')
-                  showToast('Beta cycle extended.')
-                }}
-                className="p-4 rounded-2xl bg-[#111114] hover:bg-[#18181C] text-[#FAFAFA] text-left space-y-2 border border-[#2a2a30] hover:border-[#3a3a42] transition-all active:scale-[0.98] group cursor-pointer shadow-2xs"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="p-2 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] text-[#D4D4D8] shadow-2xs">
-                    <RotateCcw className="w-5 h-5" />
-                  </div>
-                  <span className="text-[10px] font-mono text-[#A1A1AA] font-semibold">Iterate</span>
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-[#FAFAFA]">
-                    2. Continue Beta
-                  </h4>
-                  <p className="text-[11px] text-[#A1A1AA] leading-relaxed mt-0.5">
-                    Gather more cohort usage data, log additional feedback, and refine edge cases before public launch.
-                  </p>
-                </div>
-              </button>
-
-              {/* Choice 3: Kill / Pivot */}
-              <button
-                onClick={() => setShowKillModal(true)}
-                className="p-4 rounded-2xl bg-red-500/10 hover:bg-red-500/10 text-red-300 text-left space-y-2 border border-red-500/30 hover:border-red-500/30 transition-all active:scale-[0.98] group cursor-pointer shadow-2xs"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="p-2 rounded-xl bg-red-500/15 text-red-300">
-                    <XCircle className="w-5 h-5" />
-                  </div>
-                  <span className="text-[10px] font-mono text-red-300 font-bold">Pivot</span>
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-red-300">
-                    3. Kill / Pivot
-                  </h4>
-                  <p className="text-[11px] text-red-300/80 leading-relaxed mt-0.5">
-                    Gracefully archive the project, process presale refunds, or pivot into a new validated problem space.
-                  </p>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* Step 4 Footer */}
-          <div className="flex items-center justify-between pt-2 border-t border-[#2a2a30]">
-            <button
-              onClick={() => setActiveStep('beta')}
-              className="px-4 py-2.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#3a3a42] shadow-2xs text-xs font-semibold cursor-pointer"
-            >
-              ← Back to Beta Testing
-            </button>
-          </div>
-        </div>
+        <Phase2Step4Gate
+          project={project}
+          engineeringTasks={engineeringTasks}
+          qaResults={qaResults}
+          feedbackClusters={feedbackClusters || []}
+          rawFeedback={rawFeedback}
+          betaCohort={betaCohort}
+          appliedPatches={appliedPatches}
+          mvpVersion={mvpVersion}
+          readinessReport={readinessReport}
+          isAuditing={isAuditing}
+          onGenerateReport={handleGenerateReadinessAudit}
+          isAutoFixing={isAutoFixing}
+          onFixCycle={handleApplyAIAutoFixes}
+          qaRunning={qaRunning}
+          onRunQA={() => handleRunAutomatedQA(qaResults)}
+          isDeployingStaging={isDeployingStaging}
+          onDeployStaging={handleDeployStaging}
+          executingTaskId={executingTaskId}
+          goToStep={(id) => setActiveStep(id)}
+          onLaunch={onAdvanceToPhase3}
+          onRecordDecision={async (record) => {
+            const decisions = [record, ...(project?.phase2Decisions || [])]
+            const extra = { phase2Decisions: decisions, ...(record.decision === 'kill' ? { status: 'killed' } : {}) }
+            onUpdateProject?.((prev) => ({ ...(prev || {}), ...extra }))
+            await handleSavePlan(buildPlan, engineeringTasks, extra)
+          }}
+          origin={origin}
+          productSlug={productSlug}
+          showToast={showToast}
+        />
       )}
 
       {/* ── BETA TESTER EMAIL DISPATCHER MODAL ───────────────────────── */}
