@@ -5,12 +5,9 @@ import {
 } from 'lucide-react'
 import {
   generateMVPProductBuildPlanAI,
-  buildSmartFallbackMVPBuildPlan,
   analyzeAndClusterBetaFeedbackAI,
-  buildSmartFallbackBetaFeedbackClusters,
   executeAICodingTaskAI,
   generateProductReadinessReportAI,
-  buildSmartFallbackReadinessReport,
   autoImplementFixesAI
 } from '../../services/ai'
 import { getFrontendUrl, sendDirectEmail } from '../../services/opsApi'
@@ -25,6 +22,7 @@ import BuildAgentPanel from './phase2/BuildAgentPanel'
 import Phase2PlanView from './phase2/Phase2PlanView'
 import AutomatedQASuite from './AutomatedQASuite'
 import { getPhase2StepGuards } from '../../utils/stepGuards'
+import { presaleGoalFor, conceptGoalFor } from '../../utils/projectNumbers'
 
 export const BETA_EMAIL_TEMPLATES = {
   standard: {
@@ -673,37 +671,23 @@ export async function execute${name}(options = {}) {
           notes: t.notes || `Engineered for ${project?.productName || 'MVP'}`,
           acceptanceCriteria: Array.isArray(t.acceptanceCriteria) ? t.acceptanceCriteria : [],
           dependsOn: Array.isArray(t.dependsOn) ? t.dependsOn : [],
-          milestone: t.milestone || null
+          milestone: t.milestone || null,
+          feature: t.feature || null
         }))
         setEngineeringTasks(updatedTasks)
       }
 
       handleSavePlan(generated, updatedTasks)
-      showToast('AI synthesized all 4 tabs: Spec, Tech Plan, Scope & Tasks in 1 go!', 'success')
+      const warn = generated?.technicalPlan?.qualityWarnings || []
+      showToast(warn.length
+        ? `Plan generated for ${project?.productName || 'this product'}, with notes: ${warn.join('; ')}. Regenerate or edit the spec.`
+        : `Plan generated for ${project?.productName || 'this product'}: ${generated?.productSpec?.features?.length || 0} features, ${updatedTasks.length} tasks, ${generated?.technicalPlan?.database?.length || 0} tables.`, warn.length ? 'warning' : 'success', 8000)
     } catch (err) {
       console.warn('[Phase2BuildMVP] AI generation error:', err)
-      const errorMsg = err.message || 'AI service did not return a response.'
-      // Load Phase 1-tailored fallback architecture — do NOT show error banner on top of saved content
-      const fallback = buildSmartFallbackMVPBuildPlan(project)
-      setBuildPlan(fallback)
-
-      let updatedTasks = engineeringTasks
-      if (fallback.technicalPlan?.engineeringTasks && Array.isArray(fallback.technicalPlan.engineeringTasks) && fallback.technicalPlan.engineeringTasks.length > 0) {
-        updatedTasks = fallback.technicalPlan.engineeringTasks.map((t, idx) => ({
-          id: t.id || `task-fallback-${idx + 1}`,
-          title: t.title,
-          category: t.category || 'Backend',
-          assignedTo: t.assignedTo || 'AI Agent',
-          status: 'Ready',
-          estimate: t.estimate || '1 Day',
-          notes: t.notes || `Baseline for ${project?.productName || 'MVP'}`
-        }))
-        setEngineeringTasks(updatedTasks)
-      }
-
-      handleSavePlan(fallback, updatedTasks)
-      setAiError(null)
-      showToast(`AI unavailable (${errorMsg}). Loaded Phase 1 tailored architecture baseline. Click Retry with AI to synthesize with live LLM.`, 'warning', 8000)
+      // No silent template: keep whatever plan exists and say what went wrong
+      const errorMsg = err?.message || 'The AI service did not respond.'
+      setAiError({ source: 'Step 1: Build plan generation', message: errorMsg, action: 'generate_plan' })
+      showToast(`Build plan not generated: ${errorMsg} Your previous plan is unchanged.`, 'error', 9000)
     } finally {
       setIsGenerating(false)
     }
@@ -1615,7 +1599,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
   // Beta resolution points: max 20
   const betaPts = Math.round((resolvedClusters / totalClusters) * 20)
   // Demand validation baseline points from Phase 1: max 15
-  const presaleGoal = Number(project?.presaleTarget || project?.validationPlan?.threshold || 5000)
+  const presaleGoal = presaleGoalFor(project)
   const demandPts = Math.min(15, Math.max(5, Math.round((presalesRevenue / (presaleGoal || 1)) * 15)))
 
   const dynamicReadinessScore = computeReadiness({ project, tasks: engineeringTasks || [], qa: qaResults, clusters: feedbackClusters || [], feedback: rawFeedback || [], cohort: betaCohort || [] }).score
@@ -2817,10 +2801,10 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
                               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                               <div>
                                 <span className="font-bold text-emerald-300 block text-[11px]">
-                                  {task.aiOutput?.automatedTests?.testFramework || 'Automated QA Tests'}: {task.aiOutput?.automatedTests?.testOutput || '✓ 12/12 unit tests passed'}
+                                  {task.lastRun ? `Test run ${task.lastRun.n}: ${task.lastRun.passed}/${task.lastRun.total} passed` : task.qa ? `QA review: ${task.qa.passed ? 'passed' : task.qa.unverified ? "couldn't run" : 'failed'}${task.qa.score != null ? ` (${task.qa.score}/100)` : ''}` : 'Not tested yet'}
                                 </span>
                                 <span className="text-[10px] text-emerald-400/80">
-                                  Coverage: {task.aiOutput?.automatedTests?.coverage || '98.5%'} • Staging Verified
+                                  {task.verified ? `Verified${task.verifiedBy === 'github_ci' ? ' by GitHub CI' : task.verifiedBy === 'agent_tests' ? ' by test run' : ' by QA review'}` : 'Not verified'}
                                 </span>
                               </div>
                             </div>

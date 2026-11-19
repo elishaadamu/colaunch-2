@@ -2517,15 +2517,11 @@ export default function CreatorFollowUpCRM({
                           <span>Engineered Software Concepts</span>
                         </h4>
                         <span className="text-[10px] font-mono" style={{ color: C.faint }}>
-                          3 Concepts Tailored
+                          {(detailCreator.productConcepts || []).length} concepts
                         </span>
                       </div>
                       <div className="space-y-2.5">
-                        {(detailCreator.productConcepts && detailCreator.productConcepts.length > 0 ? detailCreator.productConcepts : [
-                          { id: 'c1', name: `${detailCreator.name?.split(' ')[0] || 'Creator'} OS`, tagline: 'Automated workspace SaaS', problem: 'Fragmented coaching workflows and client management.', pricing: '$29/mo', opportunityScore: 94 },
-                          { id: 'c2', name: `${detailCreator.name?.split(' ')[0] || 'Creator'} Flow AI`, tagline: 'Autonomous AI assistant pipeline', problem: 'Time-consuming manual video workout programming.', pricing: '$49/mo', opportunityScore: 91 },
-                          { id: 'c3', name: `${detailCreator.name?.split(' ')[0] || 'Creator'} Pro Hub`, tagline: 'Private template & tools community', problem: 'Monetizing exclusive community content and resources.', pricing: '$79/mo', opportunityScore: 88 },
-                        ]).map((concept, idx) => {
+                        {(Array.isArray(detailCreator.productConcepts) ? detailCreator.productConcepts : []).map((concept, idx) => {
                           return (
                             <div
                               key={concept.id || idx}

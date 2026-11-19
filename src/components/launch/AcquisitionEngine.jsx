@@ -37,6 +37,7 @@ import AcquisitionModals from "./steps/AcquisitionModals";
 import { buildConceptPrompt, normalizeConcepts, buildValidationSeed } from "./conceptSchema";
 
 import { PUBLIC_APP_URL } from "../../utils/publicUrl";
+import { presaleGoalFor, conceptGoalFor } from '../../utils/projectNumbers'
 // Category and archetype-tailored visual mockup screenshots for creator proposals
 export const CONCEPT_ARCHETYPE_IMAGES = {
   saas_os: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80",
@@ -5061,7 +5062,7 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
     await new Promise((r) => setTimeout(r, 550));
 
     const validationSeed = buildValidationSeed(concept, selectedCreator);
-    const parsedTargetVal = validationSeed?.suggestedThreshold?.target || 12500;
+    const parsedTargetVal = conceptGoalFor(concept, selectedCreator, validationSeed);
 
     const cleanInitialPlan = {
       customer: validationSeed?.customer || concept?.customer || '',
@@ -6504,57 +6505,6 @@ Ref: [CF-STAGE:PROJECT_KICKOFF | CF-CID:${selectedCreator.id} | Handle:@${handle
     aiDetectedChoiceMap,
     campaignRunning,
   ]);
-
-  const handleSimulateReply = (creatorId, classification) => {
-    const creator = creators.find((c) => c.id === creatorId);
-    const name = creator?.name || creator?.display_name || "Creator";
-    const niche =
-      (Array.isArray(creator?.niche) ? creator.niche[0] : creator?.niche) ||
-      "Tech";
-
-    let text = "";
-    if (classification === "interested") {
-      text = `Hey team! Saw your note regarding the co-founder partnership for our ${niche} audience. We'd love to review the product concepts and revenue split structure.`;
-    } else if (classification === "question") {
-      text = `Hi! Thanks for reaching out. What is the expected timeline for building the MVP, and how much time will be required on my end for community rollout?`;
-    } else if (classification === "not_interested") {
-      text = `Thanks for reaching out, but our partnership and sponsorship schedule is currently fully booked for this quarter.`;
-    } else {
-      text = `Please remove our contact from your outreach list.`;
-    }
-
-    // Step 4 "interested" = "qualified" for pitch (NOT Section 2 ready)
-    const mappedClassification = classification === "interested" ? "qualified" : classification;
-    const mappedStatus = classification === "interested" ? "qualified" : creator?.status;
-
-    setCreators((prev) =>
-      prev.map((c) => {
-        if (c.id === creatorId) {
-          return {
-            ...c,
-            replyClassification: mappedClassification,
-            replyText: text,
-            replySubject: `Re: Co-founder partnership inquiry for ${name}`,
-            replyTime: "Just now",
-            hasReplied: true,
-            status: mappedStatus,
-            productConcepts: ensureCreatorConcepts(c),
-          };
-        }
-        return c;
-      }),
-    );
-
-    if (classification === "interested" && autoAdvanceOnPositive && creator) {
-      triggerAutoAdvance(creator, {
-        hasRealReply: true,
-        classification: "qualified",
-        sentiment: "positive",
-        text,
-        time: "Just now",
-      });
-    }
-  };
 
   return (
     <div className="acq-os space-y-6">

@@ -28,7 +28,7 @@ export function extractCreatorDetails(creatorData) {
   const f3 = features[2] || 'Weekly Live Strategy Calls'
   const f4 = features[3] || 'Exclusive Downloadable Resources'
 
-  const pricing = creatorData?.pricing || creatorData?.blueprint?.pricing || '$29/mo'
+  const pricing = creatorData?.pricing || creatorData?.blueprint?.pricing || ''
   const audience = creatorData?.targetAudience || 'creators, builders, and professionals'
   const bio = creatorData?.description || creatorData?.bio || `Helping ${audience} succeed in ${niche}.`
   const platform = creatorData?.platform || 'YouTube'

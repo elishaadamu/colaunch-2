@@ -28,6 +28,7 @@ import { getPhase1StepGuards, getPhase2StepGuards, getPhase3StepGuards, getProje
 import { startSection2Tour } from '../../utils/driverTour'
 
 import { PUBLIC_APP_URL } from '../../utils/publicUrl'
+import { presaleGoalFor, conceptGoalFor } from '../../utils/projectNumbers'
 /* ── Section 2 Dark Palette (aligned with Section 1 Steps 5 & 6) ── */
 const C = {
   bg: '#050506',
@@ -457,7 +458,7 @@ partnerships@colaunch.com`
   })()
   const presaleTarget = derivedPlanTarget > 0
     ? derivedPlanTarget
-    : (storedTarget > 0 && storedTarget !== 12500 ? storedTarget : (computedTarget || storedTarget || 12500))
+    : (storedTarget > 0 ? storedTarget : computedTarget)
   const visitorsCount = Number(project.visitors || 0)
   const daysLeft = project.daysLeft || project.validationPlan?.period || '18 days'
   const magicPortalUrl = portalUrl
@@ -1797,7 +1798,7 @@ partnerships@colaunch.com`
                         )}
                       </div>
                       <span className="text-[11px]" style={{ color: C.muted }}>
-                        {isLiveLaunch ? '99.98% Uptime • Live Funnel' : 'Validation window'}
+                        {isLiveLaunch ? 'Live funnel' : 'Validation window'}
                       </span>
                     </div>
                   </div>
@@ -2334,7 +2335,7 @@ partnerships@colaunch.com`
                       return match ? Number(match[1]) : 0
                     }
                     const derivedGoal = parseThreshold(project.validationPlan?.threshold)
-                    const presaleGoal = derivedGoal > 0 ? derivedGoal : Number(project.presaleTarget || project.targetRevenue || 5000)
+                    const presaleGoal = derivedGoal > 0 ? derivedGoal : presaleGoalFor(project)
                     const backersCount = Array.isArray(project.reservations) ? new Set(project.reservations.map(r => (r.email || r.id || '').toLowerCase().trim())).size : Number(project.telemetry?.presalesCount || 0)
                     const currentPresales = Number(String(project.currentPresales || 0).replace(/[^0-9.]/g, '')) || (project.reservations || []).reduce((acc, r) => acc + (Number(r.amount) || 0), 0)
                     const conversionRate = Number(project.conversionRate || (Number(project.visitors || 0) > 0 ? (backersCount / Number(project.visitors)) * 100 : 0))
@@ -2541,10 +2542,10 @@ partnerships@colaunch.com`
                               </div>
                               <div className="p-3 rounded-xl border flex flex-col justify-between" style={{ background: C.sheet, borderColor: C.okLine }}>
                                 <span className="text-[9px] font-bold uppercase tracking-wider block" style={{ color: C.ok }}>Technical Health</span>
-                                <div className="text-base font-black my-1 font-mono" style={{ color: C.ok }}>
-                                  99.98%
+                                <div className="text-base font-black my-1 font-mono" style={{ color: project?.launchReport?.technical?.uptime != null ? C.ok : C.muted }}>
+                                  {project?.launchReport?.technical?.uptime != null ? `${project.launchReport.technical.uptime}%` : '—'}
                                 </div>
-                                <span className="text-[9px] block" style={{ color: C.muted }}>&lt;150ms latency</span>
+                                <span className="text-[9px] block" style={{ color: C.muted }}>{project?.launchReport?.technical?.checkoutSuccess != null ? `${project.launchReport.technical.checkoutSuccess}% checkout success` : 'Not measured yet'}</span>
                               </div>
                             </div>
 
@@ -2556,11 +2557,13 @@ partnerships@colaunch.com`
                                   <span>AI Launch Report Milestone Assessment</span>
                                 </div>
                                 <span className="text-[9px] font-mono px-2 py-0.5 rounded border font-bold shrink-0" style={PILL_TONES.ok}>
-                                  Recommended: SCALE (Score 96/100)
+                                  {project?.phase3Decision?.recommended ? `Recommended: ${String(project.phase3Decision.recommended).toUpperCase()}` : 'No recommendation yet'}
                                 </span>
                               </div>
                               <p className="text-[11px] leading-relaxed" style={{ color: C.body }}>
-                                Instagram Stories is currently the top-performing acquisition channel at <strong style={{ color: C.text }}>8.2% paid conversion</strong> (3.9x higher than email newsletter at <strong style={{ color: C.text }}>2.1%</strong>). With zero critical technical exceptions and sub-150ms latency, the venture has demonstrated product-market fit and is primed for accelerated scaling.
+                                {project?.launchReport?.narrative?.summary
+                                  || (project?.phase3Decision?.reasons || []).join(' ')
+                                  || 'Open Phase 3 → Report + decision to see the launch summary and recommendation, computed from live results.'}
                               </p>
                             </div>
                           </div>

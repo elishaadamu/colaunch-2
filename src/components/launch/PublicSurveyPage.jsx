@@ -101,8 +101,8 @@ export default function PublicSurveyPage({ slug }) {
   const landing = useMemo(() => resolveProjectLanding(project || {}), [project])
   const accentVars = buildAccent(landing.brandColor)
   const pricing = sanitizePricingConfig(project?.campaignKit?.pricingConfig, project?.pricing || project?.selectedConcept?.pricing || '')
-  const foundingPrice = pricing.foundingPrice || 49
-  const depositPrice = pricing.depositPrice || Math.max(9, Math.round(foundingPrice * 0.2))
+  const foundingPrice = pricing.foundingPrice || 0
+  const depositPrice = pricing.depositPrice || (foundingPrice > 0 ? Math.max(9, Math.round(foundingPrice * 0.2)) : 0)
   const productSlug = (project?.slug || project?.productName || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   const preorderHref = `/preorder/${productSlug}`
 
@@ -161,8 +161,8 @@ export default function PublicSurveyPage({ slug }) {
   ]
   const levels = [
     { id: 'waitlist', Icon: Bell, title: 'Join the waitlist', price: 'Free', text: 'Get early access news first.' },
-    { id: 'deposit', Icon: ShieldCheck, title: 'Reserve a spot', price: `$${depositPrice} deposit`, text: 'Fully refundable, holds your place.' },
-    { id: 'founding', Icon: Crown, title: 'Founding member', price: `$${foundingPrice}`, text: 'Lifetime founding price and perks.', featured: true },
+    { id: 'deposit', Icon: ShieldCheck, title: 'Reserve a spot', price: depositPrice > 0 ? `$${depositPrice} deposit` : 'Price soon', text: 'Fully refundable, holds your place.' },
+    { id: 'founding', Icon: Crown, title: 'Founding member', price: foundingPrice > 0 ? `$${foundingPrice}` : 'Price soon', text: 'Lifetime founding price and perks.', featured: true },
   ]
 
   return (
@@ -244,7 +244,7 @@ export default function PublicSurveyPage({ slug }) {
                   <span className="sv-icon">{level === 'founding' ? <Crown size={18} /> : <ShieldCheck size={18} />}</span>
                   <div>
                     <p style={{ margin: 0, fontWeight: 700, color: '#fff' }}>
-                      {level === 'founding' ? `Lock in founding access for $${foundingPrice}` : `Hold your spot with a $${depositPrice} refundable deposit`}
+                      {level === 'founding' ? (foundingPrice > 0 ? `Lock in founding access for $${foundingPrice}` : 'Founding access opens soon') : (depositPrice > 0 ? `Hold your spot with a $${depositPrice} refundable deposit` : 'Reservations open soon')}
                     </p>
                     <p className="sv-muted" style={{ margin: '.3rem 0 1rem', fontSize: '.9rem' }}>Takes a minute on the founding pre-order page. You can change your mind later.</p>
                     <a href={preorderHref} className="sv-btn" style={{ width: 'auto', display: 'inline-flex' }}>

@@ -97,8 +97,8 @@ export function XPostTemplate({ name, handle, avatar, text, imageUrl, productNam
             {imageUrl ? <img src={imageUrl} alt="" className="block w-full object-cover" style={{ aspectRatio: '16 / 9' }} /> : <BrandArt productName={productName} tagline={tagline} accent={accent} ratio="16 / 9" />}
           </div>
           <div className="mt-3 flex items-center justify-between max-w-[420px] text-[13px] text-[#71767b]">
-            {[[MessageCircle, '24'], [Repeat2, '61'], [Heart, '418'], [BarChart3, '12K']].map(([Icon, n], i) => (
-              <span key={i} className="flex items-center gap-1.5"><Icon className="w-[18px] h-[18px]" />{n}</span>
+            {[MessageCircle, Repeat2, Heart, BarChart3].map((Icon, i) => (
+              <span key={i} className="flex items-center gap-1.5"><Icon className="w-[18px] h-[18px]" /></span>
             ))}
             <span className="flex items-center gap-3"><Bookmark className="w-[18px] h-[18px]" /><Share className="w-[18px] h-[18px]" /></span>
           </div>
@@ -127,9 +127,8 @@ export function InstagramPostTemplate({ handle, avatar, name, text, imageUrl, pr
           <Heart className="w-6 h-6" /><MessageCircle className="w-6 h-6" /><Send className="w-6 h-6" />
           <Bookmark className="w-6 h-6 ml-auto" />
         </div>
-        <p className="m-0 font-semibold">1,284 likes</p>
         <p className="m-0 whitespace-pre-wrap break-words line-clamp-6"><span className="font-semibold">{handle}</span> {caption}</p>
-        <p className="m-0 text-[12px] text-zinc-400">Link in bio · View all 86 comments</p>
+        <p className="m-0 text-[12px] text-zinc-400">Link in bio</p>
       </div>
     </article>
   )
@@ -185,8 +184,8 @@ export function ShortVideoTemplate({ videoUrl, posterUrl, handle, avatar, name, 
         </div>
       )}
       <div className="pointer-events-none absolute right-2 bottom-24 flex flex-col items-center gap-4 text-[11px]">
-        {[[Heart, '9.4K'], [MessageCircle, '312'], [Share, 'Share']].map(([Icon, n], i) => (
-          <span key={i} className="flex flex-col items-center gap-1"><Icon className="w-6 h-6" />{n}</span>
+        {[Heart, MessageCircle, Share].map((Icon, i) => (
+          <span key={i} className="flex flex-col items-center gap-1"><Icon className="w-6 h-6" /></span>
         ))}
       </div>
       <div className="pointer-events-none absolute left-0 right-12 bottom-0 p-3 space-y-1.5" style={{ background: 'linear-gradient(transparent, rgba(0,0,0,.8))' }}>

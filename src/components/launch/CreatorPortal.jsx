@@ -643,28 +643,6 @@ export default function CreatorPortal({ portalId, slug }) {
     showToast('Task status updated!')
   }
 
-  const handleSimulatePreorder = () => {
-    if (!project) return
-    const currentRes = project.reservations || []
-    const newReservation = {
-      id: `res-${Date.now()}`,
-      name: `Backer #${(currentRes.length + 1)}`,
-      email: `member${currentRes.length + 1}@audience.com`,
-      amount: dynamicPresalePrice,
-      tier: dynamicPresaleTierName,
-      created_at: new Date().toISOString()
-    }
-    const updatedReservations = [newReservation, ...currentRes]
-    const updatedRevenue = Number(project.currentPresales || 0) + dynamicPresalePrice
-    const updated = {
-      ...project,
-      currentPresales: updatedRevenue,
-      reservations: updatedReservations
-    }
-    handleUpdateProject(updated)
-    showToast(`Simulated backer pre-order recorded (+ $${dynamicPresalePrice} USD). Revenue share updated!`)
-  }
-
   const getTaskDraftContent = (task) => {
     if (!task) return ''
     const ck = project?.campaignKit || {}
@@ -735,14 +713,14 @@ export default function CreatorPortal({ portalId, slug }) {
     cobuilderPrice ||
     49
 
-  const dynamicPresalePrice = parseMainPricingAmount(rawPricingSource, cobuilderPrice || 49)
+  const dynamicPresalePrice = parseMainPricingAmount(rawPricingSource, cobuilderPrice || 0)
   const parsedConcept = parseConceptPricing(rawPricingSource, dynamicPresalePrice)
   const dynamicPresaleTierName =
     project?.campaignKit?.pricingTiers?.[0]?.name ||
     parsedConcept.tiers?.[0]?.name ||
     'Early Bird Pass'
 
-  const backersNeededForGate = Math.max(1, Math.ceil(presaleTarget / (dynamicPresalePrice || 49)))
+  const backersNeededForGate = dynamicPresalePrice > 0 && presaleTarget > 0 ? Math.max(1, Math.ceil(presaleTarget / dynamicPresalePrice)) : 0
 
   const reservations = project?.reservations || []
   // Only real, recorded reservations are listed. Nothing is invented from revenue totals.
@@ -828,13 +806,11 @@ export default function CreatorPortal({ portalId, slug }) {
     email: campaignKit.newsletterDraft || '',
     dm: campaignKit.directMessageScript || '',
   }
-  // Test tools stay out of the creator's view unless explicitly enabled with ?simulate=1
   const hasPrice = Boolean(
     project?.selectedConcept?.pricing || project?.pricing || project?.validationPlan?.pricing ||
     project?.campaignKit?.pricingTiers?.[0]?.price || project?.campaignKit?.foundingPrice ||
     project?.presalePrice || project?.earlyBirdPrice
   )
-  const showSimTools = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('simulate') === '1'
 
   const trackLabel = isDiyActive ? 'Co-Builder' : 'Studio-managed'
   const shareLabel = isDiyActive ? 'Revenue pool' : 'Your 50% share'
@@ -1316,13 +1292,6 @@ export default function CreatorPortal({ portalId, slug }) {
                     {displayReservations.length === 0 ? (
                       <Empty icon={Users} title="No pre-orders yet">
                         Each pre-order shows up here as soon as it is paid.
-                        {showSimTools && (
-                          <div className="mt-4">
-                            <button type="button" onClick={handleSimulatePreorder} className="cp-btn cp-btn-quiet cp-btn-sm">
-                              <Plus className="w-4 h-4" aria-hidden="true" /><span>Add a test pre-order (simulated)</span>
-                            </button>
-                          </div>
-                        )}
                       </Empty>
                     ) : (
                       <ul className="m-0 p-0 list-none">

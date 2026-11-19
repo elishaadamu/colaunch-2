@@ -54,7 +54,7 @@ export default function Phase1Step4Optimize(props) {
   const {
     project, reservations = [], presalesRevenue, presaleTarget, totalTraffic, totalSignups, surveyResponses = [],
     campaignKit, experimentsData, isAnalyzingExperiments, handleRunExperimentsAI, handleApplyExperimentVariant,
-    handleRevertExperiment, handleAddSimulatedReservation, showNotification, setActiveStep, onSelectStep, onUpdateProject,
+    handleRevertExperiment, showNotification, setActiveStep, onSelectStep, onUpdateProject,
     refreshLiveData, lastRefreshedAt, activeFoundingPrice = 49,
   } = props
 
@@ -122,7 +122,6 @@ export default function Phase1Step4Optimize(props) {
   const audit = experimentsData?.performanceAudit || project?.metadataInfo?.performanceAudit || null
   const experiments = experimentsData?.experiments || project?.experiments || []
   const analysedAt = experimentsData?.generatedAt || experimentsData?.analyzedAt || null
-  const showSimTools = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('simulate') === '1'
 
   return (
     <div className="s4 p1-themed p1-rise p-5 sm:p-6 space-y-6" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
@@ -337,9 +336,6 @@ export default function Phase1Step4Optimize(props) {
       <section className="card p-4 sm:p-5 space-y-3">
         <div className="flex items-center justify-between gap-2">
           <p className="eyebrow m-0 flex items-center gap-1.5"><ShoppingBag className="w-3 h-3" />Pre-orders · {backers}</p>
-          {showSimTools && handleAddSimulatedReservation && (
-            <button type="button" className="btn btn-quiet" onClick={handleAddSimulatedReservation}><Plus className="w-3 h-3" />Test pre-order</button>
-          )}
         </div>
         {reservations.length === 0 ? (
           <p className="well m-0 p-5 text-center text-sm" style={{ color: C.faint }}>No pre-orders yet. Each paid pre-order appears here as it arrives.</p>

@@ -19,6 +19,7 @@ import {
   getWorkflowState
 } from '../../services/opsApi'
 import { updatePageSEO } from '../../utils/seo'
+import { presaleGoalFor, conceptGoalFor } from '../../utils/projectNumbers'
 
 // Section 2 Base Dark Palette (matches Section 1 Steps 5 & 6)
 const C = {
@@ -332,8 +333,8 @@ export default function ProjectOSPage() {
                 followers: creator.followerStr || creator.follower_count || '50k+',
                 productName: primaryConcept.name,
                 productTagline: primaryConcept.tagline,
-                pricing: primaryConcept.pricing || '$29/mo',
-                presaleTarget: primaryConcept.presaleTarget || 12500,
+                pricing: primaryConcept.pricing || '',
+                presaleTarget: conceptGoalFor(primaryConcept, {}),
                 currentPhase: 1,
                 status: 'validating',
                 selectedConcept: primaryConcept,

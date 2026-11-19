@@ -1,3 +1,4 @@
+import { presaleGoalFor } from './projectNumbers'
 /**
  * Shared, database-driven step completion guards.
  * Ensures all components (ProjectOS, Phase1Validate, Phase2BuildMVP, Phase3Launch)
@@ -12,7 +13,7 @@ export function parseThresholdAmount(str) {
 
 export function getPhase1StepGuards(project = {}) {
   const derivedGoal = parseThresholdAmount(project.validationPlan?.threshold || project.threshold);
-  const presaleGoal = derivedGoal > 0 ? derivedGoal : Number(project.presaleTarget || project.targetRevenue || 5000);
+  const presaleGoal = derivedGoal > 0 ? derivedGoal : presaleGoalFor(project);
   const currentPresales = Number(String(project.currentPresales || 0).replace(/[^0-9.]/g, '')) ||
     (Array.isArray(project.reservations) ? project.reservations.reduce((acc, r) => acc + (Number(r.amount) || 0), 0) : 0);
   const rawPhase = project.currentPhase ?? project.current_phase;

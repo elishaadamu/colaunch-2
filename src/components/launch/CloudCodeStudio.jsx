@@ -9,7 +9,7 @@ import {
   Monitor, Tablet, Smartphone, Split,
   Image as ImageIcon, ZoomIn, ZoomOut, Video as VideoIcon, Film
 } from 'lucide-react'
-import { executeAICodingTaskAI, generateCompleteMVPCodebaseAI, editOrGenerateCodeFileAI, buildSmartFallbackCodebase } from '../../services/ai'
+import { executeAICodingTaskAI, generateCompleteMVPCodebaseAI, editOrGenerateCodeFileAI } from '../../services/ai'
 import { uploadFormFileToCloudinary, updateCoLaunchProject } from '../../services/opsApi'
 import AutomatedQASuite from './AutomatedQASuite'
 
@@ -324,26 +324,7 @@ export default function CloudCodeStudio({
       })
     }
 
-    // CRITICAL: If no codebase files exist, auto-synthesize complete MVP codebase for the venture!
-    if (existing.length === 0) {
-      const scaffold = buildSmartFallbackCodebase(project)
-      scaffold.forEach((sf, idx) => {
-        existing.push({
-          id: `ai-gen-file-${Date.now()}-${idx}`,
-          path: sf.path,
-          name: sf.name,
-          folder: sf.folder,
-          category: sf.category,
-          language: sf.language,
-          author: 'AI Agent',
-          modified: false,
-          content: sf.content,
-          cloudinaryUrl: null,
-          publicId: null,
-          updatedAt: new Date().toISOString()
-        })
-      })
-    }
+    // No files yet: show the empty state with "Generate codebase" (never a silent template)
 
     // Cleanly place Phase 1 marketing assets under assets/campaign
     rawMarketingAssets.forEach(f => {

@@ -12,27 +12,28 @@
  *   - "$49/mo Membership • $149/mo VIP Mastermind"
  *   - "$89"
  */
-export function parseConceptPricing(str, fallbackFounding = 99) {
+export function parseConceptPricing(str, fallbackFounding = 0) {
   if (typeof str === 'number') {
     const num = str > 0 && str < 1000 ? str : fallbackFounding
-    const dep = Math.max(9, Math.round(num * 0.2))
+    const dep = (num > 0 ? (num > 0 ? Math.max(9, Math.round(num * 0.2)) : 0) : 0)
     return {
       foundingPrice: num,
       depositPrice: dep,
-      starterPrice: Math.max(9, Math.round(num * 0.3)),
+      starterPrice: (num > 0 ? (num > 0 ? Math.max(9, Math.round(num * 0.3)) : 0) : 0),
       proPrice: num,
       tiers: [{ name: 'Founding Member Pass', price: num, period: 'lifetime' }]
     }
   }
 
   if (!str) {
-    const dep = Math.max(9, Math.round(fallbackFounding * 0.2))
+    const dep = (fallbackFounding > 0 ? (fallbackFounding > 0 ? Math.max(9, Math.round(fallbackFounding * 0.2)) : 0) : 0)
     return {
       foundingPrice: fallbackFounding,
       depositPrice: dep,
-      starterPrice: Math.max(9, Math.round(fallbackFounding * 0.3)),
+      starterPrice: (fallbackFounding > 0 ? (fallbackFounding > 0 ? Math.max(9, Math.round(fallbackFounding * 0.3)) : 0) : 0),
       proPrice: fallbackFounding,
-      tiers: [{ name: 'Founding Member Pass', price: fallbackFounding, period: 'lifetime' }]
+      tiers: fallbackFounding > 0 ? [{ name: 'Founding Member Pass', price: fallbackFounding, period: 'lifetime' }] : [],
+      priceMissing: !(fallbackFounding > 0)
     }
   }
 
@@ -91,11 +92,11 @@ export function parseConceptPricing(str, fallbackFounding = 99) {
   if (extracted.length === 0) {
     const digits = strVal.match(/(\d+)/)
     const base = digits ? Number(digits[1]) : fallbackFounding
-    const dep = Math.max(9, Math.round(base * 0.2))
+    const dep = (base > 0 ? (base > 0 ? Math.max(9, Math.round(base * 0.2)) : 0) : 0)
     return {
       foundingPrice: base,
       depositPrice: dep,
-      starterPrice: Math.max(9, Math.round(base * 0.3)),
+      starterPrice: (base > 0 ? (base > 0 ? Math.max(9, Math.round(base * 0.3)) : 0) : 0),
       proPrice: base,
       tiers: [{ name: 'Founding Member Pass', price: base, period: 'lifetime' }]
     }
@@ -110,7 +111,7 @@ export function parseConceptPricing(str, fallbackFounding = 99) {
 
   if (extracted.length === 1) {
     foundingPrice = extracted[0].price
-    starterPrice = extracted[0].isMonthly ? extracted[0].price : Math.max(9, Math.round(foundingPrice * 0.3))
+    starterPrice = extracted[0].isMonthly ? extracted[0].price : (foundingPrice > 0 ? (foundingPrice > 0 ? Math.max(9, Math.round(foundingPrice * 0.3)) : 0) : 0)
     proPrice = Math.max(starterPrice * 2, Math.round(foundingPrice * 0.7))
   } else if (annualOrOneTime && monthly) {
     foundingPrice = annualOrOneTime.price
@@ -129,7 +130,7 @@ export function parseConceptPricing(str, fallbackFounding = 99) {
     proPrice = highest.price
   }
 
-  const depositPrice = Math.max(9, Math.round(foundingPrice * 0.2))
+  const depositPrice = (foundingPrice > 0 ? (foundingPrice > 0 ? Math.max(9, Math.round(foundingPrice * 0.2)) : 0) : 0)
 
   const tiers = extracted.map(t => {
     let tName = t.name
@@ -152,7 +153,7 @@ export function parseConceptPricing(str, fallbackFounding = 99) {
   }
 }
 
-export function parseMainPricingAmount(str, fallback = 49) {
+export function parseMainPricingAmount(str, fallback = 0) {
   if (typeof str === 'number') {
     if (str <= 0) return fallback
     if (str >= 1000) {
@@ -171,17 +172,17 @@ export function parseMainPricingAmount(str, fallback = 49) {
   return parsed.foundingPrice
 }
 
-export function parseDepositPricingAmount(str, mainPrice = 49) {
+export function parseDepositPricingAmount(str, mainPrice = 0) {
   if (typeof str === 'number') {
     if (str <= 0 || str >= 500 || str === 1984 || str === Math.round(9919 * 0.2)) {
-      const dyn = parseMainPricingAmount(mainPrice, 49)
-      return Math.max(9, Math.round(dyn * 0.2))
+      const dyn = parseMainPricingAmount(mainPrice, 0)
+      return (dyn > 0 ? (dyn > 0 ? Math.max(9, Math.round(dyn * 0.2)) : 0) : 0)
     }
     return str
   }
   if (!str) {
-    const dyn = parseMainPricingAmount(mainPrice, 49)
-    return Math.max(9, Math.round(dyn * 0.2))
+    const dyn = parseMainPricingAmount(mainPrice, 0)
+    return (dyn > 0 ? (dyn > 0 ? Math.max(9, Math.round(dyn * 0.2)) : 0) : 0)
   }
 
   const strVal = String(str)
@@ -204,7 +205,7 @@ export function parseDepositPricingAmount(str, mainPrice = 49) {
  * or outdated default fallbacks like 89/18).
  */
 export function sanitizePricingConfig(cfg, pricingSource) {
-  const parsed = parseConceptPricing(pricingSource, 99)
+  const parsed = parseConceptPricing(pricingSource, 0)
   const dynamicMain = parsed.foundingPrice
   const dynamicDeposit = parsed.depositPrice
 

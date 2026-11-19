@@ -14,6 +14,7 @@ import FloatingPolygons, { HeroShallowPolygons } from '../ui/FloatingPolygons'
 
 import { logoutLaunchAuth } from './LaunchAuth'
 import { startSection1Tour } from '../../utils/driverTour'
+import { presaleGoalFor, conceptGoalFor } from '../../utils/projectNumbers'
 
 export default function CreatorLaunchLayout({
   initialProject = null,
@@ -477,8 +478,8 @@ export default function CreatorLaunchLayout({
         brandColor: primaryConcept.brandColor || creatorProfile?.brandColor || creatorProfile?.brand_color || '#c81e3c',
         brand_color: primaryConcept.brandColor || creatorProfile?.brandColor || creatorProfile?.brand_color || '#c81e3c',
         colorTheme: primaryConcept.brandColor || creatorProfile?.brandColor || creatorProfile?.brand_color || '#c81e3c',
-        pricing: primaryConcept.pricing || '$29/mo',
-        presaleTarget: primaryConcept.presaleTarget || 12500,
+        pricing: primaryConcept.pricing || '',
+        presaleTarget: conceptGoalFor(primaryConcept, creatorProfile || {}),
         currentPhase: 1,
         status: 'validating',
         selectedConcept: primaryConcept,
@@ -819,7 +820,7 @@ export default function CreatorLaunchLayout({
       }
     }
 
-    const targetVal = newProjData.presaleTarget || seed?.suggestedThreshold?.target || 5000
+    const targetVal = newProjData.presaleTarget || seed?.suggestedThreshold?.target || 0
     const targetOrders = seed?.suggestedThreshold?.buyers || Math.max(20, Math.round(targetVal / 100))
     const thresholdText = seed?.suggestedThreshold
       ? `$${targetVal.toLocaleString()} in presales (${targetOrders} founding orders) within 14 days`

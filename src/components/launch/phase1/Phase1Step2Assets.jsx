@@ -157,7 +157,7 @@ export default function Phase1Step2Assets({
         infrastructure: {
           landingPageUrl: `/p/${productSlug}`,
           checkoutUrl: `/p/${productSlug}/checkout`,
-          waitlistCount: 240,
+          waitlistCount: Array.isArray(project?.waitlist) ? project.waitlist.length : 0,
           attributionTracking: true,
         },
         research_survey: surveyData,
@@ -179,7 +179,7 @@ export default function Phase1Step2Assets({
         infrastructure: {
           landingPageUrl: `/p/${productSlug}`,
           checkoutUrl: `/p/${productSlug}/checkout`,
-          waitlistCount: 240,
+          waitlistCount: Array.isArray(project?.waitlist) ? project.waitlist.length : 0,
           attributionTracking: true,
         },
         research_survey: surveyData,

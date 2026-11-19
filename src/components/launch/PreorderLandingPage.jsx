@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import {
   Sparkles, CheckCircle2, ShieldCheck, CreditCard, ArrowRight,
   Zap, Star, Lock, Users, Globe, ExternalLink, HelpCircle, Check,
-  Loader2, AlertCircle, RefreshCw, Layers, Award, Target, CheckCircle
+  Loader2, AlertCircle, RefreshCw, Layers, Award, Target, CheckCircle, Mail, X
 } from 'lucide-react'
 import { trackVisit } from '../../services/tracker'
 import { updatePageSEO } from '../../utils/seo'
@@ -23,7 +23,6 @@ export default function PreorderLandingPage({ slug }) {
   const [isLoading, setIsLoading] = useState(true)
   const [project, setProject] = useState(null)
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState('stripe') // 'stripe' | 'paypal'
 
   // Read ?concept= query parameter from URL
   const conceptParam = typeof window !== 'undefined'
@@ -91,25 +90,25 @@ export default function PreorderLandingPage({ slug }) {
   const creatorHandle = project?.creatorHandle || 'creator'
   const savedMockupImage = project?.mockupImage || project?.mockup_image || project?.meta?.mockup_image || null
   const niche = project?.niche || selectedConcept?.demographicAlignment || selectedConcept?.niche || 'Software & Tech'
-  const tagline = project?.productTagline || selectedConcept?.tagline || selectedConcept?.description || 'Personalized software tool built for the community.'
+  const tagline = project?.productTagline || selectedConcept?.tagline || selectedConcept?.description || ''
   const headline = project?.campaignKit?.landingPageCopy?.headline || `The ${productName} Workspace Built with ${creatorName}`
   const subheadline = project?.campaignKit?.landingPageCopy?.subheadline || selectedConcept?.description || tagline
 
-  const targetAudience = selectedConcept?.customer || project?.targetAudience || project?.customer || 'Target Community & Verified Members'
-  const problemSolved = selectedConcept?.problem || project?.problem || 'Manual operational friction and lack of specialized, high-performance tooling.'
+  const targetAudience = selectedConcept?.customer || project?.targetAudience || project?.customer || ''
+  const problemSolved = selectedConcept?.problem || project?.problem || ''
   const keyFeatures = (Array.isArray(selectedConcept?.keyFeatures) && selectedConcept.keyFeatures.length > 0)
     ? selectedConcept.keyFeatures
     : (Array.isArray(project?.keyFeatures) && project.keyFeatures.length > 0)
       ? project.keyFeatures
       : (Array.isArray(selectedConcept?.features) && selectedConcept.features.length > 0)
         ? selectedConcept.features
-        : ['Automated workflow execution', 'Real-time performance metrics', 'Direct community integration', 'Founding member lifetime perks']
+        : []
 
-  const conceptPricing = selectedConcept?.pricing || project?.pricing || '$29/mo Starter • $79/mo Pro'
+  const conceptPricing = selectedConcept?.pricing || project?.pricing || ''
 
   const cfg = project?.campaignKit?.pricingConfig || project?.pricingConfig || project?.validationCampaign?.productAssets?.pricingConfig
   const sanitizedPricing = sanitizePricingConfig(cfg, conceptPricing)
-  const foundingPrice = sanitizedPricing.foundingPrice || 99
+  const foundingPrice = sanitizedPricing.foundingPrice || 0
   const depositPrice = sanitizedPricing.depositPrice || Math.max(9, Math.round(foundingPrice * 0.2))
   const perksText = cfg?.perks || `50% Lifetime Price Lock ($${foundingPrice}/yr) & VIP Alpha Perks`
 
@@ -144,10 +143,12 @@ export default function PreorderLandingPage({ slug }) {
       highlight: false
     }
   ]
+  // Only real prices are sold; a $0 tier means the price hasn't been set yet
+  const pricedPreorderTiers = preorderTiers.filter((t) => Number(t.price) > 0)
   // Once launched, buyers get the product at the launch price (no deposits or founding passes)
   const availableTiers = project?.publicMode === 'live' && Number(project?.launchPrice) > 0
     ? [{ id: 'tier_launch', name: `${productName}${project?.launchPriceLabel ? ` (${project.launchPriceLabel})` : ''}`, price: Number(project.launchPrice), period: '', deposit: false, badge: 'NOW LIVE', highlight: true }]
-    : preorderTiers
+    : pricedPreorderTiers
 
   const [selectedTier, setSelectedTier] = useState({
     name: `Founding Annual Pass ($${foundingPrice})`,
@@ -184,15 +185,13 @@ export default function PreorderLandingPage({ slug }) {
   const [buyerEmail, setBuyerEmail] = useState('')
   
   // Stripe Card Details
-  const [cardNumber, setCardNumber] = useState('')
-  const [cardExp, setCardExp] = useState('')
-  const [cardCvc, setCardCvc] = useState('')
   
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingStep, setProcessingStep] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
   const [successReceipt, setSuccessReceipt] = useState(null)
   const [errorMessage, setErrorMessage] = useState('')
+  const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -223,85 +222,14 @@ export default function PreorderLandingPage({ slug }) {
                 return pSlug === clean || pName === clean || pHandle === clean || pId === slug.toLowerCase()
               })
             }
-            if (slug && !dbProj) {
-              try {
-                const { getCreators } = await import('../../services/opsApi')
-                const allCreators = await getCreators()
-                const cList = Array.isArray(allCreators) ? allCreators : allCreators?.creators || []
-                const clean = slug.toLowerCase().replace(/[^a-z0-9]/g, '')
-                const matchedCreator = cList.find(c => {
-                  const cHandle = (c.handle || '').toLowerCase().replace(/[^a-z0-9]/g, '')
-                  const cName = (c.name || c.display_name || '').toLowerCase().replace(/[^a-z0-9]/g, '')
-                  const cId = (c.id || '').toLowerCase()
-                  return cHandle === clean || cName === clean || cId === slug.toLowerCase()
-                })
-                if (matchedCreator) {
-                  const concepts = matchedCreator.productConcepts || []
-                  const targetConcept = (conceptParam && concepts.find(c => {
-                    const cleanP = conceptParam.toLowerCase().replace(/[^a-z0-9]/g, '')
-                    const cN = (c.name || c.id || '').toLowerCase().replace(/[^a-z0-9]/g, '')
-                    return cN.includes(cleanP) || cleanP.includes(cN)
-                  })) || concepts[0] || null
-
-                  dbProj = {
-                    id: matchedCreator.id,
-                    slug: slug,
-                    creatorId: matchedCreator.id,
-                    creatorName: matchedCreator.name || matchedCreator.display_name || 'Creator Partner',
-                    creatorHandle: matchedCreator.handle,
-                    creatorAvatar: matchedCreator.avatar_url || matchedCreator.avatar,
-                    brandColor: targetConcept?.brandColor || matchedCreator.brand_color || matchedCreator.brandColor || null,
-                    niche: matchedCreator.niche,
-                    productName: targetConcept?.name || `${matchedCreator.name || 'Creator'} OS`,
-                    productTagline: targetConcept?.tagline || `The automated operating system for ${matchedCreator.niche || 'tech'} professionals`,
-                    selectedConcept: targetConcept,
-                    concepts: concepts,
-                    pricing: targetConcept?.pricing || '$29/mo Starter • $79/mo Pro',
-                    keyFeatures: targetConcept?.keyFeatures || targetConcept?.features || [],
-                    problem: targetConcept?.problem || targetConcept?.description || 'Audience operational friction',
-                    targetAudience: targetConcept?.customer || matchedCreator.niche,
-                  }
-                }
-              } catch (e) {
-                console.warn('[Preorder] Creator fallback lookup error:', e)
-              }
-            }
-
-            if (!dbProj && list.length > 0) {
-              dbProj = list[0]
-            }
-
-            if (!dbProj && slug) {
-              const formattedCreator = slug.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-              const formattedConcept = conceptParam
-                ? conceptParam.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                : `${formattedCreator} OS`
-
-              dbProj = {
-                id: slug,
-                slug: slug,
-                creatorName: formattedCreator,
-                creatorHandle: slug,
-                productName: formattedConcept,
-                productTagline: `The bespoke software suite built with ${formattedCreator} for high-performing operators.`,
-                pricing: '$29/mo Starter • $79/mo Pro',
-                keyFeatures: [
-                  'Automated workflow execution & audience sync',
-                  'Client milestone tracking & unified inbox',
-                  'Dedicated member portal & automated operations',
-                  'VIP Founding Pass with direct partner onboarding'
-                ],
-                problem: 'Scattered operational tools, unorganized client comms, and manual delivery bottlenecks.',
-                targetAudience: 'Community members, consultants, and creator operators'
-              }
-            }
           } catch (e) {
             console.warn('[Preorder] Projects list fallback notice:', e)
           }
         }
 
-        if (isMounted && dbProj) {
-          setProject(dbProj)
+        if (isMounted) {
+          if (dbProj) setProject(dbProj)
+          else setNotFound(true)
         }
       } catch (err) {
         console.warn('[Preorder] Failed to load project from MongoDB Atlas:', err)
@@ -345,27 +273,44 @@ export default function PreorderLandingPage({ slug }) {
     const sp = new URLSearchParams(window.location.search)
     if (sp.get('checkout_success') === 'true' || sp.get('session_id')) {
       const sessionId = sp.get('session_id') || 'cs_verified'
-      // Confirm with Stripe server-side so the order is recorded even without a webhook
+      // Confirm with Stripe server-side; the receipt shows Stripe's answer, not an assumption
       if (sp.get('session_id')) {
-        import('../../services/opsApi').then((m) => m.confirmLaunchOrder(sp.get('session_id'))).catch(() => {})
+        import('../../services/opsApi').then((m) => m.confirmLaunchOrder(sp.get('session_id'))).then((r) => {
+          const st = r?.status
+          setSuccessReceipt((prev) => prev ? { ...prev, status: st === 'paid' ? 'Paid' : st === 'test' ? 'Test order (no charge)' : 'Payment processing', test: st === 'test' } : prev)
+        }).catch(() => {
+          setSuccessReceipt((prev) => prev ? { ...prev, status: 'Payment processing' } : prev)
+        })
       }
       const amount = sp.get('amount') || selectedTier?.price || '49'
       const tier = sp.get('tier') || selectedTier?.name || 'Founding Member Pass'
       setSuccessReceipt({
         txId: sessionId,
-        name: 'Founding Supporter',
+        name: '',
         email: sp.get('customer_email') || '',
-        amount: Number(amount) || 49,
+        amount: Number(amount) || 0,
         tier: tier,
-        paymentMethod: sp.get('test_checkout') === 'true' ? 'Stripe (Test Mode)' : 'Stripe Live Rails',
+        paymentMethod: sp.get('test_checkout') === 'true' ? 'Test mode' : 'Card (Stripe)',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        status: 'Paid & Confirmed'
+        status: 'Checking payment…'
       })
       setIsSuccess(true)
       setCheckoutModalOpen(true)
     }
   }, [])
+
+  if (!isLoading && !project && notFound) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#050506', color: '#e4e4e7' }}>
+        <div className="max-w-md w-full text-center space-y-3 p-8" style={{ background: '#0c0c0e', border: '1px solid #27272a' }}>
+          <p className="m-0 text-xs font-bold uppercase tracking-[0.16em]" style={{ color: '#71717a' }}>Page not found</p>
+          <h1 className="m-0 text-3xl text-white" style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}>This product page doesn't exist</h1>
+          <p className="m-0 text-sm" style={{ color: '#a1a1aa' }}>Check the link you were sent. If it came from a creator, it may have been moved or closed.</p>
+        </div>
+      </div>
+    )
+  }
 
   if (isLoading && !project) {
     return <PreorderLandingSkeleton slug={slug} />
@@ -431,21 +376,22 @@ export default function PreorderLandingPage({ slug }) {
         return
       }
 
-      // Test/Developer Mode fallback (when STRIPE_SECRET_KEY is not configured)
-      const txId = sessionRes?.sessionId || `tx_test_${Date.now().toString(36)}`
-      const receipt = {
-        txId,
+      if (!sessionRes?.isTestMode) {
+        throw new Error('Checkout could not be opened. Please try again in a moment.')
+      }
+      // Payments aren't switched on yet: record a test order and say so plainly
+      setSuccessReceipt({
+        txId: sessionRes?.sessionId || '',
         name: buyerName.trim(),
         email: buyerEmail.trim(),
         amount: selectedTier.price,
         tier: selectedTier.name,
-        paymentMethod: sessionRes?.isTestMode ? 'Stripe (Test Mode)' : 'Stripe (Credit / Debit Card)',
+        paymentMethod: 'Test mode',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        status: 'Paid & Confirmed'
-      }
-
-      setSuccessReceipt(receipt)
+        status: 'Test order (no charge)',
+        test: true,
+      })
       setIsSuccess(true)
     } catch (err) {
       console.warn('[Preorder] Payment API warning:', err)
@@ -458,7 +404,7 @@ export default function PreorderLandingPage({ slug }) {
   }
 
   const openCheckout = (tier) => {
-    if (project?.publicMode === 'closed') return
+    if (project?.publicMode === 'closed' || !tier || !(Number(tier.price) > 0)) return
     trackLaunch('checkout_open', { slug, meta: { tier: tier?.name, price: tier?.price } })
     setSelectedTier(tier)
     setIsSuccess(false)
@@ -515,7 +461,7 @@ export default function PreorderLandingPage({ slug }) {
           brandColor={approvedLanding.brandColor}
           mode="full"
           heroImageUrl={savedMockupImage || ''}
-          ctaLabel={project?.publicMode === 'live' ? `Get ${productName}${project?.launchPrice ? ` · $${project.launchPrice}` : ''}` : (project?.campaignKit?.landingPageCopy?.ctaText || 'Claim founding access')}
+          ctaLabel={!availableTiers.length ? 'Pre-orders open soon' : project?.publicMode === 'live' ? `Get ${productName}${project?.launchPrice ? ` · $${project.launchPrice}` : ''}` : (project?.campaignKit?.landingPageCopy?.ctaText || 'Claim founding access')}
           onCtaClick={() => openCheckout(availableTiers.find((t) => t.highlight) || availableTiers[0])}
         />
       </div>
@@ -554,298 +500,171 @@ export default function PreorderLandingPage({ slug }) {
         </div>
       </div>
 
-      {/* Checkout Modal (Stripe & PayPal Options) */}
-      {checkoutModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="max-w-md w-full max-h-[90vh] flex flex-col p-5 sm:p-6 rounded-3xl bg-[#101419] border border-[#252B32] shadow-2xl animate-fade-in text-left my-auto">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-[#252B32] pb-3 shrink-0">
-              <div>
-                <h3 className="text-sm font-bold text-[#F5F3EA]">Complete Pre-Order Reservation</h3>
-                <p className="text-[11px] text-[#969DA6]">{selectedTier.name} — ${selectedTier.price}</p>
-              </div>
-              <button
-                onClick={() => setCheckoutModalOpen(false)}
-                className="w-7 h-7 rounded-full bg-[#171C22] hover:bg-[#252B32] text-[#969DA6] hover:text-[#F5F3EA] text-xs font-bold flex items-center justify-center transition-colors cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
+      {/* Checkout */}
+      {checkoutModalOpen && (() => {
+        const featureList = (keyFeatures || []).map((f) => (typeof f === 'string' ? f : f?.title || f?.name || '')).filter(Boolean).slice(0, 4)
+        const status = successReceipt?.status || ''
+        const paid = status === 'Paid'
+        const pending = /processing|checking/i.test(status)
+        const ink = brandContrastText
+        const field = 'w-full pl-10 pr-3 py-3 text-[15px] text-white outline-none transition-colors'
+        return (
+          <div className="ck fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto" style={{ background: 'rgba(5,5,6,.86)', backdropFilter: 'blur(10px)' }} role="dialog" aria-modal="true" aria-labelledby="ck-title"
+            onClick={(e) => { if (e.target === e.currentTarget && !isProcessing) setCheckoutModalOpen(false) }}>
+            <style>{`
+              @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap');
+              .ck .serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:-.01em}
+              .ck input{background:#050506;border:1px solid #2a2a30}
+              .ck input:focus{border-color:${brandColor};box-shadow:0 0 0 3px ${hexToRgba(brandColor, 0.18)}}
+              .ck input::placeholder{color:#52525b}
+              .ck :focus-visible{outline:2px solid ${brandColor};outline-offset:2px}
+              @keyframes ckIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+              .ck .ck-in{animation:ckIn .35s cubic-bezier(.16,1,.3,1) both}
+              @media (prefers-reduced-motion:reduce){.ck .ck-in{animation:none}}
+            `}</style>
+            <div className="ck-in w-full max-w-4xl my-auto grid grid-cols-1 md:grid-cols-5 overflow-hidden" style={{ background: '#0c0c0e', border: '1px solid #26262b', boxShadow: '0 40px 80px -30px rgba(0,0,0,.8)' }}>
 
-            {/* Modal Scrollable Body */}
-            <div className="overflow-y-auto pr-1 pt-3 space-y-3.5">
-              {isSuccess && successReceipt ? (
-                <div className="text-center py-2 space-y-3">
-                  <div
-                    className="w-12 h-12 rounded-full border flex items-center justify-center mx-auto shadow-lg"
-                    style={{
-                      backgroundColor: `${brandColor}20`,
-                      borderColor: `${brandColor}40`,
-                      color: brandColor,
-                      boxShadow: `0 8px 20px -4px ${hexToRgba(brandColor, 0.3)}`
-                    }}
-                  >
-                    <Check className="w-6 h-6" />
+              {/* Order summary */}
+              <aside className="md:col-span-2 p-6 sm:p-7 flex flex-col gap-5" style={{ background: `linear-gradient(165deg, ${hexToRgba(brandColor, 0.22)}, transparent 55%), #08080a`, borderRight: '1px solid #1f1f24' }}>
+                <div className="flex items-center gap-3">
+                  {creatorAvatar
+                    ? <img src={creatorAvatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" style={{ border: `2px solid ${hexToRgba(brandColor, 0.6)}` }} />
+                    : <span className="w-10 h-10 flex items-center justify-center font-bold shrink-0" style={{ background: brandColor, color: ink }}>{productName.charAt(0)}</span>}
+                  <div className="min-w-0">
+                    <p className="m-0 text-sm font-semibold text-white truncate">{productName}</p>
+                    <p className="m-0 text-xs truncate" style={{ color: '#a1a1aa' }}>with {creatorName}</p>
                   </div>
-                  <div>
-                    <h4 className="text-base font-black text-[#F5F3EA]">Payment Successful! 🎉</h4>
-                    <p className="text-xs text-[#969DA6] mt-0.5">
-                      Welcome to the Founding Member cohort, <span className="text-[#F5F3EA] font-bold">{successReceipt.name}</span>!
-                    </p>
-                  </div>
-
-                  {/* Receipt Card */}
-                  <div className="p-3.5 rounded-2xl bg-[#0D1014] border border-[#252B32] text-xs space-y-1.5 text-left">
-                    <div className="flex items-center justify-between pb-1.5 border-b border-[#252B32]">
-                      <span className="text-[#969DA6] text-[11px]">Transaction ID</span>
-                      <span className="font-mono font-bold text-[11px]" style={{ color: brandColor }}>{successReceipt.txId}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-[#969DA6]">Payer Name</span>
-                      <span className="text-[#F5F3EA] font-semibold">{successReceipt.name}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-[#969DA6]">Payer Email</span>
-                      <span className="text-[#F5F3EA] font-mono">{successReceipt.email}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-[#969DA6]">Payment Gateway</span>
-                      <span className="text-[#F5F3EA]">{successReceipt.paymentMethod}</span>
-                    </div>
-                    <div className="flex items-center justify-between pt-1.5 border-t border-[#252B32] font-bold text-[11px]">
-                      <span className="text-[#969DA6]">Amount Paid</span>
-                      <span className="text-sm font-mono" style={{ color: brandColor }}>+${successReceipt.amount}</span>
-                    </div>
-                  </div>
-
-                  <p className="text-[10px] text-[#969DA6]">
-                    A receipt and your private founder credentials have been sent to <strong className="text-[#F5F3EA] font-mono">{successReceipt.email}</strong>.
-                  </p>
-
-                  <button
-                    onClick={() => setCheckoutModalOpen(false)}
-                    className="w-full py-2.5 rounded-xl font-bold text-xs transition-colors shadow-lg cursor-pointer hover:opacity-90"
-                    style={{
-                      backgroundColor: brandColor,
-                      color: brandContrastText,
-                      boxShadow: `0 8px 20px -4px ${hexToRgba(brandColor, 0.25)}`
-                    }}
-                  >
-                    Done
-                  </button>
                 </div>
-              ) : (
-                <form onSubmit={handleCheckoutSubmit} className="space-y-3">
-                  {errorMessage && (
-                    <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0" />
-                      <span>{errorMessage}</span>
-                    </div>
-                  )}
-
-                  {/* Tier Selection */}
-                  <div>
-                    <label className="text-[10px] text-[#969DA6] font-bold uppercase tracking-wider block mb-1">
-                      1. Select Reservation Tier
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {availableTiers.slice(0, 4).map((t, idx) => {
-                        const isChosen = selectedTier.name === t.name || (t.deposit && selectedTier.deposit)
-                        return (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => setSelectedTier({ name: t.name, price: t.price, deposit: t.deposit })}
-                            className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
-                              isChosen
-                                ? 'text-[#F5F3EA] shadow-sm'
-                                : 'bg-[#0D1014] border-[#252B32] text-[#969DA6] hover:text-[#F5F3EA]'
-                            }`}
-                            style={
-                              isChosen
-                                ? {
-                                    backgroundColor: `${brandColor}18`,
-                                    borderColor: brandColor
-                                  }
-                                : {}
-                            }
-                          >
-                            <span className="font-bold block text-[#F5F3EA] text-[11px] truncate">{t.name}</span>
-                            <span className="font-mono font-bold text-xs" style={{ color: brandColor }}>${t.price}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
+                {tagline && <p className="m-0 text-sm leading-relaxed" style={{ color: '#d4d4d8' }}>{tagline}</p>}
+                {featureList.length > 0 && (
+                  <ul className="list-none m-0 p-0 space-y-2">
+                    {featureList.map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-sm" style={{ color: '#e4e4e7' }}><Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color: brandColor }} />{f}</li>
+                    ))}
+                  </ul>
+                )}
+                <div className="mt-auto pt-5 space-y-2" style={{ borderTop: '1px solid #1f1f24' }}>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-sm truncate" style={{ color: '#a1a1aa' }}>{selectedTier?.name}</span>
+                    <span className="serif text-4xl text-white leading-none">${selectedTier?.price}</span>
                   </div>
+                  <p className="m-0 text-xs" style={{ color: '#71717a' }}>
+                    {selectedTier?.deposit ? 'Refundable deposit. Holds your place until launch.' : project?.publicMode === 'live' ? 'Instant access after payment.' : 'Charged once today.'}
+                  </p>
+                </div>
+              </aside>
 
-                  {/* Required Payer Fields */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {/* Form / result */}
+              <section className="md:col-span-3 p-6 sm:p-8 relative">
+                <button type="button" onClick={() => !isProcessing && setCheckoutModalOpen(false)} aria-label="Close checkout" className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center cursor-pointer" style={{ background: '#16161a', border: '1px solid #26262b', color: '#a1a1aa' }}>
+                  <X className="w-4 h-4" />
+                </button>
+
+                {isSuccess && successReceipt ? (
+                  <div className="space-y-6 pt-2">
+                    <span className="w-14 h-14 flex items-center justify-center" style={{ background: successReceipt.test ? '#16161a' : hexToRgba(brandColor, 0.16), border: `1px solid ${successReceipt.test ? '#3f3f46' : hexToRgba(brandColor, 0.5)}`, color: successReceipt.test ? '#a1a1aa' : brandColor }}>
+                      {pending ? <Loader2 className="w-6 h-6 animate-spin" /> : successReceipt.test ? <AlertCircle className="w-6 h-6" /> : <Check className="w-7 h-7" />}
+                    </span>
                     <div>
-                      <label className="text-[10px] text-[#969DA6] font-bold uppercase tracking-wider block mb-1">
-                        Full Name <span className="text-red-400">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Jane Doe"
-                        value={buyerName}
-                        onChange={e => setBuyerName(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#0D1014] border border-[#252B32] text-xs text-[#F5F3EA] outline-none focus:border-slate-400"
-                      />
+                      <h3 id="ck-title" className="serif m-0 text-4xl text-white leading-tight">
+                        {successReceipt.test ? 'Test order recorded' : pending ? 'Confirming your payment' : paid ? `You're in${successReceipt.name ? `, ${successReceipt.name.split(' ')[0]}` : ''}` : 'Order received'}
+                      </h3>
+                      <p className="m-0 mt-2 text-sm leading-relaxed" style={{ color: '#a1a1aa' }}>
+                        {successReceipt.test
+                          ? 'Payments aren’t switched on for this product yet, so no card was charged.'
+                          : pending
+                            ? 'Stripe is confirming the payment. This usually takes a few seconds.'
+                            : successReceipt.email
+                              ? <>A confirmation is on its way to <strong className="text-white">{successReceipt.email}</strong>.</>
+                              : 'Your order is recorded.'}
+                      </p>
                     </div>
-
+                    <dl className="m-0 text-sm" style={{ border: '1px solid #26262b' }}>
+                      {[
+                        ['Pass', successReceipt.tier || selectedTier?.name],
+                        ['Amount', `$${successReceipt.amount}`],
+                        ['Status', successReceipt.status],
+                        successReceipt.email ? ['Email', successReceipt.email] : null,
+                        successReceipt.txId ? ['Reference', successReceipt.txId] : null,
+                      ].filter(Boolean).map(([k, v], i) => (
+                        <div key={k} className="flex items-center justify-between gap-4 px-4 py-3" style={{ borderTop: i ? '1px solid #1f1f24' : 'none' }}>
+                          <dt style={{ color: '#71717a' }}>{k}</dt>
+                          <dd className={`m-0 text-right truncate ${k === 'Reference' ? 'font-mono text-xs' : ''}`} style={{ color: k === 'Status' && paid ? brandColor : '#fafafa' }}>{v}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <button type="button" onClick={() => setCheckoutModalOpen(false)} className="w-full py-3.5 text-sm font-bold cursor-pointer hover:opacity-90" style={{ background: brandColor, color: ink }}>Done</button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleCheckoutSubmit} className="space-y-6 pt-2" noValidate>
                     <div>
-                      <label className="text-[10px] text-[#969DA6] font-bold uppercase tracking-wider block mb-1">
-                        Email Address <span className="text-red-400">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="jane@example.com"
-                        value={buyerEmail}
-                        onChange={e => setBuyerEmail(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#0D1014] border border-[#252B32] text-xs text-[#F5F3EA] outline-none focus:border-slate-400"
-                      />
+                      <p className="m-0 text-xs font-bold uppercase tracking-[0.16em]" style={{ color: '#71717a' }}>Secure checkout</p>
+                      <h3 id="ck-title" className="serif m-0 mt-1 text-3xl sm:text-4xl text-white leading-tight">Get {productName}</h3>
                     </div>
-                  </div>
 
-                  {/* Payment Method Selector (Stripe vs PayPal) */}
-                  <div>
-                    <label className="text-[10px] text-[#969DA6] font-bold uppercase tracking-wider block mb-1">
-                      2. Payment Method
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('stripe')}
-                        className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
-                          paymentMethod === 'stripe'
-                            ? 'shadow-sm'
-                            : 'bg-[#0D1014] border-[#252B32] text-[#969DA6] hover:text-[#F5F3EA]'
-                        }`}
-                        style={
-                          paymentMethod === 'stripe'
-                            ? {
-                                backgroundColor: brandColor,
-                                color: brandContrastText,
-                                borderColor: brandColor
-                              }
-                            : {}
-                        }
-                      >
-                        <CreditCard className="w-3.5 h-3.5" />
-                        <span>Stripe (Card)</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('paypal')}
-                        className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
-                          paymentMethod === 'paypal'
-                            ? 'bg-[#0070ba] text-white border-[#0070ba] shadow-sm'
-                            : 'bg-[#0D1014] border-[#252B32] text-[#969DA6] hover:text-[#F5F3EA]'
-                        }`}
-                      >
-                        <span className="font-extrabold italic">P</span>
-                        <span>PayPal</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Stripe Card Inputs Simulation */}
-                  {paymentMethod === 'stripe' && (
-                    <div className="p-3 rounded-xl bg-[#0D1014] border border-[#252B32] space-y-2">
-                      <div className="flex items-center justify-between text-[10px] text-[#969DA6]">
-                        <span>Card Details</span>
-                        <span className="font-mono flex items-center gap-1" style={{ color: brandColor }}>
-                          <Lock className="w-2.5 h-2.5" />
-                          <span>256-bit Encrypted</span>
-                        </span>
+                    {errorMessage && (
+                      <div role="alert" className="p-3 text-sm flex items-start gap-2" style={{ background: 'rgba(255,77,109,.08)', border: '1px solid rgba(255,77,109,.35)', color: '#ffb3c1' }}>
+                        <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" /><span>{errorMessage}</span>
                       </div>
-
-                      <input
-                        type="text"
-                        placeholder="4242 •••• •••• 4242"
-                        value={cardNumber}
-                        onChange={e => setCardNumber(e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg bg-[#101419] border border-[#252B32] text-xs text-[#F5F3EA] outline-none font-mono focus:border-slate-400"
-                      />
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          type="text"
-                          placeholder="MM / YY"
-                          value={cardExp}
-                          onChange={e => setCardExp(e.target.value)}
-                          className="w-full px-3 py-1.5 rounded-lg bg-[#101419] border border-[#252B32] text-xs text-[#F5F3EA] outline-none font-mono focus:border-slate-400 text-center"
-                        />
-                        <input
-                          type="text"
-                          placeholder="CVC"
-                          value={cardCvc}
-                          onChange={e => setCardCvc(e.target.value)}
-                          className="w-full px-3 py-1.5 rounded-lg bg-[#101419] border border-[#252B32] text-xs text-[#F5F3EA] outline-none font-mono focus:border-slate-400 text-center"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* PayPal Express Container Simulation */}
-                  {paymentMethod === 'paypal' && (
-                    <div className="p-3 rounded-xl bg-[#0D1014] border border-[#252B32] text-center space-y-1">
-                      <span className="text-[11px] text-[#F5F3EA] block font-semibold">
-                        You will complete the payment securely via PayPal.
-                      </span>
-                      <span className="text-[10px] text-[#969DA6] block">
-                        1-Click checkout with PayPal Balance, Bank, or Linked Cards.
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Total Bar */}
-                  <div className="p-2.5 rounded-xl bg-[#0D1014] border border-[#252B32] text-xs flex items-center justify-between">
-                    <span className="text-[#969DA6]">Total Due Today:</span>
-                    <span className="text-sm font-bold font-mono" style={{ color: brandColor }}>${selectedTier.price}.00</span>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isProcessing}
-                    className={`w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 shadow-lg cursor-pointer ${
-                      paymentMethod === 'paypal'
-                        ? 'bg-[#ffc439] hover:bg-[#f0b830] text-[#080A0C]'
-                        : 'hover:opacity-90'
-                    }`}
-                    style={
-                      paymentMethod === 'stripe'
-                        ? {
-                            backgroundColor: brandColor,
-                            color: brandContrastText,
-                            boxShadow: `0 8px 24px -4px ${hexToRgba(brandColor, 0.3)}`
-                          }
-                        : {}
-                    }
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin text-[#080A0C]" />
-                        <span>{processingStep || 'Processing Payment...'}</span>
-                      </>
-                    ) : paymentMethod === 'paypal' ? (
-                      <span>Pay ${selectedTier.price} with PayPal</span>
-                    ) : (
-                      <>
-                        <CreditCard className="w-4 h-4" />
-                        <span>Pay ${selectedTier.price} via Stripe</span>
-                      </>
                     )}
-                  </button>
-                </form>
-              )}
+
+                    {availableTiers.length > 1 && (
+                      <fieldset className="m-0 p-0 border-0 space-y-2">
+                        <legend className="text-sm font-semibold text-white mb-2">Choose your pass</legend>
+                        <div role="radiogroup" className="space-y-2">
+                          {availableTiers.slice(0, 4).map((t) => {
+                            const on = selectedTier?.name === t.name
+                            return (
+                              <button key={t.id || t.name} type="button" role="radio" aria-checked={on} onClick={() => setSelectedTier({ name: t.name, price: t.price, deposit: t.deposit })}
+                                className="w-full flex items-center gap-3 p-3.5 text-left cursor-pointer transition-colors"
+                                style={{ background: on ? hexToRgba(brandColor, 0.1) : '#050506', border: `1px solid ${on ? brandColor : '#2a2a30'}` }}>
+                                <span className="w-4 h-4 shrink-0 flex items-center justify-center" style={{ border: `1.5px solid ${on ? brandColor : '#52525b'}`, borderRadius: 9999 }}>
+                                  {on && <span className="w-2 h-2" style={{ background: brandColor, borderRadius: 9999 }} />}
+                                </span>
+                                <span className="flex-1 min-w-0">
+                                  <span className="block text-sm font-semibold text-white truncate">{t.name}</span>
+                                  {(t.badge || t.deposit) && <span className="block text-xs" style={{ color: '#a1a1aa' }}>{t.deposit ? 'Refundable, holds your spot' : t.badge.toLowerCase()}</span>}
+                                </span>
+                                <span className="text-base font-bold text-white shrink-0">${t.price}<span className="text-xs font-normal" style={{ color: '#71717a' }}>{t.period}</span></span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </fieldset>
+                    )}
+
+                    <div className="space-y-3">
+                      <p className="m-0 text-sm font-semibold text-white">Your details</p>
+                      <label className="block relative">
+                        <span className="sr-only">Full name</span>
+                        <Users className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#71717a' }} />
+                        <input className={field} type="text" autoComplete="name" required placeholder="Full name" value={buyerName} onChange={(e) => setBuyerName(e.target.value)} />
+                      </label>
+                      <label className="block relative">
+                        <span className="sr-only">Email</span>
+                        <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#71717a' }} />
+                        <input className={field} type="email" autoComplete="email" required placeholder="Email for your receipt and access" value={buyerEmail} onChange={(e) => setBuyerEmail(e.target.value)} />
+                      </label>
+                    </div>
+
+                    <div className="space-y-3 pt-1">
+                      <button type="submit" disabled={isProcessing} className="w-full py-4 text-[15px] font-bold flex items-center justify-center gap-2 cursor-pointer transition-opacity hover:opacity-90 disabled:opacity-60"
+                        style={{ background: brandColor, color: ink, boxShadow: `0 16px 36px -14px ${hexToRgba(brandColor, 0.7)}` }}>
+                        {isProcessing
+                          ? <><Loader2 className="w-4 h-4 animate-spin" /><span>{processingStep || 'Opening secure checkout…'}</span></>
+                          : <><Lock className="w-4 h-4" /><span>Pay ${selectedTier?.price} securely</span><ArrowRight className="w-4 h-4" /></>}
+                      </button>
+                      <p className="m-0 flex items-center justify-center gap-1.5 text-xs" style={{ color: '#71717a' }}>
+                        <ShieldCheck className="w-3.5 h-3.5" />You’ll pay on Stripe’s secure page. Card details never touch this site.
+                      </p>
+                    </div>
+                  </form>
+                )}
+              </section>
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
     </div>
   )
 }

@@ -79,7 +79,7 @@ const xIntent = (text, link) => {
 }
 
 const SUGGESTED_NOTES = (price) => [
-  `Mention the $${price} founding price in every post`,
+  ...(price > 0 ? [`Mention the $${price} founding price in every post`] : []),
   'Write in a casual, first-person voice',
   'Reference my most recent video',
   'No hashtags',
@@ -109,7 +109,7 @@ export default function Phase1Step3Campaign(props) {
   const avatar = project?.creatorAvatar || ''
   const productName = project?.productName || 'the product'
   const tagline = project?.productTagline || landing.concept?.tagline || ''
-  const foundingPrice = campaignKit?.pricingConfig?.foundingPrice || project?.campaignKit?.pricingConfig?.foundingPrice || 49
+  const foundingPrice = campaignKit?.pricingConfig?.foundingPrice || project?.campaignKit?.pricingConfig?.foundingPrice || 0
   const baseLink = `${origin}/preorder/${productSlug}`
   const link = (ref) => `${baseLink}?ref=${ref}`
   const imageUrl = campaignKit?.postImageUrl || campaignKit?.postImageDataUrl || ''

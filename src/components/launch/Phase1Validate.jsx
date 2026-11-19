@@ -16,11 +16,9 @@ import {
   analyzeSurveyResponsesAI,
   analyzeAndGenerateExperimentsAI
 } from '../../services/ai'
-import { simulateUniqueDeviceVisit } from '../../services/tracker'
 import {
   updateValidationPlan,
   updateValidationCampaign,
-  addProjectReservation,
   addProjectSurveyResponse,
   deleteSurveyResponse,
   clearAllSurveyResponses,
@@ -59,6 +57,7 @@ import Phase1Step4Optimize from './phase1/Phase1Step4Optimize'
 import Phase1Step5Gate from './phase1/Phase1Step5Gate'
 
 import { PUBLIC_APP_URL } from '../../utils/publicUrl'
+import { presaleGoalFor, conceptGoalFor } from '../../utils/projectNumbers'
 const C = {
   bg: '#050506',
   sheet: '#0c0c0e',
@@ -308,8 +307,8 @@ export default function Phase1Validate({
     project?.pricing ||
     plan?.pricing ||
     project?.validationPlan?.pricing ||
-    49
-  const dynamicMainPrice = parseMainPricingAmount(dynamicPricingSource, 49)
+    ''
+  const dynamicMainPrice = parseMainPricingAmount(dynamicPricingSource, 0)
   const dynamicDepositPrice = parseDepositPricingAmount(dynamicPricingSource, dynamicMainPrice)
   const dynamicVipPrice = Math.round(dynamicMainPrice * 2)
 
@@ -320,7 +319,7 @@ export default function Phase1Validate({
     return match ? Number(match[1]) : 0
   }
   const derivedPlanTarget = parseThresholdAmount(plan?.threshold || project?.validationPlan?.threshold)
-  const presaleTarget = derivedPlanTarget > 0 ? derivedPlanTarget : Number(project?.presaleTarget || project?.targetRevenue || 5000)
+  const presaleTarget = derivedPlanTarget > 0 ? derivedPlanTarget : presaleGoalFor(project)
 
   // Real Project Campaign Kit State (Database Sourced)
   const [campaignKit, setCampaignKit] = useState(() => {
@@ -371,15 +370,7 @@ export default function Phase1Validate({
   const activeDepositPrice = sanitizedPricingConfig.depositPrice
   const activeVipPrice = Math.round(activeFoundingPrice * 2)
 
-  // Simulated buyer form in Run & Optimize
-  const [simBuyerName, setSimBuyerName] = useState('')
-  const [simBuyerEmail, setSimBuyerEmail] = useState('')
-  const [simBuyerTier, setSimBuyerTier] = useState(() => activeFoundingPrice)
-  const [showRecordForm, setShowRecordForm] = useState(false)
 
-  useEffect(() => {
-    setSimBuyerTier(activeFoundingPrice)
-  }, [activeFoundingPrice])
 
   // Creator Launch Pacing & Customizable Strategy Guidance Prompt
   const [campaignPacing, setCampaignPacing] = useState(() => project?.campaignKit?.pacingMode || 'low_burden')
@@ -636,7 +627,7 @@ export default function Phase1Validate({
             infrastructure: {
               landingPageUrl: `/p/${productSlug}`,
               checkoutUrl: `/p/${productSlug}/checkout`,
-              waitlistCount: 240,
+              waitlistCount: Array.isArray(project?.waitlist) ? project.waitlist.length : 0,
               attributionTracking: true
             },
             research_survey: surveyData,
@@ -737,7 +728,7 @@ export default function Phase1Validate({
         infrastructure: {
           landingPageUrl: `/p/${productSlug}`,
           checkoutUrl: `/p/${productSlug}/checkout`,
-          waitlistCount: 240,
+          waitlistCount: Array.isArray(project?.waitlist) ? project.waitlist.length : 0,
           attributionTracking: true
         },
         research_survey: surveyData,
@@ -786,7 +777,7 @@ export default function Phase1Validate({
         }
         setPlan(generatedDraft)
         setHasPlanGenerated(true)
-        const newTarget = parseThresholdAmount(generated.threshold) || project?.validationSeed?.suggestedThreshold?.target || project?.presaleTarget || 12500
+        const newTarget = parseThresholdAmount(generated.threshold) || presaleGoalFor(project)
         const updated = {
           ...(project || {}),
           planGenerated: true,
@@ -924,7 +915,7 @@ export default function Phase1Validate({
               infrastructure: {
                 landingPageUrl: `/p/${productSlug}`,
                 checkoutUrl: `/p/${productSlug}/checkout`,
-                waitlistCount: 240,
+                waitlistCount: Array.isArray(project?.waitlist) ? project.waitlist.length : 0,
                 attributionTracking: true
               },
               research_survey: surveyData,
@@ -1537,36 +1528,6 @@ export default function Phase1Validate({
     }
   }
 
-  const handleSimulateSurveyResponse = async () => {
-    const sampleNames = ['Marcus Vance', 'Sarah Jenkins', 'Elena Rostova', 'David Chen', 'Amara Okafor']
-    const sampleProblems = [
-      'Current tools take 3+ hours daily. Need direct automation for creators.',
-      'Manual multi-step workflow is broken. Would gladly pay for an integrated suite.',
-      'Excited for this co-founder collaboration. Ready to test early beta and pre-order.'
-    ]
-    const randomName = sampleNames[Math.floor(Math.random() * sampleNames.length)]
-    const randomEmail = `${randomName.toLowerCase().replace(' ', '.')}@gmail.com`
-    const sampleResp = {
-      id: `resp-${Date.now()}`,
-      name: randomName,
-      email: randomEmail,
-      rating: Math.floor(Math.random() * 3) + 8, // 8, 9, 10
-      answers: {
-        'Workflow Bottleneck': sampleProblems[Math.floor(Math.random() * sampleProblems.length)],
-        'Pricing Viability': `$${activeFoundingPrice}/year is fair for this value.`
-      },
-      submittedAt: 'Just now',
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    }
-    const nextResponses = [sampleResp, ...surveyResponses]
-    setSurveyResponses(nextResponses)
-    if (onUpdateProject) onUpdateProject(p => ({ ...(p || {}), surveyResponses: nextResponses }))
-    if (project?.id) {
-      addProjectSurveyResponse(project.id, sampleResp).catch(e => console.warn(e))
-    }
-    showNotification(`Discovery feedback recorded from ${randomName}!`)
-  }
-
   const handleRunExperimentsAI = async () => {
     setIsAnalyzingExperiments(true)
     try {
@@ -1879,7 +1840,7 @@ export default function Phase1Validate({
         activeExperimentVariant: null
       }
     } else if (exp.category === 'pricing' || exp.targetField === 'pricingTier') {
-      const origFounding = parseMainPricingAmount(project?.pricing || 49)
+      const origFounding = parseMainPricingAmount(project?.pricing)
       const origDeposit = parseDepositPricingAmount(project?.pricing, origFounding)
       updatedCampaign.pricingConfig = {
         ...(updatedCampaign.pricingConfig || {}),
@@ -1930,68 +1891,6 @@ export default function Phase1Validate({
     }
 
     showNotification(`Reverted experiment "${exp.title}" back to control.`)
-  }
-
-  const handleAddSimulatedReservation = (customData = {}) => {
-    const randomNames = ['Alex Rivera', 'Jordan Chen', 'Taylor Swift', 'Morgan Lee', 'Chris Pratt', 'Samira Khan', 'Elena Rostova', 'Marcus Brody']
-    const randomPick = randomNames[Math.floor(Math.random() * randomNames.length)]
-    const name = (typeof customData?.name === 'string' && customData.name.trim()) ? customData.name.trim() : randomPick
-    const email = (typeof customData?.email === 'string' && customData.email.trim()) ? customData.email.trim() : `${name.toLowerCase().replace(/[^a-z0-9]+/g, '.')}@example.com`
-    const amount = Number(customData?.amount) || activeFoundingPrice || dynamicMainPrice || 49
-
-    const newReservation = {
-      id: `r-${Date.now()}`,
-      name,
-      email,
-      amount,
-      tier: amount === dynamicDepositPrice ? `Refundable Deposit ($${amount})` : amount === dynamicVipPrice ? `VIP Founder Pass ($${amount})` : `Founding Annual Pass ($${amount})`,
-      date: 'Just now',
-      status: 'Paid'
-    }
-
-    const nextReservations = [newReservation, ...reservations]
-    const nextRevenue = presalesRevenue + amount
-
-    setReservations(nextReservations)
-    setPresalesRevenue(nextRevenue)
-
-    const updated = {
-      ...(project || {}),
-      validationPlan: plan,
-      campaignKit,
-      surveyData,
-      reservations: nextReservations,
-      currentPresales: nextRevenue
-    }
-
-    if (onUpdateProject) onUpdateProject(prev => ({ ...(prev || {}), ...updated }))
-
-    if (project?.id) {
-      addProjectReservation(project.id, {
-        name,
-        email,
-        amount,
-        tier: amount === activeFoundingPrice ? `Founding Annual ($${activeFoundingPrice})` : amount === activeDepositPrice ? `Refundable Deposit ($${activeDepositPrice})` : `Pledge ($${amount})`,
-        channel: 'creator_campaign'
-      }).catch(e => console.warn('[Phase1] DB reservation sync warning:', e))
-    }
-
-    showNotification(`Recorded $${amount} presale pledge from ${name}!`)
-  }
-
-  const handleSimulatePresale = (e) => {
-    e?.preventDefault()
-    if (!simBuyerName.trim() || !simBuyerEmail.trim()) {
-      showNotification('Please enter a backer name and email.')
-      return
-    }
-    handleAddSimulatedReservation({
-      name: simBuyerName.trim(),
-      email: simBuyerEmail.trim(),
-      amount: Number(simBuyerTier) || dynamicMainPrice
-    })
-    setSimBuyerName('')
-    setSimBuyerEmail('')
   }
 
   const handleClearAllReservations = () => {
@@ -2438,7 +2337,6 @@ export default function Phase1Validate({
           activeDepositPrice={activeDepositPrice}
           refreshLiveData={refreshLiveData}
           lastRefreshedAt={lastRefreshedAt}
-          handleAddSimulatedReservation={handleAddSimulatedReservation}
           showNotification={showNotification}
           setActiveStep={setActiveStep}
           onSelectStep={onSelectStep}

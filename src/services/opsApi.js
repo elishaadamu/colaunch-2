@@ -340,12 +340,10 @@ export const generateCampaignVideo = (id, params = {}) => req('POST', `/projects
 export const getCreatorCampaignTasks = (id) => req('GET', `/projects/${id}/creator-tasks`)
 export const updateCreatorCampaignTask = (id, taskId, updates) => req('PATCH', `/projects/${id}/creator-tasks/${taskId}`, updates)
 export const sendTaskReminder = (id, taskId) => req('POST', `/projects/${id}/remind-task/${taskId}`)
-export const addProjectReservation = (id, reservation) => req('POST', `/projects/${id}/reservations`, reservation)
 export const createProjectCheckoutSession = (projectId, data = {}) => {
   const endpoint = projectId ? `/projects/${projectId}/create-checkout-session` : '/projects/create-checkout-session'
   return req('POST', endpoint, { ...data, projectId })
 }
-export const recordPreorderUniversal = (data) => req('POST', '/projects/record-preorder', data)
 export const recordSurveyResponseUniversal = (data) => req('POST', '/projects/record-survey-response', data)
 export const addProjectSurveyResponse = (id, data) => req('POST', `/projects/${id}/survey-response`, data)
 export const deleteSurveyResponse = (id, responseId) => req('DELETE', `/projects/${id}/survey-response/${responseId}`)
@@ -477,15 +475,6 @@ export const sendCampaignPostEmail = (projectId, payload = {}) =>
 
 export const toggleAutonomousCampaignDelivery = (projectId, payload = {}) =>
   req('POST', `/projects/${projectId}/campaign/toggle-autonomous-delivery`, payload)
-
-export const startCampaignSimulation = (projectId, payload = {}) =>
-  req('POST', `/projects/${projectId}/campaign/start-simulation`, payload)
-
-export const getCampaignSimulationStatus = (projectId) =>
-  req('GET', `/projects/${projectId}/campaign/simulation-status`)
-
-export const stopCampaignSimulation = (projectId) =>
-  req('POST', `/projects/${projectId}/campaign/stop-simulation`)
 
 
 // ── Phase 2 beta program & staging ─────────────────────────────────────────────────────────

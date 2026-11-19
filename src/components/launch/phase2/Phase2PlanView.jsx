@@ -165,6 +165,7 @@ function TechView({ tech = {} }) {
       <section className="card p-4 sm:p-5 space-y-4">
         <Head icon={Server} eyebrow="Architecture" title="How it fits together" />
         {tech.architecture ? <p className="m-0 text-[15px] leading-relaxed max-w-4xl" style={{ color: C.body }}>{typeof tech.architecture === 'string' ? tech.architecture : JSON.stringify(tech.architecture)}</p> : <Empty>No architecture yet.</Empty>}
+        {stack.rationale && <p className="m-0 text-xs" style={{ color: C.muted }}>Why this stack: {stack.rationale}</p>}
         {stackItems.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-2">
             {stackItems.map(([label, Icon, value]) => (
