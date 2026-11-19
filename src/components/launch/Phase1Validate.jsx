@@ -32,7 +32,8 @@ import {
   generateCampaignSocialImage,
   generateCampaignVideo,
   sendCampaignPostEmail,
-  toggleAutonomousCampaignDelivery
+  toggleAutonomousCampaignDelivery,
+  getCoLaunchProject
 } from '../../services/opsApi'
 import {
   parseMainPricingAmount,
@@ -58,7 +59,6 @@ import Phase1Step4Optimize from './phase1/Phase1Step4Optimize'
 import Phase1Step5Gate from './phase1/Phase1Step5Gate'
 
 import { PUBLIC_APP_URL } from '../../utils/publicUrl'
-import { applyMove, undoMove } from '../../utils/launchMoves'
 const C = {
   bg: '#050506',
   sheet: '#0c0c0e',
@@ -1570,8 +1570,39 @@ export default function Phase1Validate({
   const handleRunExperimentsAI = async () => {
     setIsAnalyzingExperiments(true)
     try {
-      const results = await analyzeAndGenerateExperimentsAI(project)
+      const decidedSupport = surveyResponses.filter((r) => r?.support?.decision)
+      const pricePoints = surveyResponses.reduce((acc, r) => { const pp = r?.support?.pricePoint; if (pp) acc[pp] = (acc[pp] || 0) + 1; return acc }, {})
+      const channelCounts = (project?.uniqueVisitors || []).reduce((acc, v) => { const ch = v.channel || 'Direct / Other'; acc[ch] = (acc[ch] || 0) + 1; return acc }, {})
+      const answers = surveyResponses.flatMap((r) => Object.values(r.answers || {})).filter((a) => String(a || '').trim().length > 15).slice(0, 8)
+      const metrics = {
+        visitors: totalTraffic,
+        signups: totalSignups,
+        backers: reservations.length,
+        revenue: presalesRevenue,
+        goal: presaleTarget,
+        conversionPct: totalTraffic ? Number(((reservations.length / totalTraffic) * 100).toFixed(2)) : 0,
+        foundingPrice: activeFoundingPrice,
+        depositPrice: activeDepositPrice,
+        postsSent: (campaignKit?.postingSchedule || []).filter((t) => t.emailed || t.done).length,
+        postsTotal: (campaignKit?.postingSchedule || []).length,
+        channels: channelCounts,
+        survey: {
+          responses: surveyResponses.length,
+          yes: decidedSupport.filter((r) => r.support.decision === 'yes').length,
+          maybe: decidedSupport.filter((r) => r.support.decision === 'maybe').length,
+          no: decidedSupport.filter((r) => r.support.decision === 'no').length,
+          pricePoints,
+          sampleAnswers: answers,
+        },
+        currentCopy: {
+          landingHeadline: campaignKit?.landingPageCopy?.headline || project?.selectedConcept?.tagline || project?.productTagline || '',
+          announcementPost: String(campaignKit?.announcementPost || '').slice(0, 600),
+          storySequence: String(campaignKit?.storySequence || '').slice(0, 400),
+        },
+      }
+      const results = await analyzeAndGenerateExperimentsAI({ ...(project || {}), surveyResponses, currentPresales: presalesRevenue, visitors: totalTraffic, _metrics: metrics })
       if (results && Array.isArray(results.experiments) && results.experiments.length > 0) {
+        results.generatedAt = new Date().toISOString()
         setExperimentsData(results)
         setExperiments(results.experiments)
         const updated = {
@@ -1606,6 +1637,59 @@ export default function Phase1Validate({
     } finally {
       setIsAnalyzingExperiments(false)
     }
+  }
+
+  // ── Step 4 live data: pull fresh telemetry, pre-orders and survey answers ─────────────
+  const [lastRefreshedAt, setLastRefreshedAt] = useState(null)
+  const refreshLiveData = async () => {
+    if (!project?.id) return
+    try {
+      const fresh = await getCoLaunchProject(project.id)
+      if (!fresh) return
+      const picked = {
+        visitors: fresh.visitors,
+        uniqueVisitors: fresh.uniqueVisitors,
+        telemetry: fresh.telemetry,
+        waitlist: fresh.waitlist,
+        reservations: fresh.reservations,
+        currentPresales: fresh.currentPresales,
+        conversionRate: fresh.conversionRate,
+        surveyResponses: fresh.surveyResponses,
+        surveySupportStats: fresh.surveySupportStats,
+      }
+      Object.keys(picked).forEach((k) => picked[k] === undefined && delete picked[k])
+      if (Array.isArray(fresh.reservations)) setReservations(fresh.reservations)
+      if (fresh.currentPresales !== undefined) setPresalesRevenue(Number(fresh.currentPresales) || 0)
+      if (Array.isArray(fresh.surveyResponses)) setSurveyResponses(fresh.surveyResponses)
+      const freshSchedule = fresh.campaignKit?.postingSchedule
+      if (Array.isArray(freshSchedule)) {
+        setCampaignKit((prev) => ({
+          ...(prev || {}),
+          postingSchedule: (prev?.postingSchedule || freshSchedule).map((t) => {
+            const f = freshSchedule.find((x) => x.id === t.id)
+            return f ? { ...t, emailed: f.emailed, lastEmailedAt: f.lastEmailedAt, firstEmailedAt: f.firstEmailedAt } : t
+          }),
+          autonomousEmailDelivery: fresh.campaignKit?.autonomousEmailDelivery || prev?.autonomousEmailDelivery,
+        }))
+      }
+      onUpdateProject?.((prev) => ({ ...(prev || {}), ...picked }))
+      setLastRefreshedAt(Date.now())
+    } catch (e) {
+      console.warn('[Step4] live refresh', e)
+    }
+  }
+
+  const handleSetGoal = (amount) => {
+    const value = Math.round(Number(amount) || 0)
+    if (!value) return
+    const threshold = plan?.threshold && /\$[\d,]+/.test(plan.threshold)
+      ? plan.threshold.replace(/\$[\d,]+/, `$${value.toLocaleString()}`)
+      : `$${value.toLocaleString()} in pre-orders`
+    setPlan((prev) => ({ ...(prev || {}), threshold, targetRevenue: value }))
+    onUpdateProject?.((prev) => ({ ...(prev || {}), presaleTarget: value, targetRevenue: value, validationPlan: { ...(prev?.validationPlan || {}), threshold, targetRevenue: value } }))
+    savePlanFull({ threshold, targetRevenue: value }).catch((e) => console.warn(e))
+    if (project?.id) updateCoLaunchProject(project.id, { presaleTarget: value, targetRevenue: value }).catch(() => {})
+    showNotification(`Goal set to $${value.toLocaleString()} (Step 1 updated).`)
   }
 
   // The plan endpoint fills defaults for omitted fields, so always send the full plan
@@ -1757,84 +1841,6 @@ export default function Phase1Validate({
     }
 
     showNotification(appliedMessage)
-  }
-
-  // ── Step 4 Launch Arena: moves that rewrite earlier steps ──────────────────────────────
-  const [optimizationMoves, setOptimizationMoves] = useState(() => (Array.isArray(project?.optimizationMoves) ? project.optimizationMoves : []))
-  useEffect(() => {
-    if (Array.isArray(project?.optimizationMoves)) setOptimizationMoves(project.optimizationMoves)
-  }, [project?.id, project?.optimizationMoves])
-
-  const persistMoveResult = (res, nextMoves, activity) => {
-    const nextKit = res.kit || campaignKit
-    const nextPlan = res.plan || null
-    const nextSurvey = res.surveyData || null
-    if (res.kit) setCampaignKit(res.kit)
-    if (nextPlan) setPlan(nextPlan)
-    if (nextSurvey) setSurveyData(nextSurvey)
-    setOptimizationMoves(nextMoves)
-
-    if (onUpdateProject) {
-      onUpdateProject((prev) => ({
-        ...(prev || {}),
-        campaignKit: nextKit,
-        optimizationMoves: nextMoves,
-        ...(nextPlan ? { validationPlan: { ...(prev?.validationPlan || {}), ...nextPlan }, pricing: nextPlan.pricing ?? prev?.pricing } : {}),
-        ...(nextSurvey ? { surveyData: nextSurvey } : {}),
-      }))
-    }
-    if (!project?.id) return
-    if (res.kit) {
-      updateValidationCampaign(project.id, { campaign_kit: nextKit, campaignKit: nextKit }).catch((e) => console.warn('[Step4] kit sync', e))
-    }
-    if (nextSurvey) {
-      updateValidationCampaign(project.id, { research_survey: nextSurvey }).catch((e) => console.warn('[Step4] survey sync', e))
-    }
-    if (nextPlan) {
-      // Send the whole plan: the endpoint fills defaults for any field left out
-      const full = { ...(project?.validationPlan || {}), ...nextPlan }
-      updateValidationPlan(project.id, {
-        customer: full.customer, problem: full.problem, offer: full.offer, pricing: full.pricing,
-        test_method: full.testMethod ?? full.test_method, period: full.period, threshold: full.threshold,
-        target_revenue: Number(full.targetRevenue || full.target_revenue || presaleTarget) || undefined,
-        status: full.status,
-      }).catch((e) => console.warn('[Step4] plan sync', e))
-    }
-    updateCoLaunchProject(project.id, {
-      optimizationMoves: nextMoves,
-      ...(res.kit ? { campaignKit: nextKit, campaign_kit: nextKit } : {}),
-      ...(nextPlan?.pricing ? { pricing: nextPlan.pricing } : {}),
-      ...(nextPlan?.targetRevenue ? { presaleTarget: nextPlan.targetRevenue, targetRevenue: nextPlan.targetRevenue } : {}),
-    }).catch((e) => console.warn('[Step4] project sync', e))
-    if (activity) {
-      logProjectActivity(project.id, { ...activity, step: 'optimize', phase: 1 }).catch(() => {})
-    }
-  }
-
-  const handlePlayMove = (move) => {
-    if (!move?.type) return
-    const id = `move-${Date.now()}`
-    const res = applyMove({ ...move, id }, {
-      kit: campaignKit, plan, surveyData,
-      foundingPrice: activeFoundingPrice, depositPrice: activeDepositPrice,
-    })
-    const entry = {
-      id, type: move.type, title: move.title, emoji: move.emoji, xp: move.xp || 25,
-      playedAt: new Date().toISOString(), affects: res.affects, summary: res.summary,
-      payload: move.payload, before: res.before,
-    }
-    const nextMoves = [entry, ...optimizationMoves].slice(0, 60)
-    persistMoveResult(res, nextMoves, { action: `${move.emoji || '🃏'} Move played: ${move.title}`, details: `${res.summary}. Affects: ${res.affects.join(', ')}` })
-    showNotification(`${move.emoji || '🃏'} ${move.title} played · +${entry.xp} XP. ${res.summary}.`)
-    return entry
-  }
-
-  const handleUndoMove = (entry) => {
-    if (!entry) return
-    const res = undoMove(entry, { kit: campaignKit, plan, surveyData })
-    const nextMoves = optimizationMoves.map((m) => (m.id === entry.id ? { ...m, undoneAt: new Date().toISOString() } : m))
-    persistMoveResult(res, nextMoves, { action: `↩️ Move undone: ${entry.title}`, details: entry.summary })
-    showNotification(`↩️ Undid "${entry.title}".`)
   }
 
   const handleRevertExperiment = (exp) => {
@@ -2430,9 +2436,8 @@ export default function Phase1Validate({
           surveyData={surveyData}
           activeFoundingPrice={activeFoundingPrice}
           activeDepositPrice={activeDepositPrice}
-          optimizationMoves={optimizationMoves}
-          handlePlayMove={handlePlayMove}
-          handleUndoMove={handleUndoMove}
+          refreshLiveData={refreshLiveData}
+          lastRefreshedAt={lastRefreshedAt}
           handleAddSimulatedReservation={handleAddSimulatedReservation}
           showNotification={showNotification}
           setActiveStep={setActiveStep}
@@ -2458,6 +2463,12 @@ export default function Phase1Validate({
           presaleTarget={presaleTarget}
           reservations={reservations}
           dynamicConversionRate={dynamicConversionRate}
+          surveyResponses={surveyResponses}
+          campaignKit={campaignKit}
+          plan={plan}
+          totalTraffic={totalTraffic}
+          activeFoundingPrice={activeFoundingPrice}
+          handleSetGoal={handleSetGoal}
           isAdvancingPhase={isAdvancingPhase}
           setIsAdvancingPhase={setIsAdvancingPhase}
           onAdvanceToPhase2={onAdvanceToPhase2}

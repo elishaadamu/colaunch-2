@@ -4097,7 +4097,16 @@ Current Telemetry:
 - Presales Revenue: $${presales}
 - Conversion Rate: ${convRate}%
 - Discovery Survey Responses: ${surveyCount}
+${projectData?._metrics ? `
+FULL VALIDATION DATA (use these exact numbers; base every experiment on them):
+${JSON.stringify(projectData._metrics, null, 2)}
 
+RULES:
+- "control" must quote the CURRENT copy/price above, not an invented one.
+- Pricing experiments must use concrete dollar amounts relative to the current founding price ($${projectData._metrics.foundingPrice}) and the survey price answers.
+- If visitors < 100, say traffic is the bottleneck and keep conversion claims modest.
+- primaryBottleneck must name the weakest funnel stage from the data (traffic, interest, or payment).
+` : ""}
 Return JSON with exact structure:
 {
   "performanceAudit": {
