@@ -9,9 +9,12 @@ import {
   ArrowLeft,
   ArrowRight,
   Mail,
-  Check
+  Check,
+  Building2,
+  Sparkles
 } from 'lucide-react'
 import CoLaunchLogo from '../ui/CoLaunchLogo'
+import { creatorLogin, setCreatorSession } from '../../services/opsApi'
 
 const LAUNCH_AUTH_SESSION_KEY = 'forge_launch_auth_token'
 const LAUNCH_AUTH_EMAIL_KEY = 'forge_launch_auth_email'
@@ -58,6 +61,11 @@ export default function LaunchAuth({ children }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [mode, setMode] = useState('signin') // 'signin' | 'signup'
+  // Who is signing in: the studio team (operator console) or a creator (their own launch workspace)
+  const [audience, setAudience] = useState(() => {
+    try { return new URLSearchParams(window.location.search).get('as') === 'creator' ? 'creator' : 'studio' } catch { return 'studio' }
+  })
+  const isCreator = audience === 'creator'
   const [fullName, setFullName] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
@@ -123,6 +131,20 @@ export default function LaunchAuth({ children }) {
     }
     if (!cleanPass) {
       setError('Please enter your password.')
+      return
+    }
+
+    if (isCreator) {
+      setLoading(true)
+      try {
+        const r = await creatorLogin(cleanIdentifier, cleanPass)
+        setCreatorSession({ token: r.token, user: r.user, expiresAt: Date.now() + (r.expiresIn || 0) * 1000 })
+        const list = r.projects || []
+        window.location.assign(list.length === 1 ? list[0].portalPath : '/creator/login')
+      } catch (err) {
+        setError(String(err?.message || 'Sign-in failed').replace(/^\d{3}:\s*/, ''))
+        setLoading(false)
+      }
       return
     }
 
@@ -244,13 +266,13 @@ export default function LaunchAuth({ children }) {
         {/* Caption text */}
         <div className="absolute bottom-0 left-0 right-0 p-10 z-10 space-y-3">
           <span className="inline-block px-2.5 py-0.5 rounded-none text-[10px] font-mono font-bold text-[#FF8FA3] bg-[#C81E3C]/15 border border-[#C81E3C]/45 uppercase tracking-wider">
-            STUDIO
+            {isCreator ? 'CREATOR' : 'STUDIO'}
           </span>
-          <h2 className="text-3xl font-extrabold text-white tracking-tight leading-tight font-display">
-            Build Products.<br />Share Ownership.
+          <h2 className="text-4xl text-white leading-[1.05] m-0" style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}>
+            {isCreator ? <>Your audience.<br />Your product.</> : <>Build Products.<br />Share Ownership.</>}
           </h2>
           <p className="text-sm text-[#D4D4D8] max-w-sm leading-relaxed">
-            50/50 co-founder partnerships powered by AI sprint workflows.
+            {isCreator ? 'Validate, build and launch your product with the AI advising at every step.' : '50/50 co-founder partnerships powered by AI sprint workflows.'}
           </p>
         </div>
       </div>
@@ -263,7 +285,7 @@ export default function LaunchAuth({ children }) {
         {/* Top bar */}
         <div className="flex items-center justify-between w-full relative z-10 mb-8">
           <span className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
-            Operator Console
+            {isCreator ? 'Creator workspace' : 'Operator console'}
           </span>
 
           {/* Mobile-only logo */}
@@ -275,8 +297,29 @@ export default function LaunchAuth({ children }) {
         {/* Form inner (vertically centered) */}
         <div className="w-full max-w-sm mx-auto my-auto relative z-10 space-y-6">
 
-          {/* Sign in / Create account switch */}
-          <div className="grid grid-cols-2 p-1 bg-[#0C0C0E] border border-[#222227]" role="tablist" aria-label="Account">
+          {/* Who's signing in */}
+          <div>
+            <p className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#71717A]">Sign in as</p>
+            <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Sign in as">
+              {[
+                { id: 'studio', label: 'Studio team', sub: 'Operator console', Icon: Building2 },
+                { id: 'creator', label: 'Creator', sub: 'My launch workspace', Icon: Sparkles },
+              ].map((a) => (
+                <button key={a.id} type="button" role="radio" aria-checked={audience === a.id}
+                  onClick={() => { setAudience(a.id); setError(''); if (a.id === 'creator') setMode('signin') }}
+                  className={`p-3 text-left flex items-start gap-2.5 border transition-colors cursor-pointer ${audience === a.id ? 'border-[#C81E3C] bg-[#C81E3C]/10' : 'border-[#222227] bg-[#0C0C0E] hover:border-[#3f3f46]'}`}>
+                  <a.Icon className={`w-4 h-4 mt-0.5 shrink-0 ${audience === a.id ? 'text-[#FF8FA3]' : 'text-[#71717A]'}`} />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-white">{a.label}</span>
+                    <span className="block text-[11px] text-[#A1A1AA]">{a.sub}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Sign in / Create account switch (studio only: creators get an account after the DIY pass) */}
+          {!isCreator && <div className="grid grid-cols-2 p-1 bg-[#0C0C0E] border border-[#222227]" role="tablist" aria-label="Account">
             {[
               { id: 'signin', label: 'Sign in' },
               { id: 'signup', label: 'Create account' },
@@ -296,17 +339,19 @@ export default function LaunchAuth({ children }) {
                 {t.label}
               </button>
             ))}
-          </div>
+          </div>}
 
           {/* Heading */}
           <div key={mode} className="acq-pop">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-display m-0">
-              {mode === 'signin' ? 'Welcome back' : 'Create your operator account'}
+            <h1 className="text-4xl text-white m-0 leading-none" style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}>
+              {isCreator ? 'Welcome back, creator' : mode === 'signin' ? 'Welcome back' : 'Create your operator account'}
             </h1>
-            <p className="text-xs sm:text-sm text-[#A1A1AA] mt-1 mb-0">
-              {mode === 'signin'
-                ? 'Sign in to your CoLaunch workspace'
-                : 'Set up your login for the CoLaunch studio.'}
+            <p className="text-xs sm:text-sm text-[#A1A1AA] mt-2 mb-0">
+              {isCreator
+                ? 'Sign in with the email and password you created after getting your DIY pass.'
+                : mode === 'signin'
+                  ? 'Sign in to the CoLaunch studio.'
+                  : 'Set up your login for the CoLaunch studio.'}
             </p>
           </div>
 
@@ -339,7 +384,7 @@ export default function LaunchAuth({ children }) {
 
             <div>
               <label htmlFor="auth-email" className="block text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA] mb-1.5">
-                {mode === 'signin' ? 'Username or email' : 'Work email'}
+                {isCreator ? 'Email' : mode === 'signin' ? 'Username or email' : 'Work email'}
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -427,7 +472,9 @@ export default function LaunchAuth({ children }) {
           </form>
 
           <p className="text-xs text-[#A1A1AA] text-center mt-6 mb-0">
-            {mode === 'signin' ? (
+            {isCreator ? (
+              <>No account yet? Open your portal link and get the DIY pass; you create your account right after paying.</>
+            ) : mode === 'signin' ? (
               <>New to the studio?{' '}
                 <button type="button" onClick={() => switchMode('signup')} className="text-white font-semibold underline-offset-2 hover:underline cursor-pointer">Create an account</button>
               </>

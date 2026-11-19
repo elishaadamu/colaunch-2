@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Loader2, Check, AlertTriangle, Mail, Lock, User, Eye, EyeOff, ArrowRight, LogOut } from 'lucide-react'
+import CoLaunchLogo from '../ui/CoLaunchLogo'
 import { confirmDiyPayment, creatorSignup, creatorLogin, creatorMe, getCreatorSession, setCreatorSession } from '../../services/opsApi'
 
 // /creator/signup?session_id=…  after paying for the DIY pass
@@ -32,16 +33,36 @@ function Field({ icon: I, label, children, hint }) {
 
 function Shell({ eyebrow, title, sub, children }) {
   return (
-    <div className="ca min-h-screen flex items-center justify-center px-4 py-12" style={{ background: '#050506', color: '#f4f4f5' }}>
+    <div className="ca min-h-screen w-full grid grid-cols-1 lg:grid-cols-2" style={{ background: '#050506', color: '#f4f4f5' }}>
       <style>{CSS}</style>
-      <div className="w-full max-w-md">
-        <a href="/" className="block mb-8 text-sm font-bold tracking-[0.18em] uppercase text-white no-underline">Co<span style={{ color: '#c81e3c' }}>Launch</span></a>
-        <div className="p-6 sm:p-8" style={{ background: '#0f0f12', border: '1px solid #26262b' }}>
+
+      {/* Image panel */}
+      <div className="relative hidden lg:block overflow-hidden min-h-screen" style={{ background: '#030304' }}>
+        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=80" alt=""
+          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/images/hero_saas_macbook.jpg' }}
+          className="w-full h-full object-cover object-center" loading="eager" />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(5,5,6,.7), rgba(5,5,6,.2) 45%, rgba(5,5,6,.92))' }} />
+        <a href="/" className="absolute top-8 left-8 z-10 no-underline"><CoLaunchLogo size={24} theme="dark" showWordmark={true} /></a>
+        <div className="absolute bottom-0 left-0 right-0 p-10 z-10 space-y-3">
+          <span className="inline-block px-2.5 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider" style={{ color: '#ff8fa3', background: 'rgba(200,30,60,.15)', border: '1px solid rgba(200,30,60,.45)' }}>Creator</span>
+          <h2 className="serif m-0 text-4xl leading-[1.05] text-white">Your audience.<br />Your product.</h2>
+          <p className="m-0 text-sm max-w-sm leading-relaxed" style={{ color: '#d4d4d8' }}>Validate, build and launch your product with the AI advising at every step.</p>
+        </div>
+      </div>
+
+      {/* Form panel */}
+      <div className="flex flex-col justify-between min-h-screen p-6 sm:p-10 lg:p-14 relative" style={{ borderLeft: '1px solid #222227' }}>
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-mono uppercase tracking-wider" style={{ color: '#71717a' }}>Creator workspace</span>
+          <a href="/" className="lg:hidden no-underline"><CoLaunchLogo size={20} theme="dark" showWordmark={true} /></a>
+        </div>
+        <div className="w-full max-w-sm mx-auto my-10">
           <p className="m-0 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ff8fa3]">{eyebrow}</p>
           <h1 className="serif m-0 mt-2 text-4xl leading-tight text-white">{title}</h1>
           {sub && <p className="m-0 mt-2 text-sm text-[#a1a1aa]">{sub}</p>}
           <div className="mt-6">{children}</div>
         </div>
+        <div className="text-center text-xs font-mono py-4" style={{ color: '#52525b', borderTop: '1px solid rgba(34,34,39,.6)' }}>© 2026 CoLaunch</div>
       </div>
     </div>
   )
