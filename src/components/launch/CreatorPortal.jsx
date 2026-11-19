@@ -316,7 +316,7 @@ export default function CreatorPortal({ portalId, slug }) {
 
   // A DIY pass paid on Stripe comes with an email + password account: the workspace opens only for
   // that signed-in creator (or an operator). Passes from before accounts existed keep their old access.
-  const needsCreatorLogin = Boolean(isDiyActive && (project?.creatorAccount || project?.diySubscription?.paymentMethod === 'Stripe'))
+  const needsCreatorLogin = Boolean(isDiyActive && (project?.creatorAccount || project?.diySubscription?.plan === 'diy_pass'))
   const isOperatorSession = typeof localStorage !== 'undefined' && Boolean(localStorage.getItem('forge_launch_auth_token') || localStorage.getItem('forge_op_token'))
   const [ownedProjectIds, setOwnedProjectIds] = useState(null)
   useEffect(() => {

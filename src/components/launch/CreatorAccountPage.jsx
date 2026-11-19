@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Loader2, Check, AlertTriangle, Mail, Lock, User, Eye, EyeOff, ArrowRight, LogOut } from 'lucide-react'
 import { confirmDiyPayment, creatorSignup, creatorLogin, creatorMe, getCreatorSession, setCreatorSession } from '../../services/opsApi'
 
-// /creator/signup?session_id=…  after paying for the DIY pass on Stripe
+// /creator/signup?session_id=…  after paying for the DIY pass
 // /creator/login                 email + password, then into the creator's workspace
 
 const CSS = `
@@ -103,8 +103,8 @@ function Signup() {
   }
 
   if (loadErr) return <Shell eyebrow="DIY pass" title="We couldn’t confirm the payment"><ErrorBox>{loadErr}</ErrorBox></Shell>
-  if (!pay) return <Shell eyebrow="DIY pass" title="Confirming your payment…"><p className="m-0 text-sm text-[#a1a1aa] flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" />Checking with Stripe.</p></Shell>
-  if (!pay.paid) return <Shell eyebrow="DIY pass" title="Payment not completed" sub="Stripe hasn’t confirmed this payment. If you were charged, wait a minute and refresh this page."><a className="btn no-underline" href="/">Back</a></Shell>
+  if (!pay) return <Shell eyebrow="DIY pass" title="Confirming your payment…"><p className="m-0 text-sm text-[#a1a1aa] flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" />Checking your payment.</p></Shell>
+  if (!pay.paid) return <Shell eyebrow="DIY pass" title="Payment not completed" sub="This payment hasn’t gone through. Go back to your portal and try again."><a className="btn no-underline" href="/">Back</a></Shell>
   if (pay.claimed) return <Shell eyebrow="DIY pass" title="Your account already exists" sub="An account was already created with this payment."><a className="btn no-underline" href="/creator/login">Sign in<ArrowRight className="w-4 h-4" /></a></Shell>
 
   return (

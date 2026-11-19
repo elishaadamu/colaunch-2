@@ -565,7 +565,7 @@ export const restoreStudioCheckpoint = (pid, cp) => req('POST', `/studio/${pid}/
 
 // ── DIY pass + creator accounts ────────────────────────────────────────────
 export const getDiyPrice = (projectId) => req('GET', `/creator-auth/diy/price?project=${encodeURIComponent(projectId)}`)
-export const startDiyCheckout = (projectId, email) => req('POST', '/creator-auth/diy/checkout', { projectId, email: email || null })
+export const payDiyPass = (body) => req('POST', '/creator-auth/diy/pay', body)
 export const confirmDiyPayment = (sessionId) => req('POST', '/creator-auth/diy/confirm', { sessionId })
 export const creatorSignup = (body) => req('POST', '/creator-auth/signup', body)
 export const creatorLogin = (email, password) => req('POST', '/creator-auth/login', { email, password })
