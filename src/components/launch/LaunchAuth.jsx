@@ -112,8 +112,10 @@ export default function LaunchAuth({ children }) {
     if (e) e.preventDefault()
     setError('')
 
-    const cleanIdentifier = identifier.trim().toLowerCase()
-    const cleanPass = password
+    // Browser autofill fills the inputs without firing onChange, so read the fields themselves too
+    const form = e?.currentTarget
+    const cleanIdentifier = (identifier || form?.querySelector('#auth-email')?.value || '').trim().toLowerCase()
+    const cleanPass = password || form?.querySelector('#auth-password')?.value || ''
 
     if (!cleanIdentifier) {
       setError('Please enter your username or email.')
@@ -407,7 +409,7 @@ export default function LaunchAuth({ children }) {
 
             <button
               type="submit"
-              disabled={loading || !identifier.trim() || !password}
+              disabled={loading}
               className="acq-btn-primary w-full mt-2 py-3.5 px-4 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   Rocket, Check, Copy, Eye, Send, FileText, ExternalLink, Menu, X, Users,
-  Zap, Share2, Sparkles, Plus,
+  Zap, Share2, Sparkles, Plus, FlaskConical, Hammer, LogOut, DollarSign, Percent, Clock, PieChart, Lock,
 } from 'lucide-react'
-import { getFrontendUrl, updateCoLaunchProject, getCoLaunchProject, getThreads, getWorkflowState, getCreatorSession, creatorMe } from '../../services/opsApi'
+import { getFrontendUrl, updateCoLaunchProject, getCoLaunchProject, getThreads, getWorkflowState, getCreatorSession, setCreatorSession, creatorMe } from '../../services/opsApi'
 import { updatePageSEO } from '../../utils/seo'
 import { CreatorPortalSkeleton } from './Section2Skeletons'
 import { deduplicateAndSortMessages } from './CreatorWhatsAppChat'
@@ -23,24 +23,24 @@ import { RETRO_GAMING_PROJECT } from './ProjectOSPage'
  */
 
 const C = {
-  bg: '#08090c',
-  sheet: '#10131a',
-  row: '#0c0e13',
-  raised: '#171b24',
+  bg: '#050506',
+  sheet: '#0c0c0e',
+  row: '#111114',
+  raised: '#1c1c20',
   line: 'rgba(255,255,255,0.08)',
   lineStrong: 'rgba(255,255,255,0.18)',
   text: '#f3f4f6',
-  body: '#d3d7e0',
-  muted: '#a3a9b6',
-  faint: '#7b8190',
+  body: '#d4d4d8',
+  muted: '#a1a1aa',
+  faint: '#71717a',
   crimson: '#c81e3c',
   crimsonHover: '#d92a49',
   crimsonSoft: 'rgba(200,30,60,0.14)',
   crimsonLine: 'rgba(200,30,60,0.42)',
   crimsonText: '#ff8fa3',
-  ok: '#6fcf9b',
-  okSoft: 'rgba(111,207,155,0.12)',
-  okLine: 'rgba(111,207,155,0.36)',
+  ok: '#34d399',
+  okSoft: 'rgba(52,211,153,0.10)',
+  okLine: 'rgba(52,211,153,0.36)',
   warn: '#f0b46a',
   warnSoft: 'rgba(240,180,106,0.12)',
   warnLine: 'rgba(240,180,106,0.36)',
@@ -53,19 +53,25 @@ const PORTAL_CSS = `
 .cp-root{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
 .cp-root .serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:-0.01em}
 .cp-root .num{font-variant-numeric:tabular-nums}
+.cp-root [class*="rounded"]:not(.cp-round){border-radius:0!important}
+.cp-root .eyebrow{font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${C.faint}}
+.cp-root .cp-tile{background:${C.row};border:1px solid ${C.line};padding:1rem}
+.cp-root .cp-phase{position:relative;padding:1rem 1.1rem;border:1px solid ${C.line};background:${C.row}}
+.cp-root .cp-phase[data-state="active"]{border-color:${C.crimsonLine};background:linear-gradient(160deg,${C.crimsonSoft},transparent 60%),${C.row}}
+.cp-root .cp-phase[data-state="active"]::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:${C.crimson}}
 .cp-root :focus-visible{outline:2px solid ${C.crimson};outline-offset:2px}
-.cp-root .cp-btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;border-radius:.625rem;font-weight:600;font-size:.875rem;padding:.55rem 1rem;min-height:2.5rem;cursor:pointer;white-space:nowrap;border:1px solid transparent;transition:background-color .15s,border-color .15s,color .15s}
+.cp-root .cp-btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;border-radius:0;font-weight:600;font-size:.875rem;padding:.55rem 1rem;min-height:2.5rem;cursor:pointer;white-space:nowrap;border:1px solid transparent;transition:background-color .15s,border-color .15s,color .15s}
 .cp-root .cp-btn:disabled{opacity:.45;cursor:not-allowed}
 .cp-root .cp-btn-primary{background:${C.crimson};color:#fff}
 .cp-root .cp-btn-primary:hover:not(:disabled){background:${C.crimsonHover}}
 .cp-root .cp-btn-quiet{background:${C.raised};color:${C.body};border-color:${C.line}}
 .cp-root .cp-btn-quiet:hover:not(:disabled){border-color:${C.lineStrong};color:${C.text}}
 .cp-root .cp-btn-sm{min-height:2.125rem;padding:.35rem .75rem;font-size:.8125rem}
-.cp-root .cp-card{background:${C.sheet};border:1px solid ${C.line};border-radius:1rem}
+.cp-root .cp-card{background:${C.sheet};border:1px solid ${C.line};border-radius:0}
 .cp-root .cp-tab{padding:.7rem .25rem;margin-right:1.5rem;font-size:.9375rem;font-weight:500;color:${C.muted};border-bottom:2px solid transparent;cursor:pointer;background:none;transition:color .15s,border-color .15s;white-space:nowrap}
 .cp-root .cp-tab:hover{color:${C.text}}
 .cp-root .cp-tab[aria-selected="true"]{color:${C.text};border-bottom-color:${C.crimson}}
-.cp-root .cp-chip{padding:.35rem .8rem;border-radius:999px;font-size:.8125rem;font-weight:500;color:${C.muted};background:${C.row};border:1px solid ${C.line};cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s}
+.cp-root .cp-chip{padding:.35rem .8rem;border-radius:0;font-size:.8125rem;font-weight:500;color:${C.muted};background:${C.row};border:1px solid ${C.line};cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s}
 .cp-root .cp-chip:hover{color:${C.text};border-color:${C.lineStrong}}
 .cp-root .cp-chip[aria-pressed="true"]{background:${C.crimson};border-color:${C.crimson};color:#fff}
 .cp-root .cp-track{transition:border-color .15s}
@@ -80,11 +86,11 @@ const PORTAL_CSS = `
 `
 
 /* ── Small building blocks ───────────────────────────────────────────────── */
-function Stat({ label, value, note, id }) {
+function Stat({ label, value, note, id, icon: Icon }) {
   return (
-    <div id={id} className="min-w-0">
-      <dt className="text-sm" style={{ color: C.muted }}>{label}</dt>
-      <dd className="m-0 mt-1 text-2xl font-semibold num truncate" style={{ color: C.text }}>{value}</dd>
+    <div id={id} className="cp-tile min-w-0">
+      <dt className="eyebrow flex items-center gap-1.5">{Icon && <Icon className="w-3.5 h-3.5" aria-hidden="true" />}{label}</dt>
+      <dd className="m-0 mt-2 text-2xl font-semibold num truncate" style={{ color: C.text }}>{value}</dd>
       {note && <p className="m-0 mt-0.5 text-[13px]" style={{ color: C.faint }}>{note}</p>}
     </div>
   )
@@ -317,6 +323,7 @@ export default function CreatorPortal({ portalId, slug }) {
     if (!needsCreatorLogin || isOperatorSession || !getCreatorSession()) { setOwnedProjectIds([]); return }
     creatorMe().then((r) => setOwnedProjectIds((r.projects || []).map((p) => p.id))).catch(() => setOwnedProjectIds([]))
   }, [needsCreatorLogin, isOperatorSession, project?.id])
+  const creatorSession = typeof window !== 'undefined' ? getCreatorSession() : null
   const canOpenWorkspace = !needsCreatorLogin || isOperatorSession || (ownedProjectIds || []).includes(project?.id)
 
   useEffect(() => {
@@ -670,27 +677,27 @@ export default function CreatorPortal({ portalId, slug }) {
   const activePhaseSteps = useMemo(() => {
     if (currentPhase === 2) {
       return [
-        { id: 'plan', num: '01', label: '1. Plan & Spec', fullLabel: 'Product & Build Plan', isDone: p2Guards.isStep1Done },
-        { id: 'build', num: '02', label: '2. Build MVP', fullLabel: 'Engineering Build', isDone: p2Guards.isStep2Done },
-        { id: 'beta', num: '03', label: '3. Beta Test', fullLabel: 'Beta Testing', isDone: p2Guards.isStep3Done },
-        { id: 'gate', num: '04', label: '4. Launch Gate', fullLabel: 'Iterate & Launch Gate', isDone: p2Guards.isStep4Done },
+        { id: 'plan', num: '01', label: '1. Plan', fullLabel: 'Product + build plan', isDone: p2Guards.isStep1Done },
+        { id: 'build', num: '02', label: '2. Build', fullLabel: 'Build the MVP', isDone: p2Guards.isStep2Done },
+        { id: 'beta', num: '03', label: '3. Beta', fullLabel: 'Beta test', isDone: p2Guards.isStep3Done },
+        { id: 'gate', num: '04', label: '4. Gate', fullLabel: 'Iterate + launch gate', isDone: p2Guards.isStep4Done },
       ]
     }
     if (currentPhase === 3) {
       return [
-        { id: 'prep', num: '01', label: '1. Prepare', fullLabel: 'Launch Preparation', isDone: p3Guards.isStep1Done },
-        { id: 'launch', num: '02', label: '2. Launch & Monitor', fullLabel: 'Live Telemetry', isDone: p3Guards.isStep2Done },
-        { id: 'review', num: '03', label: '3. Optimization', fullLabel: 'Review & Retarget', isDone: p3Guards.isStep3Done },
-        { id: 'scale', num: '04', label: '4. Retention', fullLabel: 'Scale & Community', isDone: p3Guards.isStep4Done },
+        { id: 'prep', num: '01', label: '1. Prepare', fullLabel: 'Prepare the launch', isDone: p3Guards.isStep1Done },
+        { id: 'launch', num: '02', label: '2. Launch', fullLabel: 'Launch + monitor', isDone: p3Guards.isStep2Done },
+        { id: 'manager', num: '03', label: '3. Manager', fullLabel: 'AI launch manager', isDone: p3Guards.isStep3Done },
+        { id: 'report', num: '04', label: '4. Report', fullLabel: 'Report + decision', isDone: p3Guards.isStep4Done },
       ]
     }
     // Default Phase 1 (Validation Execution Workspace - EXACT MATCH with Admin Dashboard!)
     return [
-      { id: 'plan', num: '01', label: '1. Plan', fullLabel: 'Validation Plan', isDone: p1Guards.isStep1Done },
-      { id: 'assets', num: '02', label: '2. Assets', fullLabel: 'Validation Assets', isDone: p1Guards.isStep2Done },
-      { id: 'campaign', num: '03', label: '3. Campaign', fullLabel: 'Creator Campaign', isDone: p1Guards.isStep3Done },
-      { id: 'optimize', num: '04', label: '4. Optimize', fullLabel: 'Run & Optimize', isDone: p1Guards.isStep4Done },
-      { id: 'gate', num: '05', label: '5. Gate', fullLabel: 'Validation Gate', isDone: p1Guards.isGatePassed || p1Guards.isStep5Done },
+      { id: 'plan', num: '01', label: '1. Plan', fullLabel: 'Validation plan', isDone: p1Guards.isStep1Done },
+      { id: 'assets', num: '02', label: '2. Assets', fullLabel: 'Validation assets', isDone: p1Guards.isStep2Done },
+      { id: 'campaign', num: '03', label: '3. Campaign', fullLabel: 'Creator campaign', isDone: p1Guards.isStep3Done },
+      { id: 'optimize', num: '04', label: '4. Optimize', fullLabel: 'Run + optimize', isDone: p1Guards.isStep4Done },
+      { id: 'gate', num: '05', label: '5. Gate', fullLabel: 'Validation gate', isDone: p1Guards.isGatePassed || p1Guards.isStep5Done },
     ]
   }, [currentPhase, p1Guards, p2Guards, p3Guards])
 
@@ -876,49 +883,27 @@ export default function CreatorPortal({ portalId, slug }) {
       <style>{PORTAL_CSS}</style>
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header id="tour-portal-header" className="sticky top-0 z-40" style={{ background: C.sheet, borderBottom: `1px solid ${C.line}` }}>
-        <div className="max-w-[1180px] mx-auto h-16 px-4 sm:px-6 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center" style={{ background: C.raised, border: `1px solid ${C.lineStrong}` }}>
-              {resolvedAvatar && !avatarLoadError ? (
-                <img src={resolvedAvatar} alt="" className="w-full h-full object-cover" onError={() => setAvatarLoadError(true)} />
-              ) : (
-                <span className="font-semibold text-sm" style={{ color: C.crimsonText }}>{(creatorName || 'C').charAt(0).toUpperCase()}</span>
-              )}
-            </div>
-            <div className="min-w-0 leading-tight">
-              <p className="serif m-0 text-xl truncate" style={{ color: C.text }}>{productName}</p>
-              <p className="m-0 text-[13px] truncate hidden sm:block" style={{ color: C.muted }}>with {creatorName}</p>
-            </div>
+      <header id="tour-portal-header" className="sticky top-0 z-40" style={{ background: 'rgba(5,5,6,0.92)', backdropFilter: 'blur(10px)', borderBottom: `1px solid ${C.line}` }}>
+        <div className="max-w-[1180px] mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-4 min-w-0">
+            <span className="text-[13px] font-bold tracking-[0.18em] uppercase shrink-0" style={{ color: C.text }}>Co<span style={{ color: C.crimson }}>Launch</span></span>
+            <span className="hidden sm:block w-px h-5" style={{ background: C.lineStrong }} aria-hidden="true" />
+            <span className="hidden sm:inline text-sm truncate" style={{ color: C.muted }}>Creator portal</span>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             {!isTrackChoicePending && (
-              <div role="group" aria-label="View" className="flex items-center p-1 rounded-xl" style={{ background: C.row, border: `1px solid ${C.line}` }}>
-                {[{ id: 'launch_kit', label: 'Launch kit', short: 'Kit' }, { id: 'projectos', label: 'Project OS', short: 'OS' }].map((v) => (
-                  <button
-                    key={v.id}
-                    type="button"
-                    aria-pressed={activeMainView === v.id}
-                    onClick={() => setActiveMainView(v.id)}
-                    className="px-2.5 sm:px-3 py-1.5 rounded-lg text-sm font-semibold cursor-pointer transition-colors"
-                    style={activeMainView === v.id ? { background: C.crimson, color: '#fff' } : { color: C.muted }}
-                  >
-                    <span className="sm:hidden">{v.short}</span>
-                    <span className="hidden sm:inline">{v.label}</span>
+              <div role="group" aria-label="View" className="flex items-center" style={{ border: `1px solid ${C.line}` }}>
+                {[{ id: 'launch_kit', label: 'Launch kit', short: 'Kit', Icon: Rocket }, { id: 'projectos', label: 'Workspace', short: 'Work', Icon: Hammer }].map((v) => (
+                  <button key={v.id} type="button" aria-pressed={activeMainView === v.id} onClick={() => setActiveMainView(v.id)}
+                    className="px-3 py-1.5 text-sm font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
+                    style={activeMainView === v.id ? { background: C.crimson, color: '#fff' } : { color: C.muted }}>
+                    <v.Icon className="w-3.5 h-3.5 hidden sm:block" aria-hidden="true" />
+                    <span className="sm:hidden">{v.short}</span><span className="hidden sm:inline">{v.label}</span>
                   </button>
                 ))}
               </div>
             )}
-
-            <span
-              id="tour-portal-badge"
-              className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[13px] font-medium"
-              style={{ color: C.body, border: `1px solid ${C.line}`, background: C.row }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: isDiyActive ? C.ok : C.faint }} aria-hidden="true" />
-              {isTrackChoicePending ? 'Choose a track' : trackLabel}
-            </span>
 
             <div className="relative">
               <button
@@ -936,6 +921,7 @@ export default function CreatorPortal({ portalId, slug }) {
                 <>
                   <button type="button" aria-label="Close menu" tabIndex={-1} className="fixed inset-0 z-40 cursor-default" onClick={() => setIsMobileNavOpen(false)} />
                   <div role="menu" className="cp-card cp-fade absolute right-0 top-full mt-2 w-64 z-50 p-1.5" style={{ borderColor: C.lineStrong }}>
+                    {creatorSession?.user?.email && <p className="m-0 px-3 pt-2 pb-2.5 text-xs truncate" style={{ color: C.faint, borderBottom: `1px solid ${C.line}` }}>Signed in as <span style={{ color: C.body }}>{creatorSession.user.email}</span></p>}
                     <button role="menuitem" type="button" className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 cursor-pointer hover:bg-white/5"
                       style={{ color: C.body }}
                       onClick={() => { setIsMobileNavOpen(false); isDiyActive ? startCreatorPortalPostPaymentTour(true) : startCreatorPortalPrePaymentTour(true) }}>
@@ -955,6 +941,13 @@ export default function CreatorPortal({ portalId, slug }) {
                       onClick={() => { setIsMobileNavOpen(false); setShowAgreementModal(true) }}>
                       <FileText className="w-4 h-4" aria-hidden="true" /> 50/50 agreement
                     </button>
+                    {creatorSession && (
+                      <button role="menuitem" type="button" className="w-full text-left px-3 py-2 text-sm flex items-center gap-2.5 cursor-pointer hover:bg-white/5"
+                        style={{ color: C.body, borderTop: `1px solid ${C.line}` }}
+                        onClick={() => { setIsMobileNavOpen(false); setCreatorSession(null); window.location.assign('/creator/login') }}>
+                        <LogOut className="w-4 h-4" aria-hidden="true" /> Sign out
+                      </button>
+                    )}
                     {!isDiyActive && (
                       <button role="menuitem" type="button" className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2.5 cursor-pointer hover:bg-white/5"
                         style={{ color: C.text }}
@@ -971,7 +964,7 @@ export default function CreatorPortal({ portalId, slug }) {
       </header>
 
       {toast && (
-        <div role="status" className="cp-fade fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl flex items-center gap-2"
+        <div role="status" className="cp-fade fixed bottom-6 right-6 z-50 px-4 py-3 text-sm font-medium shadow-2xl flex items-center gap-2"
           style={{ background: C.raised, color: C.text, border: `1px solid ${C.okLine}` }}>
           <Check className="w-4 h-4" style={{ color: C.ok }} aria-hidden="true" />
           <span>{toast}</span>
@@ -980,36 +973,65 @@ export default function CreatorPortal({ portalId, slug }) {
 
       <main className="flex-1 w-full max-w-[1180px] mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-        {/* ── Progress strip ───────────────────────────────────────────────── */}
-        <section aria-label="Project progress" className="space-y-3">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h1 className="serif m-0 text-3xl" style={{ color: C.text }}>
-              {isTrackChoicePending ? 'Choose how to build' : `Phase ${currentPhase} of 3: ${phaseName}`}
-            </h1>
-            <p className="m-0 text-sm" style={{ color: C.muted }}>
-              {isTrackChoicePending ? 'Pick a track to start' : `${doneStepCount} of ${activePhaseSteps.length} steps done`}
-            </p>
+        {/* ── Hero: who, what, and where the venture is ───────────────────── */}
+        <section aria-label="Project" className="cp-card overflow-hidden">
+          <div className="p-5 sm:p-7 flex flex-col md:flex-row md:items-end justify-between gap-5" style={{ background: `radial-gradient(120% 140% at 0% 0%, ${C.crimsonSoft}, transparent 55%)` }}>
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="cp-round w-14 h-14 rounded-full overflow-hidden shrink-0 flex items-center justify-center" style={{ background: C.raised, border: `1px solid ${C.lineStrong}` }}>
+                {resolvedAvatar && !avatarLoadError ? (
+                  <img src={resolvedAvatar} alt="" className="w-full h-full object-cover" onError={() => setAvatarLoadError(true)} />
+                ) : (
+                  <span className="serif text-2xl" style={{ color: C.crimsonText }}>{(creatorName || 'C').charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="eyebrow m-0">{isTrackChoicePending ? 'Choose how to build' : `${trackLabel} track`}</p>
+                <h1 className="serif m-0 mt-1 text-4xl sm:text-5xl leading-none truncate" style={{ color: C.text }}>{productName}</h1>
+                <p className="m-0 mt-2 text-sm" style={{ color: C.muted }}>with {creatorName}{project?.creatorHandle ? ` · @${String(project.creatorHandle).replace(/^@/, '')}` : ''}</p>
+              </div>
+            </div>
+            {!isTrackChoicePending && (
+              <div className="md:text-right shrink-0">
+                <p className="eyebrow m-0">Pre-orders</p>
+                <p className="m-0 mt-1"><span className="serif text-4xl num" style={{ color: C.text }}>${presalesRevenue.toLocaleString()}</span>{hasTarget && <span className="text-sm ml-1.5" style={{ color: C.muted }}>/ ${presaleTarget.toLocaleString()}</span>}</p>
+                {hasTarget && <div className="mt-2 h-1.5 w-full md:w-56 md:ml-auto" style={{ background: C.raised }}><div className="h-full" style={{ width: `${targetPct}%`, background: targetPct >= 100 ? C.ok : C.crimson }} /></div>}
+              </div>
+            )}
           </div>
-          <ol className="m-0 p-0 list-none flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-            {stepsForStrip.map((s, i) => (
-              <li key={s.id} className="flex items-center gap-2 shrink-0" aria-current={s.state === 'active' ? 'step' : undefined}>
-                <span
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold num"
-                  style={
-                    s.state === 'done' ? { background: C.ok, color: '#08090c' }
-                    : s.state === 'active' ? { background: C.crimson, color: '#fff' }
-                    : { border: `1px solid ${C.lineStrong}`, color: C.muted }
-                  }
-                >
-                  {s.state === 'done' ? <Check className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" /> : i + 1}
-                </span>
-                <span className="text-sm" style={{ color: s.state === 'upcoming' ? C.muted : C.text, fontWeight: s.state === 'active' ? 600 : 500 }}>
-                  {s.fullLabel || s.label}
-                </span>
-                {i < stepsForStrip.length - 1 && <span className="w-5 h-px" style={{ background: s.state === 'done' ? C.ok : C.lineStrong }} aria-hidden="true" />}
-              </li>
-            ))}
-          </ol>
+
+          {!isTrackChoicePending && (
+            <div className="p-4 sm:p-5 space-y-4" style={{ borderTop: `1px solid ${C.line}` }}>
+              <ol className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {[[1, 'Validate', 'Prove people will pay', FlaskConical], [2, 'Build', 'Ship the MVP, beta test it', Hammer], [3, 'Launch', 'Go live and grow', Rocket]].map(([n, name, sub, I]) => {
+                  const st = currentPhase > n ? 'done' : currentPhase === n ? 'active' : 'upcoming'
+                  return (
+                    <li key={n} className="cp-phase flex items-center gap-3" data-state={st} aria-current={st === 'active' ? 'step' : undefined}>
+                      <span className="w-9 h-9 flex items-center justify-center shrink-0" style={st === 'done' ? { background: C.okSoft, border: `1px solid ${C.okLine}`, color: C.ok } : st === 'active' ? { background: C.crimson, color: '#fff' } : { border: `1px solid ${C.lineStrong}`, color: C.faint }}>
+                        {st === 'done' ? <Check className="w-4 h-4 stroke-[3]" aria-hidden="true" /> : <I className="w-4 h-4" aria-hidden="true" />}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: st === 'active' ? C.crimsonText : C.faint }}>Phase {n}{st === 'done' ? ' · done' : st === 'active' ? ' · now' : ''}</span>
+                        <span className="block text-sm font-semibold" style={{ color: st === 'upcoming' ? C.muted : C.text }}>{name}</span>
+                        <span className="block text-xs truncate" style={{ color: C.faint }}>{sub}</span>
+                      </span>
+                    </li>
+                  )
+                })}
+              </ol>
+              <div className="flex flex-wrap items-center gap-x-1 gap-y-2">
+                <span className="eyebrow mr-2">Phase {currentPhase} · {doneStepCount}/{activePhaseSteps.length}</span>
+                {stepsForStrip.map((s, i) => (
+                  <span key={s.id} className="flex items-center gap-1">
+                    <span className="px-2.5 py-1 text-xs font-medium flex items-center gap-1.5" aria-current={s.state === 'active' ? 'step' : undefined}
+                      style={s.state === 'done' ? { color: C.ok, background: C.okSoft, border: `1px solid ${C.okLine}` } : s.state === 'active' ? { color: '#fff', background: C.crimson, border: `1px solid ${C.crimson}` } : { color: C.muted, border: `1px solid ${C.line}` }}>
+                      {s.state === 'done' && <Check className="w-3 h-3 stroke-[3]" aria-hidden="true" />}{s.fullLabel || s.label}
+                    </span>
+                    {i < stepsForStrip.length - 1 && <span className="w-3 h-px" style={{ background: C.lineStrong }} aria-hidden="true" />}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {upgradeRow}
@@ -1096,7 +1118,8 @@ export default function CreatorPortal({ portalId, slug }) {
               <ProjectOS project={project} onUpdateProject={handleUpdateProject} userRole="creator" isDIY={isDiyActive} />
             </div>
           ) : isDiyActive ? (
-            <section className="cp-card p-6 sm:p-8 max-w-xl" aria-label="Sign in">
+            <section className="cp-card p-6 sm:p-8 max-w-xl" aria-label="Sign in" style={{ borderTop: `2px solid ${C.crimson}` }}>
+              <Lock className="w-5 h-5 mb-3" style={{ color: C.crimsonText }} aria-hidden="true" />
               {needsCreatorLogin && ownedProjectIds === null ? (
                 <p className="m-0" style={{ color: C.muted }}>Checking your sign-in…</p>
               ) : project?.creatorAccount ? (
@@ -1149,30 +1172,13 @@ export default function CreatorPortal({ portalId, slug }) {
         ) : (
           /* ── Launch kit ───────────────────────────────────────────────── */
           <>
-            <section className="cp-card p-5 sm:p-6 space-y-5" aria-label="Validation goal">
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <p className="m-0 text-sm" style={{ color: C.muted }}>Pre-orders so far</p>
-                  <p className="m-0 mt-1">
-                    <span className="serif text-5xl num" style={{ color: C.text }}>${presalesRevenue.toLocaleString()}</span>
-                    {hasTarget && <span className="text-lg ml-2" style={{ color: C.muted }}>of ${presaleTarget.toLocaleString()} goal</span>}
-                  </p>
-                </div>
-                {hasTarget
-                  ? <p className="m-0 text-base font-semibold num" style={{ color: targetPct >= 100 ? C.ok : C.text }}>{targetPct}% of goal</p>
-                  : <p className="m-0 text-sm" style={{ color: C.warn }}>No goal set yet. Your studio contact will confirm it.</p>}
-              </div>
-              {hasTarget && (
-                <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={targetPct} aria-label="Progress to presale goal"
-                  className="h-2.5 w-full rounded-full overflow-hidden" style={{ background: C.raised }}>
-                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${targetPct}%`, background: targetPct >= 100 ? C.ok : C.crimson }} />
-                </div>
-              )}
-              <dl className="m-0 pt-5 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5" style={{ borderTop: `1px solid ${C.line}` }}>
-                <Stat id="tour-portal-equity" label={shareLabel} value={`$${shareValue.toLocaleString()}`} note={isDiyActive ? 'All presales' : 'Estimate, before fees'} />
-                <Stat label="Pre-orders" value={totalBackersCount} note={hasPrice ? `$${dynamicPresalePrice} per pre-order` : 'Price not set'} />
-                <Stat label="Conversion" value={conversionLabel} note={visitorsCount > 0 ? `${visitorsCount.toLocaleString()} visitors` : 'No visits recorded yet'} />
-                <Stat label="Time left" value={daysRemaining === null ? '—' : `${daysRemaining} day${daysRemaining === 1 ? '' : 's'}`} note={sprintTotalDays ? `${sprintTotalDays}-day sprint` : 'Sprint length not set'} />
+            <section aria-label="Validation numbers" className="space-y-2">
+              {!hasTarget && <p className="m-0 text-sm" style={{ color: C.muted }}>No pre-order goal is set yet. Your studio contact will confirm it.</p>}
+              <dl className="m-0 grid grid-cols-2 lg:grid-cols-4 gap-2">
+                <Stat id="tour-portal-equity" icon={PieChart} label={shareLabel} value={`$${shareValue.toLocaleString()}`} note={isDiyActive ? 'All presales' : 'Estimate, before fees'} />
+                <Stat icon={Users} label="Pre-orders" value={totalBackersCount} note={hasPrice ? `$${dynamicPresalePrice} each` : 'Price not set'} />
+                <Stat icon={Percent} label="Conversion" value={conversionLabel} note={visitorsCount > 0 ? `${visitorsCount.toLocaleString()} visitors` : 'No visits yet'} />
+                <Stat icon={Clock} label="Time left" value={daysRemaining === null ? '—' : `${daysRemaining} day${daysRemaining === 1 ? '' : 's'}`} note={sprintTotalDays ? `${sprintTotalDays}-day sprint` : 'Sprint length not set'} />
               </dl>
             </section>
 
@@ -1197,8 +1203,8 @@ export default function CreatorPortal({ portalId, slug }) {
                     ) : (
                       <>
                         {todayTask ? (
-                          <div className="cp-card p-5 space-y-3" style={{ background: C.raised, borderColor: C.lineStrong }}>
-                            <p className="m-0 text-sm font-semibold" style={{ color: C.crimsonText }}>
+                          <div className="cp-card p-5 space-y-3" style={{ background: `linear-gradient(160deg, ${C.crimsonSoft}, transparent 55%), ${C.sheet}`, borderColor: C.crimsonLine, borderLeft: `3px solid ${C.crimson}` }}>
+                            <p className="eyebrow m-0" style={{ color: C.crimsonText }}>
                               Do this next{todayTask.day ? `, day ${todayTask.day}` : ''}{todayTask.channel ? ` on ${todayTask.channel}` : ''}
                             </p>
                             <h2 className="serif m-0 text-2xl leading-snug" style={{ color: C.text }}>{todayTask.title}</h2>

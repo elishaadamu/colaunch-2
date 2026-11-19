@@ -148,7 +148,10 @@ function Login() {
     e.preventDefault()
     setBusy(true); setError('')
     try {
-      const r = await creatorLogin(email.trim(), password)
+      const f = e.currentTarget
+      const em = (email || f.querySelector('input[type=email]')?.value || '').trim()
+      const pw = password || f.querySelector('input[autocomplete=current-password]')?.value || ''
+      const r = await creatorLogin(em, pw)
       const s = { token: r.token, user: r.user, expiresAt: Date.now() + (r.expiresIn || 0) * 1000 }
       setCreatorSession(s); setSession(s)
       go(r.projects || [])
@@ -180,7 +183,7 @@ function Login() {
         <Field icon={Mail} label="Email"><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required /></Field>
         <Field icon={Lock} label="Password"><PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" /></Field>
         <ErrorBox>{error}</ErrorBox>
-        <button type="submit" className="btn" disabled={busy || !email.trim() || !password}>{busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null}Sign in</button>
+        <button type="submit" className="btn" disabled={busy}>{busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null}Sign in</button>
       </form>
     </Shell>
   )
