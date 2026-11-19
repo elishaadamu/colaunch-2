@@ -1587,6 +1587,11 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
   const verifiedCount = (engineeringTasks || []).filter(t => t.verified).length
   const progressPercent = Math.round((verifiedCount / totalTasksCount) * 100)
 
+  // Plans made by the old prompt copied its sample tasks word for word. Flag them so they're regenerated.
+  const TEMPLATE_TASK_TITLES = [/scaffold ui canvas/i, /workspace components/i, /implement postgresql db models & crud apis/i, /oauth jwt session rotation/i, /stripe webhook signature verification & entitlements/i]
+  const templateTaskCount = (engineeringTasks || []).filter((t) => TEMPLATE_TASK_TITLES.some((re) => re.test(t.title || ''))).length
+  const planIsStaleTemplate = Boolean(buildPlan) && templateTaskCount >= 2 && !(engineeringTasks || []).some((t) => t.aiOutput || t.executedAt || t.commit)
+
   // Dynamic Product Readiness Score calculation (Real Phase 2 Metrics)
   const isQaPassed = Boolean(qaResults?.status?.includes('Passing') || (qaResults?.passed && qaResults?.passed > 0))
   const totalClusters = (feedbackClusters || []).length || 1
@@ -2013,6 +2018,18 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           <Phase2BuildMVPSkeleton />
         ) : (
         <div className="space-y-5">
+          {planIsStaleTemplate && (
+            <div role="alert" className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.40)' }}>
+              <div className="min-w-0">
+                <p className="m-0 text-sm font-semibold text-[#fbbf24]">This plan isn't specific to {project?.productName || 'this product'}</p>
+                <p className="m-0 mt-1 text-xs text-[#D4D4D8]">{templateTaskCount} of its tasks are generic sample tasks from an older version of the generator. Regenerate to get tasks, tables and features built from this product's own evidence.</p>
+              </div>
+              <button type="button" onClick={handleGenerateAIPlan} disabled={isGenerating} className="shrink-0 px-4 py-2.5 text-xs font-bold bg-[#C81E3C] text-white flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
+                {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}Regenerate for {project?.productName || 'this product'}
+              </button>
+            </div>
+          )}
+
           {/* Subtabs for Step 1 + Unified Single-Go AI Action Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-[#2a2a30] pb-3">
             <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-[#18181C] border border-[#2a2a30]/80 max-w-full overflow-x-auto">
