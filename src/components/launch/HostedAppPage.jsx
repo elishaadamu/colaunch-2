@@ -46,6 +46,7 @@ export default function HostedAppPage({ slug }) {
   useEffect(() => { updatePageSEO({ title: productName, description: data?.project?.productTagline || '' }) }, [productName])
 
   const doc = useMemo(() => {
+    if (data?.release?.url) return ''
     const files = data?.release?.files || []
     if (!files.length) return ''
     const entry = files.find((f) => f.name === data.release.entry) || files[0]
@@ -75,7 +76,9 @@ export default function HostedAppPage({ slug }) {
           <button type="button" className="flex items-center gap-1 cursor-pointer" style={{ color: '#a1a1aa' }} onClick={() => { const w = window.open('', '_blank'); if (w) { w.document.write(doc); w.document.close() } }}><Maximize2 className="w-3.5 h-3.5" />Full screen</button>
         </span>
       </header>
-      <iframe title={productName} srcDoc={doc} sandbox="allow-scripts allow-forms allow-modals allow-popups" className="flex-1 w-full block" style={{ border: 0, background: '#fff', minHeight: 'calc(100vh - 44px)' }} />
+      {data.release?.url ? (
+        <iframe title={productName} src={data.release.url} className="flex-1 w-full block" style={{ border: 0, background: '#fff', minHeight: 'calc(100vh - 44px)' }} />
+      ) : <iframe title={productName} srcDoc={doc} sandbox="allow-scripts allow-forms allow-modals allow-popups" className="flex-1 w-full block" style={{ border: 0, background: '#fff', minHeight: 'calc(100vh - 44px)' }} />}
     </div>
   )
 }

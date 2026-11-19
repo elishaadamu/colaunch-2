@@ -21,6 +21,7 @@ import { deployStaging } from '../../services/opsApi'
 import { verifyProjectTaskWithAI } from '../../services/ai'
 import { computeReadiness, evaluateLaunchGate } from '../../utils/launchGate'
 import Phase2Step4Gate from './phase2/Phase2Step4Gate'
+import BuildAgentPanel from './phase2/BuildAgentPanel'
 import AutomatedQASuite from './AutomatedQASuite'
 import { getPhase2StepGuards } from '../../utils/stepGuards'
 
@@ -3006,6 +3007,25 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               </section>
             )
           })()}
+          <BuildAgentPanel
+            project={project}
+            engineeringTasks={engineeringTasks}
+            showToast={showToast}
+            onRefreshProject={async () => {
+              if (!project?.id) return
+              try {
+                const { getCoLaunchProject } = await import('../../services/opsApi')
+                const fresh = await getCoLaunchProject(project.id)
+                if (Array.isArray(fresh?.engineeringTasks)) {
+                  setEngineeringTasks(fresh.engineeringTasks)
+                  onUpdateProject?.((prev) => ({ ...(prev || {}), engineeringTasks: fresh.engineeringTasks, staging: fresh.staging || prev?.staging }))
+                }
+              } catch (e) { console.warn('[Phase2] agent refresh', e) }
+            }}
+          />
+
+          <details className="group">
+            <summary className="cursor-pointer text-xs font-semibold text-[#A1A1AA] py-2">Quick prototype in the browser studio (not a real build)</summary>
           <div className="keep-dark cloud-code-studio rounded-3xl overflow-hidden shadow-xl border border-[#2a2a30]">
             <CloudCodeStudio
               project={project}
@@ -3032,6 +3052,7 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
               showToast={showToast}
             />
           </div>
+          </details>
 
           {/* Step 2 Footer */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[#2a2a30]">

@@ -507,3 +507,12 @@ export const listLaunchDecisions = (pid) => req('GET', `/launch/${pid}/decisions
 export const confirmLaunchOrder = (sessionId) => req('POST', '/launch/order/confirm', { sessionId })
 export const getProductAccess = (slug, token) => req('GET', `/launch/access?slug=${encodeURIComponent(slug)}&token=${encodeURIComponent(token)}`)
 export const postLaunchEvent = (payload) => req('POST', '/launch/event', payload)
+
+// ── Phase 2 coding agent (MCP) + GitHub ───────────────────────────────────────────────────
+export const getBuildStatus = (pid) => req('GET', `/build/${pid}/status`)
+export const connectBuildGithub = (pid, body) => req('PUT', `/build/${pid}/github`, body)
+export const disconnectBuildGithub = (pid) => req('DELETE', `/build/${pid}/github`)
+export const createBuildAgentKey = (pid, label) => req('POST', `/build/${pid}/keys`, { label })
+export const revokeBuildAgentKey = (pid, prefix) => req('DELETE', `/build/${pid}/keys/${prefix}`)
+export const syncBuildCi = (pid) => req('POST', `/build/${pid}/github/sync`)
+export const getBuildTaskRuns = (pid, taskId) => req('GET', `/build/${pid}/runs/${encodeURIComponent(taskId)}`)

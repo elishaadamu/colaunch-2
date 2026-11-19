@@ -46,7 +46,7 @@ export default function BetaTestingPortal({ slug }) {
         if (!alive) return
         setSession(s)
         setMine(s?.myFeedback || [])
-        if (!s?.staging?.files?.length) setTab('feedback')
+        if (!s?.staging?.files?.length && !s?.staging?.url) setTab('feedback')
         postBetaEvent({ slug, token, type: 'open' }).catch(() => {})
       })
       .catch(() => alive && setLoadError("This beta link isn't active. Check the link in your invite email."))
@@ -65,6 +65,7 @@ export default function BetaTestingPortal({ slug }) {
   }, [productName])
 
   const previewDoc = useMemo(() => {
+    if (staging?.url) return ''
     if (!staging?.files?.length) return ''
     const entry = staging.files.find((f) => f.name === staging.entry) || staging.files[0]
     return compileSandboxPreviewDocument(entry, staging.files)
@@ -142,7 +143,15 @@ export default function BetaTestingPortal({ slug }) {
               <h1 className="serif m-0 text-4xl sm:text-5xl text-white">{firstName ? `Welcome, ${firstName}.` : `Welcome to the ${productName} beta.`}</h1>
               <p className="m-0 mt-2 max-w-2xl" style={{ color: '#a1a1aa' }}>Use it like you would for real. When something breaks, confuses you, or is missing, tell us in the Feedback tab. Every report goes straight to the build team.</p>
             </div>
-            {previewDoc ? (
+            {staging?.url && session.verified ? (
+              <div className="card overflow-hidden">
+                <div className="flex items-center justify-between px-3 py-2 text-xs" style={{ background: '#111114', borderBottom: '1px solid #222227', color: '#a1a1aa' }}>
+                  <span>Staging {staging.version} · deployed {new Date(staging.deployedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span>
+                  <a href={staging.url} target="_blank" rel="noreferrer" style={{ color: '#e4e4e7' }}>Open in a new tab</a>
+                </div>
+                <iframe title={`${productName} beta`} src={staging.url} className="w-full block" style={{ height: '72vh', background: '#fff', border: 0 }} />
+              </div>
+            ) : previewDoc ? (
               <div className="card overflow-hidden">
                 <div className="flex items-center justify-between px-3 py-2 text-xs" style={{ background: '#111114', borderBottom: '1px solid #222227', color: '#a1a1aa' }}>
                   <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" />Staging {staging.version} · deployed {new Date(staging.deployedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span>
