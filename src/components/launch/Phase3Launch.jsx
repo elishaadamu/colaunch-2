@@ -1,2845 +1,755 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Rocket, TrendingUp, Sparkles, CheckCircle, CheckCircle2, ShieldCheck, DollarSign,
-  Users, Activity, ArrowRight, ExternalLink, FileText, Check, Plus,
-  Trash2, RefreshCw, Loader2, Copy, Send, Zap, AlertTriangle, XCircle,
-  BarChart3, Video, MessageSquare, Mail, Layers, Globe, ShieldAlert,
-  Sliders, Award, Compass, Play, Server, Clock, Calendar, CheckSquare,
-  Flame, HelpCircle, ChevronRight, Eye, MousePointerClick, Smartphone,
-  Radio, CheckCheck, Tag, Link2, Shield, LifeBuoy, ChevronDown, ChevronUp, Download, Image as ImageIcon,
-  Lock, AlertCircle, Database, X
+  Rocket, Activity, Bot, FileBarChart, Sparkles, Loader2, Check, X, AlertTriangle, CheckCircle2, XCircle, ExternalLink,
+  Copy, Send, Calendar, Megaphone, ListChecks, Server, CreditCard, Mail, BarChart3, Link2, Bug, LifeBuoy, Users, DollarSign,
+  Percent, MousePointerClick, UserCheck, ShoppingBag, RefreshCw, Pause, Wrench, Instagram, Youtube, MessageSquare, TrendingUp,
+  TrendingDown, Minus, Archive, Scale, ShieldAlert, ClipboardList, ArrowRight, Radio, Code2,
 } from 'lucide-react'
 import {
-  generatePhase3LaunchStrategyAI,
-  generatePhase3CreatorAssetsAI,
-  runAILaunchManagerAI,
-  generatePhase3LaunchReportAI,
-  buildSmartFallbackPhase3Strategy,
-  buildSmartFallbackPhase3CreatorAssets,
-  buildSmartFallbackAILaunchManager,
-  buildSmartFallbackPhase3LaunchReport
-} from '../../services/ai'
-import { getFrontendUrl, updateCoLaunchProject } from '../../services/opsApi'
-import {
-  Phase3LaunchSkeleton,
-  LaunchReportSkeleton,
-  Phase3StrategySkeleton,
-  Phase3AssetsSkeleton,
-  Phase3InfraSkeleton,
-  Phase3ChecklistsSkeleton
-} from './Section2Skeletons'
-import { getPhase3StepGuards } from '../../utils/stepGuards'
-
+  updateCoLaunchProject, updateValidationCampaign, toggleAutonomousCampaignDelivery, sendCampaignPostEmail,
+  getLaunchState, saveLaunchConfig, goLive, pauseLaunch, getLaunchMetrics, postLaunchDecision, listLaunchDecisions,
+} from '../../services/opsApi'
+import { generateLaunchPlanAI, writeLaunchActionAI, summarizeLaunchReportAI } from '../../services/ai'
+import { XLogo } from './PostVisualMockup'
+import { C, P1_SHARED_CSS } from './phase1/phase1Constants'
 import { PUBLIC_APP_URL } from '../../utils/publicUrl'
-export default function Phase3Launch({ project, api, onUpdateProject, activeStepId, onSelectStep }) {
-  // Step & Subtab state with database & URL persistence
-  const [activeStep, setActiveStepState] = useState(() => {
-    if (activeStepId && ['prep', 'monitor', 'manager', 'report'].includes(activeStepId)) {
-      return activeStepId
-    }
-    if (typeof window !== 'undefined') {
-      const sp = new URLSearchParams(window.location.search)
-      const s = sp.get('step') || sp.get('p3_step')
-      if (s && ['prep', 'monitor', 'manager', 'report'].includes(s)) return s
-    }
-    const dbStep = project?.currentStep || project?.current_step
-    if (dbStep && ['prep', 'monitor', 'manager', 'report'].includes(dbStep)) return dbStep
-    return 'prep'
-  })
+import { buildLaunchEvidence, addCreatorTasks } from '../../utils/launchOps'
+import { detectSignals, evaluateLaunchDecision, CHANNEL_LABEL } from '../../utils/launchSignals'
 
-  const [prepSubtab, setPrepSubtab] = useState('strategy')
-  const [assetTab, setAssetTab] = useState('post') // 'post' | 'story' | 'email' | 'video' | 'talking' | 'media' | 'links'
-  const [isLive, setIsLive] = useState(() => project?.launchStatus === 'LIVE' || false)
-  const [saveToast, setSaveToast] = useState('')
-  const [showKillModal, setShowKillModal] = useState(false)
-  const [decisionNotice, setDecisionNotice] = useState(() => project?.decisionNotice || '')
-  const [expandedFaqIndex, setExpandedFaqIndex] = useState(0)
-  const [newCreatorTaskTitle, setNewCreatorTaskTitle] = useState('')
-  const [newOpsTaskTitle, setNewOpsTaskTitle] = useState('')
-
-  // 1. Launch Strategy State (purely from project DB, null if not generated)
-  const [strategy, setStrategy] = useState(() => project?.launchStrategy || null)
-  const [isGeneratingStrategy, setIsGeneratingStrategy] = useState(false)
-
-  // 2. Creator Launch Assets State (purely from project DB, null if not generated)
-  const [creatorAssets, setCreatorAssets] = useState(() => project?.creatorAssets || null)
-  const [isGeneratingAssets, setIsGeneratingAssets] = useState(false)
-
-  // 3. Live Real Telemetry & Channel Attribution State (Strictly real data from project)
-  const realVisitors = Number(project?.visitors || 0)
-  const realCustomers = Array.isArray(project?.reservations) ? project.reservations.length : 0
-  const realRevenue = Number(project?.currentPresales || 0)
-
-  const [telemetry, setTelemetry] = useState(() => project?.launchTelemetry || {
-    visitors: realVisitors,
-    signups: realCustomers,
-    activatedUsers: realCustomers,
-    customers: realCustomers,
-    revenue: realRevenue,
-    uptime: '99.98%',
-    errorRate: '0.00%',
-    avgLatency: '120ms'
-  })
-
-  // Channel Breakdown
-  const [channelStats, setChannelStats] = useState(() => project?.channelStats || null)
-
-  // 4. AI Launch Manager State (null until user sweeps)
-  const [launchManager, setLaunchManager] = useState(() => project?.launchManagerData || null)
-  const [isRunningManager, setIsRunningManager] = useState(false)
-  const [dispatchedActions, setDispatchedActions] = useState(() => project?.dispatchedActions || [])
-
-  // 5. Phase 3 Launch Decision Report State (null until generated)
-  const [launchReport, setLaunchReport] = useState(() => project?.launchReport || null)
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false)
-
-  const showToast = (msg) => {
-    setSaveToast(msg)
-    setTimeout(() => setSaveToast(''), 3500)
-  }
-
-  const p3Guards = getPhase3StepGuards(project, { strategy, telemetry, launchManager, launchReport, decisionNotice })
-
-  const canAccessP3Step = (stepId) => {
-    if (stepId === 'prep') return true
-    if (stepId === 'monitor') return p3Guards.canAccessStep2
-    if (stepId === 'manager') return p3Guards.canAccessStep3
-    if (stepId === 'report') return p3Guards.canAccessStep4
-    return true
-  }
-
-  const getP3StepMissingPrerequisiteText = (stepId) => {
-    if (stepId === 'monitor' && !p3Guards.canAccessStep2) return 'Please complete Step 1 (Prepare Launch) first.'
-    if (stepId === 'manager' && !p3Guards.canAccessStep3) return 'Please complete Step 2 (Launch + Monitor) first.'
-    if (stepId === 'report' && !p3Guards.canAccessStep4) return 'Launch Gate locked: Complete Steps 1–3 first.'
-    return 'Please complete previous steps first.'
-  }
-
-  const setActiveStep = (newStep) => {
-    if (!canAccessP3Step(newStep)) {
-      showToast(getP3StepMissingPrerequisiteText(newStep))
-      return
-    }
-    setActiveStepState(newStep)
-    if (onSelectStep) onSelectStep(newStep)
-    if (typeof window !== 'undefined') {
-      try {
-        const url = new URL(window.location.href)
-        url.searchParams.set('step', newStep)
-        window.history.replaceState({}, '', url.toString())
-      } catch (e) {}
-    }
-    if (project?.id) {
-      import('../../services/opsApi').then(({ updateCoLaunchProject }) => {
-        updateCoLaunchProject(project.id, { currentStep: newStep }).catch(e => console.warn('[Phase3] DB step sync warning:', e))
-      }).catch(() => {})
-    }
-  }
-
-  // Synchronize when activeStepId prop changes
-  useEffect(() => {
-    if (activeStepId && ['prep', 'monitor', 'manager', 'report'].includes(activeStepId)) {
-      if (canAccessP3Step(activeStepId)) {
-        setActiveStepState(activeStepId)
-      }
-    }
-  }, [activeStepId])
-
-  // Auto-fallback if active step is locked
-  useEffect(() => {
-    if (!canAccessP3Step(activeStep)) {
-      if (p3Guards.canAccessStep3) setActiveStepState('manager')
-      else if (p3Guards.canAccessStep2) setActiveStepState('monitor')
-      else setActiveStepState('prep')
-    }
-  }, [activeStep, p3Guards.canAccessStep1, p3Guards.canAccessStep2, p3Guards.canAccessStep3, p3Guards.canAccessStep4])
-
-  // Synchronize all Phase 3 states when project changes
-  useEffect(() => {
-    if (!project) return
-    setStrategy(project.launchStrategy || null)
-    setCreatorAssets(project.creatorAssets || null)
-    setLaunchManager(project.launchManagerData || null)
-    setLaunchReport(project.launchReport || null)
-    setIsLive(project.launchStatus === 'LIVE' || false)
-    setDecisionNotice(project.decisionNotice || '')
-
-    // Refresh telemetry with real project properties
-    const pRev = Number(project.currentPresales || 0)
-    const pCust = Array.isArray(project.reservations) ? project.reservations.length : 0
-    const pVis = Number(project.visitors || 0)
-
-    setTelemetry(prev => ({
-      ...prev,
-      revenue: pRev > 0 ? pRev : prev.revenue,
-      customers: pCust > 0 ? pCust : prev.customers,
-      signups: pCust > 0 ? pCust : prev.signups,
-      activatedUsers: pCust > 0 ? pCust : prev.activatedUsers,
-      visitors: pVis > 0 ? pVis : prev.visitors
-    }))
-
-    if (project.channelStats) setChannelStats(project.channelStats)
-    if (project.dispatchedActions) setDispatchedActions(project.dispatchedActions)
-  }, [project])
-
-  // Persist State Helper
-  const handleSaveState = async (partial) => {
-    if (!project?.id) return
-    const updated = {
-      ...(project || {}),
-      ...partial
-    }
-    if (onUpdateProject) onUpdateProject(prev => ({ ...prev, ...partial }))
-    try {
-      await updateCoLaunchProject(project.id, partial)
-    } catch (e) {
-      console.warn('[Phase3] State sync warning:', e)
-    }
-  }
-
-  // AI 1: Launch Strategy Generation
-  const handleGenerateStrategy = async () => {
-    setIsGeneratingStrategy(true)
-    try {
-      const generated = await generatePhase3LaunchStrategyAI(project, { apiKey: api })
-      setStrategy(generated)
-      await handleSaveState({ launchStrategy: generated })
-      showToast('AI Launch Strategy, Distribution Plan & Schedule generated!')
-    } catch (err) {
-      console.warn('[Phase3] AI Strategy error, loading tailored smart fallback:', err)
-      const fallback = buildSmartFallbackPhase3Strategy(project)
-      setStrategy(fallback)
-      await handleSaveState({ launchStrategy: fallback })
-      showToast('Generated tailored Launch Strategy baseline!')
-    } finally {
-      setIsGeneratingStrategy(false)
-    }
-  }
-
-  // AI 2: Creator Marketing Assets Generation
-  const handleGenerateAssets = async () => {
-    setIsGeneratingAssets(true)
-    try {
-      const generated = await generatePhase3CreatorAssetsAI(project, { apiKey: api, strategy })
-      setCreatorAssets(generated)
-      await handleSaveState({ creatorAssets: generated })
-      showToast('AI Creator Social Media, Scripts & Referral Assets generated!')
-    } catch (err) {
-      console.warn('[Phase3] AI Assets error, loading smart fallback:', err)
-      const fallback = buildSmartFallbackPhase3CreatorAssets(project)
-      setCreatorAssets(fallback)
-      await handleSaveState({ creatorAssets: fallback })
-      showToast('Generated tailored Creator Launch Assets!')
-    } finally {
-      setIsGeneratingAssets(false)
-    }
-  }
-
-  // Production Go-Live Toggle
-  const handleToggleProductionLaunch = async () => {
-    const nextLive = !isLive
-    setIsLive(nextLive)
-    const nextStatus = nextLive ? 'LIVE' : 'PRE-LAUNCH'
-    await handleSaveState({ launchStatus: nextStatus, isLive: nextLive, phase3Monitored: true })
-    if (nextLive) {
-      showToast('Commercial Production Launch is LIVE! Telemetry monitoring active.')
-      setActiveStep('monitor')
-    } else {
-      showToast('Launch paused. Staging mode active.')
-    }
-  }
-
-  // AI 3: AI Launch Manager Diagnostic & Action Dispatcher
-  const handleRunLaunchManager = async () => {
-    setIsRunningManager(true)
-    try {
-      const generated = await runAILaunchManagerAI(project, { apiKey: api, telemetry, strategy })
-      setLaunchManager(generated)
-      await handleSaveState({ launchManagerData: generated, launchManagerDone: true })
-      showToast('AI Launch Manager completed telemetry sweep & drafted growth actions!')
-    } catch (err) {
-      console.warn('[Phase3] AI Launch Manager error, loading smart fallback:', err)
-      const fallback = buildSmartFallbackAILaunchManager(project, telemetry)
-      setLaunchManager(fallback)
-      await handleSaveState({ launchManagerData: fallback, launchManagerDone: true })
-      showToast('Synthesized growth telemetry diagnostics & action items!')
-    } finally {
-      setIsRunningManager(false)
-    }
-  }
-
-  const handleDispatchAction = async (action, idx) => {
-    const actionId = action?.id || `action-${idx}`
-    if (dispatchedActions.includes(actionId)) return
-    const next = [...dispatchedActions, actionId]
-    setDispatchedActions(next)
-
-    const isCreatorTask = action.targetRole === 'Creator' || (action.type || '').toLowerCase().includes('marketing') || (action.type || '').toLowerCase().includes('creator')
-
-    let updatedStrategy = strategy ? { ...strategy } : null
-    if (updatedStrategy) {
-      if (isCreatorTask) {
-        const creatorList = updatedStrategy.creatorChecklist || []
-        const taskTitle = action.title || 'Creator Follow-up Action'
-        if (!creatorList.some(t => t.title === taskTitle)) {
-          updatedStrategy.creatorChecklist = [
-            ...creatorList,
-            {
-              id: `action-${Date.now()}`,
-              title: taskTitle,
-              done: false,
-              time: 'AI Launch Manager Recommendation',
-              generatedContent: action.generatedContent || null
-            }
-          ]
-        }
-      } else {
-        const opsList = updatedStrategy.opsChecklist || []
-        const taskTitle = action.title || 'Technical CRO Sprint Fix'
-        if (!opsList.some(t => t.title === taskTitle)) {
-          updatedStrategy.opsChecklist = [
-            ...opsList,
-            {
-              id: `action-ops-${Date.now()}`,
-              title: taskTitle,
-              done: false,
-              time: 'Technical CRO Sprint',
-              generatedContent: action.generatedContent || null
-            }
-          ]
-        }
-      }
-      setStrategy(updatedStrategy)
-    }
-
-    const updates = {
-      dispatchedActions: next,
-      ...(updatedStrategy ? { launchStrategy: updatedStrategy } : {})
-    }
-
-    await handleSaveState(updates)
-
-    if (isCreatorTask) {
-      showToast(`Assigned to ${project?.creatorName || 'Creator'}'s launch checklist with ready-to-post copy!`)
-    } else {
-      showToast('Assigned to Engineering Ops checklist & CRO sprint!')
-    }
-  }
-
-  // AI 4: Launch Decision Report
-  const handleGenerateLaunchReport = async () => {
-    setIsGeneratingReport(true)
-    try {
-      const generated = await generatePhase3LaunchReportAI(project, { apiKey: api, telemetry, strategy, launchManager })
-      setLaunchReport(generated)
-      await handleSaveState({ launchReport: generated, phase3Complete: true })
-      showToast('Milestone Launch Report synthesized and saved!')
-    } catch (err) {
-      console.warn('[Phase3] AI Report error, loading smart fallback:', err)
-      const fallback = buildSmartFallbackPhase3LaunchReport(project, telemetry)
-      setLaunchReport(fallback)
-      await handleSaveState({ launchReport: fallback, phase3Complete: true })
-      showToast('Synthesized Milestone Launch Report scorecard!')
-    } finally {
-      setIsGeneratingReport(false)
-    }
-  }
-
-  // Toggle checklist item
-  const handleToggleChecklistItem = async (type, index) => {
-    if (!strategy) return
-    const targetKey = type === 'creator' ? 'creatorChecklist' : 'opsChecklist'
-    const list = strategy[targetKey] || []
-    const updated = list.map((item, idx) => idx === index ? { ...item, done: !item.done } : item)
-    const newStrategy = { ...strategy, [targetKey]: updated }
-    setStrategy(newStrategy)
-    await handleSaveState({ launchStrategy: newStrategy })
-  }
-
-  // Add custom task to checklist
-  const handleAddChecklistTask = async (type) => {
-    const title = type === 'creator' ? newCreatorTaskTitle.trim() : newOpsTaskTitle.trim()
-    if (!title || !strategy) return
-    const targetKey = type === 'creator' ? 'creatorChecklist' : 'opsChecklist'
-    const list = strategy[targetKey] || []
-    const updated = [...list, { title, done: false, time: 'Pre-Launch' }]
-    const newStrategy = { ...strategy, [targetKey]: updated }
-    setStrategy(newStrategy)
-    if (type === 'creator') setNewCreatorTaskTitle('')
-    else setNewOpsTaskTitle('')
-    await handleSaveState({ launchStrategy: newStrategy })
-    showToast('Task added to launch checklist.')
-  }
-
-  // Export Full Phase 3 Report to Markdown
-  const handleExportMarkdown = () => {
-    const md = `# Phase 3 Commercial Launch Report: ${project?.productName || 'Product'}
-**Creator:** ${project?.creatorName || 'Creator'}  
-**Status:** ${isLive ? 'LIVE IN PRODUCTION' : 'PRE-LAUNCH'}  
-**Date:** ${new Date().toLocaleDateString()}
-
-## Production Telemetry
-- **Live Revenue:** $${telemetry.revenue.toLocaleString()}
-- **Paying Customers:** ${telemetry.customers}
-- **Visitors:** ${telemetry.visitors.toLocaleString()}
-- **Paid Conversion Rate:** ${telemetry.visitors > 0 ? ((telemetry.customers / telemetry.visitors) * 100).toFixed(1) : '0.0'}%
-- **Uptime:** ${telemetry.uptime}
-
-## Strategic Milestone Verdict
-**Verdict:** ${launchReport?.verdict || 'Awaiting Final Audit'}  
-**Score:** ${launchReport?.score || 94}/100  
-**AI Recommendation:** ${launchReport?.recommendation || 'Proceed with commercial scale'}
-
----
-*Synthesized by CoLaunch Phase 3 OS*
+const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap');
+.p3 .serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:-.01em}
+.p3 .card{background:${C.row};border:1px solid ${C.line}}
+.p3 .well{background:${C.sheet};border:1px solid ${C.line}}
+.p3 .eyebrow{font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${C.faint}}
+.p3 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;white-space:nowrap;font-size:.8125rem;font-weight:600;cursor:pointer;border:1px solid transparent;padding:.55rem .9rem}
+.p3 .btn:disabled{opacity:.45;cursor:not-allowed}
+.p3 .btn-primary{background:${C.crimson};color:#fff}
+.p3 .btn-primary:hover:not(:disabled){filter:brightness(1.1)}
+.p3 .btn-quiet{background:${C.raised};color:${C.body};border-color:${C.line}}
+.p3 .btn-quiet:hover:not(:disabled){border-color:${C.lineStrong};color:${C.text}}
+.p3 .in{width:100%;background:${C.sheet};border:1px solid ${C.line};color:${C.text};padding:.55rem .75rem;font-size:.875rem;outline:none}
+.p3 .in:focus{border-color:${C.crimsonLine}}
+.p3 textarea.in{resize:vertical;line-height:1.5}
+.p3 .lbl{display:block;font-size:.75rem;font-weight:600;color:${C.body};margin-bottom:.35rem}
+.p3 .tab{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem .95rem;font-size:.8125rem;font-weight:600;color:${C.muted};border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.p3 .tab[aria-selected="true"]{color:${C.text};border-color:${C.crimson}}
+.p3 .on-accent,.p3 .on-accent *{color:#050506!important}
+.p3 :focus-visible{outline:2px solid ${C.crimson};outline-offset:2px}
+@keyframes p3pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.p3 .live{animation:p3pulse 1.8s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.p3 .live{animation:none}}
 `
-    const blob = new Blob([md], { type: 'text/markdown' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${(project?.productName || 'product').toLowerCase().replace(/[^a-z0-9]/g, '_')}_phase3_launch_report.md`
-    a.click()
-    URL.revokeObjectURL(url)
-    showToast('Downloaded Phase 3 Launch Report!')
+const STEPS = [
+  { id: 'prep', label: '1. Prepare launch', Icon: ClipboardList },
+  { id: 'monitor', label: '2. Launch + monitor', Icon: Activity },
+  { id: 'manager', label: '3. AI launch manager', Icon: Bot },
+  { id: 'report', label: '4. Report + decision', Icon: FileBarChart },
+]
+const CH_ICON = { instagram: Instagram, video: Youtube, x: XLogo, newsletter: Mail, dm: MessageSquare, direct: Link2 }
+const money = (n) => `$${Math.round(Number(n) || 0).toLocaleString()}`
+const BACKEND = (import.meta.env.VITE_BACKEND_URL || 'https://creator-forge-backend-jj1y.onrender.com').replace(/\/$/, '')
+const STATUS_ICON = { pass: [CheckCircle2, C.ok], warn: [AlertTriangle, C.warn], fail: [XCircle, C.crimsonText] }
+
+export default function Phase3Launch({ project, onUpdateProject, activeStepId, onSelectStep }) {
+  const pid = project?.id
+  const [step, setStep] = useState(() => (['prep', 'monitor', 'manager', 'report'].includes(activeStepId) ? activeStepId : (project?.launchStatus === 'LIVE' ? 'monitor' : 'prep')))
+  useEffect(() => { if (['prep', 'monitor', 'manager', 'report'].includes(activeStepId)) setStep(activeStepId) }, [activeStepId])
+  const go = (id) => { setStep(id); onSelectStep?.(id); if (pid) updateCoLaunchProject(pid, { currentStep: id }).catch(() => {}) }
+
+  const [toast, setToast] = useState('')
+  const say = (m) => { setToast(m); setTimeout(() => setToast(''), 4500) }
+  const save = async (patch) => {
+    onUpdateProject?.((prev) => ({ ...(prev || {}), ...patch }))
+    if (pid) await updateCoLaunchProject(pid, patch).catch((e) => console.warn('[Phase3] save', e))
   }
 
-  const origin = PUBLIC_APP_URL
-  const productSlug = (project?.slug || project?.productName || 'product').toLowerCase().replace(/[^a-z0-9]/g, '-')
-  const conversionRate = telemetry.visitors > 0 ? ((telemetry.customers / telemetry.visitors) * 100).toFixed(1) : '0.0'
-  const infra = strategy?.productInfrastructure || null
+  // ── Server state: config, readiness, live metrics ───────────────────────────────────────
+  const [state, setState] = useState(null)
+  const [metrics, setMetrics] = useState(null)
+  const [refreshedAt, setRefreshedAt] = useState(null)
+  const [refreshing, setRefreshing] = useState(false)
+  const refresh = async () => {
+    if (!pid) return
+    setRefreshing(true)
+    try {
+      const [s, m] = await Promise.all([getLaunchState(pid), getLaunchMetrics(pid)])
+      setState(s); setMetrics(m); setRefreshedAt(Date.now())
+    } catch (e) { console.warn('[Phase3] refresh', e) } finally { setRefreshing(false) }
+  }
+  useEffect(() => {
+    refresh()
+    const id = setInterval(() => { if (document.visibilityState === 'visible') refresh() }, 60000)
+    return () => clearInterval(id)
+  }, [pid]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const isLive = (state?.launchStatus || project?.launchStatus) === 'LIVE'
+  const slug = state?.slug || (project?.slug || project?.productName || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-')
+  const kit = project?.campaignKit || {}
+  const plan = project?.launchPlan || null
+  const actions = project?.launchActions || []
 
   return (
-    <div className="space-y-6 text-left">
-      {/* Rich Toast Notification */}
-      {saveToast && typeof document !== 'undefined' && createPortal(
-        <div
-          data-toast="true"
-          className="toast-notification keep-dark fixed bottom-6 right-6 z-[99999] px-4 py-2.5 rounded-2xl bg-[#050506]/95 border border-amber-500/40 text-white font-bold text-xs shadow-2xl flex items-center gap-2 backdrop-blur-md animate-slide-up"
-          style={{ backgroundColor: '#111114', color: '#ffffff', border: '1px solid #2a2a30' }}
-        >
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span style={{ color: '#ffffff' }}>{saveToast}</span>
-          <button
-            type="button"
-            onClick={() => setSaveToast('')}
-            className="text-[#71717A] hover:text-white p-1 rounded-lg ml-2 cursor-pointer"
-            style={{ color: '#a1a1aa' }}
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>,
-        document.body
-      )}
+    <div className="p3 p1-themed p1-rise p-5 sm:p-6 space-y-6" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+      <style>{P1_SHARED_CSS + CSS}</style>
+      {toast && <div role="status" className="fixed bottom-5 right-5 z-[9999] px-4 py-3 text-sm max-w-sm" style={{ background: C.raised, border: `1px solid ${C.lineStrong}`, color: C.text }}>{toast}</div>}
 
-      {/* Kill Confirmation Modal */}
-      {showKillModal && (
-        <div className="fixed inset-0 z-50 bg-[#050506]/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="max-w-md w-full p-6 rounded-3xl bg-[#0C0C0E] border border-red-500/30 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-red-300">
-              <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h3 className="text-base font-black text-[#FAFAFA]">Confirm Phase 3 Sunset / Kill</h3>
-            </div>
-            <p className="text-xs text-[#A1A1AA] leading-relaxed">
-              Are you sure you want to sunset <strong className="text-[#FAFAFA]">{project?.productName || 'this product'}</strong>? You can choose to archive the repository, halt marketing campaigns, and notify existing active subscribers.
-            </p>
-            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-[11px] text-red-300 font-medium">
-              Active Subscribers: <strong className="text-red-300">{telemetry.customers}</strong> • Total Revenue: <strong className="text-red-300">${telemetry.revenue.toLocaleString()}</strong>
-            </div>
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowKillModal(false)}
-                className="px-4 py-2 rounded-xl bg-[#18181C] hover:bg-[#222227] text-[#D4D4D8] text-xs font-semibold cursor-pointer transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowKillModal(false)
-                  const dec = 'Product sunsetted and archived. Marketing campaigns paused.'
-                  setDecisionNotice(dec)
-                  handleSaveState({ decisionNotice: dec })
-                  showToast('Project archived.')
-                }}
-                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs cursor-pointer shadow-xs transition-colors"
-              >
-                Confirm Sunset & Archive
-              </button>
-            </div>
-          </div>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <p className="eyebrow m-0">Phase 3 · Launch</p>
+          <h2 className="serif m-0 mt-1 text-3xl sm:text-4xl leading-tight" style={{ color: C.text }}>Turn the MVP into a business</h2>
         </div>
-      )}
-
-      {/* Top Banner: Goal & Production Revenue Metrics */}
-      {(() => {
-        const creatorTasks = strategy?.creatorChecklist || []
-        const opsTasks = strategy?.opsChecklist || []
-        const totalTasksCount = creatorTasks.length + opsTasks.length
-        const completedTasksCount = creatorTasks.filter(t => t.done).length + opsTasks.filter(t => t.done).length
-        const allChecklistsDone = totalTasksCount > 0 && completedTasksCount === totalTasksCount
-        const isReadyToLaunch = allChecklistsDone
-
-        return (
-          <div className="p-6 sm:p-7 rounded-3xl bg-[#111114]/90 border border-[#2a2a30]/90 shadow-sm space-y-5 text-[#FAFAFA]">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-mono font-bold uppercase tracking-wider">
-                    Phase 3 Checkpoint — COMMERCIAL LAUNCH
-                  </span>
-                  <span className={`text-[10px] font-mono font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 ${
-                    isLive
-                      ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                      : isReadyToLaunch
-                        ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                        : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${isLive || isReadyToLaunch ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                    <span>{isLive ? 'LIVE IN PRODUCTION' : isReadyToLaunch ? 'READY TO LAUNCH' : 'PRE-LAUNCH PREPARATION'}</span>
-                  </span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-[#FAFAFA] tracking-tight">
-                  Turn the Working MVP into a Real Revenue-Producing Business
-                </h2>
-                <p className="text-xs sm:text-sm text-[#A1A1AA] max-w-2xl leading-relaxed">
-                  Execute commercial launch, coordinate creator marketing assets, ensure production infrastructure reliability, and monitor live channel attribution.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
-                {isLive ? (
-                  <button
-                    type="button"
-                    onClick={handleToggleProductionLaunch}
-                    className="px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white whitespace-nowrap shrink-0 min-w-max"
-                  >
-                    <Rocket className="w-4 h-4 shrink-0 text-white" />
-                    <span className="whitespace-nowrap text-white font-bold">Production Live ✓</span>
-                  </button>
-                ) : isReadyToLaunch ? (
-                  <button
-                    type="button"
-                    onClick={handleToggleProductionLaunch}
-                    className="px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white whitespace-nowrap shrink-0 min-w-max"
-                  >
-                    <Rocket className="w-4 h-4 shrink-0 text-white" />
-                    <span className="whitespace-nowrap text-white font-extrabold">Go Live / Launch Now 🚀</span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveStep('prep')
-                      setPrepSubtab('checklists')
-                      showToast(`Complete all launch checklists in Step 1 before launching (${completedTasksCount}/${totalTasksCount} verified).`)
-                    }}
-                    className="px-4 py-2.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] border border-[#2a2a30] text-xs text-[#D4D4D8] font-semibold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0 shadow-2xs"
-                    title="Complete all Creator & Engineering checklist items in Step 1 to unlock launch"
-                  >
-                    <Lock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                    <span className="whitespace-nowrap text-[#D4D4D8] font-semibold">Launch Locked ({completedTasksCount}/{totalTasksCount} Verified)</span>
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={handleExportMarkdown}
-                  className="p-2.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold flex items-center gap-1.5 cursor-pointer shrink-0 shadow-2xs transition-colors"
-                  title="Download Launch Report"
-                >
-                  <FileText className="w-4 h-4 text-[#A1A1AA]" />
-                </button>
-              </div>
-            </div>
-
-            {/* Live Production Telemetry Bar */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-              <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
-                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <DollarSign className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>Live Revenue</span>
-                </span>
-                <div className="text-xl sm:text-2xl font-black text-emerald-300 font-mono">
-                  ${telemetry.revenue.toLocaleString()}
-                </div>
-                <span className="text-[10px] text-[#71717A] block font-mono">Processed revenue</span>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
-                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-[#FF8FA3]" />
-                  <span>Paying Customers</span>
-                </span>
-                <div className="text-xl sm:text-2xl font-black text-[#FAFAFA] font-mono">
-                  {telemetry.customers}
-                </div>
-                <span className="text-[10px] text-[#71717A] block font-mono">{telemetry.visitors > 0 ? ((telemetry.customers / telemetry.visitors) * 100).toFixed(1) : '0.0'}% paid conversion</span>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
-                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <Eye className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Visitor Traffic</span>
-                </span>
-                <div className="text-xl sm:text-2xl font-black text-[#FF8FA3] font-mono">
-                  {telemetry.visitors.toLocaleString()}
-                </div>
-                <span className="text-[10px] text-[#71717A] block font-mono">Tracked sessions</span>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
-                <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <Radio className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>Top Channel</span>
-                </span>
-                <div className="text-xs sm:text-sm font-bold text-[#FAFAFA] truncate">
-                  {channelStats && channelStats.length > 0 ? (channelStats.find(c => c.topPerformer)?.channel || channelStats[0]?.channel) : 'Creator Direct'}
-                </div>
-                <span className="text-[10px] text-emerald-300 font-semibold block font-mono">
-                  {channelStats && channelStats.length > 0 ? (channelStats.find(c => c.topPerformer)?.convRate || channelStats[0]?.convRate) : '0.0%'} Conversion
-                </span>
-              </div>
-            </div>
-          </div>
-        )
-      })()}
-
-      {/* 4-Step Phase 3 Stepper Navigation */}
-      <div className="p-3 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-sm space-y-2.5">
-        <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#1C1C20]">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-600 shrink-0" />
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#E4E4E7]">
-              Commercial Launch & Scale Pipeline
-            </span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#050506] text-white text-xs font-mono font-bold shadow-xs select-none">
-            <span className="text-[10px] text-[#D4D4D8] uppercase font-mono tracking-wider">Milestones:</span>
-            <span className="font-extrabold text-xs text-emerald-400">
-              {[p3Guards.isStep1Done, p3Guards.isStep2Done, p3Guards.isStep3Done, p3Guards.isStep4Done].filter(Boolean).length} of 4 Complete
-            </span>
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold" style={isLive ? { background: C.okSoft, border: `1px solid ${C.okLine}`, color: C.ok } : { background: C.sheet, border: `1px solid ${C.line}`, color: C.muted }}>
+            <Radio className={`w-3 h-3 ${isLive ? 'live' : ''}`} />{isLive ? 'Live' : (state?.launchStatus === 'PAUSED' ? 'Paused' : state?.launchStatus === 'CLOSED' ? 'Closed' : 'Not launched')}
+          </span>
+          <button type="button" className="btn btn-quiet" onClick={refresh} disabled={refreshing} aria-label="Refresh"><RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} /></button>
         </div>
+      </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {[
-            { id: 'prep', num: '01', label: '1. Prepare Launch', icon: Calendar, isDone: p3Guards.isStep1Done, canAccess: p3Guards.canAccessStep1 },
-            { id: 'monitor', num: '02', label: '2. Launch + Monitor', icon: TrendingUp, isDone: p3Guards.isStep2Done, canAccess: p3Guards.canAccessStep2 },
-            { id: 'manager', num: '03', label: '3. AI Launch Manager', icon: Sparkles, isDone: p3Guards.isStep3Done, canAccess: p3Guards.canAccessStep3 },
-            { id: 'report', num: '04', label: '4. Launch Report + Decision', icon: ShieldCheck, isDone: p3Guards.isStep4Done, canAccess: p3Guards.canAccessStep4 },
-          ].map((tab) => {
-            const isActive = activeStep === tab.id
-            const isDone = tab.isDone
-            const isLocked = !tab.canAccess
-            const Icon = tab.icon
+      <div role="tablist" className="flex overflow-x-auto" style={{ borderBottom: `1px solid ${C.line}` }}>
+        {STEPS.map(({ id, label, Icon }) => (
+          <button key={id} role="tab" aria-selected={step === id} type="button" className="tab" onClick={() => go(id)}><Icon className="w-3.5 h-3.5" />{label}</button>
+        ))}
+      </div>
 
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveStep(tab.id)}
-                disabled={isLocked}
-                title={isLocked ? getP3StepMissingPrerequisiteText(tab.id) : tab.label}
-                className={`flex items-center justify-between p-3 rounded-xl text-xs transition-all cursor-pointer border ${
-                  isActive
-                    ? 'bg-[#050506] text-white border-[#222227] shadow-md font-bold'
-                    : isDone
-                    ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/15 font-semibold'
-                    : isLocked
-                    ? 'bg-[#111114] text-[#71717A] border-[#2a2a30]/80 cursor-not-allowed opacity-60'
-                    : 'bg-[#111114] text-[#D4D4D8] hover:text-[#FAFAFA] hover:bg-[#18181C] border-[#2a2a30]'
-                }`}
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-400' : isDone ? 'text-emerald-300' : isLocked ? 'text-[#71717A]' : 'text-[#A1A1AA]'}`} />
-                  <div className="text-left min-w-0">
-                    <span className={`block text-[9px] font-mono uppercase tracking-wider font-bold ${isActive ? 'text-[#71717A]' : 'text-[#71717A]'}`}>
-                      Step {tab.num}
-                    </span>
-                    <span className="truncate block font-sans font-bold text-[11px] sm:text-xs">
-                      {tab.label.replace(/^\d+\.\s*/, '')}
-                    </span>
+      {step === 'prep' && <PrepareStep {...{ project, pid, state, refresh, plan, kit, save, say, slug, go }} />}
+      {step === 'monitor' && <MonitorStep {...{ project, pid, state, metrics, refresh, refreshedAt, isLive, slug, save, say, go }} />}
+      {step === 'manager' && <ManagerStep {...{ project, pid, state, metrics, isLive, kit, actions, save, say, slug }} />}
+      {step === 'report' && <ReportStep {...{ project, pid, metrics, plan, actions, save, say, go }} />}
+    </div>
+  )
+}
+
+/* ─── Step 1: Prepare launch ─────────────────────────────────────────────────────────── */
+function PrepareStep({ project, pid, state, refresh, plan, kit, save, say, slug, go }) {
+  const cfg = state?.config || {}
+  const [generating, setGenerating] = useState(false)
+  const [genError, setGenError] = useState('')
+  const [draft, setDraft] = useState(null)
+  const [savingCfg, setSavingCfg] = useState(false)
+  const [queuing, setQueuing] = useState(false)
+  const [openPost, setOpenPost] = useState(null)
+  useEffect(() => {
+    if (state) setDraft({
+      mode: cfg.mode || 'hosted', productionUrl: cfg.productionUrl || '', price: cfg.price ?? '', priceLabel: cfg.priceLabel || '',
+      supportEmail: cfg.supportEmail || '', faqs: cfg.faqs || plan?.faqs || [], onboarding: cfg.onboarding || plan?.onboarding || { subject: '', body: '', firstStep: '' },
+      launchDate: cfg.launchDate || plan?.launchDate || '',
+    })
+  }, [state]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const generate = async () => {
+    setGenerating(true); setGenError('')
+    try {
+      const evidence = buildLaunchEvidence(project, { config: cfg, publicUrl: PUBLIC_APP_URL, slug })
+      const res = await generateLaunchPlanAI(project, evidence)
+      const next = { ...res, generatedAt: new Date().toISOString(), creatorChecklist: (res.creatorChecklist || []).map((t, i) => ({ ...t, id: `cc-${i}`, done: false })), opsChecklist: (res.opsChecklist || []).map((t, i) => ({ ...t, id: `oc-${i}`, done: false })) }
+      await save({ launchPlan: next, launchStrategy: { creatorChecklist: next.creatorChecklist, opsChecklist: next.opsChecklist } })
+      // FAQs, onboarding and date feed the product readiness checks
+      await saveLaunchConfig(pid, { faqs: cfg.faqs?.length ? cfg.faqs : res.faqs, onboarding: cfg.onboarding?.subject ? cfg.onboarding : res.onboarding, launchDate: cfg.launchDate || res.launchDate })
+      await refresh()
+      say('Launch plan written from your validation and beta evidence.')
+    } catch (e) { setGenError(e.message || 'Could not generate the plan.') } finally { setGenerating(false) }
+  }
+
+  const toggleCheck = (key, id) => {
+    const list = (plan?.[key] || []).map((t) => (t.id === id ? { ...t, done: !t.done } : t))
+    const next = { ...plan, [key]: list }
+    save({ launchPlan: next, launchStrategy: { creatorChecklist: next.creatorChecklist, opsChecklist: next.opsChecklist } })
+  }
+
+  const queued = (kit.postingSchedule || []).filter((t) => t.fromLaunchPlan)
+  const queuePosts = async () => {
+    if (!plan?.schedule?.length) return
+    setQueuing(true)
+    try {
+      const fresh = (kit.postingSchedule || []).filter((t) => !t.fromLaunchPlan || t.emailed || t.done)
+      const { kit: nextKit, created } = addCreatorTasks({ ...kit, postingSchedule: fresh }, [...plan.schedule].sort((a, b) => (a.day - b.day) || String(a.time).localeCompare(String(b.time))).map((s) => ({
+        title: `Launch day ${s.day}: ${s.title}`, channel: s.channel, draftKey: s.draftKey, content: s.content, description: `${s.time ? `${s.time} · ` : ''}${CHANNEL_LABEL[s.channel] || s.channel}`,
+      })), { prefix: 'launch', fields: { fromLaunchPlan: true } })
+      await updateValidationCampaign(pid, { campaign_kit: nextKit, campaignKit: nextKit })
+      await save({ campaignKit: nextKit })
+      const email = kit.autonomousEmailDelivery?.recipientEmail || project?.creatorEmail
+      if (email) {
+        await toggleAutonomousCampaignDelivery(pid, { enabled: true, recipientEmail: email, timezone: kit.autonomousEmailDelivery?.timezone || kit.creatorTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone, sendHour: kit.autonomousEmailDelivery?.sendHour ?? 8 })
+        say(`${created.length} launch posts queued. ${project?.creatorName || 'The creator'} gets one each morning at ${email}.`)
+      } else say(`${created.length} launch posts queued. Add the creator's email in Phase 1 Step 3 to start daily delivery.`)
+    } catch (e) { say(`Could not queue posts: ${e.message}`) } finally { setQueuing(false) }
+  }
+
+  const saveCfg = async () => {
+    setSavingCfg(true)
+    try {
+      await saveLaunchConfig(pid, { ...draft, price: draft.price === '' ? null : Number(draft.price), faqs: (draft.faqs || []).filter((f) => f.q && f.a) })
+      await refresh(); say('Launch settings saved.')
+    } catch (e) { say(`Could not save: ${e.message}`) } finally { setSavingCfg(false) }
+  }
+
+  const checks = state?.readiness || []
+  const criticalFails = checks.filter((c) => c.critical && c.status === 'fail').length
+
+  return (
+    <div className="space-y-6">
+      {/* Strategy */}
+      <section className="card p-4 sm:p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+          <div>
+            <p className="eyebrow m-0 flex items-center gap-1.5"><Megaphone className="w-3 h-3" />Strategy & creator assets</p>
+            <h3 className="serif m-0 mt-1 text-2xl" style={{ color: C.text }}>{plan ? (plan.summary || 'Launch plan') : 'Plan the launch from what you learned'}</h3>
+            {!plan && <p className="m-0 mt-1 text-sm max-w-2xl" style={{ color: C.muted }}>The AI uses your validation channels and conversion, applied experiments, survey quotes, objections and beta issues to pick the date, channels, offer, messaging and every post.</p>}
+          </div>
+          <button type="button" className="btn btn-primary shrink-0" onClick={generate} disabled={generating}>{generating ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Planning…</> : <><Sparkles className="w-3.5 h-3.5" />{plan ? 'Re-plan' : 'Generate launch plan'}</>}</button>
+        </div>
+        {genError && <p className="m-0 text-sm" style={{ color: C.crimsonText }}>{genError}</p>}
+        {plan && (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              <div className="well p-3.5 space-y-2">
+                <p className="m-0 text-xs flex items-center gap-1.5" style={{ color: C.muted }}><Calendar className="w-3.5 h-3.5" />Launch date</p>
+                <p className="serif m-0 text-2xl" style={{ color: C.text }}>{cfg.launchDate || plan.launchDate || '—'}</p>
+                {(plan.offers || []).map((o) => <p key={o.name} className="m-0 text-xs" style={{ color: C.body }}><strong style={{ color: C.text }}>{o.name}</strong> · {money(o.price)} · {o.terms}{o.deadline ? ` · ${o.deadline}` : ''}</p>)}
+              </div>
+              <div className="well p-3.5 space-y-2">
+                <p className="m-0 text-xs" style={{ color: C.muted }}>Channels</p>
+                {(plan.channels || []).map((c) => { const I = CH_ICON[c.channel] || Link2; return <p key={c.channel} className="m-0 text-xs" style={{ color: C.body }}><span className="inline-flex items-center gap-1 font-semibold" style={{ color: C.text }}><I className="w-3 h-3" />{CHANNEL_LABEL[c.channel] || c.channel}</span> · {c.why}</p> })}
+              </div>
+              <div className="well p-3.5 space-y-2">
+                <p className="m-0 text-xs" style={{ color: C.muted }}>Messaging</p>
+                {(plan.messaging || []).map((m) => <p key={m.angle} className="m-0 text-xs" style={{ color: C.body }}><strong style={{ color: C.text }}>{m.angle}:</strong> “{m.hook}”{m.objection ? <span style={{ color: C.faint }}> · answers “{m.objection}”</span> : null}</p>)}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="m-0 text-sm font-semibold" style={{ color: C.text }}>Launch schedule · {plan.schedule.length} posts</p>
+                <button type="button" className="btn btn-quiet" onClick={queuePosts} disabled={queuing}>{queuing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}{queued.length ? `Re-queue (${queued.filter((t) => t.emailed).length}/${queued.length} sent)` : "Send to creator's daily email"}</button>
+              </div>
+              <ol className="list-none m-0 p-0 space-y-1.5">
+                {[...plan.schedule].sort((a, b) => (a.day - b.day) || String(a.time).localeCompare(String(b.time))).map((s, i) => {
+                  const I = CH_ICON[s.channel] || Link2
+                  const q = queued.find((t) => t.title === `Launch day ${s.day}: ${s.title}`)
+                  return (
+                    <li key={i} className="well">
+                      <button type="button" className="w-full p-3 flex items-center gap-3 text-left cursor-pointer" onClick={() => setOpenPost(openPost === i ? null : i)}>
+                        <span className="w-14 shrink-0 text-xs font-semibold" style={{ color: C.muted }}>Day {s.day}{s.time ? <span className="block text-[10px]" style={{ color: C.faint }}>{s.time}</span> : null}</span>
+                        <I className="w-3.5 h-3.5 shrink-0" style={{ color: C.muted }} />
+                        <span className="flex-1 text-sm" style={{ color: C.text }}>{s.title}</span>
+                        {q && <span className="text-[11px] font-semibold" style={{ color: q.done ? C.ok : q.emailed ? C.ok : C.warn }}>{q.done ? 'Posted' : q.emailed ? 'Emailed' : 'Queued'}</span>}
+                      </button>
+                      {openPost === i && <pre className="m-0 px-3 pb-3 text-xs whitespace-pre-wrap" style={{ color: C.body, fontFamily: 'inherit' }}>{s.content}</pre>}
+                    </li>
+                  )
+                })}
+              </ol>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {[['creatorChecklist', `${project?.creatorName || 'Creator'} checklist`, Users], ['opsChecklist', 'Co-Launch checklist', Wrench]].map(([key, title, I]) => (
+                <div key={key} className="well p-3.5 space-y-2">
+                  <p className="m-0 text-sm font-semibold flex items-center gap-1.5" style={{ color: C.text }}><I className="w-3.5 h-3.5" />{title} · {(plan[key] || []).filter((t) => t.done).length}/{(plan[key] || []).length}</p>
+                  {(plan[key] || []).map((t) => (
+                    <label key={t.id} className="flex items-start gap-2 text-sm cursor-pointer" style={{ color: t.done ? C.faint : C.body }}>
+                      <input type="checkbox" checked={!!t.done} onChange={() => toggleCheck(key, t.id)} className="mt-1" style={{ accentColor: C.crimson }} />
+                      <span style={{ textDecoration: t.done ? 'line-through' : 'none' }}>{t.title}{t.when ? <span className="text-[11px] ml-1" style={{ color: C.faint }}>· {t.when}</span> : null}</span>
+                    </label>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* Product readiness */}
+      <section className="card p-4 sm:p-5 space-y-4">
+        <div>
+          <p className="eyebrow m-0 flex items-center gap-1.5"><Server className="w-3 h-3" />Product</p>
+          <h3 className="serif m-0 mt-1 text-2xl" style={{ color: C.text }}>Readiness checks</h3>
+          <p className="m-0 mt-1 text-sm" style={{ color: C.muted }}>Each check reads the real setup. Critical failures block going live.</p>
+        </div>
+        <ul className="list-none m-0 p-0 grid grid-cols-1 md:grid-cols-2 gap-2">
+          {checks.map((c) => { const [I, col] = STATUS_ICON[c.status]; return (
+            <li key={c.key} className="well p-3 flex items-start gap-3">
+              <I className="w-4 h-4 mt-0.5 shrink-0" style={{ color: col }} />
+              <div className="min-w-0"><p className="m-0 text-sm font-semibold" style={{ color: C.text }}>{c.label}{c.critical ? '' : <span className="ml-1.5 text-[10px] font-normal" style={{ color: C.faint }}>recommended</span>}</p><p className="m-0 text-xs" style={{ color: C.muted }}>{c.detail}</p></div>
+            </li>
+          ) })}
+          {!checks.length && <li className="well p-3 text-sm" style={{ color: C.faint }}>Loading checks…</li>}
+        </ul>
+
+        {draft && (
+          <div className="space-y-4 pt-4" style={{ borderTop: `1px solid ${C.line}` }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <span className="lbl">Where customers use the product</span>
+                <div className="grid grid-cols-2 gap-2">
+                  {[['hosted', 'Hosted by CoLaunch', 'Promote the Phase 2 staging build to production at /app/' + slug], ['external', 'Our own production app', 'Connect your deployed URL; uptime is checked every 5 min']].map(([id, t, d]) => (
+                    <button key={id} type="button" onClick={() => setDraft({ ...draft, mode: id })} className="p-3 text-left cursor-pointer" style={{ background: draft.mode === id ? C.crimsonSoft : C.sheet, border: `1px solid ${draft.mode === id ? C.crimsonLine : C.line}` }}>
+                      <span className="block text-sm font-semibold" style={{ color: C.text }}>{t}</span><span className="block text-[11px] mt-0.5" style={{ color: C.muted }}>{d}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {draft.mode === 'external' ? (
+                <label className="block"><span className="lbl">Production URL</span><input className="in" value={draft.productionUrl} onChange={(e) => setDraft({ ...draft, productionUrl: e.target.value })} placeholder="https://app.yourproduct.com" /></label>
+              ) : (
+                <div className="well p-3 text-xs" style={{ color: C.muted }}>At launch, staging {project?.staging?.version || '(not deployed)'} becomes the production release. Customers get a personal link to /app/{slug} in their welcome email.</div>
+              )}
+            </div>
+            {draft.mode === 'external' && (
+              <div className="well p-3 space-y-2">
+                <p className="m-0 text-xs font-semibold flex items-center gap-1.5" style={{ color: C.text }}><Code2 className="w-3.5 h-3.5" />Add to your product's HTML for analytics, activation and error tracking</p>
+                <code className="block text-[11px] p-2 overflow-x-auto" style={{ background: C.row, color: C.body }}>{`<script src="${BACKEND}${state?.snippetPath || ''}" async></script>`}</code>
+                <p className="m-0 text-[11px]" style={{ color: C.faint }}>Then call <code>colaunch.track('signup')</code> when someone creates an account and <code>colaunch.track('activated')</code> when they complete the first key action. Errors are reported automatically.</p>
+                <button type="button" className="btn btn-quiet" onClick={() => { navigator.clipboard?.writeText(`<script src="${BACKEND}${state?.snippetPath || ''}" async></script>`); say('Snippet copied.') }}><Copy className="w-3.5 h-3.5" />Copy snippet</button>
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <label className="block"><span className="lbl">Launch price ($)</span><input className="in" type="number" min={1} value={draft.price} onChange={(e) => setDraft({ ...draft, price: e.target.value })} placeholder="e.g. 29" /></label>
+              <label className="block"><span className="lbl">Price label</span><input className="in" value={draft.priceLabel} onChange={(e) => setDraft({ ...draft, priceLabel: e.target.value })} placeholder="per month" /></label>
+              <label className="block"><span className="lbl">Launch date</span><input className="in" type="date" value={draft.launchDate || ''} onChange={(e) => setDraft({ ...draft, launchDate: e.target.value })} /></label>
+              <label className="block"><span className="lbl">Support email</span><input className="in" type="email" value={draft.supportEmail} onChange={(e) => setDraft({ ...draft, supportEmail: e.target.value })} placeholder="help@product.com" /></label>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <span className="lbl flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" />Welcome email (sent with each customer's access link)</span>
+                <input className="in" value={draft.onboarding.subject || ''} onChange={(e) => setDraft({ ...draft, onboarding: { ...draft.onboarding, subject: e.target.value } })} placeholder="Subject" />
+                <textarea className="in" rows={6} value={draft.onboarding.body || ''} onChange={(e) => setDraft({ ...draft, onboarding: { ...draft.onboarding, body: e.target.value } })} placeholder="Use {{first_name}}, {{product}}, {{link}}, {{first_step}}, {{creator}}" />
+                <input className="in" value={draft.onboarding.firstStep || ''} onChange={(e) => setDraft({ ...draft, onboarding: { ...draft.onboarding, firstStep: e.target.value } })} placeholder="First step a new customer should take" />
+              </div>
+              <div className="space-y-2">
+                <span className="lbl flex items-center gap-1.5"><LifeBuoy className="w-3.5 h-3.5" />FAQs ({(draft.faqs || []).length})</span>
+                {(draft.faqs || []).map((f, i) => (
+                  <div key={i} className="well p-2 space-y-1.5">
+                    <div className="flex gap-2"><input className="in" value={f.q} onChange={(e) => { const faqs = [...draft.faqs]; faqs[i] = { ...f, q: e.target.value }; setDraft({ ...draft, faqs }) }} placeholder="Question" />
+                      <button type="button" aria-label="Remove" className="btn btn-quiet" onClick={() => setDraft({ ...draft, faqs: draft.faqs.filter((_, j) => j !== i) })}><X className="w-3.5 h-3.5" /></button></div>
+                    <textarea className="in" rows={2} value={f.a} onChange={(e) => { const faqs = [...draft.faqs]; faqs[i] = { ...f, a: e.target.value }; setDraft({ ...draft, faqs }) }} placeholder="Answer" />
                   </div>
-                </div>
+                ))}
+                <button type="button" className="btn btn-quiet" onClick={() => setDraft({ ...draft, faqs: [...(draft.faqs || []), { q: '', a: '' }] })}>Add FAQ</button>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="m-0 text-xs" style={{ color: criticalFails ? C.warn : C.ok }}>{criticalFails ? `${criticalFails} critical ${criticalFails === 1 ? 'check fails' : 'checks fail'}` : 'All critical checks pass'}</p>
+              <div className="flex gap-2">
+                <button type="button" className="btn btn-quiet" onClick={saveCfg} disabled={savingCfg}>{savingCfg ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}Save settings</button>
+                <button type="button" className="btn btn-primary" onClick={async () => { await saveCfg(); await save({ phase3Prepared: true }); go('monitor') }}>Ready to launch <ArrowRight className="w-3.5 h-3.5" /></button>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+    </div>
+  )
+}
 
-                <div className="shrink-0 ml-1.5">
-                  {isDone ? (
-                    <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center">
-                      <Check className="w-3 h-3 stroke-[3]" />
-                    </div>
-                  ) : isLocked ? (
-                    <Lock className="w-3.5 h-3.5 text-[#71717A]" />
-                  ) : isActive ? (
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-                  ) : (
-                    <span className="w-2 h-2 rounded-full bg-[#2a2a30] shrink-0" />
+/* ─── Step 2: Launch + monitor ───────────────────────────────────────────────────────── */
+function MonitorStep({ project, pid, state, metrics, refresh, refreshedAt, isLive, slug, save, say, go }) {
+  const [busy, setBusy] = useState(false)
+  const [blocked, setBlocked] = useState('')
+  const [reason, setReason] = useState('')
+  const t = metrics?.totals || {}
+  const h = metrics?.health || {}
+
+  const launch = async () => {
+    setBusy(true)
+    try {
+      const res = await goLive(pid, { overrideReason: blocked ? reason : undefined, notifyCustomers: true })
+      setBlocked(''); setReason('')
+      await save({ launchStatus: 'LIVE', isLive: true, liveAt: res.liveAt, publicMode: 'live', phase3Monitored: true })
+      await refresh()
+      say(`You're live. ${res.onboardingSent} customers emailed their access link.`)
+    } catch (e) {
+      const msg = e?.message || ''
+      if (/not ready/i.test(msg)) setBlocked(msg.replace(/^.*?Not ready:\s*/i, ''))
+      else say(`Launch failed: ${msg}`)
+    } finally { setBusy(false) }
+  }
+  const pause = async () => { setBusy(true); try { await pauseLaunch(pid); await save({ launchStatus: 'PAUSED', publicMode: 'preorder' }); await refresh(); say('Launch paused. The public page is back to pre-order mode.') } finally { setBusy(false) } }
+
+  const kpis = [
+    ['Visitors', MousePointerClick, (t.visitors ?? 0).toLocaleString(), 'unique, since launch'],
+    ['Sign-ups', UserCheck, (t.signups ?? 0).toLocaleString(), 'from your product'],
+    ['Activation', Activity, t.activationRate != null ? `${t.activationRate}%` : '—', `${t.activated ?? 0} of ${t.withAccess ?? 0} customers used it`],
+    ['Customers', Users, (t.customers ?? 0).toLocaleString(), 'paid since launch'],
+    ['Revenue', DollarSign, money(t.revenue), 'confirmed by Stripe', C.ok],
+    ['Conversion', Percent, t.conversion != null ? `${t.conversion}%` : '—', 'visitor → paid'],
+  ]
+  const maxRev = Math.max(1, ...(metrics?.daily || []).map((d) => d.revenue))
+  const maxVis = Math.max(1, ...(metrics?.daily || []).map((d) => d.visitors))
+  const agoS = refreshedAt ? Math.round((Date.now() - refreshedAt) / 1000) : null
+
+  return (
+    <div className="space-y-6">
+      <section className="p-5 space-y-3" style={{ background: isLive ? `linear-gradient(160deg, ${C.okSoft}, transparent 55%), ${C.row}` : C.row, border: `1px solid ${isLive ? C.okLine : C.line}` }}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <p className="eyebrow m-0 flex items-center gap-1.5"><Rocket className="w-3 h-3" />Launch</p>
+            <h3 className="serif m-0 mt-1 text-3xl" style={{ color: C.text }}>{isLive ? `Live since ${new Date(metrics?.liveAt || project?.liveAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}` : 'Ready when you are'}</h3>
+            <p className="m-0 mt-1 text-sm max-w-2xl" style={{ color: C.muted }}>
+              Going live switches /preorder/{slug} to buy-now at the launch price{state?.config?.mode !== 'external' ? `, promotes staging to production at /app/${slug}` : ''}, and emails every backer their access link.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <a className="btn btn-quiet" href={`/preorder/${slug}`} target="_blank" rel="noreferrer">Public page <ExternalLink className="w-3.5 h-3.5" /></a>
+            {isLive ? <button type="button" className="btn btn-quiet" onClick={pause} disabled={busy}><Pause className="w-3.5 h-3.5" />Pause</button>
+              : <button type="button" className="btn btn-primary" onClick={launch} disabled={busy}>{busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Rocket className="w-3.5 h-3.5" />}Go live</button>}
+          </div>
+        </div>
+        {blocked && (
+          <div className="p-3 space-y-2" style={{ background: C.warnSoft, border: `1px solid ${C.warnLine}` }}>
+            <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.warn }}><ShieldAlert className="w-4 h-4" />Not ready: {blocked}</p>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button type="button" className="btn btn-quiet" onClick={() => go('prep')}>Fix in Prepare</button>
+              <input className="in" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Or explain why you're launching anyway (15+ characters)" />
+              <button type="button" className="btn on-accent" style={{ background: C.warn }} disabled={reason.trim().length < 15 || busy} onClick={launch}>Launch anyway</button>
+            </div>
+          </div>
+        )}
+        {(t.testOrders || 0) > 0 && <p className="m-0 text-xs" style={{ color: C.faint }}>{t.testOrders} test-mode orders excluded from revenue. Add a live Stripe key on the server to take real payments.</p>}
+      </section>
+
+      <div className="flex items-center justify-between">
+        <p className="eyebrow m-0">Live dashboard</p>
+        <span className="text-[11px]" style={{ color: C.faint }}>{agoS !== null ? `updated ${agoS < 10 ? 'just now' : `${agoS}s ago`} · refreshes every minute` : 'loading…'}</span>
+      </div>
+      <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2.5">
+        {kpis.map(([label, I, value, sub, tone]) => (
+          <div key={label} className="card p-4 space-y-1">
+            <div className="flex items-center justify-between"><span className="text-xs" style={{ color: C.muted }}>{label}</span><I className="w-3.5 h-3.5" style={{ color: C.faint }} /></div>
+            <p className="serif m-0 text-3xl leading-none" style={{ color: tone || C.text }}>{value}</p>
+            <p className="m-0 text-[11px]" style={{ color: C.faint }}>{sub}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="card p-4 sm:p-5 space-y-3">
+        <p className="eyebrow m-0 flex items-center gap-1.5"><BarChart3 className="w-3 h-3" />Last 14 days</p>
+        <div className="flex items-end gap-1.5 h-36" role="img" aria-label="Daily revenue and visitors">
+          {(metrics?.daily || []).map((d) => (
+            <div key={d.date} className="flex-1 flex flex-col items-center gap-1 h-full justify-end" title={`${d.date}: ${money(d.revenue)}, ${d.visitors} visitors, ${d.customers} customers`}>
+              <div className="w-full flex items-end gap-0.5 h-full">
+                <div className="flex-1" style={{ height: `${(d.visitors / maxVis) * 100}%`, background: C.raised, minHeight: d.visitors ? 2 : 0 }} />
+                <div className="flex-1" style={{ height: `${(d.revenue / maxRev) * 100}%`, background: C.ok, minHeight: d.revenue ? 2 : 0 }} />
+              </div>
+              <span className="text-[9px]" style={{ color: C.faint }}>{d.date.slice(8)}</span>
+            </div>
+          ))}
+        </div>
+        <p className="m-0 text-[11px] flex gap-3" style={{ color: C.faint }}><span><span className="inline-block w-2 h-2 mr-1" style={{ background: C.raised }} />Visitors</span><span><span className="inline-block w-2 h-2 mr-1" style={{ background: C.ok }} />Revenue</span></p>
+      </section>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <section className="lg:col-span-7 card p-4 sm:p-5 space-y-3">
+          <p className="eyebrow m-0">Attribution by creator channel</p>
+          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
+            <thead><tr className="text-xs text-left" style={{ color: C.faint }}><th className="py-2 font-semibold">Channel</th><th className="py-2 text-right font-semibold">Visitors</th><th className="py-2 text-right font-semibold">Customers</th><th className="py-2 text-right font-semibold">Revenue</th><th className="py-2 text-right font-semibold">Conversion</th></tr></thead>
+            <tbody>
+              {(metrics?.channels || []).map((c) => { const I = CH_ICON[c.channel] || Link2; return (
+                <tr key={c.channel} style={{ borderTop: `1px solid ${C.line}` }}>
+                  <td className="py-2.5"><span className="flex items-center gap-2" style={{ color: C.text }}><I className="w-3.5 h-3.5" style={{ color: C.muted }} />{CHANNEL_LABEL[c.channel] || c.channel}</span></td>
+                  <td className="py-2.5 text-right" style={{ color: C.body }}>{c.visitors}</td>
+                  <td className="py-2.5 text-right" style={{ color: C.body }}>{c.customers}</td>
+                  <td className="py-2.5 text-right" style={{ color: c.revenue ? C.ok : C.faint }}>{c.revenue ? money(c.revenue) : '—'}</td>
+                  <td className="py-2.5 text-right" style={{ color: C.body }}>{c.conversion != null ? `${c.conversion}%` : '—'}</td>
+                </tr>
+              ) })}
+              {!(metrics?.channels || []).length && <tr><td colSpan={5} className="py-4 text-sm" style={{ color: C.faint }}>No visits recorded since launch yet.</td></tr>}
+            </tbody>
+          </table>
+          {(metrics?.content || []).length > 0 && (
+            <>
+              <p className="m-0 pt-2 text-xs font-semibold" style={{ color: C.body }}>By post (tracking link)</p>
+              <ul className="list-none m-0 p-0 space-y-1">
+                {metrics.content.map((r) => <li key={r.ref} className="well px-3 py-2 flex justify-between text-xs"><span className="font-mono" style={{ color: C.body }}>?ref={r.ref}</span><span style={{ color: C.muted }}>{r.visitors} visitors · <strong style={{ color: C.ok }}>{r.customers}</strong> customers</span></li>)}
+              </ul>
+            </>
+          )}
+        </section>
+
+        <section className="lg:col-span-5 card p-4 sm:p-5 space-y-3">
+          <p className="eyebrow m-0 flex items-center gap-1.5"><Server className="w-3 h-3" />Technical health</p>
+          {[
+            ['Uptime (7 days)', h.uptime != null ? `${h.uptime}%` : 'Not tracked', h.uptime != null ? `${h.checks} checks · ${h.avgLatencyMs}ms avg` : 'Connect a production URL to monitor it', h.uptime != null && h.uptime < 99],
+            ['Checkout success', h.checkoutSuccess != null ? `${h.checkoutSuccess}%` : '—', `${t.customers ?? 0} paid of ${t.checkoutOpens ?? 0} checkouts`, h.checkoutSuccess != null && h.checkoutSuccess < 50],
+            ['Browser errors', String(h.jsErrors ?? 0), (h.topErrors || [])[0] ? `e.g. ${h.topErrors[0]}` : 'reported from the product', (h.jsErrors || 0) > 10],
+            ['Checkout errors', String(h.checkoutErrors ?? 0), 'failed payment attempts', (h.checkoutErrors || 0) > 3],
+          ].map(([label, value, sub, bad]) => (
+            <div key={label} className="well p-3 flex items-center justify-between gap-3">
+              <div className="min-w-0"><p className="m-0 text-sm" style={{ color: C.body }}>{label}</p><p className="m-0 text-[11px] truncate" style={{ color: C.faint }}>{sub}</p></div>
+              <span className="text-sm font-semibold shrink-0" style={{ color: bad ? C.crimsonText : C.text }}>{value}</span>
+            </div>
+          ))}
+        </section>
+      </div>
+    </div>
+  )
+}
+
+/* ─── Step 3: AI launch manager ──────────────────────────────────────────────────────── */
+function ManagerStep({ project, pid, state, metrics, isLive, kit, actions, save, say, slug }) {
+  const signals = useMemo(() => detectSignals(metrics, { liveAt: metrics?.liveAt }), [metrics])
+  const [autopilot, setAutopilot] = useState(project?.launchAutopilot !== false)
+  const [working, setWorking] = useState(null)
+  const [sending, setSending] = useState(null)
+  const doneKeys = useRef(new Set(actions.map((a) => a.signalKey)))
+  useEffect(() => { actions.forEach((a) => doneKeys.current.add(a.signalKey)) }, [actions])
+
+  const quotes = (project?.surveyResponses || []).flatMap((r) => Object.values(r.answers || {})).filter((a) => String(a).length > 15)
+  const offer = state?.config?.price ? `$${state.config.price}${state.config.priceLabel ? ` ${state.config.priceLabel}` : ''}` : 'the launch price'
+
+  const act = async (sig) => {
+    if (doneKeys.current.has(sig.key)) return
+    doneKeys.current.add(sig.key)
+    setWorking(sig.key)
+    try {
+      const link = `${PUBLIC_APP_URL}/preorder/${slug}?ref=lm_${sig.channel || 'x'}`
+      const out = await writeLaunchActionAI(sig, project, { link, quotes, offer })
+      const entry = { id: `la-${Date.now()}`, signalKey: sig.key, kind: sig.kind, title: sig.title, evidence: sig.evidence, why: sig.why, createdAt: new Date().toISOString() }
+      if (sig.kind === 'creator') {
+        const { kit: nextKit, created } = addCreatorTasks(kit, [{ title: out.title || sig.title, channel: sig.channel, content: out.content, description: sig.why }], { prefix: 'lm', fields: { fromLaunchManager: entry.id } })
+        await updateValidationCampaign(pid, { campaign_kit: nextKit, campaignKit: nextKit })
+        entry.taskId = created[0].id
+        entry.content = out.content
+        await save({ campaignKit: nextKit, launchActions: [entry, ...actions], launchManagerDone: true })
+      } else {
+        const task = { id: `eng-lm-${Date.now()}`, title: out.title || sig.title, category: out.category || 'Bug fix', assignedTo: out.assignedTo || 'Human Engineer', status: 'Ready', estimate: '1 Day', priority: 1, fromLaunchManager: entry.id, acceptanceCriteria: out.acceptanceCriteria || [], notes: `${sig.evidence}. ${out.notes || ''}` }
+        entry.taskId = task.id
+        await save({ engineeringTasks: [task, ...(project?.engineeringTasks || [])], launchActions: [entry, ...actions], launchManagerDone: true })
+      }
+      say(sig.kind === 'creator' ? `Creator task created: ${out.title || sig.title}` : `Engineering task created: ${out.title || sig.title}`)
+    } catch (e) {
+      doneKeys.current.delete(sig.key)
+      say(`Couldn't create the action: ${e.message}`)
+    } finally { setWorking(null) }
+  }
+
+  // Continuous: new signals become actions automatically while autopilot is on
+  useEffect(() => {
+    if (!autopilot || !isLive || working) return
+    const next = signals.find((s) => !doneKeys.current.has(s.key))
+    if (next) act(next)
+  }, [signals, autopilot, isLive, working]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const schedule = kit.postingSchedule || []
+  const engTasks = project?.engineeringTasks || []
+  const statusOf = (a) => {
+    if (a.kind === 'creator') {
+      const t = schedule.find((x) => x.id === a.taskId)
+      return !t ? ['Removed', C.faint] : t.done ? ['Posted', C.ok] : t.emailed ? ['Sent to creator', C.ok] : ['Queued for daily email', C.warn]
+    }
+    const t = engTasks.find((x) => x.id === a.taskId)
+    return !t ? ['Removed', C.faint] : t.verified ? ['Fixed & verified', C.ok] : ['Completed', 'done'].includes(t.status) ? ['Built, awaiting QA', C.warn] : [t.status || 'Ready', C.warn]
+  }
+
+  const sendNow = async (a) => {
+    setSending(a.id)
+    try { await sendCampaignPostEmail(pid, { taskId: a.taskId }); say('Emailed to the creator.') } catch (e) { say(`Email failed: ${e.message}`) } finally { setSending(null) }
+  }
+
+  return (
+    <div className="space-y-6">
+      <section className="card p-4 sm:p-5 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <p className="eyebrow m-0 flex items-center gap-1.5"><Bot className="w-3 h-3" />AI launch manager</p>
+            <h3 className="serif m-0 mt-1 text-2xl" style={{ color: C.text }}>{isLive ? `${signals.length} ${signals.length === 1 ? 'signal' : 'signals'} in the live data` : 'Starts once you go live'}</h3>
+            <p className="m-0 mt-1 text-sm max-w-2xl" style={{ color: C.muted }}>Checks the live numbers every minute. When a channel outperforms or something breaks, it writes the content or the fix, creates the task and tracks it to completion.</p>
+          </div>
+          <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: C.body }}>
+            <input type="checkbox" checked={autopilot} onChange={(e) => { setAutopilot(e.target.checked); save({ launchAutopilot: e.target.checked }) }} style={{ accentColor: C.crimson }} />Create tasks automatically
+          </label>
+        </div>
+        {signals.length > 0 && (
+          <ul className="list-none m-0 p-0 space-y-2">
+            {signals.map((s) => {
+              const handled = doneKeys.current.has(s.key)
+              return (
+                <li key={s.key} className="well p-3 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <span className="shrink-0" style={{ color: s.kind === 'creator' ? C.ok : C.crimsonText }}>{s.kind === 'creator' ? <TrendingUp className="w-4 h-4" /> : <Bug className="w-4 h-4" />}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="m-0 text-sm font-semibold" style={{ color: C.text }}>{s.title}</p>
+                    <p className="m-0 text-xs" style={{ color: C.body }}>{s.evidence}</p>
+                    <p className="m-0 text-[11px]" style={{ color: C.faint }}>{s.why}</p>
+                  </div>
+                  {handled ? <span className="text-xs font-semibold shrink-0" style={{ color: C.ok }}>Task created</span>
+                    : <button type="button" className="btn btn-primary shrink-0" disabled={!!working} onClick={() => act(s)}>{working === s.key ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}{s.kind === 'creator' ? 'Write post & create task' : 'Create engineering task'}</button>}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+        {isLive && !signals.length && <p className="well m-0 p-4 text-sm" style={{ color: C.faint }}>Nothing needs action right now. Signals need enough data, for example 20+ visitors per channel or 8+ checkouts a day.</p>}
+      </section>
+
+      <section className="card p-4 sm:p-5 space-y-3">
+        <p className="eyebrow m-0">Actions taken · {actions.length}</p>
+        {!actions.length ? <p className="well m-0 p-4 text-sm" style={{ color: C.faint }}>No actions yet.</p> : (
+          <ol className="list-none m-0 p-0 space-y-2">
+            {actions.map((a) => {
+              const [label, col] = statusOf(a)
+              return (
+                <li key={a.id} className="well p-3 space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[11px] font-semibold px-1.5 py-0.5" style={{ background: C.raised, color: C.body }}>{a.kind === 'creator' ? 'Creator task' : 'Engineering task'}</span>
+                    <span className="text-sm font-semibold flex-1" style={{ color: C.text }}>{a.title}</span>
+                    <span className="text-[11px] font-semibold" style={{ color: col }}>{label}</span>
+                  </div>
+                  <p className="m-0 text-xs" style={{ color: C.muted }}>{a.evidence} · {new Date(a.createdAt).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</p>
+                  {a.content && <pre className="m-0 text-xs whitespace-pre-wrap p-2" style={{ background: C.row, color: C.body, fontFamily: 'inherit' }}>{a.content}</pre>}
+                  {a.kind === 'creator' && label === 'Queued for daily email' && (
+                    <button type="button" className="btn btn-quiet" onClick={() => sendNow(a)} disabled={sending === a.id}>{sending === a.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}Email it now</button>
                   )}
-                </div>
+                </li>
+              )
+            })}
+          </ol>
+        )}
+      </section>
+    </div>
+  )
+}
+
+/* ─── Step 4: Report + decision ──────────────────────────────────────────────────────── */
+function ReportStep({ project, pid, metrics, plan, actions, save, say, go }) {
+  const t = metrics?.totals || {}
+  const h = metrics?.health || {}
+  const p = metrics?.periods || {}
+  const decision = useMemo(() => evaluateLaunchDecision(metrics, { target: Number(project?.presaleTarget || 0) }), [metrics, project?.presaleTarget])
+  const [writing, setWriting] = useState(false)
+  const [history, setHistory] = useState([])
+  const [override, setOverride] = useState(null)
+  const [reason, setReason] = useState('')
+  const [busy, setBusy] = useState(false)
+  useEffect(() => { if (pid) listLaunchDecisions(pid).then((r) => setHistory(r.decisions || [])).catch(() => {}) }, [pid])
+
+  const launchPosts = (project?.campaignKit?.postingSchedule || []).filter((x) => x.fromLaunchPlan || x.fromLaunchManager)
+  const engFromLaunch = (project?.engineeringTasks || []).filter((x) => x.fromLaunchManager)
+  const feedback = project?.betaFeedback || []
+  const report = {
+    daysLive: decision.daysLive,
+    revenue: t.revenue, customers: t.customers, visitors: t.visitors, conversion: t.conversion, activationRate: t.activationRate,
+    weekOverWeek: { revenue: [p.last7d?.revenue, p.prev7d?.revenue], visitors: [p.last7d?.visitors, p.prev7d?.visitors] },
+    channels: metrics?.channels || [],
+    creator: { launchPosts: launchPosts.length, sent: launchPosts.filter((x) => x.emailed).length, posted: launchPosts.filter((x) => x.done).length, topContent: (metrics?.content || []).slice(0, 3) },
+    usage: { withAccess: t.withAccess, opened: t.opened, activated: t.activated, signups: t.signups },
+    feedback: { reports: feedback.length, byType: feedback.reduce((a, f) => { const k = f.category || f.type || 'Other'; a[k] = (a[k] || 0) + 1; return a }, {}), openIssues: (project?.feedbackClusters || []).filter((c) => c.status !== 'Resolved').map((c) => c.title).slice(0, 5) },
+    technical: { uptime: h.uptime, checkoutSuccess: h.checkoutSuccess, jsErrors: h.jsErrors, checkoutErrors: h.checkoutErrors, engineeringTasksFromLaunch: engFromLaunch.length, fixed: engFromLaunch.filter((x) => x.verified).length },
+  }
+  const narrative = project?.launchReport?.narrative
+
+  const writeSummary = async () => {
+    setWriting(true)
+    try {
+      const n = await summarizeLaunchReportAI(report, project)
+      await save({ launchReport: { ...report, narrative: n, score: Math.round(Math.min(100, (t.conversion || 0) * 20 + (t.activationRate || 0) * 0.3)), generatedAt: new Date().toISOString() } })
+      say('Launch report written.')
+    } catch (e) { say(`Couldn't write the summary: ${e.message}`) } finally { setWriting(false) }
+  }
+
+  const decide = async (id) => {
+    const needsReason = id !== decision.verdict && id !== 'iterate'
+    if (needsReason && !(override === id && reason.trim().length >= 15)) { setOverride(id); return }
+    if (id === 'kill' && !window.confirm('Kill the product? The public page closes, daily creator emails stop, and the project is archived.')) return
+    setBusy(true)
+    try {
+      await postLaunchDecision(pid, { decision: id, recommended: decision.verdict, overrideReason: needsReason ? reason : null, reasons: decision.reasons, snapshot: report })
+      const status = { scale: 'scaling', iterate: 'iterating', maintain: 'maintaining', kill: 'killed' }[id]
+      await save({ status, phase3Complete: true, decisionNotice: `${id[0].toUpperCase()}${id.slice(1)} chosen on ${new Date().toLocaleDateString()}`, ...(id === 'kill' ? { launchStatus: 'CLOSED', publicMode: 'closed' } : {}) })
+      const r = await listLaunchDecisions(pid); setHistory(r.decisions || [])
+      say(`Decision saved: ${id}.`)
+      if (id === 'iterate' && decision.actions[0]) go(decision.actions[0].step)
+    } catch (e) { say(e.message) } finally { setBusy(false); setOverride(null); setReason('') }
+  }
+
+  const trend = (a, b) => (b ? ((a - b) / b) * 100 : null)
+  const revTrend = trend(p.last7d?.revenue || 0, p.prev7d?.revenue || 0)
+  const options = [
+    ['scale', 'Scale', 'Put more behind what works: more creator content, more channels, bigger goal.', TrendingUp, C.ok],
+    ['iterate', 'Iterate', decision.actions[0] ? `Next: ${decision.actions[0].title}.` : 'Fix the weakest part of the funnel.', RefreshCw, C.warn],
+    ['maintain', 'Maintain', 'Keep it running steadily with light creator support.', Minus, C.body],
+    ['kill', 'Kill', 'Close sales, stop campaigns and archive.', Archive, C.crimsonText],
+  ]
+  const V = { scale: C.ok, iterate: C.warn, maintain: C.body, kill: C.crimsonText }[decision.verdict]
+
+  return (
+    <div className="space-y-6">
+      <section className="card p-4 sm:p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+          <div>
+            <p className="eyebrow m-0">Launch report · {decision.daysLive} days live</p>
+            <h3 className="serif m-0 mt-1 text-2xl" style={{ color: C.text }}>{money(t.revenue)} from {t.customers ?? 0} customers</h3>
+            {narrative?.summary && <p className="m-0 mt-2 text-sm max-w-3xl" style={{ color: C.body }}>{narrative.summary}</p>}
+          </div>
+          <button type="button" className="btn btn-quiet shrink-0" onClick={writeSummary} disabled={writing || !metrics}>{writing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}{narrative ? 'Rewrite summary' : 'Write AI summary'}</button>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+          {[
+            ['Revenue (7d)', money(p.last7d?.revenue), revTrend === null ? 'no prior week' : `${revTrend >= 0 ? '+' : ''}${Math.round(revTrend)}% vs last week`],
+            ['Conversion', t.conversion != null ? `${t.conversion}%` : '—', `${t.visitors ?? 0} visitors`],
+            ['Activation', t.activationRate != null ? `${t.activationRate}%` : '—', `${t.activated ?? 0} of ${t.withAccess ?? 0}`],
+            ['Technical', h.uptime != null ? `${h.uptime}% up` : `${h.jsErrors ?? 0} errors`, h.checkoutSuccess != null ? `${h.checkoutSuccess}% checkout success` : 'checkout not measured yet'],
+          ].map(([l, v, s]) => <div key={l} className="well p-3"><p className="m-0 text-xs" style={{ color: C.muted }}>{l}</p><p className="serif m-0 text-2xl" style={{ color: C.text }}>{v}</p><p className="m-0 text-[11px]" style={{ color: C.faint }}>{s}</p></div>)}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 text-sm">
+          <div className="well p-3 space-y-1"><p className="m-0 text-xs font-semibold" style={{ color: C.text }}>Channels</p>{(metrics?.channels || []).slice(0, 4).map((c) => <p key={c.channel} className="m-0 text-xs" style={{ color: C.body }}>{CHANNEL_LABEL[c.channel] || c.channel}: {money(c.revenue)} · {c.conversion ?? '—'}%</p>)}</div>
+          <div className="well p-3 space-y-1"><p className="m-0 text-xs font-semibold" style={{ color: C.text }}>Creator</p><p className="m-0 text-xs" style={{ color: C.body }}>{report.creator.sent} of {report.creator.launchPosts} launch posts sent, {report.creator.posted} marked posted.</p>{narrative?.creatorPerformance && <p className="m-0 text-xs" style={{ color: C.muted }}>{narrative.creatorPerformance}</p>}</div>
+          <div className="well p-3 space-y-1"><p className="m-0 text-xs font-semibold" style={{ color: C.text }}>Product & feedback</p><p className="m-0 text-xs" style={{ color: C.body }}>{report.feedback.reports} reports · {report.feedback.openIssues.length} open issues · {report.technical.fixed}/{report.technical.engineeringTasksFromLaunch} launch fixes verified.</p>{narrative?.productUsage && <p className="m-0 text-xs" style={{ color: C.muted }}>{narrative.productUsage}</p>}</div>
+        </div>
+        {narrative?.learnings?.length > 0 && (
+          <div className="well p-3 space-y-1"><p className="m-0 text-xs font-semibold" style={{ color: C.text }}>Learnings</p>{narrative.learnings.map((l) => <p key={l} className="m-0 text-xs" style={{ color: C.body }}>· {l}</p>)}</div>
+        )}
+      </section>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <section className="p-5 space-y-3" style={{ background: C.row, border: `1px solid ${V}` }}>
+          <p className="eyebrow m-0 flex items-center gap-1.5"><Scale className="w-3 h-3" />Recommendation · {decision.confidence} confidence</p>
+          <h4 className="serif m-0 text-3xl" style={{ color: C.text }}>{decision.headline}</h4>
+          {decision.reasons.map((r) => <p key={r} className="m-0 text-sm flex gap-2" style={{ color: C.body }}><span className="mt-2 w-1.5 h-1.5 shrink-0" style={{ background: V }} />{r}</p>)}
+        </section>
+        <section className="card p-4 sm:p-5 space-y-2">
+          <p className="eyebrow m-0 flex items-center gap-1.5"><ClipboardList className="w-3 h-3" />Next actions</p>
+          {!decision.actions.length ? <p className="well m-0 p-3 text-sm" style={{ color: C.faint }}>Nothing blocking.</p> : decision.actions.map((a) => (
+            <div key={a.title} className="well p-3 flex items-start gap-3">
+              <div className="flex-1 min-w-0"><p className="m-0 text-sm font-semibold" style={{ color: C.text }}>{a.title}</p><p className="m-0 text-xs" style={{ color: C.muted }}>{a.detail}</p></div>
+              <button type="button" className="btn btn-quiet shrink-0" onClick={() => go(a.step)}>Open <ArrowRight className="w-3.5 h-3.5" /></button>
+            </div>
+          ))}
+        </section>
+      </div>
+
+      <section className="card p-4 sm:p-5 space-y-4">
+        <p className="eyebrow m-0">Your decision</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+          {options.map(([id, title, desc, I, col]) => {
+            const rec = id === decision.verdict
+            return (
+              <button key={id} type="button" disabled={busy} onClick={() => decide(id)} className="p-4 text-left flex flex-col gap-2 cursor-pointer disabled:opacity-50" style={{ background: rec ? `linear-gradient(160deg, ${col}22, transparent 60%), ${C.sheet}` : C.sheet, border: `1px solid ${rec ? col : C.line}` }}>
+                <span className="flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-2 text-sm font-semibold" style={{ color: C.text }}><I className="w-4 h-4" style={{ color: col }} />{title}</span>
+                  {rec ? <span className="on-accent text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5" style={{ background: col }}>Recommended</span> : id !== 'iterate' ? <span className="text-[10px] flex items-center gap-1" style={{ color: C.faint }}><ShieldAlert className="w-3 h-3" />Needs a reason</span> : null}
+                </span>
+                <span className="text-xs" style={{ color: C.muted }}>{desc}</span>
               </button>
             )
           })}
         </div>
-      </div>
-
-      {/* STEP 1: PREPARE LAUNCH */}
-      {activeStep === 'prep' && (
-        <div className="space-y-5">
-          {/* Subtabs Navigation */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2a2a30] pb-3">
-            <div className="p-1 rounded-xl bg-[#18181C] border border-[#2a2a30] flex items-center gap-1 overflow-x-auto">
-              {[
-                { id: 'strategy', label: 'Strategy & Schedule', icon: Calendar },
-                { id: 'assets', label: 'Creator Launch Assets', icon: Video },
-                { id: 'infra', label: 'Product & Infrastructure', icon: Server },
-                { id: 'checklists', label: 'Automated Checklists', icon: CheckSquare }
-              ].map(sub => {
-                const Icon = sub.icon
-                return (
-                  <button
-                    key={sub.id}
-                    type="button"
-                    onClick={() => setPrepSubtab(sub.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                      prepSubtab === sub.id
-                        ? 'bg-[#0C0C0E] text-[#FAFAFA] border border-[#2a2a30]/80 shadow-2xs'
-                        : 'text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#0C0C0E]/50'
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    <span>{sub.label}</span>
-                  </button>
-                )
-              })}
-            </div>
-
-            {strategy && (
-              <button
-                type="button"
-                onClick={handleGenerateStrategy}
-                disabled={isGeneratingStrategy}
-                className="px-3.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-amber-300 border border-[#2a2a30] text-xs font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shrink-0 shadow-2xs"
-                title="Synthesizes complete launch strategy, 48-hour schedule, and checklists with AI"
-              >
-                {isGeneratingStrategy ? <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-300" /> : <Sparkles className="w-3.5 h-3.5 text-amber-300" />}
-                <span>{isGeneratingStrategy ? 'Synthesizing with AI...' : 'Regenerate Strategy with AI'}</span>
-              </button>
-            )}
-          </div>
-
-          {/* SUBTAB 1: STRATEGY & SCHEDULE & OFFERS */}
-          {prepSubtab === 'strategy' && (
-            isGeneratingStrategy ? (
-              <div className="space-y-4 animate-fade-in">
-                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-amber-300 text-xs shadow-2xs">
-                  <div className="flex items-center gap-2.5">
-                    <Loader2 className="w-5 h-5 animate-spin text-amber-300 shrink-0" />
-                    <div>
-                      <strong className="text-[#FAFAFA] block text-sm font-bold">Synthesizing Launch Strategy with AI...</strong>
-                      <span className="text-[11px] text-[#A1A1AA]">Analyzing presales, multi-channel distribution matrix, and 48-hour schedule</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-mono text-amber-300 bg-[#0C0C0E] px-2.5 py-1 rounded-lg border border-amber-500/30 font-bold shrink-0 shadow-2xs">
-                    AI In Progress
-                  </span>
-                </div>
-                <Phase3StrategySkeleton />
-              </div>
-            ) : !strategy ? (
-              <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
-                <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-amber-300 mx-auto">
-                  <Sparkles className="w-6 h-6" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-black text-[#FAFAFA]">No Launch Strategy Generated Yet</h3>
-                  <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
-                    Click below to synthesize a commercial launch strategy, multi-channel distribution plan, and 48-hour rollout schedule with AI.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleGenerateStrategy}
-                  disabled={isGeneratingStrategy}
-                  className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  <span>Generate Launch Strategy with AI</span>
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4 animate-fade-in">
-                {/* Launch Date Window & Channels Matrix */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {(() => {
-                    const todayFormatted = new Date().toISOString().split('T')[0]
-                    const rawLaunchDate = strategy?.launchDate
-                    const activeLaunchDate = (rawLaunchDate && !rawLaunchDate.startsWith('2024') && !rawLaunchDate.startsWith('2023') && !rawLaunchDate.startsWith('2025') && rawLaunchDate !== 'YYYY-MM-DD')
-                      ? rawLaunchDate
-                      : project?.launchDate || todayFormatted
-
-                    return (
-                      <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3 flex flex-col justify-between">
-                        <div className="space-y-2">
-                          <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5" />
-                            <span>Target Commercial Launch Window</span>
-                          </span>
-                          <div className="flex items-baseline gap-2 flex-wrap">
-                            <span className="text-2xl font-black text-[#FAFAFA] font-mono tracking-tight">
-                              {activeLaunchDate}
-                            </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">
-                              Active 48h Window
-                            </span>
-                          </div>
-                          <p className="text-xs text-[#A1A1AA] leading-relaxed">
-                            Coordinated 48-hour commercial launch window synchronized across creator distribution channels.
-                          </p>
-                        </div>
-                        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-300 flex items-center gap-2 font-medium">
-                          <Flame className="w-4 h-4 text-amber-300 shrink-0" />
-                          <span>48h Urgency countdown timer active on checkout</span>
-                        </div>
-                      </div>
-                    )
-                  })()}
-
-                  <div className="md:col-span-2 p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
-                    <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2">
-                      <span className="text-[10px] font-bold text-[#FF8FA3] uppercase tracking-wider flex items-center gap-1.5">
-                        <Globe className="w-3.5 h-3.5" />
-                        <span>Target Launch Channels & Expected Conversion Shares</span>
-                      </span>
-                      <span className="text-[10px] font-mono text-[#71717A]">Multi-Channel Matrix</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {(strategy.targetChannels || []).map((tc, idx) => (
-                        <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1.5 text-xs">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5">
-                              <Radio className="w-3.5 h-3.5 text-[#FF8FA3]" />
-                              <span>{tc.channel}</span>
-                            </span>
-                            <span className="text-[10px] font-bold text-amber-300 font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">{tc.expectedShare}</span>
-                          </div>
-                          <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{tc.strategy}</p>
-                          {tc.tactics && (
-                            <div className="text-[10px] text-[#A1A1AA] italic pt-1 border-t border-[#2a2a30]/60">
-                              ⚡ Tactic: {tc.tactics}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Commercial Offers & Pricing Tiers */}
-                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4">
-                  <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
-                    <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-emerald-300" />
-                      <span>Commercial Launch Offers & Urgency Tiers</span>
-                    </h3>
-                    <span className="text-[10px] text-emerald-300 font-mono px-2.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 font-bold">
-                      48-Hour Founding Pricing
-                    </span>
-                  </div>
-
-                  {(() => {
-                    const rawOffers = strategy.launchOffers || []
-                    const offers = rawOffers.length === 1
-                      ? [
-                          rawOffers[0],
-                          {
-                            tier: 'VIP Lifetime Access',
-                            price: '$199 One-Time',
-                            discount: 'Includes direct founder access & priority roadmap influence',
-                            spots: 25,
-                            urgency: 'First 25 Buyers Only',
-                            perks: 'All future feature updates • 1-on-1 creator onboarding • Direct founder DM channel • Priority roadmap access'
-                          }
-                        ]
-                      : rawOffers
-
-                    return (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-stretch">
-                        {offers.map((offer, idx) => {
-                          const isVip = idx > 0 || (offer.tier || '').toLowerCase().includes('vip') || (offer.tier || '').toLowerCase().includes('lifetime')
-
-                          const rawPrice = offer.price || '$99/mo'
-                          const priceParts = rawPrice.split(/[•·]/).map(s => s.trim()).filter(Boolean)
-                          const mainPrice = priceParts[0] || rawPrice
-                          const extraPrices = priceParts.slice(1)
-
-                          const perkList = (offer.perks || '')
-                            .split(/[•·]/)
-                            .map(p => p.trim())
-                            .filter(p => p.length > 2)
-
-                          return (
-                            <div
-                              key={idx}
-                              className={`p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-4 ${
-                                isVip
-                                  ? 'bg-[#111114] border-amber-500/30 hover:border-amber-500/30 shadow-2xs'
-                                  : 'bg-[#111114] border-emerald-500/30 hover:border-emerald-500/30 shadow-2xs'
-                              }`}
-                            >
-                              <div className="space-y-3">
-                                {/* Header: Title & Badge */}
-                                <div className="flex items-start justify-between gap-3 border-b border-[#2a2a30] pb-3">
-                                  <div className="space-y-0.5">
-                                    <h4 className="font-black text-[#FAFAFA] text-base tracking-tight">
-                                      {offer.tier}
-                                    </h4>
-                                    <p className={`text-xs font-semibold ${isVip ? 'text-amber-300' : 'text-emerald-300'}`}>
-                                      {offer.discount}
-                                    </p>
-                                  </div>
-                                  <span
-                                    className={`shrink-0 whitespace-nowrap text-[9px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider ${
-                                      isVip
-                                        ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                                        : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                                    }`}
-                                  >
-                                    {isVip ? 'VIP Tier' : 'Founding Tier'}
-                                  </span>
-                                </div>
-
-                                {/* Prominent Pricing Box */}
-                                <div className="p-3 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1.5">
-                                  <div className="flex items-baseline gap-2 flex-wrap">
-                                    <span className={`text-xl sm:text-2xl font-black font-mono tracking-tight ${isVip ? 'text-amber-300' : 'text-emerald-300'}`}>
-                                      {mainPrice}
-                                    </span>
-                                    {isVip ? (
-                                      <span className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wide">
-                                        Lifetime Access
-                                      </span>
-                                    ) : (
-                                      <span className="text-[11px] font-bold text-[#A1A1AA] uppercase tracking-wide">
-                                        Locked Renewal Rate
-                                      </span>
-                                    )}
-                                  </div>
-                                  {extraPrices.length > 0 && (
-                                    <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-[#1C1C20]">
-                                      <span className="text-[10px] text-[#A1A1AA]">Also includes:</span>
-                                      {extraPrices.map((extra, eIdx) => (
-                                        <span key={eIdx} className="text-[10px] font-mono text-[#D4D4D8] bg-[#18181C] px-2 py-0.5 rounded">
-                                          {extra}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-
-                                {/* Structured Perks List */}
-                                {perkList.length > 0 && (
-                                  <div className="space-y-2 pt-1">
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#A1A1AA] block">
-                                      Included Founding Privileges:
-                                    </span>
-                                    <div className="space-y-1.5">
-                                      {perkList.map((perk, pIdx) => (
-                                        <div key={pIdx} className="flex items-start gap-2 text-xs text-[#D4D4D8] leading-snug">
-                                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${isVip ? 'bg-amber-500/15 text-amber-300' : 'bg-emerald-500/15 text-emerald-300'}`}>
-                                            <Check className="w-2.5 h-2.5" />
-                                          </div>
-                                          <span>{perk}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Footer: Cap & Urgency */}
-                              <div className="flex items-center justify-between pt-3 text-[10px] text-[#A1A1AA] border-t border-[#2a2a30] mt-auto">
-                                <span className="flex items-center gap-1.5">
-                                  <span className={`w-2 h-2 rounded-full ${isVip ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                                  <span>Cap: <strong className="text-[#FAFAFA] font-mono">{offer.spots} Founding Spots</strong></span>
-                                </span>
-                                <span className={`px-2.5 py-0.5 rounded font-bold ${isVip ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'}`}>
-                                  {offer.urgency}
-                                </span>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )
-                  })()}
-                </div>
-
-                {/* Core Messaging Angles & Objection Busters */}
-                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
-                  <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-[#FF8FA3]" />
-                    <span>Core Launch Messaging Angles & Objection Counters</span>
-                  </h3>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {(strategy.messagingPillars || []).map((m, idx) => (
-                      <div key={idx} className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 text-xs space-y-2">
-                        <span className="font-bold text-amber-300 block text-xs">{m.angle}</span>
-                        <p className="text-[#FAFAFA] text-[11px] font-medium leading-relaxed italic">"{m.hook}"</p>
-                        {m.counterObjection && (
-                          <div className="text-[10px] text-[#A1A1AA] pt-1.5 border-t border-[#2a2a30]">
-                            <strong className="text-[#D4D4D8]">Objection Buster:</strong> {m.counterObjection}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 48-Hour Coordinated Launch Schedule */}
-                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
-                  <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
-                    <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-amber-300" />
-                      <span>Coordinated 48-Hour Launch Schedule & Timeline</span>
-                    </h3>
-                    <span className="text-[10px] font-mono text-amber-300 font-bold">Hour-by-Hour Roadmap</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                    {(strategy.launchSchedule || []).map((item, idx) => (
-                      <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1.5 text-xs">
-                        <div className="flex items-center justify-between">
-                          <span className="font-mono font-bold text-amber-300 text-[11px]">{item.time}</span>
-                          <span className="text-[9px] px-2 py-0.5 rounded-md bg-[#0C0C0E] border border-[#2a2a30] text-[#D4D4D8] font-sans font-semibold">{item.channel}</span>
-                        </div>
-                        <h4 className="font-bold text-[#FAFAFA] text-xs">{item.event}</h4>
-                        <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{item.details}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )
-          )}
-
-          {/* SUBTAB 2: CREATOR LAUNCH MARKETING ASSETS */}
-          {prepSubtab === 'assets' && (
-            isGeneratingAssets ? (
-              <div className="space-y-4 animate-fade-in">
-                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-amber-300 text-xs shadow-2xs">
-                  <div className="flex items-center gap-2.5">
-                    <Loader2 className="w-5 h-5 animate-spin text-amber-300 shrink-0" />
-                    <div>
-                      <strong className="text-[#FAFAFA] block text-sm font-bold">Generating Creator Assets with AI...</strong>
-                      <span className="text-[11px] text-[#A1A1AA]">Drafting announcement posts, story sequences, newsletter, scripts & referral links</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-mono text-amber-300 bg-[#0C0C0E] px-2.5 py-1 rounded-lg border border-amber-500/30 font-bold shrink-0 shadow-2xs">
-                    AI In Progress
-                  </span>
-                </div>
-                <Phase3AssetsSkeleton />
-              </div>
-            ) : !creatorAssets ? (
-              <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
-                <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-amber-300 mx-auto">
-                  <Video className="w-6 h-6" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-black text-[#FAFAFA]">No Creator Launch Assets Generated Yet</h3>
-                  <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
-                    Click below to generate high-converting social posts, Instagram story sequences, email newsletter broadcasts, and video scripts with AI.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleGenerateAssets}
-                  disabled={isGeneratingAssets}
-                  className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  <span>Generate Assets with AI</span>
-                </button>
-              </div>
-            ) : (
-              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4 animate-fade-in">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1C1C20] pb-3">
-                  <div className="p-1 rounded-xl bg-[#18181C] border border-[#2a2a30] flex items-center gap-1 overflow-x-auto">
-                    {[
-                      { id: 'post', label: 'Announcement Post' },
-                      { id: 'story', label: 'IG Stories Sequence' },
-                      { id: 'email', label: 'Newsletter Broadcast' },
-                      { id: 'video', label: 'Video Demo Script' },
-                      { id: 'talking', label: 'Talking Points & DMs' },
-                      { id: 'media', label: 'Mockups & Media' },
-                      { id: 'links', label: 'UTM Tracking Links' },
-                    ].map(tab => (
-                      <button
-                        key={tab.id}
-                        type="button"
-                        onClick={() => setAssetTab(tab.id)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                          assetTab === tab.id
-                            ? 'bg-[#0C0C0E] text-[#FAFAFA] border border-[#2a2a30]/80 shadow-2xs'
-                            : 'text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#0C0C0E]/50'
-                        }`}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleGenerateAssets}
-                    disabled={isGeneratingAssets}
-                    className="px-3.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-amber-300 border border-[#2a2a30] font-bold text-xs flex items-center gap-1.5 shadow-2xs disabled:opacity-50 cursor-pointer shrink-0"
-                  >
-                    {isGeneratingAssets ? <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-300" /> : <Sparkles className="w-3.5 h-3.5 text-amber-300" />}
-                    <span>Regenerate Assets with AI</span>
-                  </button>
-                </div>
-
-                {/* Asset 1: Announcement Post */}
-                {assetTab === 'post' && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#FAFAFA]">Social Media Launch Post (IG / Twitter / LinkedIn)</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard?.writeText(creatorAssets.announcementPost || '')
-                          showToast('Copied announcement post to clipboard!')
-                        }}
-                        className="px-3 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>Copy Text</span>
-                      </button>
-                    </div>
-                    <div className="keep-dark p-4 rounded-xl bg-[#030304] border border-[#2a2a30] text-[#E4E4E7] text-xs font-mono whitespace-pre-wrap leading-relaxed">
-                      {creatorAssets.announcementPost}
-                    </div>
-                  </div>
-                )}
-
-                {/* Asset 2: Instagram Story Sequence */}
-                {assetTab === 'story' && (
-                  <div className="space-y-3">
-                    <span className="text-xs font-bold text-[#FAFAFA] block">Multi-Slide Instagram / TikTok Story Sequence</span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                      {(creatorAssets.storySequence || []).map((slide, idx) => (
-                        <div key={idx} className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2.5 text-xs flex flex-col justify-between">
-                          <div className="space-y-1.5">
-                            <div className="flex items-center justify-between">
-                              <span className="font-bold text-amber-300">Slide {slide.slide || idx + 1}</span>
-                              <span className="text-[9px] px-2 py-0.5 rounded bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45 font-bold">{slide.type}</span>
-                            </div>
-                            <p className="text-[#D4D4D8] text-[11px] leading-relaxed">{slide.copy}</p>
-                          </div>
-                          {slide.sticker && (
-                            <div className="p-2 rounded-lg bg-[#0C0C0E] border border-[#2a2a30] text-[10px] text-amber-300 flex items-center gap-1.5 font-medium shadow-2xs">
-                              <Tag className="w-3 h-3 text-amber-300 shrink-0" />
-                              <span>{slide.sticker}</span>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Asset 3: Newsletter Broadcast */}
-                {assetTab === 'email' && (
-                  <div className="space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1C1C20] pb-2.5">
-                      <div>
-                        <span className="text-xs font-bold text-[#FAFAFA] block">Subject: {creatorAssets.newsletterBroadcast?.subject}</span>
-                        <span className="text-[11px] text-[#A1A1AA]">Preview Hook: {creatorAssets.newsletterBroadcast?.preview}</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard?.writeText(creatorAssets.newsletterBroadcast?.body || '')
-                          showToast('Copied email newsletter body!')
-                        }}
-                        className="px-3 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold flex items-center gap-1.5 cursor-pointer self-start sm:self-auto shadow-2xs"
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>Copy Email Body</span>
-                      </button>
-                    </div>
-                    <div className="keep-dark p-4 rounded-xl bg-[#030304] border border-[#2a2a30] text-[#E4E4E7] text-xs font-mono whitespace-pre-wrap leading-relaxed">
-                      {creatorAssets.newsletterBroadcast?.body}
-                    </div>
-                  </div>
-                )}
-
-                {/* Asset 4: Video Demo Script */}
-                {assetTab === 'video' && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#FAFAFA] block">Short-Form Video Demo Script (TikTok / Reels / Shorts)</span>
-                      {creatorAssets.videoScript?.filmingTips && (
-                        <span className="text-[10px] text-amber-300 font-medium">💡 {creatorAssets.videoScript.filmingTips}</span>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
-                        <span className="text-[10px] font-bold text-amber-300 uppercase">1. Video Hook (0-3s)</span>
-                        <p className="text-[#FAFAFA] font-semibold">{creatorAssets.videoScript?.hook}</p>
-                      </div>
-                      <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
-                        <span className="text-[10px] font-bold text-rose-300 uppercase">2. Problem Agitation (3-15s)</span>
-                        <p className="text-[#A1A1AA]">{creatorAssets.videoScript?.problemSection}</p>
-                      </div>
-                      <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
-                        <span className="text-[10px] font-bold text-emerald-300 uppercase">3. 1-Click Solution Demo (15-35s)</span>
-                        <p className="text-[#A1A1AA]">{creatorAssets.videoScript?.solutionSection}</p>
-                      </div>
-                      <div className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1">
-                        <span className="text-[10px] font-bold text-[#FF8FA3] uppercase">4. Urgent CTA & Bio Link (35-45s)</span>
-                        <p className="text-[#FAFAFA] font-semibold">{creatorAssets.videoScript?.cta}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Asset 5: Talking Points & DM Scripts */}
-                {assetTab === 'talking' && (
-                  <div className="space-y-3">
-                    <span className="text-xs font-bold text-[#FAFAFA] block">Livestream Talking Points & DM Objection Handling</span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {(creatorAssets.talkingPoints || []).map((tp, idx) => (
-                        <div key={idx} className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2 text-xs">
-                          <span className="font-bold text-amber-300 block">{tp.topic}</span>
-                          <p className="text-[#D4D4D8] text-[11px] leading-relaxed">"{tp.point}"</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Asset 6: Mockups & Media Assets */}
-                {assetTab === 'media' && (
-                  <div className="space-y-3">
-                    <span className="text-xs font-bold text-[#FAFAFA] block">Product Mockups, Story Banners & Visual Media Assets</span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {(creatorAssets.mockupsAndMedia || [
-                        { name: 'Desktop Hero App Mockup', type: 'PNG / High-Res', url: `${origin}/assets/mockups/hero_desktop.png`, description: 'High-contrast dashboard on dark canvas' },
-                        { name: 'Mobile Story Graphic', type: 'PNG / 9:16', url: `${origin}/assets/mockups/mobile_story.png`, description: 'Story template with discount badge' },
-                        { name: 'Social Banner Graphic', type: 'JPEG / 16:9', url: `${origin}/assets/mockups/social_banner.jpg`, description: 'Launch announcement header' }
-                      ]).map((m, idx) => {
-                        let displayUrl = m.url || ''
-                        if (!displayUrl || displayUrl.includes('calebprohub.com') || displayUrl.includes('example.com') || displayUrl.startsWith('https://...')) {
-                          const safeName = (m.name || 'mockup').toLowerCase().replace(/[^a-z0-9]/g, '_')
-                          displayUrl = `${origin}/assets/mockups/${safeName}.png`
-                        }
-                        return (
-                          <div key={idx} className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-2 text-xs flex flex-col justify-between">
-                            <div className="space-y-1.5">
-                              <div className="flex items-center justify-between">
-                                <span className="font-bold text-[#FAFAFA]">{m.name}</span>
-                                <span className="text-[9px] px-2 py-0.5 rounded bg-[#0C0C0E] border border-[#2a2a30] text-[#A1A1AA] font-mono">{m.type}</span>
-                              </div>
-                              <p className="text-[11px] text-[#A1A1AA]">{m.description}</p>
-                            </div>
-                            <div className="pt-2 border-t border-[#2a2a30] flex items-center justify-between gap-2">
-                              <span className="text-[10px] text-amber-300 font-mono truncate max-w-[180px]">{displayUrl}</span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  navigator.clipboard?.writeText(displayUrl)
-                                  showToast(`Copied ${m.name} URL!`)
-                                }}
-                                className="p-1.5 rounded-lg bg-[#0C0C0E] hover:bg-[#18181C] text-[#D4D4D8] border border-[#2a2a30] cursor-pointer shrink-0 shadow-2xs"
-                                title="Copy Asset Link"
-                              >
-                                <Copy className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Asset 7: UTM Referral Links */}
-                {assetTab === 'links' && (
-                  <div className="space-y-3">
-                    <span className="text-xs font-bold text-[#FAFAFA] block">UTM Channel Attribution Referral Links</span>
-                    <div className="space-y-2">
-                      {(creatorAssets.referralLinks || []).map((link, idx) => {
-                        let linkUrl = link.url || ''
-                        const channelSlug = (link.channel || 'channel').toLowerCase().replace(/[^a-z0-9]/g, '_')
-                        if (!linkUrl || linkUrl.includes('calebprohub.com') || linkUrl.includes('example.com') || linkUrl.startsWith('https://...')) {
-                          linkUrl = `${origin}/p/${productSlug}?utm_source=${channelSlug}&utm_medium=referral&utm_campaign=launch_day1`
-                        } else if (linkUrl.startsWith('http')) {
-                          try {
-                            const u = new URL(linkUrl)
-                            linkUrl = `${origin}/p/${productSlug}${u.search || `?utm_source=${channelSlug}&utm_medium=referral&utm_campaign=launch_day1`}`
-                          } catch (e) {
-                            linkUrl = `${origin}/p/${productSlug}?utm_source=${channelSlug}&utm_medium=referral&utm_campaign=launch_day1`
-                          }
-                        }
-                        return (
-                          <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 flex items-center justify-between gap-3 text-xs">
-                            <div className="min-w-0">
-                              <span className="font-bold text-[#FAFAFA] block">{link.channel}</span>
-                              <span className="text-[10px] text-amber-300 font-mono truncate block">{linkUrl}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                navigator.clipboard?.writeText(linkUrl)
-                                showToast(`Copied ${link.channel} tracking link!`)
-                              }}
-                              className="px-3.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#18181C] text-[#D4D4D8] border border-[#2a2a30] font-semibold text-[11px] flex items-center gap-1.5 cursor-pointer shrink-0 shadow-2xs"
-                            >
-                              <Copy className="w-3.5 h-3.5" />
-                              <span>Copy Link</span>
-                            </button>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          )}
-
-          {/* SUBTAB 3: PRODUCT & INFRASTRUCTURE READINESS */}
-          {prepSubtab === 'infra' && (
-            !infra ? (
-              <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
-                <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-[#FF8FA3] mx-auto">
-                  <Server className="w-6 h-6" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-black text-[#FAFAFA]">Production Infrastructure Readiness</h3>
-                  <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
-                    Generate the commercial launch strategy to initialize and verify the production CDN deployment, Stripe live billing webhooks, onboarding flows, and support FAQs.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleGenerateStrategy}
-                  disabled={isGeneratingStrategy}
-                  className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
-                >
-                  <Server className="w-4 h-4 text-[#FF8FA3]" />
-                  <span>Verify Infrastructure with AI</span>
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4 animate-fade-in">
-                  {(() => {
-                    const p2Tech = project?.mvpBuildPlan?.techStack || {
-                      frontend: project?.mvpBuildPlan?.frontend || 'React 18 + Vite',
-                      backend: project?.mvpBuildPlan?.backend || 'FastAPI Python (Async REST)',
-                      database: project?.mvpBuildPlan?.database || 'PostgreSQL (ORM Managed)',
-                      auth: project?.mvpBuildPlan?.auth || 'JWT / Magic Links',
-                      hosting: project?.mvpBuildPlan?.hosting || 'Cloudflare Global Edge + Vercel'
-                    }
-                    const p2Architecture = project?.mvpBuildPlan?.technicalPlan?.architecture || 'Modern decoupled SPA with Vite + React Frontend, FastAPI Python REST/WebSocket Backend, and PostgreSQL database.'
-                    const p2Tasks = Array.isArray(project?.engineeringTasks) && project.engineeringTasks.length > 0
-                      ? project.engineeringTasks
-                      : (Array.isArray(project?.mvpBuildPlan?.technicalPlan?.engineeringTasks) ? project.mvpBuildPlan.technicalPlan.engineeringTasks : [])
-                    const p2Files = Array.isArray(project?.projectFiles) ? project.projectFiles : []
-                    const p2Db = Array.isArray(project?.mvpBuildPlan?.technicalPlan?.database) ? project.mvpBuildPlan.technicalPlan.database : []
-                    const p2Features = Array.isArray(project?.mvpBuildPlan?.productSpec?.features) ? project.mvpBuildPlan.productSpec.features : []
-                    const p2QA = project?.qaResults || null
-                    const p2Readiness = project?.readinessReport || null
-
-                    const totalTasks = p2Tasks.length
-                    const completedTasksCount = p2Tasks.filter(t => t.status === 'Completed' || Boolean(t.executedAt)).length
-                    const allTasksCompleted = totalTasks > 0 && completedTasksCount === totalTasks
-                    const hasCode = p2Files.length > 0 || p2Tasks.some(t => Boolean(t.executedAt || t.aiOutput || t.code))
-                    const hasDb = p2Db.length > 0
-                    const hasFeatures = p2Features.length > 0
-                    const isQaRun = Boolean(p2QA && (p2QA.executedAt || p2QA.status === 'Passed' || (p2QA.unitTests && p2QA.unitTests.passed > 0)))
-                    const qaPassedTests = isQaRun ? (p2QA.passedTests || p2QA.unitTests?.passed || 10) : 0
-                    const hasReadiness = Boolean(p2Readiness && p2Readiness.readinessScore)
-                    const readinessScore = hasReadiness ? p2Readiness.readinessScore : (isQaRun ? '94%' : 'Pending Audit')
-                    const isPhase2FullyComplete = allTasksCompleted && isQaRun
-
-                    return (
-                      <div className="space-y-4">
-                        {/* Dynamic Phase 2 Header Banner */}
-                        <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs transition-all ${
-                          isPhase2FullyComplete
-                            ? 'bg-emerald-500/10 border-emerald-500/30'
-                            : 'bg-amber-500/10 border-amber-500/30'
-                        }`}>
-                          <div className="flex items-center gap-2.5 text-[#E4E4E7] font-semibold">
-                            <Sparkles className={`w-5 h-5 shrink-0 ${isPhase2FullyComplete ? 'text-emerald-300' : 'text-amber-300'}`} />
-                            <div>
-                              <strong className="text-[#FAFAFA] block text-sm font-bold">
-                                Phase 2 Technical Architecture & Codebase Status
-                              </strong>
-                              <span className="text-[11px] text-[#A1A1AA]">
-                                {isPhase2FullyComplete
-                                  ? 'All core frameworks, database schemas, code modules, and test suites engineered in Phase 2 are verified for commercial launch.'
-                                  : `Phase 2 MVP Build State: ${completedTasksCount} of ${totalTasks || 6} engineering tasks completed • QA test suite: ${isQaRun ? 'Verified' : 'Awaiting Execution in Section 2'}.`}
-                              </span>
-                            </div>
-                          </div>
-                          <span className={`text-[10px] font-mono px-3 py-1 rounded-lg border font-bold shrink-0 ${
-                            isPhase2FullyComplete
-                              ? 'text-emerald-300 bg-emerald-500/15 border-emerald-500/30'
-                              : 'text-amber-300 bg-amber-500/15 border-amber-500/30'
-                          }`}>
-                            {isPhase2FullyComplete
-                              ? '100% Phase 2 Verified ✓'
-                              : `Phase 2: ${completedTasksCount}/${totalTasks || 6} Tasks Done`}
-                          </span>
-                        </div>
-
-                        {/* 6 Real Phase 2 Pillars */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
-                          {/* 1. Architecture & Frameworks */}
-                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
-                            <div className="space-y-1.5">
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
-                                  <Layers className="w-3.5 h-3.5 text-[#FF8FA3] shrink-0" />
-                                  <span className="truncate">MVP Architecture</span>
-                                </span>
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45 font-bold whitespace-nowrap shrink-0">
-                                  Designed ✓
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">{p2Architecture}</p>
-                            </div>
-                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
-                              <span className="truncate">Frontend: {(p2Tech.frontend || 'React 18').replace(/\(.*\)/g, '').trim()}</span>
-                              <span className="text-[#FF8FA3] font-bold whitespace-nowrap shrink-0">API: {(p2Tech.backend || 'FastAPI').replace(/\(.*\)/g, '').trim()}</span>
-                            </div>
-                          </div>
-
-                          {/* 2. Database Schema & Tables */}
-                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
-                            <div className="space-y-1.5">
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
-                                  <Database className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-                                  <span className="truncate">Database Schema</span>
-                                </span>
-                                <span className={`text-[10px] px-2 py-0.5 rounded font-bold whitespace-nowrap shrink-0 ${
-                                  hasDb
-                                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                                    : 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
-                                }`}>
-                                  {hasDb ? `${p2Db.length} Tables ✓` : 'Pending Schema'}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">
-                                {hasDb
-                                  ? `${p2Db.length} relational entities defined in Phase 2 architecture.`
-                                  : 'Database schema models not yet designed in Section 2.'}
-                              </p>
-                            </div>
-                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
-                              <span className="truncate">Engine: {(p2Tech.database || 'PostgreSQL').replace(/\(.*\)/g, '').trim()}</span>
-                              <span className={`whitespace-nowrap shrink-0 ${hasDb ? 'text-emerald-300 font-bold' : 'text-[#71717A]'}`}>
-                                {hasDb ? `${p2Db.length} Tables Active` : '0 Tables'}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* 3. Core Engineered Features */}
-                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
-                            <div className="space-y-1.5">
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
-                                  <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-                                  <span className="truncate">Engineered Features</span>
-                                </span>
-                                <span className={`text-[10px] px-2 py-0.5 rounded font-bold whitespace-nowrap shrink-0 ${
-                                  allTasksCompleted
-                                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                                    : completedTasksCount > 0
-                                    ? 'bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45'
-                                    : 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
-                                }`}>
-                                  {allTasksCompleted
-                                    ? 'All Built ✓'
-                                    : completedTasksCount > 0
-                                    ? `${completedTasksCount}/${totalTasks || p2Features.length} Built`
-                                    : 'Awaiting Run'}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">
-                                {hasFeatures
-                                  ? p2Features.map(f => f.name).slice(0, 2).join(', ')
-                                  : '1-Click Automation, Cloud Sync, and Dashboard.'}
-                              </p>
-                            </div>
-                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
-                              <span className="truncate">Scope: Must-Have MVP</span>
-                              <span className={`whitespace-nowrap shrink-0 ${completedTasksCount > 0 ? 'text-amber-300 font-bold' : 'text-[#71717A]'}`}>
-                                {completedTasksCount > 0 ? `${completedTasksCount} Done` : 'Pending Sprint'}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* 4. Codebase Files & Modules */}
-                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
-                            <div className="space-y-1.5">
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
-                                  <FileText className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-                                  <span className="truncate">Codebase Modules</span>
-                                </span>
-                                <span className={`text-[10px] px-2 py-0.5 rounded font-bold whitespace-nowrap shrink-0 ${
-                                  hasCode && completedTasksCount > 0
-                                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                                    : 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
-                                }`}>
-                                  {hasCode && completedTasksCount > 0
-                                    ? `${p2Files.length || completedTasksCount} Ready ✓`
-                                    : 'Pending Code'}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">
-                                {hasCode && completedTasksCount > 0
-                                  ? `${p2Files.length || completedTasksCount} source code files compiled and verified.`
-                                  : 'Assigned to AI Agents / Human Engineers awaiting code run.'}
-                              </p>
-                            </div>
-                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
-                              <span className="truncate">Tasks: {completedTasksCount}/{totalTasks || 6} Done</span>
-                              <span className={`whitespace-nowrap shrink-0 ${completedTasksCount > 0 ? 'text-amber-300 font-bold' : 'text-[#71717A]'}`}>
-                                {completedTasksCount > 0 ? 'Production Build' : 'Awaiting Run'}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* 5. QA Test Suite & Readiness */}
-                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
-                            <div className="space-y-1.5">
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
-                                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-                                  <span className="truncate">QA Test Suite</span>
-                                </span>
-                                <span className={`text-[10px] px-2 py-0.5 rounded font-bold whitespace-nowrap shrink-0 ${
-                                  isQaRun
-                                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                                    : 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
-                                }`}>
-                                  {isQaRun ? `${qaPassedTests} Passed ✓` : 'Not Run Yet'}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">
-                                {isQaRun
-                                  ? `Automated regression test suite executed in Phase 2 with ${qaPassedTests} test cases passing.`
-                                  : 'Automated QA regression test suite has not been executed yet in Section 2.'}
-                              </p>
-                            </div>
-                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
-                              <span className="truncate">Suite: {isQaRun ? `${qaPassedTests} Passed` : '0 Tests Run'}</span>
-                              <span className={`whitespace-nowrap shrink-0 ${isQaRun ? 'text-emerald-300 font-bold' : 'text-[#71717A]'}`}>
-                                Readiness: {readinessScore}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* 6. Commercial Pricing & Webhooks */}
-                          <div className="p-4 rounded-xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2 flex flex-col justify-between min-h-[148px]">
-                            <div className="space-y-1.5">
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5 min-w-0">
-                                  <DollarSign className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-                                  <span className="truncate">Stripe Live Billing</span>
-                                </span>
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 font-bold whitespace-nowrap shrink-0">
-                                  Active ✓
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed min-h-[32px]">
-                                Live webhook listener configured to provision Founding Pass memberships upon payment.
-                              </p>
-                            </div>
-                            <div className="pt-2 border-t border-[#1C1C20] text-[10px] text-[#A1A1AA] font-mono flex items-center justify-between gap-2">
-                              <span className="truncate">Tier: {(project?.pricing || strategy?.launchOffers?.[0]?.price || '$49/mo').split('•')[0].trim()}</span>
-                              <span className="text-emerald-300 font-bold whitespace-nowrap shrink-0">Webhooks: 200 OK</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Database Schema Tables Viewer if defined in Phase 2 */}
-                        {hasDb && (
-                          <div className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-2.5">
-                            <span className="text-[11px] font-bold text-[#FAFAFA] block flex items-center gap-2">
-                              <Database className="w-3.5 h-3.5 text-emerald-300" />
-                              <span>Phase 2 Database Schema Architecture:</span>
-                            </span>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                              {p2Db.map((tbl, idx) => (
-                                <div key={idx} className="p-2.5 rounded-lg bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-300 font-mono font-bold">TABLE</span>
-                                    <span className="font-mono font-bold text-[#FAFAFA] text-[11px]">{tbl.table}</span>
-                                  </div>
-                                  <div className="text-[10px] font-mono text-[#A1A1AA] truncate">{tbl.columns}</div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Code Files & Modules from Phase 2 */}
-                        {p2Files.length > 0 && (
-                          <div className="p-4 rounded-xl bg-[#111114] border border-[#2a2a30] space-y-2.5">
-                            <span className="text-[11px] font-bold text-[#FAFAFA] block flex items-center gap-2">
-                              <FileText className="w-3.5 h-3.5 text-[#FF8FA3]" />
-                              <span>Verified Phase 2 Source Code Modules:</span>
-                            </span>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                              {p2Files.map((file, idx) => (
-                                <div key={idx} className="p-2.5 rounded-lg bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-between gap-2 text-xs">
-                                  <div className="flex items-center gap-2 min-w-0">
-                                    <FileText className="w-3.5 h-3.5 text-[#FF8FA3] shrink-0" />
-                                    <span className="font-mono text-[11px] text-[#FAFAFA] truncate">{file.filename || file.name}</span>
-                                  </div>
-                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 font-mono font-bold shrink-0">
-                                    Verified ✓
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })()}
-
-                {/* Published Self-Service FAQs Accordion */}
-                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
-                  <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
-                    <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
-                      <HelpCircle className="w-4 h-4 text-amber-300" />
-                      <span>Published Customer Support FAQs (Live on Landing Page)</span>
-                    </h3>
-                    <span className="text-[10px] font-mono text-amber-300 font-bold">Active Articles</span>
-                  </div>
-
-                  <div className="space-y-2">
-                    {(infra.faqs || []).map((faq, idx) => (
-                      <div key={idx} className="rounded-xl bg-[#111114] border border-[#2a2a30] overflow-hidden">
-                        <button
-                          type="button"
-                          onClick={() => setExpandedFaqIndex(expandedFaqIndex === idx ? null : idx)}
-                          className="w-full p-3.5 flex items-center justify-between text-left text-xs font-bold text-[#FAFAFA] hover:text-amber-300 transition-colors cursor-pointer"
-                        >
-                          <span>{faq.q}</span>
-                          {expandedFaqIndex === idx ? <ChevronUp className="w-4 h-4 text-amber-300" /> : <ChevronDown className="w-4 h-4 text-[#71717A]" />}
-                        </button>
-                        {expandedFaqIndex === idx && (
-                          <div className="p-3.5 pt-0 text-[11px] text-[#A1A1AA] leading-relaxed border-t border-[#2a2a30]">
-                            {faq.a}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )
-          )}
-
-          {/* SUBTAB 4: AUTOMATED CHECKLISTS */}
-          {prepSubtab === 'checklists' && (
-            !strategy ? (
-              <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
-                <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-amber-300 mx-auto">
-                  <CheckSquare className="w-6 h-6" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-black text-[#FAFAFA]">Automated Launch Checklists</h3>
-                  <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
-                    Generate the launch strategy to initialize the verified Creator and Co-Launch engineering checklists.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleGenerateStrategy}
-                  disabled={isGeneratingStrategy}
-                  className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  <span>Generate Checklists with AI</span>
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4 animate-fade-in">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Creator Checklist */}
-                  <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3.5 flex flex-col justify-between">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
-                        <h3 className="font-bold text-[#FAFAFA] text-xs flex items-center gap-2">
-                          <Video className="w-4 h-4 text-amber-300" />
-                          <span>Creator Launch Checklist</span>
-                        </h3>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono text-amber-300 font-bold">
-                            {(strategy.creatorChecklist || []).filter(t => t.done).length}/{(strategy.creatorChecklist || []).length} Completed
-                          </span>
-                          {(strategy.creatorChecklist || []).some(t => t.done) && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const updated = (strategy.creatorChecklist || []).map(t => ({ ...t, done: false }))
-                                const newStrat = { ...strategy, creatorChecklist: updated }
-                                setStrategy(newStrat)
-                                handleSaveState({ launchStrategy: newStrat })
-                              }}
-                              className="text-[10px] text-[#71717A] hover:text-[#D4D4D8] cursor-pointer font-semibold"
-                            >
-                              Reset
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        {(strategy.creatorChecklist || []).map((task, idx) => (
-                          <div
-                            key={idx}
-                            onClick={() => handleToggleChecklistItem('creator', idx)}
-                            className={`p-3 rounded-xl border flex items-start gap-3 transition-colors cursor-pointer ${
-                              task.done ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-[#111114] border-[#2a2a30] hover:bg-[#18181C]'
-                            }`}
-                          >
-                            <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                              task.done ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-[#3a3a42] bg-[#0C0C0E]'
-                            }`}>
-                              {task.done && <Check className="w-3 h-3 stroke-[3]" />}
-                            </div>
-                            <div className="space-y-0.5 flex-1 min-w-0">
-                              <span className={`text-xs block font-medium ${task.done ? 'line-through text-[#71717A]' : 'text-[#E4E4E7]'}`}>
-                                {task.title}
-                              </span>
-                              {task.time && (
-                                <span className="text-[10px] font-mono text-amber-300 block">{task.time}</span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t border-[#1C1C20] flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={newCreatorTaskTitle}
-                        onChange={(e) => setNewCreatorTaskTitle(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleAddChecklistTask('creator')}
-                        placeholder="Add custom creator task..."
-                        className="flex-1 bg-[#111114] border border-[#2a2a30] focus:border-amber-500 text-[#FAFAFA] text-xs px-3 py-2 rounded-xl outline-none"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleAddChecklistTask('creator')}
-                        className="p-2 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white text-xs font-bold cursor-pointer shadow-xs"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Ops & Engineering Checklist */}
-                  <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3.5 flex flex-col justify-between">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
-                        <h3 className="font-bold text-[#FAFAFA] text-xs flex items-center gap-2">
-                          <Server className="w-4 h-4 text-emerald-300" />
-                          <span>Technical Ops Checklist</span>
-                        </h3>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono text-emerald-300 font-bold">
-                            {(strategy.opsChecklist || []).filter(t => t.done).length}/{(strategy.opsChecklist || []).length} Completed
-                          </span>
-                          {(strategy.opsChecklist || []).some(t => t.done) && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const updated = (strategy.opsChecklist || []).map(t => ({ ...t, done: false }))
-                                const newStrat = { ...strategy, opsChecklist: updated }
-                                setStrategy(newStrat)
-                                handleSaveState({ launchStrategy: newStrat })
-                              }}
-                              className="text-[10px] text-[#71717A] hover:text-[#D4D4D8] cursor-pointer font-semibold"
-                            >
-                              Reset
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        {(strategy.opsChecklist || []).map((task, idx) => (
-                          <div
-                            key={idx}
-                            onClick={() => handleToggleChecklistItem('ops', idx)}
-                            className={`p-3 rounded-xl border flex items-start gap-3 transition-colors cursor-pointer ${
-                              task.done ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-[#111114] border-[#2a2a30] hover:bg-[#18181C]'
-                            }`}
-                          >
-                            <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                              task.done ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-[#3a3a42] bg-[#0C0C0E]'
-                            }`}>
-                              {task.done && <Check className="w-3 h-3 stroke-[3]" />}
-                            </div>
-                            <div className="space-y-0.5 flex-1 min-w-0">
-                              <span className={`text-xs block font-medium ${task.done ? 'line-through text-[#71717A]' : 'text-[#E4E4E7]'}`}>
-                                {task.title}
-                              </span>
-                              {task.time && (
-                                <span className="text-[10px] font-mono text-emerald-300 block">{task.time}</span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t border-[#1C1C20] flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={newOpsTaskTitle}
-                        onChange={(e) => setNewOpsTaskTitle(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleAddChecklistTask('ops')}
-                        placeholder="Add custom engineering task..."
-                        className="flex-1 bg-[#111114] border border-[#2a2a30] focus:border-amber-500 text-[#FAFAFA] text-xs px-3 py-2 rounded-xl outline-none"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleAddChecklistTask('ops')}
-                        className="p-2 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white text-xs font-bold cursor-pointer shadow-xs"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )
-          )}
-
-          {/* Footer Step Action */}
-          <div className="flex items-center justify-between pt-3 border-t border-[#2a2a30]">
-            <span className="text-xs text-[#A1A1AA]">
-              Completed preparation unlocks Step 2 Live Production Monitoring.
-            </span>
-            <button
-              type="button"
-              disabled={!p3Guards.canAccessStep2}
-              onClick={async () => {
-                await handleSaveState({ phase3Prepared: true, phase3Step1Done: true })
-                setActiveStep('monitor')
-              }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
-                p3Guards.canAccessStep2
-                  ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-xs cursor-pointer'
-                  : 'bg-[#18181C] text-[#71717A] cursor-not-allowed border border-[#2a2a30]'
-              }`}
-            >
-              {!p3Guards.canAccessStep2 && <Lock className="w-3.5 h-3.5 text-[#71717A]" />}
-              <span>Proceed to 2. Launch + Monitor</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* STEP 2: LAUNCH + MONITOR (LIVE DASHBOARD & ATTRIBUTION) */}
-      {activeStep === 'monitor' && (
-        <div className="space-y-5">
-          {/* Live Status Control Header */}
-          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
-                <h3 className="text-sm font-bold text-[#FAFAFA] font-sans">Live Production Telemetry & Conversion Funnel</h3>
-              </div>
-              <p className="text-xs text-[#A1A1AA] mt-0.5">Real-time visitor tracking, conversion analytics & technical uptime.</p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="text-[11px] text-[#A1A1AA] font-mono bg-[#111114] px-2.5 py-1 rounded-lg border border-[#2a2a30]">Uptime: <strong className="text-emerald-300">{telemetry.uptime}</strong></span>
-              <span className="text-[11px] text-[#A1A1AA] font-mono bg-[#111114] px-2.5 py-1 rounded-lg border border-[#2a2a30]">Latency: <strong className="text-[#FF8FA3]">{telemetry.avgLatency}</strong></span>
+        {override && (
+          <div className="p-4 space-y-3" style={{ background: C.warnSoft, border: `1px solid ${C.warnLine}` }}>
+            <p className="m-0 text-sm font-semibold flex items-center gap-2" style={{ color: C.warn }}><ShieldAlert className="w-4 h-4" />The data says {decision.headline.toLowerCase()}. Why {override}?</p>
+            <textarea className="in" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="At least 15 characters; saved with the decision" />
+            <div className="flex justify-end gap-2">
+              <button type="button" className="btn btn-quiet" onClick={() => { setOverride(null); setReason('') }}>Cancel</button>
+              <button type="button" className="btn on-accent" style={{ background: C.warn }} disabled={reason.trim().length < 15 || busy} onClick={() => decide(override)}>Confirm {override}</button>
             </div>
           </div>
-
-          {/* Production Telemetry Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
-              <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <Eye className="w-3.5 h-3.5 text-[#FF8FA3]" />
-                <span>Unique Visitors</span>
-              </span>
-              <div className="text-xl sm:text-2xl font-black text-[#FAFAFA] font-mono">{telemetry.visitors.toLocaleString()}</div>
-              <span className="text-[10px] text-[#71717A] block font-mono">Total tracked visits</span>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
-              <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-amber-300" />
-                <span>Signups & Activation</span>
-              </span>
-              <div className="text-xl sm:text-2xl font-black text-[#FAFAFA] font-mono">{telemetry.signups} Accounts</div>
-              <span className="text-[10px] text-[#71717A] block font-mono">{telemetry.activatedUsers} active in workspace</span>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
-              <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <DollarSign className="w-3.5 h-3.5 text-emerald-300" />
-                <span>Paying Customers</span>
-              </span>
-              <div className="text-xl sm:text-2xl font-black text-emerald-300 font-mono">{telemetry.customers}</div>
-              <span className="text-[10px] text-emerald-300 font-bold block font-mono">${telemetry.revenue.toLocaleString()} Processed</span>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-1">
-              <span className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <MousePointerClick className="w-3.5 h-3.5 text-amber-300" />
-                <span>Overall Paid Conversion</span>
-              </span>
-              <div className="text-xl sm:text-2xl font-black text-amber-300 font-mono">{conversionRate}%</div>
-              <span className="text-[10px] text-[#71717A] block font-mono">Visitor-to-paid ratio</span>
-            </div>
-          </div>
-
-          {/* Conversion Funnel Bar */}
-          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
-            <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2">
-              <span className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-[#FF8FA3]" />
-                <span>Commercial Conversion Funnel Breakdown</span>
-              </span>
-              <span className="text-[10px] font-mono text-emerald-300 font-bold">Live Stream</span>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              <div className="space-y-1">
-                <div className="flex justify-between text-[#A1A1AA] font-medium">
-                  <span>1. Top of Funnel (Landing Page Visitors)</span>
-                  <span className="font-mono text-[#FAFAFA] font-bold">{telemetry.visitors.toLocaleString()} (100%)</span>
-                </div>
-                <div className="w-full bg-[#18181C] rounded-full h-2 overflow-hidden">
-                  <div className="bg-[#C81E3C] h-full rounded-full" style={{ width: '100%' }} />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex justify-between text-[#A1A1AA] font-medium">
-                  <span>2. Product Signups & Active Trials</span>
-                  <span className="font-mono text-amber-300 font-bold">
-                    {telemetry.signups} ({telemetry.visitors > 0 ? ((telemetry.signups / telemetry.visitors) * 100).toFixed(1) : '0.0'}%)
-                  </span>
-                </div>
-                <div className="w-full bg-[#18181C] rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-amber-500 h-full rounded-full"
-                    style={{ width: `${Math.min(100, Math.max(8, telemetry.visitors > 0 ? (telemetry.signups / telemetry.visitors) * 100 : 0))}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex justify-between text-[#A1A1AA] font-medium">
-                  <span>3. Paid Customer Conversions</span>
-                  <span className="font-mono text-emerald-300 font-bold">
-                    {telemetry.customers} ({conversionRate}%)
-                  </span>
-                </div>
-                <div className="w-full bg-[#18181C] rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-emerald-500 h-full rounded-full"
-                    style={{ width: `${Math.min(100, Math.max(5, Number(conversionRate)))}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Multi-Channel Attribution Matrix */}
-          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
-            <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2">
-              <span className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
-                <Radio className="w-4 h-4 text-emerald-300" />
-                <span>Multi-Channel Attribution & Traffic ROI</span>
-              </span>
-              <span className="text-[10px] font-mono text-[#71717A]">Attributed Channels</span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead>
-                  <tr className="border-b border-[#1C1C20] text-[10px] uppercase font-bold text-[#A1A1AA]">
-                    <th className="pb-2">Channel Source</th>
-                    <th className="pb-2">Visitors</th>
-                    <th className="pb-2">Customers</th>
-                    <th className="pb-2">Paid Conv %</th>
-                    <th className="pb-2">Revenue ($)</th>
-                    <th className="pb-2">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#1C1C20]">
-                  {(channelStats || [
-                    { channel: 'Creator Instagram Stories', visitors: Math.round(telemetry.visitors * 0.45) || 45, customers: Math.round(telemetry.customers * 0.5) || 1, convRate: '3.8%', revenue: Math.round(telemetry.revenue * 0.5) || 99, status: 'Top ROI', topPerformer: true },
-                    { channel: 'Creator YouTube Community', visitors: Math.round(telemetry.visitors * 0.3) || 30, customers: Math.round(telemetry.customers * 0.3) || 1, convRate: '2.9%', revenue: Math.round(telemetry.revenue * 0.3) || 49, status: 'Strong', topPerformer: false },
-                    { channel: 'Email Newsletter Broadcast', visitors: Math.round(telemetry.visitors * 0.15) || 15, customers: Math.round(telemetry.customers * 0.15) || 0, convRate: '2.1%', revenue: Math.round(telemetry.revenue * 0.15) || 0, status: 'Active', topPerformer: false },
-                    { channel: 'Direct / Word-of-Mouth', visitors: Math.round(telemetry.visitors * 0.1) || 10, customers: Math.round(telemetry.customers * 0.05) || 0, convRate: '1.2%', revenue: 0, status: 'Steady', topPerformer: false },
-                  ]).map((cs, idx) => (
-                    <tr key={idx} className="hover:bg-[#111114]/80">
-                      <td className="py-2.5 font-bold text-[#FAFAFA] flex items-center gap-1.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${cs.topPerformer ? 'bg-emerald-500' : 'bg-[#3f3f46]'}`} />
-                        <span>{cs.channel}</span>
-                      </td>
-                      <td className="py-2.5 font-mono text-[#A1A1AA]">{cs.visitors}</td>
-                      <td className="py-2.5 font-mono text-[#FAFAFA] font-semibold">{cs.customers}</td>
-                      <td className="py-2.5 font-mono font-bold text-emerald-300">{cs.convRate}</td>
-                      <td className="py-2.5 font-mono font-bold text-[#FAFAFA]">${cs.revenue}</td>
-                      <td className="py-2.5">
-                        <span className={`text-[9px] px-2 py-0.5 rounded font-bold ${
-                          cs.topPerformer ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-[#18181C] text-[#A1A1AA]'
-                        }`}>
-                          {cs.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Footer Step Action */}
-          <div className="flex items-center justify-between pt-3 border-t border-[#2a2a30]">
-            <button
-              type="button"
-              onClick={() => setActiveStep('prep')}
-              className="px-3.5 py-2 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold cursor-pointer shadow-2xs transition-colors"
-            >
-              ← Back to Step 1: Prepare
-            </button>
-            <button
-              type="button"
-              disabled={!p3Guards.canAccessStep3}
-              onClick={async () => {
-                await handleSaveState({ phase3Monitored: true, phase3Step2Done: true })
-                setActiveStep('manager')
-              }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
-                p3Guards.canAccessStep3
-                  ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-xs cursor-pointer'
-                  : 'bg-[#18181C] text-[#71717A] cursor-not-allowed border border-[#2a2a30]'
-              }`}
-            >
-              {!p3Guards.canAccessStep3 && <Lock className="w-3.5 h-3.5 text-[#71717A]" />}
-              <span>Proceed to 3. AI Launch Manager</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* STEP 3: AI LAUNCH MANAGER (AUTONOMOUS ACTIONS) */}
-      {activeStep === 'manager' && (
-        <div className="space-y-5">
-          {/* Header */}
-          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1C1C20] pb-3">
-              <div>
-                <span className="text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>Step 3: Autonomous AI Launch Manager</span>
-                </span>
-                <h3 className="text-base font-black text-[#FAFAFA]">
-                  Continuous Telemetry Diagnostics & Growth Action Dispatcher
-                </h3>
-              </div>
-
-              {launchManager && (
-                <button
-                  type="button"
-                  onClick={handleRunLaunchManager}
-                  disabled={isRunningManager}
-                  className="px-3.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#E4E4E7] border border-[#2a2a30] font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer shrink-0"
-                >
-                  {isRunningManager ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#A1A1AA]" /> : <RefreshCw className="w-3.5 h-3.5 text-[#A1A1AA]" />}
-                  <span>{isRunningManager ? 'Analyzing...' : 'Run Diagnostic Sweep'}</span>
-                </button>
-              )}
-            </div>
-
-            <p className="text-xs text-[#A1A1AA] leading-relaxed">
-              AI evaluates conversion disparity across creator channels, detects funnel bottlenecks, and writes actionable copy / engineering tasks.
-            </p>
-          </div>
-
-          {isRunningManager ? (
-            <div className="space-y-4 animate-fade-in">
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-amber-300 text-xs shadow-2xs">
-                <div className="flex items-center gap-2.5">
-                  <Loader2 className="w-5 h-5 animate-spin text-amber-300 shrink-0" />
-                  <div>
-                    <strong className="text-[#FAFAFA] block text-sm font-bold">AI Launch Manager Diagnostic Sweep Running...</strong>
-                    <span className="text-[11px] text-[#A1A1AA]">Evaluating conversion bottlenecks, funnel leakages, and drafting automated actions</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono text-amber-300 bg-[#0C0C0E] px-2.5 py-1 rounded-lg border border-amber-500/30 font-bold shrink-0 shadow-2xs">
-                  Sweeping Telemetry
-                </span>
-              </div>
-              <Phase3LaunchSkeleton />
-            </div>
-          ) : !launchManager ? (
-            <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
-              <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-amber-300 mx-auto">
-                <Zap className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-base font-black text-[#FAFAFA]">Autonomous AI Launch Manager</h3>
-                <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
-                  Trigger an automated diagnostic sweep to analyze live visitor-to-paid conversion rates, identify highest-ROI channels, and auto-dispatch growth tasks.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleRunLaunchManager}
-                disabled={isRunningManager}
-                className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
-              >
-                <Zap className="w-4 h-4 text-amber-400" />
-                <span>Run Diagnostic Sweep Now</span>
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4 animate-fade-in">
-              {/* AI Executive Diagnosis Card */}
-              <div className="p-5 rounded-2xl bg-[#111114] border border-[#2a2a30] shadow-2xs space-y-2.5">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
-                    AI Real-Time Performance Diagnosis
-                  </span>
-                  {launchManager.overallHealth && (
-                    <span className="text-[10px] font-bold text-[#D4D4D8] bg-[#0C0C0E] px-2.5 py-0.5 rounded-full border border-[#2a2a30] shadow-2xs">
-                      {launchManager.overallHealth}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-[#E4E4E7] leading-relaxed font-semibold">
-                  "{launchManager.executiveSummary || launchManager.diagnosis || launchManager.overallHealth || 'Active launch telemetry analyzed. Automated optimization actions ready for execution.'}"
-                </p>
-                <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/30">
-                    Highest-Converting: {launchManager.topPerformingChannel || 'Creator Stories'}
-                  </span>
-                  {launchManager.trafficSurgeDetected && (
-                    <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 font-bold border border-amber-500/30">
-                      🔥 Traffic Surge Detected
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Automated Actions Dispatch Matrix */}
-              <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4">
-                <div className="flex items-center justify-between border-b border-[#1C1C20] pb-2.5">
-                  <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-amber-300" />
-                    <span>Autonomous AI Action Dispatcher</span>
-                  </h3>
-                  <span className="text-[10px] font-mono text-emerald-300 font-bold">
-                    {dispatchedActions.length}/{(launchManager.automatedActions || []).length} Dispatched
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {(launchManager.automatedActions || []).map((action, idx) => {
-                    const actionId = action.id || `action-${idx}`
-                    const isDispatched = dispatchedActions.includes(actionId)
-                    const isCreatorTask = action.targetRole === 'Creator' || (action.type || '').toLowerCase().includes('marketing') || (action.type || '').toLowerCase().includes('creator')
-                    const insightText = action.insight || action.description || ''
-                    const contentText = action.generatedContent || ''
-
-                    return (
-                      <div
-                        key={idx}
-                        className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-3.5 shadow-2xs ${
-                          isDispatched
-                            ? 'bg-emerald-500/10 border-emerald-500/30 ring-1 ring-emerald-500/30'
-                            : 'bg-[#0C0C0E] border-[#2a2a30] hover:border-[#3a3a42]'
-                        }`}
-                      >
-                        <div className="space-y-2.5">
-                          {/* Top Badges */}
-                          <div className="flex items-start justify-between gap-2">
-                            <h4 className="font-bold text-[#FAFAFA] text-xs leading-snug">{action.title}</h4>
-                            <div className="flex items-center gap-1 shrink-0">
-                              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                                isCreatorTask
-                                  ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                                  : 'bg-[#C81E3C]/10 text-[#FF8FA3] border border-[#C81E3C]/45'
-                              }`}>
-                                {action.targetRole || (isCreatorTask ? 'Creator Marketing' : 'Technical CRO')}
-                              </span>
-                              {action.severity && (
-                                <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
-                                  action.severity.toLowerCase().includes('critical') || action.severity.toLowerCase().includes('high')
-                                    ? 'bg-rose-500/15 text-rose-300'
-                                    : 'bg-[#18181C] text-[#D4D4D8]'
-                                }`}>
-                                  {action.severity}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Insight / Rationale */}
-                          {insightText && (
-                            <p className="text-[11px] text-[#A1A1AA] leading-relaxed bg-[#111114] p-2.5 rounded-xl border border-[#1C1C20]">
-                              <strong className="text-[#E4E4E7] font-bold">Telemetry Insight:</strong> {insightText}
-                            </p>
-                          )}
-
-                          {/* Ready-to-Use Content / Code Box */}
-                          {contentText && (
-                            <div className="space-y-1">
-                              <div className="flex items-center justify-between text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wider">
-                                <span>{isCreatorTask ? 'Ready-To-Post Action Script' : 'Technical Sprint Implementation'}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    navigator.clipboard?.writeText(contentText)
-                                    showToast('Copied action content to clipboard!')
-                                  }}
-                                  className="text-amber-300 hover:text-amber-300 flex items-center gap-1 cursor-pointer font-bold lowercase"
-                                >
-                                  <Copy className="w-3 h-3" />
-                                  <span>copy</span>
-                                </button>
-                              </div>
-                              <div className="p-3 rounded-xl bg-[#030304] text-[#E4E4E7] font-mono text-[11px] leading-relaxed break-words whitespace-pre-wrap max-h-36 overflow-y-auto border border-[#2a2a30]">
-                                {contentText}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Card Footer with Functional Dispatch Button */}
-                        <div className="pt-2.5 border-t border-[#1C1C20] flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1.5 text-[10px] text-[#A1A1AA] font-mono">
-                            {isDispatched ? (
-                              <span className="text-emerald-300 font-bold flex items-center gap-1">
-                                <CheckCircle className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-                                <span>Active in Step 1 Checklist</span>
-                              </span>
-                            ) : (
-                              <span>Target: {action.targetRole || (isCreatorTask ? 'Creator Roster' : 'Engineering Sprint')}</span>
-                            )}
-                          </div>
-
-                          <button
-                            type="button"
-                            disabled={isDispatched}
-                            onClick={() => handleDispatchAction(action, idx)}
-                            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs ${
-                              isDispatched
-                                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 cursor-default'
-                                : 'bg-[#050506] hover:bg-[#1C1C20] text-white cursor-pointer active:scale-95'
-                            }`}
-                          >
-                            {isDispatched ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 text-emerald-300" />
-                                <span>Dispatched to {isCreatorTask ? 'Creator' : 'Engineering'} ✓</span>
-                              </>
-                            ) : (
-                              <>
-                                <Send className="w-3.5 h-3.5 text-[#D4D4D8]" />
-                                <span>{action.actionLabel || (isCreatorTask ? 'Assign to Creator Task Roster' : 'Deploy Engineering Task')}</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Bot Auto-Refined Marketing Copy */}
-              {launchManager.marketingRefinement && (
-                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2.5">
-                  <span className="text-[10px] font-bold text-[#FF8FA3] uppercase tracking-wider block">
-                    AI Auto-Refined Social Hook (Adjusted for Real Conversion Drop-Off)
-                  </span>
-                  <div className="keep-dark p-4 rounded-xl bg-[#030304] border border-[#2a2a30] text-xs font-mono text-[#E4E4E7] leading-relaxed">
-                    {launchManager.marketingRefinement}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard?.writeText(launchManager.marketingRefinement)
-                      showToast('Copied refined social copy!')
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs self-start"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy Refined Copy</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Footer Step Action */}
-          <div className="flex items-center justify-between pt-3 border-t border-[#2a2a30]">
-            <button
-              type="button"
-              onClick={() => setActiveStep('monitor')}
-              className="px-3.5 py-2 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold cursor-pointer shadow-2xs transition-colors"
-            >
-              ← Back to Step 2: Monitor
-            </button>
-            <button
-              type="button"
-              disabled={!p3Guards.canAccessStep4}
-              onClick={async () => {
-                await handleSaveState({ launchManagerDone: true, phase3Step3Done: true })
-                setActiveStep('report')
-              }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
-                p3Guards.canAccessStep4
-                  ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-xs cursor-pointer'
-                  : 'bg-[#18181C] text-[#71717A] cursor-not-allowed border border-[#2a2a30]'
-              }`}
-            >
-              {!p3Guards.canAccessStep4 && <Lock className="w-3.5 h-3.5 text-[#71717A]" />}
-              <span>Proceed to 4. Launch Report + Decision</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* STEP 4: LAUNCH REPORT + DECISION GATE */}
-      {activeStep === 'report' && (
-        <div className="space-y-5">
-          {/* Prerequisite Check Banner if prior steps are incomplete */}
-          {!p3Guards.allPriorStepsDone && (
-            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-2.5 animate-fade-in shadow-2xs">
-              <div className="flex items-center gap-2 font-bold text-amber-300">
-                <Lock className="w-4 h-4 text-amber-300 shrink-0" />
-                <span>Phase 3 Launch Gate is Locked: Prerequisite Steps Incomplete</span>
-              </div>
-              <p className="text-[11px] text-[#A1A1AA] leading-relaxed">
-                The Launch Report and Strategic Decision Gate require completing launch preparation checklists, going live with telemetry monitoring, and running the AI Launch Manager sweeps first.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setActiveStep('prep')}
-                  className={`p-2 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all cursor-pointer ${
-                    p3Guards.isStep1Done ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15'
-                  }`}
-                >
-                  <span>1. Prepare Launch</span>
-                  <span>{p3Guards.isStep1Done ? '✓ Done' : '❌ Required'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveStep('monitor')}
-                  disabled={!p3Guards.canAccessStep2}
-                  className={`p-2 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all ${
-                    p3Guards.isStep2Done
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 cursor-pointer'
-                      : p3Guards.canAccessStep2
-                      ? 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15 cursor-pointer'
-                      : 'opacity-50 bg-[#18181C] border-[#2a2a30] text-[#71717A] cursor-not-allowed'
-                  }`}
-                >
-                  <span>2. Launch + Monitor</span>
-                  <span>{p3Guards.isStep2Done ? '✓ Done' : '❌ Required'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveStep('manager')}
-                  disabled={!p3Guards.canAccessStep3}
-                  className={`p-2 rounded-xl text-left text-[11px] font-semibold border flex items-center justify-between transition-all ${
-                    p3Guards.isStep3Done
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 cursor-pointer'
-                      : p3Guards.canAccessStep3
-                      ? 'bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15 cursor-pointer'
-                      : 'opacity-50 bg-[#18181C] border-[#2a2a30] text-[#71717A] cursor-not-allowed'
-                  }`}
-                >
-                  <span>3. AI Launch Manager</span>
-                  <span>{p3Guards.isStep3Done ? '✓ Done' : '❌ Required'}</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Header */}
-          <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1C1C20] pb-3">
-              <div>
-                <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>Step 4: Commercial Report & Strategic Milestone</span>
-                </span>
-                <h3 className="text-base font-black text-[#FAFAFA]">
-                  Executive Launch Report & Strategic Decision Gate
-                </h3>
-              </div>
-
-              {launchReport && (
-                <button
-                  type="button"
-                  onClick={handleGenerateLaunchReport}
-                  disabled={isGeneratingReport}
-                  className="px-3.5 py-1.5 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-2xs"
-                >
-                  {isGeneratingReport ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#A1A1AA]" /> : <RefreshCw className="w-3.5 h-3.5 text-[#A1A1AA]" />}
-                  <span>Refresh Report</span>
-                </button>
-              )}
-            </div>
-
-            <p className="text-xs text-[#A1A1AA] leading-relaxed">
-              Synthesizes processed revenue, customer unit economics, creator performance, technical health, and strategic growth next steps.
-            </p>
-          </div>
-
-          {/* Decision Notice */}
-          {decisionNotice && (
-            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 font-medium">
-              <Compass className="w-4 h-4 text-emerald-300 shrink-0" />
-              <span>{decisionNotice}</span>
-            </div>
-          )}
-
-          {/* 1. Executive Score & Summary */}
-          {isGeneratingReport ? (
-            <div className="space-y-4 animate-fade-in">
-              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-3 text-emerald-300 text-xs shadow-2xs">
-                <div className="flex items-center gap-2.5">
-                  <Loader2 className="w-5 h-5 animate-spin text-emerald-300 shrink-0" />
-                  <div>
-                    <strong className="text-[#FAFAFA] block text-sm font-bold">Synthesizing Milestone Launch Report...</strong>
-                    <span className="text-[11px] text-[#A1A1AA]">Aggregating unit economics, CAC, channel performance, and strategic verdict</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono text-emerald-300 bg-[#0C0C0E] px-2.5 py-1 rounded-lg border border-emerald-500/30 font-bold shrink-0 shadow-2xs">
-                  Generating
-                </span>
-              </div>
-              <LaunchReportSkeleton />
-            </div>
-          ) : !launchReport ? (
-            <div className="p-8 sm:p-12 rounded-3xl bg-[#111114] border-2 border-dashed border-[#2a2a30] text-center space-y-4 shadow-2xs animate-fade-in">
-              <div className="w-12 h-12 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs flex items-center justify-center text-emerald-300 mx-auto">
-                <Award className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-base font-black text-[#FAFAFA]">Commercial Launch Report & Decision Gate</h3>
-                <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
-                  Generate the commercial launch score, customer CAC analysis, channel rankings, and strategic scaling recommendations with AI.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleGenerateLaunchReport}
-                disabled={isGeneratingReport}
-                className="px-4 py-2.5 rounded-xl bg-[#050506] hover:bg-[#1C1C20] text-white font-bold text-xs shadow-xs flex items-center gap-2 mx-auto active:scale-95 transition-all cursor-pointer"
-              >
-                <Award className="w-4 h-4 text-emerald-400" />
-                <span>Generate Launch Report with AI</span>
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4 animate-fade-in">
-              <div className="p-5 rounded-3xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">
-                      Commercial Launch Score
-                    </span>
-                    <div className="flex items-baseline gap-3">
-                      <span className="text-3xl sm:text-4xl font-black text-[#FAFAFA] font-mono">
-                        {launchReport.score}<span className="text-[#71717A] text-xl font-normal">/100</span>
-                      </span>
-                      <span className="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-black uppercase tracking-wider">
-                        {launchReport.verdict}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="text-xs text-[#A1A1AA] text-left sm:text-right space-y-0.5">
-                    <div>AI Recommendation: <strong className="text-emerald-300">{launchReport.recommendation}</strong></div>
-                    <div>Customer CAC: <strong className="text-[#FAFAFA] font-mono">{launchReport.metricsSummary?.customerCAC || '$0.00 Organic'}</strong></div>
-                  </div>
-                </div>
-
-                <p className="text-xs text-[#D4D4D8] leading-relaxed font-medium bg-[#111114] p-3 rounded-xl border border-[#2a2a30]">
-                  "{launchReport.executiveSummary}"
-                </p>
-
-                {/* 4 Pillars Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  {(launchReport.pillars || []).map((p, idx) => (
-                    <div key={idx} className="p-3.5 rounded-xl bg-[#111114] border border-[#2a2a30]/80 space-y-1 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-[#FAFAFA] flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                          <span>{p.name}</span>
-                        </span>
-                        <span className="font-mono text-emerald-300 font-bold">{p.rating}</span>
-                      </div>
-                      <p className="text-[11px] text-[#A1A1AA] leading-relaxed">{p.detail}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Strategic Learnings & Next Steps */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
-                  <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-[#FF8FA3]" />
-                    <span>Strategic Campaign Learnings</span>
-                  </h3>
-                  <div className="space-y-2">
-                    {(launchReport.strategicLearnings || []).map((lrn, idx) => (
-                      <div key={idx} className="p-3 rounded-xl bg-[#111114] border border-[#1C1C20] text-xs text-[#D4D4D8] flex items-start gap-2">
-                        <span className="text-[#FF8FA3] font-bold shrink-0">•</span>
-                        <span>{lrn}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-3">
-                  <h3 className="text-xs font-bold text-[#FAFAFA] uppercase tracking-wider flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-emerald-300" />
-                    <span>Recommended Scaling Next Steps</span>
-                  </h3>
-                  <div className="space-y-2">
-                    {(launchReport.nextStepsRecommendation || []).map((step, idx) => (
-                      <div key={idx} className="p-3 rounded-xl bg-[#111114] border border-[#1C1C20] text-xs text-[#D4D4D8] flex items-start gap-2">
-                        <span className="text-emerald-300 font-bold shrink-0">→</span>
-                        <span>{step}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* 4. Human Executive Milestone Decision Gate */}
-              <div className="p-6 rounded-3xl bg-[#0C0C0E] border border-[#2a2a30] shadow-2xs space-y-4">
-                <div>
-                  <span className="text-[10px] font-black text-emerald-300 uppercase tracking-widest block">
-                    Human Executive Milestone Decision
-                  </span>
-                  <h3 className="text-lg font-black text-[#FAFAFA] tracking-tight">
-                    Select the Ongoing Operational Direction
-                  </h3>
-                  <p className="text-xs text-[#A1A1AA] mt-1">
-                    Choose the strategic path for the business following the initial launch campaign.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                  {(() => {
-                    const isScaleActive = Boolean(decisionNotice?.toLowerCase().includes('scale'))
-                    const isIterateActive = Boolean(decisionNotice?.toLowerCase().includes('iterate'))
-                    const isMaintainActive = Boolean(decisionNotice?.toLowerCase().includes('maintain'))
-                    const isSunsetActive = Boolean(decisionNotice?.toLowerCase().includes('sunset') || decisionNotice?.toLowerCase().includes('archive'))
-                    const hasSelectedAny = Boolean(decisionNotice)
-
-                    return (
-                      <>
-                        {/* Choice 1: SCALE */}
-                        <button
-                          type="button"
-                          disabled={!p3Guards.allPriorStepsDone}
-                          onClick={() => {
-                            if (!p3Guards.allPriorStepsDone) return
-                            const dec = '🚀 SCALE MODE ACTIVATED: Creator posting frequency doubled, viral referral engine enabled, paid channels unlocked.'
-                            setDecisionNotice(dec)
-                            handleSaveState({ decisionNotice: dec })
-                            showToast('Scale mode activated!')
-                          }}
-                          className={`p-5 rounded-2xl text-left space-y-3 transition-all group border flex flex-col justify-between ${
-                            !p3Guards.allPriorStepsDone
-                              ? 'bg-[#18181C] text-[#71717A] border-[#2a2a30] shadow-none cursor-not-allowed opacity-60'
-                              : isScaleActive || !hasSelectedAny
-                                ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-lg active:scale-[0.98] border-[#2a2a30] cursor-pointer ring-2 ring-emerald-500'
-                                : 'bg-[#0C0C0E] hover:bg-[#111114] text-[#FAFAFA] border-[#2a2a30] hover:border-[#3a3a42] active:scale-[0.98] cursor-pointer shadow-xs'
-                          }`}
-                          title={!p3Guards.allPriorStepsDone ? 'Complete Steps 1–3 before scaling' : 'Activate Scale Mode'}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className={`p-2.5 rounded-xl ${
-                              !p3Guards.allPriorStepsDone
-                                ? 'bg-[#222227] text-[#71717A]'
-                                : isScaleActive || !hasSelectedAny
-                                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                  : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                            }`}>
-                              {!p3Guards.allPriorStepsDone ? <Lock className="w-5 h-5" /> : <Rocket className="w-5 h-5" />}
-                            </div>
-                            <span className={`text-[9px] font-mono font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
-                              !p3Guards.allPriorStepsDone
-                                ? 'bg-[#222227] text-[#A1A1AA]'
-                                : isScaleActive
-                                  ? 'bg-emerald-400 text-[#FAFAFA] font-black shadow-xs'
-                                  : !hasSelectedAny
-                                    ? 'bg-emerald-400 text-[#FAFAFA] font-black shadow-xs'
-                                    : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                            }`}>
-                              {!p3Guards.allPriorStepsDone ? 'Locked' : isScaleActive ? 'Active Mode ✓' : 'Recommended'}
-                            </span>
-                          </div>
-                          <div>
-                            <h4 className={`text-sm font-black tracking-tight transition-colors ${
-                              !p3Guards.allPriorStepsDone
-                                ? 'text-[#71717A]'
-                                : isScaleActive || !hasSelectedAny
-                                  ? 'text-white'
-                                  : 'text-[#FAFAFA]'
-                            }`}>
-                              1. SCALE & EXPAND
-                            </h4>
-                            <p className={`text-[11px] leading-relaxed mt-1 ${
-                              !p3Guards.allPriorStepsDone
-                                ? 'text-[#71717A]'
-                                : isScaleActive || !hasSelectedAny
-                                  ? 'text-[#D4D4D8]'
-                                  : 'text-[#A1A1AA]'
-                            }`}>
-                              {p3Guards.allPriorStepsDone
-                                ? 'Double down on top converting channels, increase creator posting cadence & unlock viral referral loops.'
-                                : 'Locked — Complete Steps 1–3 (Prepare, Monitor, and Launch Manager) first.'}
-                            </p>
-                          </div>
-                          <div className={`pt-2 border-t text-[10px] font-mono font-bold ${
-                            isScaleActive || !hasSelectedAny
-                              ? 'border-[#2a2a30]/80 text-emerald-400'
-                              : 'border-[#1C1C20] text-emerald-300'
-                          }`}>
-                            {isScaleActive ? '✓ Active Direction' : '→ Accelerate Production'}
-                          </div>
-                        </button>
-
-                        {/* Choice 2: ITERATE */}
-                        <button
-                          type="button"
-                          disabled={!p3Guards.allPriorStepsDone}
-                          onClick={() => {
-                            if (!p3Guards.allPriorStepsDone) return
-                            const dec = '🔄 ITERATE MODE: Refining onboarding funnel and optimizing mobile checkout friction before further ad spend.'
-                            setDecisionNotice(dec)
-                            handleSaveState({ decisionNotice: dec })
-                            showToast('Iterate mode set.')
-                          }}
-                          className={`p-5 rounded-2xl text-left space-y-3 border transition-all flex flex-col justify-between ${
-                            !p3Guards.allPriorStepsDone
-                              ? 'bg-[#18181C] text-[#71717A] border-[#2a2a30] cursor-not-allowed opacity-60'
-                              : isIterateActive
-                                ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-lg active:scale-[0.98] border-[#2a2a30] cursor-pointer ring-2 ring-amber-500'
-                                : 'bg-[#0C0C0E] hover:bg-[#111114] text-[#FAFAFA] border-[#2a2a30] hover:border-[#3a3a42] active:scale-[0.98] group cursor-pointer shadow-xs'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className={`p-2.5 rounded-xl ${
-                              !p3Guards.allPriorStepsDone
-                                ? 'bg-[#222227] text-[#71717A]'
-                                : isIterateActive
-                                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                                  : 'bg-amber-500/10 border border-amber-500/30 text-amber-300'
-                            }`}>
-                              {!p3Guards.allPriorStepsDone ? <Lock className="w-5 h-5" /> : <RefreshCw className="w-5 h-5" />}
-                            </div>
-                            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
-                              isIterateActive
-                                ? 'bg-amber-400 text-[#FAFAFA] border-amber-500/30 font-black'
-                                : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
-                            }`}>
-                              {isIterateActive ? 'Active Mode ✓' : 'Optimize'}
-                            </span>
-                          </div>
-                          <div>
-                            <h4 className={`text-sm font-bold tracking-tight transition-colors ${
-                              !p3Guards.allPriorStepsDone
-                                ? 'text-[#71717A]'
-                                : isIterateActive
-                                  ? 'text-white'
-                                  : 'text-[#FAFAFA]'
-                            }`}>
-                              2. ITERATE & REFINE
-                            </h4>
-                            <p className={`text-[11px] leading-relaxed mt-1 ${
-                              !p3Guards.allPriorStepsDone
-                                ? 'text-[#71717A]'
-                                : isIterateActive
-                                  ? 'text-[#D4D4D8]'
-                                  : 'text-[#A1A1AA]'
-                            }`}>
-                              {p3Guards.allPriorStepsDone
-                                ? 'Optimize lower-converting channels, polish mobile checkout friction, and refine onboarding hooks.'
-                                : 'Locked — Complete Steps 1–3 first.'}
-                            </p>
-                          </div>
-                          <div className={`pt-2 border-t text-[10px] font-mono font-bold ${
-                            isIterateActive
-                              ? 'border-[#2a2a30]/80 text-amber-400'
-                              : 'border-[#1C1C20] text-amber-300'
-                          }`}>
-                            {isIterateActive ? '✓ Active Direction' : '→ Patch Bottlenecks'}
-                          </div>
-                        </button>
-
-                        {/* Choice 3: MAINTAIN */}
-                        <button
-                          type="button"
-                          disabled={!p3Guards.allPriorStepsDone}
-                          onClick={() => {
-                            if (!p3Guards.allPriorStepsDone) return
-                            const dec = '🛡️ MAINTAIN MODE: Operating at steady-state organic posting and monitoring subscriber retention.'
-                            setDecisionNotice(dec)
-                            handleSaveState({ decisionNotice: dec })
-                            showToast('Maintain mode set.')
-                          }}
-                          className={`p-5 rounded-2xl text-left space-y-3 border transition-all flex flex-col justify-between ${
-                            !p3Guards.allPriorStepsDone
-                              ? 'bg-[#18181C] text-[#71717A] border-[#2a2a30] cursor-not-allowed opacity-60'
-                              : isMaintainActive
-                                ? 'bg-[#050506] hover:bg-[#1C1C20] text-white shadow-lg active:scale-[0.98] border-[#2a2a30] cursor-pointer ring-2 ring-emerald-500'
-                                : 'bg-[#0C0C0E] hover:bg-[#111114] text-[#FAFAFA] border-[#2a2a30] hover:border-[#3a3a42] active:scale-[0.98] group cursor-pointer shadow-xs'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className={`p-2.5 rounded-xl ${
-                              !p3Guards.allPriorStepsDone
-                                ? 'bg-[#222227] text-[#71717A]'
-                                : isMaintainActive
-                                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                  : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
-                            }`}>
-                              {!p3Guards.allPriorStepsDone ? <Lock className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
-                            </div>
-                            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
-                              isMaintainActive
-                                ? 'bg-emerald-400 text-[#FAFAFA] border-emerald-500/30 font-black'
-                                : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                            }`}>
-                              {isMaintainActive ? 'Active Mode ✓' : 'Steady-State'}
-                            </span>
-                          </div>
-                          <div>
-                            <h4 className={`text-sm font-bold tracking-tight transition-colors ${
-                              !p3Guards.allPriorStepsDone
-                                ? 'text-[#71717A]'
-                                : isMaintainActive
-                                  ? 'text-white'
-                                  : 'text-[#FAFAFA]'
-                            }`}>
-                              3. MAINTAIN & HARVEST
-                            </h4>
-                            <p className={`text-[11px] leading-relaxed mt-1 ${
-                              !p3Guards.allPriorStepsDone
-                                ? 'text-[#71717A]'
-                                : isMaintainActive
-                                  ? 'text-[#D4D4D8]'
-                                  : 'text-[#A1A1AA]'
-                            }`}>
-                              {p3Guards.allPriorStepsDone
-                                ? 'Preserve organic creator posting rhythm, maintain high customer retention and steady MRR deposits.'
-                                : 'Locked — Complete Steps 1–3 first.'}
-                            </p>
-                          </div>
-                          <div className={`pt-2 border-t text-[10px] font-mono font-bold ${
-                            isMaintainActive
-                              ? 'border-[#2a2a30]/80 text-emerald-400'
-                              : 'border-[#1C1C20] text-emerald-300'
-                          }`}>
-                            {isMaintainActive ? '✓ Active Direction' : '→ Organic Retention'}
-                          </div>
-                        </button>
-
-                        {/* Choice 4: KILL */}
-                        <button
-                          type="button"
-                          onClick={() => setShowKillModal(true)}
-                          className={`p-5 rounded-2xl text-left space-y-3 border transition-all active:scale-[0.98] group cursor-pointer shadow-xs flex flex-col justify-between ${
-                            isSunsetActive
-                              ? 'bg-rose-950 text-white border-rose-600 ring-2 ring-rose-500 shadow-lg'
-                              : 'bg-rose-500/10 hover:bg-rose-500/10 text-rose-300 border-rose-500/30 hover:border-rose-500/30'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className={`p-2.5 rounded-xl ${isSunsetActive ? 'bg-rose-900 text-rose-200' : 'bg-rose-500/15 text-rose-300'}`}>
-                              <XCircle className="w-5 h-5" />
-                            </div>
-                            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
-                              isSunsetActive
-                                ? 'bg-rose-500 text-white border-rose-400'
-                                : 'bg-[#0C0C0E] text-rose-300 border-rose-500/30'
-                            }`}>
-                              {isSunsetActive ? 'Archived ✓' : 'Sunset'}
-                            </span>
-                          </div>
-                          <div>
-                            <h4 className={`text-sm font-bold tracking-tight transition-colors ${
-                              isSunsetActive ? 'text-white' : 'text-rose-300'
-                            }`}>
-                              4. ARCHIVE / SUNSET
-                            </h4>
-                            <p className={`text-[11px] leading-relaxed mt-1 ${
-                              isSunsetActive ? 'text-rose-200' : 'text-rose-300'
-                            }`}>
-                              Gracefully sunset product, refund active subscriptions, or pivot to a new validated problem space.
-                            </p>
-                          </div>
-                          <div className={`pt-2 border-t text-[10px] font-mono font-bold ${
-                            isSunsetActive ? 'border-rose-800 text-rose-300' : 'border-rose-500/30 text-rose-300'
-                          }`}>
-                            {isSunsetActive ? '✓ Product Archived' : '→ Sunset Protocol'}
-                          </div>
-                        </button>
-                      </>
-                    )
-                  })()}
-                </div>
-              </div>
-
-              {/* Step 4 Footer */}
-              <div className="flex items-center justify-between pt-2 border-t border-[#2a2a30]">
-                <button
-                  type="button"
-                  onClick={() => setActiveStep('manager')}
-                  className="px-3.5 py-2 rounded-xl bg-[#0C0C0E] hover:bg-[#111114] text-[#D4D4D8] border border-[#2a2a30] text-xs font-semibold cursor-pointer shadow-2xs transition-colors"
-                >
-                  ← Back to AI Launch Manager
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+        {history.length > 0 && (
+          <ol className="list-none m-0 p-0 space-y-1.5">
+            {history.slice(0, 6).map((d, i) => <li key={i} className="well px-3 py-2 flex justify-between text-xs"><span style={{ color: C.text }}>{d.decision}{d.decision !== d.recommended ? <span className="ml-2" style={{ color: C.warn }}>override</span> : null}</span><span style={{ color: C.faint }}>{new Date(d.at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span></li>)}
+          </ol>
+        )}
+      </section>
     </div>
   )
 }

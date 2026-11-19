@@ -10,6 +10,7 @@ import AdminErrorLogPage from './components/launch/AdminErrorLogPage'
 import ProjectOSPage from './components/launch/ProjectOSPage'
 import CreatorParticipationManager from './components/launch/CreatorParticipationManager'
 import BetaTestingPortal from './components/launch/BetaTestingPortal'
+import HostedAppPage from './components/launch/HostedAppPage'
 
 // Re-export ForgeContext & useForge for compatibility with shared components
 export const ForgeContext = createContext(null)
@@ -50,6 +51,9 @@ export default function App() {
     return <PublicSurveyPage slug={slug} />
   }
 
+  if (currentPath.startsWith('/app/')) {
+    return <HostedAppPage slug={getSlug('/app/')} />
+  }
   if (currentPath.startsWith('/beta')) {
     const slug = getSlug('/beta/')
     return <BetaTestingPortal slug={slug} />

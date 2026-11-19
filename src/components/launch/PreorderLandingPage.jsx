@@ -16,6 +16,7 @@ import { sanitizeAccentColor, getContrastTextColor } from './DynamicConceptMocku
 import { hexToRgba } from '../../utils/avatarColorExtractor'
 import { PreorderLandingSkeleton } from './Section2Skeletons'
 import ConceptLandingPage from './ConceptLandingPage'
+import { trackLaunch } from '../../utils/launchTracker'
 import { resolveProjectLanding } from '../../utils/projectLanding'
 
 export default function PreorderLandingPage({ slug }) {
@@ -114,7 +115,7 @@ export default function PreorderLandingPage({ slug }) {
 
   // Build Comprehensive List of Selectable Tiers
   const parsedConcept = parseConceptPricing(conceptPricing, foundingPrice)
-  const availableTiers = [
+  const preorderTiers = [
     ...(parsedConcept.tiers || []).map(t => ({
       id: `tier_${t.price}`,
       name: t.name,
@@ -143,6 +144,10 @@ export default function PreorderLandingPage({ slug }) {
       highlight: false
     }
   ]
+  // Once launched, buyers get the product at the launch price (no deposits or founding passes)
+  const availableTiers = project?.publicMode === 'live' && Number(project?.launchPrice) > 0
+    ? [{ id: 'tier_launch', name: `${productName}${project?.launchPriceLabel ? ` (${project.launchPriceLabel})` : ''}`, price: Number(project.launchPrice), period: '', deposit: false, badge: 'NOW LIVE', highlight: true }]
+    : preorderTiers
 
   const [selectedTier, setSelectedTier] = useState({
     name: `Founding Annual Pass ($${foundingPrice})`,
@@ -308,6 +313,7 @@ export default function PreorderLandingPage({ slug }) {
     loadDbProject()
 
     // Visitor telemetry tracking
+    trackLaunch('page_view', { slug })
     trackVisit(`/preorder/${slug || 'product'}`, visitorTelemetry => {
       if (isMounted && visitorTelemetry) {
         setProject(prev => prev ? ({
@@ -339,6 +345,10 @@ export default function PreorderLandingPage({ slug }) {
     const sp = new URLSearchParams(window.location.search)
     if (sp.get('checkout_success') === 'true' || sp.get('session_id')) {
       const sessionId = sp.get('session_id') || 'cs_verified'
+      // Confirm with Stripe server-side so the order is recorded even without a webhook
+      if (sp.get('session_id')) {
+        import('../../services/opsApi').then((m) => m.confirmLaunchOrder(sp.get('session_id'))).catch(() => {})
+      }
       const amount = sp.get('amount') || selectedTier?.price || '49'
       const tier = sp.get('tier') || selectedTier?.name || 'Founding Member Pass'
       setSuccessReceipt({
@@ -440,6 +450,7 @@ export default function PreorderLandingPage({ slug }) {
     } catch (err) {
       console.warn('[Preorder] Payment API warning:', err)
       setErrorMessage(err.message || 'Payment processing failed. Please check your details and try again.')
+      trackLaunch('checkout_error', { slug, meta: { message: err?.message || 'checkout failed' } })
     } finally {
       setIsProcessing(false)
       setProcessingStep('')
@@ -447,6 +458,8 @@ export default function PreorderLandingPage({ slug }) {
   }
 
   const openCheckout = (tier) => {
+    if (project?.publicMode === 'closed') return
+    trackLaunch('checkout_open', { slug, meta: { tier: tier?.name, price: tier?.price } })
     setSelectedTier(tier)
     setIsSuccess(false)
     setSuccessReceipt(null)
@@ -478,7 +491,17 @@ export default function PreorderLandingPage({ slug }) {
       {/* Approved landing page — the exact Step 5 concept page (same layout + base palette).
           Every CTA on it opens the real reservation checkout below. */}
       <div className="pb-24">
-        {project?.campaignKit?.landingPageCopy?.urgency?.text && (
+        {project?.publicMode === 'live' && (
+          <div className="w-full px-4 py-2.5 text-center text-sm font-semibold" style={{ background: '#0b0b0d', color: '#fff', borderBottom: `2px solid ${approvedLanding.brandColor}` }}>
+            {productName} is live. {project?.launchPrice ? `Get it for $${project.launchPrice}${project?.launchPriceLabel ? ` ${project.launchPriceLabel}` : ''}.` : 'Get instant access.'}
+          </div>
+        )}
+        {project?.publicMode === 'closed' && (
+          <div className="w-full px-4 py-3 text-center text-sm font-semibold" style={{ background: '#27272a', color: '#e4e4e7' }}>
+            {productName} is no longer available. Existing customers have been contacted about refunds.
+          </div>
+        )}
+        {project?.publicMode !== 'live' && project?.campaignKit?.landingPageCopy?.urgency?.text && (
           <div className="w-full px-4 py-2.5 text-center text-sm font-semibold" style={{ background: approvedLanding.brandColor, color: '#fff' }}>
             ⏳ {project.campaignKit.landingPageCopy.urgency.text}
           </div>
@@ -492,7 +515,7 @@ export default function PreorderLandingPage({ slug }) {
           brandColor={approvedLanding.brandColor}
           mode="full"
           heroImageUrl={savedMockupImage || ''}
-          ctaLabel={project?.campaignKit?.landingPageCopy?.ctaText || 'Claim founding access'}
+          ctaLabel={project?.publicMode === 'live' ? `Get ${productName}${project?.launchPrice ? ` · $${project.launchPrice}` : ''}` : (project?.campaignKit?.landingPageCopy?.ctaText || 'Claim founding access')}
           onCtaClick={() => openCheckout(availableTiers.find((t) => t.highlight) || availableTiers[0])}
         />
       </div>

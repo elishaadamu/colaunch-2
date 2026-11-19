@@ -6759,3 +6759,79 @@ export async function generateConceptsAI({ creator = {}, audience = {} }, signal
 }
 
 
+
+// ── Phase 3 · Launch (grounded in real Phase 1 + 2 evidence) ───────────────────────────────
+function parseAiJson(data) {
+  if (typeof data === 'string') {
+    return JSON.parse(data.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim())
+  }
+  return data
+}
+
+export async function generateLaunchPlanAI(projectData, evidence = {}, signal = undefined) {
+  const product = projectData?.productName || 'the product'
+  const creator = projectData?.creatorName || 'the creator'
+  const audience = projectData?.selectedConcept?.customer || projectData?.targetAudience || projectData?.niche || 'the audience'
+  const base = (evidence.publicUrl || '').replace(/\/$/, '')
+  const system = 'You are a launch strategist for creator-led software products. You plan launches from real evidence only and write ready-to-post creator content. Return ONLY valid JSON.'
+  const prompt = `Plan the public launch of ${product} (built with ${creator} for ${audience}).
+
+REAL EVIDENCE (base every choice on it; do not invent numbers):
+${JSON.stringify(evidence, null, 2)}
+
+Rules:
+- Launch price: use evidence.launchPrice. Founding/pre-order customers already paid; reward them, don't re-sell to them.
+- Channel order follows evidence.channels (visits and pre-orders per channel from validation). Say why using the numbers.
+- Messaging answers the objections in evidence.objections and uses the language in evidence.customerQuotes.
+- Every schedule item is a real post the creator will receive by email: write the COMPLETE copy in "content" and include the tracking link ${base}/preorder/${evidence.slug}?ref=launch_<channel>.
+- 5 to 8 schedule items across launch day (day 0) to day 7.
+- FAQs answer real questions from evidence.supportQuestions and evidence.objections first.
+
+Return JSON:
+{
+  "launchDate": "YYYY-MM-DD",
+  "summary": "2 sentences: the launch in plain words",
+  "channels": [{ "channel": "instagram|video|x|newsletter|dm", "why": "evidence-based reason", "role": "what it does in the launch" }],
+  "offers": [{ "name": "Offer name", "price": 0, "terms": "Who it's for and what they get", "deadline": "e.g. 72 hours" }],
+  "messaging": [{ "angle": "Angle", "hook": "Opening line", "objection": "Objection it answers" }],
+  "schedule": [{ "day": 0, "time": "09:00", "channel": "instagram", "title": "Short title", "draftKey": "storySequence|videoScript|announcementPost|newsletterDraft|directMessageScript", "content": "Full ready-to-post copy with the tracking link" }],
+  "creatorChecklist": [{ "title": "Task for ${creator}", "when": "Day -2" }],
+  "opsChecklist": [{ "title": "Task for the Co-Launch team", "when": "Day -1" }],
+  "faqs": [{ "q": "Question", "a": "Answer" }],
+  "onboarding": { "subject": "Welcome email subject", "body": "Welcome email using {{first_name}}, {{product}}, {{link}}, {{first_step}}, {{creator}}", "firstStep": "The single first action a new customer should take" }
+}`
+  const data = await aiTextCall(prompt, system, 6000, signal, true)
+  const res = parseAiJson(data)
+  if (!res || !Array.isArray(res.schedule) || !res.schedule.length) throw new Error('The AI returned an incomplete launch plan. Try again.')
+  return res
+}
+
+export async function writeLaunchActionAI(signalItem, projectData, context = {}, signal = undefined) {
+  const product = projectData?.productName || 'the product'
+  const creator = projectData?.creatorName || 'the creator'
+  if (signalItem.kind === 'creator') {
+    const system = 'You write short, natural creator posts that drive sales. Return ONLY valid JSON.'
+    const prompt = `Write one ${signalItem.channel} post for ${creator} about ${product}.
+Why now: ${signalItem.why}
+Evidence: ${signalItem.evidence}
+Offer: ${context.offer || 'current launch price'}
+Tracking link (must appear exactly): ${context.link}
+Customer language to reuse: ${(context.quotes || []).slice(0, 4).join(' | ') || 'none'}
+Return JSON: { "title": "Task title for the creator", "content": "Complete ready-to-post copy" }`
+    return parseAiJson(await aiTextCall(prompt, system, 1200, signal, true))
+  }
+  const system = 'You are an engineering lead turning production signals into precise tasks. Return ONLY valid JSON.'
+  const prompt = `Signal from the live product ${product}: ${signalItem.title}
+Evidence: ${signalItem.evidence}
+Likely cause: ${signalItem.why}
+Return JSON: { "title": "Engineering task title", "category": "Bug fix|Frontend|Backend|Payments|Onboarding", "assignedTo": "AI Agent|Human Engineer", "acceptanceCriteria": ["testable", "testable"], "notes": "What to check first" }`
+  return parseAiJson(await aiTextCall(prompt, system, 900, signal, true))
+}
+
+export async function summarizeLaunchReportAI(report, projectData, signal = undefined) {
+  const system = 'You are a launch analyst. You summarise real results plainly and draw specific learnings. Never invent numbers. Return ONLY valid JSON.'
+  const prompt = `Summarise the launch of ${projectData?.productName || 'the product'} from these computed results:
+${JSON.stringify(report, null, 2)}
+Return JSON: { "summary": "3 sentences", "learnings": ["specific learning with a number", "..."], "creatorPerformance": "1-2 sentences", "productUsage": "1-2 sentences", "feedbackThemes": ["theme", "..."] }`
+  return parseAiJson(await aiTextCall(prompt, system, 1500, signal, true))
+}
