@@ -5,6 +5,8 @@ import {
   Loader2, AlertCircle, RefreshCw, Layers, Award, Target, CheckCircle, Mail, X
 } from 'lucide-react'
 import { trackVisit } from '../../services/tracker'
+import { completeSimulatedPayment } from '../../services/opsApi'
+import { digits, brandOf, fmtCard, fmtExp, cardProblem } from '../../utils/cards'
 import { updatePageSEO } from '../../utils/seo'
 import {
   parseMainPricingAmount,
@@ -23,6 +25,11 @@ export default function PreorderLandingPage({ slug }) {
   const [isLoading, setIsLoading] = useState(true)
   const [project, setProject] = useState(null)
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false)
+  // Simulated card payments: after the order is created the buyer enters a card here
+  const [cardSession, setCardSession] = useState(null)
+  const [card, setCard] = useState('')
+  const [cardExp, setCardExp] = useState('')
+  const [cardCvc, setCardCvc] = useState('')
 
   // Read ?concept= query parameter from URL
   const conceptParam = typeof window !== 'undefined'
@@ -300,6 +307,14 @@ export default function PreorderLandingPage({ slug }) {
     }
   }, [])
 
+  // ?checkout=1 (campaign "buy" links, /p/<slug>/checkout) opens checkout straight away
+  const wantsCheckout = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('checkout') === '1'
+  useEffect(() => {
+    if (!wantsCheckout || !project || checkoutModalOpen || isSuccess) return
+    const t = availableTiers.find((x) => x.highlight) || availableTiers[0]
+    if (t && Number(t.price) > 0 && project.publicMode !== 'closed') { setSelectedTier(t); setCheckoutModalOpen(true) }
+  }, [project?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!isLoading && !project && notFound) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#050506', color: '#e4e4e7' }}>
@@ -369,6 +384,11 @@ export default function PreorderLandingPage({ slug }) {
         cancelUrl,
       })
 
+      if (sessionRes?.simulated && sessionRes?.sessionId) {
+        setCardSession({ sessionId: sessionRes.sessionId, amount: sessionRes.amount ?? selectedTier.price, tier: sessionRes.tier || selectedTier.name })
+        return
+      }
+
       // If a live Stripe checkout URL was returned, redirect customer to Stripe Checkout
       if (sessionRes?.checkoutUrl && !sessionRes?.isTestMode && sessionRes?.mode === 'stripe_live') {
         setProcessingStep('Redirecting to Stripe Live Checkout...')
@@ -403,10 +423,42 @@ export default function PreorderLandingPage({ slug }) {
     }
   }
 
+  const handleCardSubmit = async (e) => {
+    e?.preventDefault()
+    setErrorMessage('')
+    const problem = cardProblem({ card, exp: cardExp, cvc: cardCvc })
+    if (problem) { setErrorMessage(problem); return }
+    setIsProcessing(true)
+    setProcessingStep('Processing payment…')
+    try {
+      const n = digits(card)
+      const [r] = await Promise.all([
+        completeSimulatedPayment(project?.id, { sessionId: cardSession.sessionId, name: buyerName.trim(), email: buyerEmail.trim(), brand: brandOf(n), last4: n.slice(-4) }),
+        new Promise((res) => setTimeout(res, 1200)),
+      ])
+      trackLaunch('checkout_paid', { slug, meta: { tier: cardSession.tier, amount: cardSession.amount } })
+      setSuccessReceipt({
+        txId: cardSession.sessionId, name: buyerName.trim(), email: buyerEmail.trim(), amount: cardSession.amount, tier: cardSession.tier,
+        paymentMethod: r?.paymentMethod || 'Card', status: 'Paid',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      })
+      setIsSuccess(true)
+      setCardSession(null); setCard(''); setCardExp(''); setCardCvc('')
+    } catch (err) {
+      setErrorMessage(String(err?.message || 'Payment failed. Check the card and try again.').replace(/^\d{3}:\s*/, ''))
+      trackLaunch('checkout_error', { slug, meta: { message: err?.message || 'payment failed' } })
+    } finally {
+      setIsProcessing(false)
+      setProcessingStep('')
+    }
+  }
+
   const openCheckout = (tier) => {
     if (project?.publicMode === 'closed' || !tier || !(Number(tier.price) > 0)) return
     trackLaunch('checkout_open', { slug, meta: { tier: tier?.name, price: tier?.price } })
     setSelectedTier(tier)
+    setCardSession(null)
     setIsSuccess(false)
     setSuccessReceipt(null)
     setErrorMessage('')
@@ -595,6 +647,43 @@ export default function PreorderLandingPage({ slug }) {
                     </dl>
                     <button type="button" onClick={() => setCheckoutModalOpen(false)} className="w-full py-3.5 text-sm font-bold cursor-pointer hover:opacity-90" style={{ background: brandColor, color: ink }}>Done</button>
                   </div>
+                ) : cardSession ? (
+                  <form onSubmit={handleCardSubmit} className="space-y-6 pt-2" noValidate>
+                    <div>
+                      <p className="m-0 text-xs font-bold uppercase tracking-[0.16em]" style={{ color: '#71717a' }}>Payment</p>
+                      <h3 id="ck-title" className="serif m-0 mt-1 text-3xl sm:text-4xl text-white leading-tight">Pay ${cardSession.amount}</h3>
+                      <p className="m-0 mt-1 text-sm" style={{ color: '#a1a1aa' }}>{cardSession.tier} · {buyerEmail}</p>
+                    </div>
+                    {errorMessage && (
+                      <div role="alert" className="p-3 text-sm flex items-start gap-2" style={{ background: 'rgba(255,77,109,.08)', border: '1px solid rgba(255,77,109,.35)', color: '#ffb3c1' }}>
+                        <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" /><span>{errorMessage}</span>
+                      </div>
+                    )}
+                    <div>
+                      <p className="m-0 mb-2 text-sm font-semibold text-white">Card details</p>
+                      <div style={{ border: '1px solid #2a2a30' }}>
+                        <div className="relative">
+                          <input value={card} onChange={(e) => setCard(fmtCard(e.target.value))} inputMode="numeric" autoComplete="cc-number" placeholder="1234 1234 1234 1234" aria-label="Card number"
+                            className="w-full pl-3 pr-24 py-3 text-[15px] text-white outline-none font-mono" style={{ border: 0, borderBottom: '1px solid #2a2a30' }} />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase tracking-wider" style={{ color: '#a1a1aa' }}>{digits(card) ? brandOf(digits(card)) : <CreditCard className="w-4 h-4" />}</span>
+                        </div>
+                        <div className="grid grid-cols-2">
+                          <input value={cardExp} onChange={(e) => setCardExp(fmtExp(e.target.value))} inputMode="numeric" autoComplete="cc-exp" placeholder="MM / YY" aria-label="Expiry date"
+                            className="w-full px-3 py-3 text-[15px] text-white outline-none font-mono" style={{ border: 0, borderRight: '1px solid #2a2a30' }} />
+                          <input value={cardCvc} onChange={(e) => setCardCvc(digits(e.target.value).slice(0, 4))} inputMode="numeric" autoComplete="cc-csc" placeholder="CVC" aria-label="Security code"
+                            className="w-full px-3 py-3 text-[15px] text-white outline-none font-mono" style={{ border: 0 }} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-3 pt-1">
+                      <button type="submit" disabled={isProcessing} className="w-full py-4 text-[15px] font-bold flex items-center justify-center gap-2 cursor-pointer transition-opacity hover:opacity-90 disabled:opacity-60"
+                        style={{ background: brandColor, color: ink, boxShadow: `0 16px 36px -14px ${hexToRgba(brandColor, 0.7)}` }}>
+                        {isProcessing ? <><Loader2 className="w-4 h-4 animate-spin" /><span>{processingStep || 'Processing payment…'}</span></> : <><Lock className="w-4 h-4" /><span>Pay ${cardSession.amount}</span></>}
+                      </button>
+                      <button type="button" disabled={isProcessing} onClick={() => { setCardSession(null); setErrorMessage('') }} className="w-full text-xs cursor-pointer bg-transparent border-0" style={{ color: '#71717a' }}>Back to your details</button>
+                      <p className="m-0 flex items-center justify-center gap-1.5 text-xs" style={{ color: '#71717a' }}><ShieldCheck className="w-3.5 h-3.5" />Test payment: no real card is charged.</p>
+                    </div>
+                  </form>
                 ) : (
                   <form onSubmit={handleCheckoutSubmit} className="space-y-6 pt-2" noValidate>
                     <div>
@@ -655,7 +744,7 @@ export default function PreorderLandingPage({ slug }) {
                           : <><Lock className="w-4 h-4" /><span>Pay ${selectedTier?.price} securely</span><ArrowRight className="w-4 h-4" /></>}
                       </button>
                       <p className="m-0 flex items-center justify-center gap-1.5 text-xs" style={{ color: '#71717a' }}>
-                        <ShieldCheck className="w-3.5 h-3.5" />You’ll pay on Stripe’s secure page. Card details never touch this site.
+                        <ShieldCheck className="w-3.5 h-3.5" />Payments are processed securely.
                       </p>
                     </div>
                   </form>

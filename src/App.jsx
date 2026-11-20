@@ -88,6 +88,16 @@ export default function App() {
     return <PublicConceptShowcase slug={slug} />
   }
 
+  // Legacy campaign/landing links: /p/<slug> and /p/<slug>/checkout open the same pre-order page
+  if (currentPath.startsWith('/p/')) {
+    const parts = currentPath.split('/').filter(Boolean)
+    if (parts[2] === 'checkout' && typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search); sp.set('checkout', '1')
+      window.history.replaceState(null, '', `/preorder/${parts[1]}?${sp.toString()}`)
+    }
+    return <PreorderLandingPage slug={decodeURIComponent(parts[1] || '')} />
+  }
+
   if (currentPath.startsWith('/preorder')) {
     const slug = getSlug('/preorder/')
     const hasConceptParam =

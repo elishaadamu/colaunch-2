@@ -161,7 +161,9 @@ export function siteFromTemplate(project, templateId = 'launch') {
   const hero = sec('hero', {
     eyebrow: templateId === 'creator' && by ? by : 'Now available',
     title: concept.tagline || name,
-    subtitle: concept.problem ? `Built for ${concept.customer || 'people'} who are tired of ${String(concept.problem).replace(/\.$/, '').toLowerCase()}.` : `Meet ${name}.`,
+    subtitle: concept.problem
+      ? `${String(concept.problem).replace(/^You\b/, 'You').replace(/\.?$/, '.')} ${name} helps${concept.customer ? ` ${String(concept.customer).charAt(0).toLowerCase()}${String(concept.customer).slice(1)}` : ''}.`.replace(/helps individuals seeking/i, 'helps people seeking')
+      : `Meet ${name}.`,
     cta: link(price ? `Get it for ${price.startsWith('$') ? price : `$${price}`}` : 'Get early access', preorder),
     secondary: link('See how it works', '#features'),
     image,

@@ -35,7 +35,7 @@ const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700;800&display=swap');
 .sr{container-type:inline-size;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.55;-webkit-font-smoothing:antialiased}
 .sr *{box-sizing:border-box}
-.sr h1,.sr h2,.sr h3{font-family:var(--head);font-weight:var(--hw);letter-spacing:-.02em;margin:0;line-height:1.08}
+.sr h1,.sr h2,.sr h3{font-family:var(--head)!important;font-weight:var(--hw)!important;letter-spacing:-.02em;margin:0;line-height:1.08}
 .sr p{margin:0}
 .sr a{color:inherit}
 .sr .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
@@ -151,7 +151,7 @@ function Section({ s, site, slug, editing, base, nav }) {
         <div style={{ borderBottom: '1px solid var(--line)' }}>
           <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68, gap: 16 }}>
             <a href={base || '#top'} onClick={nav ? (e) => { e.preventDefault(); nav('') } : undefined} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', fontWeight: 700, fontSize: 18 }}>
-              {logo && <img src={logo} alt="" style={{ height: 30, width: 'auto' }} referrerPolicy="no-referrer" />}
+              {logo && <img src={logo} alt="" style={{ height: 32, width: 'auto', maxWidth: 160, objectFit: 'contain' }} referrerPolicy="no-referrer" />}
               <span style={{ fontFamily: 'var(--head)', fontWeight: 'var(--hw)', fontSize: 20 }}>{d.brand}</span>
             </a>
             <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
@@ -188,14 +188,14 @@ function Section({ s, site, slug, editing, base, nav }) {
         return (
           <div className="sec"><div className="wrap split">
             {text('left')}
-            {img ? <img src={img} alt="" className="img" style={{ aspectRatio: '4/3.4', border: '1px solid var(--line)' }} referrerPolicy="no-referrer" /> : editing ? <div className="empty">Add an image in the panel</div> : null}
+            {img ? <img src={img} alt="" className="img" style={{ height: 'auto', maxHeight: 560, objectFit: 'contain', border: '1px solid var(--line)' }} referrerPolicy="no-referrer" /> : editing ? <div className="empty">Add an image in the panel</div> : null}
           </div></div>
         )
       }
       return (
         <div className="sec"><div className="wrap">
           {text('center')}
-          {img && <img src={img} alt="" className="img" style={{ marginTop: 56, aspectRatio: '16/8', border: '1px solid var(--line)' }} referrerPolicy="no-referrer" />}
+          {img && <img src={img} alt="" className="img" style={{ marginTop: 56, height: 'auto', maxHeight: 640, objectFit: 'contain', border: '1px solid var(--line)' }} referrerPolicy="no-referrer" />}
         </div></div>
       )
     }
@@ -338,7 +338,7 @@ export default function SiteRenderer({ site, slug, basePath, editing = false, se
   if (!site) return null
   const sections = (site.sections || []).filter((s) => !s.hidden)
   return (
-    <div className="sr" id="top" style={themeVars(site.theme)}>
+    <div className="sr clp-root" id="top" style={themeVars(site.theme)}>
       <style>{CSS}</style>
       {sections.map((s) => (
         <section key={s.id} id={s.anchor || s.type} className={editing ? 'edit' : undefined} data-sel={editing && selectedId === s.id ? 'true' : undefined}

@@ -201,7 +201,8 @@ export function trackVisit(pagePath = '/dashboard', onProjectUpdate = null) {
     import('./opsApi').then(({ recordVisitUniversal }) => {
       recordVisitUniversal({
         projectId: activeProject.id,
-        slug: activeProject.productName ? activeProject.productName.toLowerCase().replace(/ /g, '-') : undefined,
+        // The page's own slug (/preorder/<slug>, /concept/<slug>, …) identifies the project
+        slug: String(pagePath || '').split('?')[0].split('/').filter(Boolean).pop() || undefined,
         channel: channel,
         ref: rawRef,
         path: pagePath,

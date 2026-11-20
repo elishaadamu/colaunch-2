@@ -584,3 +584,4 @@ export const aiSiteCode = (pid, payload) => req('POST', `/sites/${encodeURICompo
 export const aiSiteLogo = (pid, payload) => req('POST', `/sites/${encodeURIComponent(pid)}/ai/logo`, payload)
 export const listSiteRevisions = (pid) => req('GET', `/sites/${encodeURIComponent(pid)}/revisions`)
 export const getSiteRevision = (pid, rid) => req('GET', `/sites/${encodeURIComponent(pid)}/revisions/${encodeURIComponent(rid)}`)
+export const completeSimulatedPayment = (pid, payload) => req('POST', `/projects/${encodeURIComponent(pid)}/simulated-payment`, payload)

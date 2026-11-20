@@ -260,10 +260,10 @@ function LogoMaker({ pid, accent, onPick }) {
       <button type="button" className="btn btn-p w-full" onClick={run} disabled={busy}>{busy ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Designing…</> : <><Wand2 className="w-3.5 h-3.5" />{logos.length ? 'Make more' : 'Generate'}</>}</button>
       {err && <p className="m-0 text-[11px] text-[#ff8fa3]">{err}</p>}
       {logos.length > 0 && (
-        <div className="grid grid-cols-1 gap-1.5">
-          <p className="m-0 text-[11px] text-zinc-500">Click one to use it.</p>
+        <div className="grid grid-cols-3 gap-1.5">
+          <p className="m-0 text-[11px] text-zinc-500 col-span-3">Click one to use it. It sits next to your brand name in the header.</p>
           {logos.map((u) => (
-            <button key={u} type="button" className="tile flex items-center justify-center" style={{ background: '#fff', height: 72 }} onClick={() => onPick(u)}>
+            <button key={u} type="button" className="tile flex items-center justify-center" style={{ background: '#fff', height: 72 }} onClick={() => onPick(u)} title="Use this logo">
               <img src={u} alt="Logo option" className="max-h-full max-w-full object-contain" />
             </button>
           ))}
@@ -638,7 +638,7 @@ export default function SiteBuilderPage({ pid }) {
               <label className="flex-1 min-w-0 relative">
                 <span className="sr-only">Page</span>
                 <FileText className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
-                <select className="in pl-8 cursor-pointer" value={cur} onChange={(e) => { setCur(e.target.value); setSel(null) }}>
+                <select className="in cursor-pointer" style={{ paddingLeft: 32 }} value={cur} onChange={(e) => { setCur(e.target.value); setSel(null) }}>
                   <option value="home">Home</option>
                   {pages.map((pg) => <option key={pg.id} value={pg.id}>{pg.title} (/{pg.path})</option>)}
                 </select>
