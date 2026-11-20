@@ -104,6 +104,12 @@ export const SECTION_TYPES = {
       { key: 'button', label: 'Button', type: 'link' },
     ],
   },
+  custom: {
+    label: 'Custom (AI code)', hint: 'Describe anything; the AI builds it',
+    fields: [
+      { key: 'height', label: 'Height (px)', type: 'text' },
+    ],
+  },
   footer: {
     label: 'Footer', hint: 'Links and small print at the bottom',
     fields: [
@@ -125,12 +131,17 @@ const IMG = {
   saas: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=80',
   product: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1400&q=80',
   creator: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=80',
+  course: 'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1400&q=80',
+  waitlist: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1400&q=80',
 }
 
 export const TEMPLATES = {
   launch: { label: 'Launch', desc: 'Software, apps and tools', theme: { mode: 'dark', font: 'modern' }, img: IMG.saas },
   product: { label: 'Product', desc: 'Physical products and kits', theme: { mode: 'light', font: 'classic' }, img: IMG.product },
-  creator: { label: 'Creator', desc: 'Courses, communities, personal brands', theme: { mode: 'light', font: 'editorial' }, img: IMG.creator },
+  creator: { label: 'Creator', desc: 'Communities and personal brands', theme: { mode: 'light', font: 'editorial' }, img: IMG.creator },
+  course: { label: 'Course', desc: 'Courses, cohorts and workshops', theme: { mode: 'light', font: 'editorial' }, img: IMG.course },
+  waitlist: { label: 'Waitlist', desc: 'Apps not out yet: collect emails', theme: { mode: 'dark', font: 'modern' }, img: IMG.waitlist },
+  minimal: { label: 'Minimal', desc: 'One clean page, no frills', theme: { mode: 'light', font: 'modern' }, img: '' },
 }
 
 const sec = (type, data, extra = {}) => ({ id: uid(), type, hidden: false, data, ...extra })
@@ -170,7 +181,24 @@ export function siteFromTemplate(project, templateId = 'launch') {
   const nav = sec('nav', { brand: name, links: [link('Features', '#features'), link('FAQ', '#faq')], cta: link('Get started', preorder) })
   const footer = sec('footer', { text: `© ${new Date().getFullYear()} ${name}${by ? ` · ${by}` : ''}`, links: [] })
 
-  const middle = templateId === 'product'
+  const signup = sec('signup', { title: 'Get early access', text: `Be first to try ${name}. One email when it opens, nothing else.`, button: 'Join the waitlist', success: "You're on the list. We'll email you when it opens." }, { anchor: 'signup' })
+  if (templateId === 'waitlist') {
+    hero.data = { ...hero.data, eyebrow: 'Coming soon', cta: link('Join the waitlist', '#signup'), secondary: link('', ''), layout: 'center' }
+    nav.data.cta = link('Join the waitlist', '#signup')
+  }
+  if (templateId === 'minimal') {
+    hero.data = { ...hero.data, image: '', layout: 'center', secondary: link('', '') }
+    nav.data.links = []
+  }
+  if (templateId === 'course') hero.data = { ...hero.data, eyebrow: by ? `A course ${by}` : 'Online course', layout: 'split' }
+
+  const middle = templateId === 'waitlist'
+    ? [feat, signup]
+    : templateId === 'minimal'
+      ? [sec('text', { title: `Why ${name}`, body: concept.problem || `${name} does one thing well.`, image: '' })]
+      : templateId === 'course'
+        ? [{ ...feat, data: { ...feat.data, title: "What you'll learn" } }, sec('text', { title: creator.name ? `Your teacher: ${creator.name}` : 'Who teaches it', body: concept.problem ? `I made this course because ${String(concept.problem).replace(/\.$/, '').toLowerCase()}.` : 'Learn from someone who does this every day.', image: creator.avatar_url || '' }), sec('pricing', { title: 'Enroll', subtitle: '', plans: [{ name: 'Full course', price: price || '$—', period: 'one-time', features: features.map((f) => f.title).join('\n'), cta: link('Enroll now', preorder), highlight: true }] }), sec('testimonials', { title: 'From students', items: [] }, { hidden: true })]
+        : templateId === 'product'
     ? [feat, sec('gallery', { title: 'A closer look', images: [{ url: image, caption: '' }] }), sec('pricing', { title: 'Pricing', subtitle: '', plans: [{ name, price: price || '$—', period: 'one-time', features: features.map((f) => f.title).join('\n'), cta: link('Order now', preorder), highlight: true }] }), sec('testimonials', { title: 'What people say', items: [] }, { hidden: true })]
     : templateId === 'creator'
       ? [sec('text', { title: creator.name ? `Hi, I'm ${creator.name.split(' ')[0]}.` : 'Why I made this', body: concept.problem ? `I kept seeing the same problem: ${concept.problem}\n\nSo I built ${name}.` : `I built ${name} for my community.`, image: creator.avatar_url || '' }), feat, sec('signup', { title: 'Get updates', text: 'New lessons and early offers, straight to your inbox.', button: 'Join', success: "You're in. Check your inbox." })]
@@ -181,7 +209,7 @@ export function siteFromTemplate(project, templateId = 'launch') {
     template: templateId,
     theme: { accent: brandColor || '#c81e3c', ...t.theme },
     settings: { title: `${name}${concept.tagline ? ` | ${concept.tagline}` : ''}`.slice(0, 70), description: (concept.tagline || '').slice(0, 160), logoUrl: '', faviconUrl: '' },
-    sections: [nav, hero, ...middle, faq, close, footer],
+    sections: templateId === 'minimal' ? [nav, hero, ...middle, close, footer] : templateId === 'waitlist' ? [nav, hero, ...middle, faq, footer] : [nav, hero, ...middle, faq, close, footer],
   }
 }
 
@@ -208,6 +236,7 @@ export function newSection(type) {
     faq: { title: 'Questions', items: [{ q: 'Question?', a: 'Answer.' }] },
     signup: { title: 'Stay in the loop', text: 'Get updates in your inbox.', button: 'Join', success: "Thanks, you're in." },
     cta: { title: 'Ready?', text: '', button: link('Get started', '#') },
+    custom: { prompt: '', html: '', css: '', height: '480' },
     footer: { text: `© ${new Date().getFullYear()}`, links: [] },
   }[type]
   return sec(type, JSON.parse(JSON.stringify(d)))

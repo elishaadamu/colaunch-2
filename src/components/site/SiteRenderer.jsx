@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FONTS, safeHref, safeImg, videoEmbed } from './siteSchema'
 import { siteSignup } from '../../services/opsApi'
 
@@ -110,6 +110,26 @@ function Signup({ d, slug, editing }) {
       {state && !['busy', 'done'].includes(state) && <p style={{ marginTop: 10, fontSize: 14, color: '#e11d48' }}>{state}</p>}
     </div>
   )
+}
+
+// AI/custom code runs in a sandboxed iframe (own origin, no access to this page) and reports its height.
+function CustomBlock({ d, theme, editing }) {
+  const ref = useRef(null)
+  const [h, setH] = useState(() => Math.max(80, parseInt(d.height, 10) || 480))
+  const id = useMemo(() => Math.random().toString(36).slice(2), [])
+  useEffect(() => {
+    const on = (e) => { if (e.source === ref.current?.contentWindow && e.data?.cxid === id && e.data.h) setH(Math.min(Math.ceil(e.data.h), 4000)) }
+    window.addEventListener('message', on)
+    return () => window.removeEventListener('message', on)
+  }, [id])
+  if (!d.html) return editing ? <div className="wrap sec"><div className="empty">Describe what you want in the panel and the AI builds it</div></div> : null
+  const vars = Object.entries(themeVars(theme)).map(([k, v]) => `${k}:${v}`).join(';')
+  const html = String(d.html).replace(/<script[\s\S]*?<\/script>/gi, '')
+  const doc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base target="_blank">
+<style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700;800&display=swap');
+:root{${vars}}*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body)}img{max-width:100%}${String(d.css || '').replace(/<\/style/gi, '')}</style></head>
+<body>${html}<script>(function(){function p(){parent.postMessage({cxid:${JSON.stringify(id)},h:document.documentElement.scrollHeight},'*')}new ResizeObserver(p).observe(document.body);window.addEventListener('load',p);p()})()</script></body></html>`
+  return <iframe ref={ref} title="Custom section" srcDoc={doc} sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" style={{ width: '100%', height: h, border: 0, display: 'block', pointerEvents: editing ? 'none' : 'auto' }} />
 }
 
 function Section({ s, site, slug, editing }) {
@@ -286,6 +306,8 @@ function Section({ s, site, slug, editing }) {
           {d.button?.label && <a href={safeHref(d.button.href) || '#'} className="btn" style={{ marginTop: 30, background: 'var(--acc-ink)', color: 'var(--acc)', borderColor: 'var(--acc-ink)' }}>{d.button.label}</a>}
         </div></div>
       )
+    case 'custom':
+      return <CustomBlock d={d} theme={site.theme} editing={editing} />
     case 'footer':
       return (
         <div style={{ borderTop: '1px solid var(--line)', padding: '36px 0' }}>

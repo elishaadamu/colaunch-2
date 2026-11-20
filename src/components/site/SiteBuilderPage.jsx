@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Eye, EyeOff, Copy, Trash2, ChevronUp, ChevronDown, GripVertical, Monitor, Smartphone, Check, Loader2,
   CloudOff, Undo2, Redo2, ExternalLink, Rocket, X, LayoutTemplate, Palette, Layers, Pencil, Globe, Lock, AlertTriangle, Image as ImageIcon,
+  Sparkles, Wand2, Code2,
 } from 'lucide-react'
 import CoLaunchLogo from '../ui/CoLaunchLogo'
 import SiteRenderer from './SiteRenderer'
 import { SECTION_TYPES, TEMPLATES, FONTS, ACCENTS, siteFromTemplate, applyTemplate, newSection, uid, safeImg } from './siteSchema'
-import { getSite, saveSite, publishSite, unpublishSite, getCoLaunchProject } from '../../services/opsApi'
+import { getSite, saveSite, publishSite, unpublishSite, getCoLaunchProject, aiSiteSection, aiSitePage, aiSiteCode, aiSiteLogo } from '../../services/opsApi'
 
 const LABELS = Object.fromEntries(Object.entries(SECTION_TYPES).map(([k, v]) => [k, v.label]))
 const clean = (m) => String(m || '').replace(/^\d{3}:\s*/, '')
@@ -146,6 +147,132 @@ function ListField({ f, value, onChange }) {
   )
 }
 
+// ── AI helpers ─────────────────────────────────────────────────────────────────────────────────
+function AiWrite({ pid, section, onData }) {
+  const [ins, setIns] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  useEffect(() => { setErr(''); setIns('') }, [section.id])
+  const run = async () => {
+    setBusy(true); setErr('')
+    try { const r = await aiSiteSection(pid, section.type, section.data || {}, ins.trim()); onData(r.data); setIns('') }
+    catch (e) { setErr(clean(e.message)) } finally { setBusy(false) }
+  }
+  return (
+    <div className="p-3 space-y-2" style={{ border: '1px solid #2a2a30', background: 'rgba(200,30,60,.05)' }}>
+      <p className="m-0 text-xs font-semibold text-white flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#ff8fa3]" />Write this section with AI</p>
+      <input className="in" value={ins} onChange={(e) => setIns(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && !busy && run()} placeholder="Optional: e.g. shorter, friendlier, mention free shipping" />
+      <button type="button" className="btn btn-p w-full" onClick={run} disabled={busy}>{busy ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Writing…</> : <><Wand2 className="w-3.5 h-3.5" />Write it</>}</button>
+      {err && <p className="m-0 text-[11px] text-[#ff8fa3]">{err}</p>}
+      <p className="m-0 text-[11px] text-zinc-600">Replaces the text below. Undo brings it back.</p>
+    </div>
+  )
+}
+
+function CustomEditor({ pid, section, theme, onData }) {
+  const d = section.data || {}
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  const [ask, setAsk] = useState(d.html ? '' : (d.prompt || ''))
+  const [code, setCode] = useState(false)
+  useEffect(() => { setErr(''); setAsk(section.data?.html ? '' : (section.data?.prompt || '')) }, [section.id])
+  const run = async () => {
+    if (ask.trim().length < 4) { setErr('Describe what you want in a few words.'); return }
+    setBusy(true); setErr('')
+    try {
+      const r = await aiSiteCode(pid, { prompt: ask.trim(), html: d.html || null, css: d.css || null, theme })
+      onData({ ...d, prompt: d.html ? `${d.prompt || ''}\n${ask.trim()}`.trim() : ask.trim(), html: r.html, css: r.css, height: String(r.height) }); setAsk('')
+    } catch (e) { setErr(clean(e.message)) } finally { setBusy(false) }
+  }
+  return (
+    <div className="space-y-4">
+      <div className="p-3 space-y-2" style={{ border: '1px solid #2a2a30', background: 'rgba(200,30,60,.05)' }}>
+        <p className="m-0 text-xs font-semibold text-white flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#ff8fa3]" />{d.html ? 'What should change?' : 'Describe the section'}</p>
+        <textarea className="in" rows={4} value={ask} onChange={(e) => setAsk(e.target.value)}
+          placeholder={d.html ? 'e.g. make the boxes bigger and add a fourth one' : 'e.g. a comparison table of us vs. doing it by hand, 5 rows, with check marks'} />
+        <button type="button" className="btn btn-p w-full" onClick={run} disabled={busy}>{busy ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Building…</> : <><Wand2 className="w-3.5 h-3.5" />{d.html ? 'Change it' : 'Build it'}</>}</button>
+        {err && <p className="m-0 text-[11px] text-[#ff8fa3]">{err}</p>}
+        {busy && <p className="m-0 text-[11px] text-zinc-500">This takes 10 to 30 seconds.</p>}
+      </div>
+      {d.prompt && <p className="m-0 text-[11px] text-zinc-500 whitespace-pre-line">Asked for: {d.prompt}</p>}
+      {d.html && (
+        <div>
+          <button type="button" className="btn w-full" onClick={() => setCode((v) => !v)}><Code2 className="w-3.5 h-3.5" />{code ? 'Hide code' : 'Edit the code (advanced)'}</button>
+          {code && (
+            <div className="space-y-3 mt-3">
+              <label className="block"><span className="lbl">HTML</span><textarea className="in font-mono text-xs" rows={10} value={d.html} onChange={(e) => onData({ ...d, html: e.target.value })} spellCheck={false} /></label>
+              <label className="block"><span className="lbl">CSS</span><textarea className="in font-mono text-xs" rows={8} value={d.css || ''} onChange={(e) => onData({ ...d, css: e.target.value })} spellCheck={false} /></label>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PageWriter({ pid, sections, onDone, onClose }) {
+  const [ins, setIns] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  const run = async () => {
+    setBusy(true); setErr('')
+    try { const r = await aiSitePage(pid, sections.map(({ id, type, data }) => ({ id, type, data })), ins.trim()); onDone(r.sections) }
+    catch (e) { setErr(clean(e.message)); setBusy(false) }
+  }
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,.7)' }} onClick={() => !busy && onClose()}>
+      <div className="w-full max-w-lg p-5 space-y-4" style={{ background: '#0c0c0e', border: '1px solid #26262b' }} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Write the whole page">
+        <div className="flex items-center justify-between">
+          <h2 className="serif m-0 text-3xl text-white">Write the whole page</h2>
+          <button className="ib" onClick={onClose} disabled={busy} aria-label="Close"><X className="w-4 h-4" /></button>
+        </div>
+        <p className="m-0 text-sm text-zinc-400">The AI rewrites every section from your product details so the page reads as one story. Images and links stay. You can undo it.</p>
+        <label className="block"><span className="lbl">Anything to steer it? (optional)</span>
+          <textarea className="in" rows={3} value={ins} onChange={(e) => setIns(e.target.value)} placeholder="e.g. speak to busy parents, warm tone, mention the 30-day guarantee" /></label>
+        {err && <p className="m-0 text-sm text-[#ff8fa3]">{err}</p>}
+        <button className="btn btn-p w-full" onClick={run} disabled={busy}>{busy ? <><Loader2 className="w-4 h-4 animate-spin" />Writing your page… (up to a minute)</> : <><Wand2 className="w-4 h-4" />Write my page</>}</button>
+      </div>
+    </div>
+  )
+}
+
+function LogoMaker({ pid, accent, onPick }) {
+  const [open, setOpen] = useState(false)
+  const [brief, setBrief] = useState('')
+  const [style, setStyle] = useState('svg')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  const [logos, setLogos] = useState([])
+  const run = async () => {
+    setBusy(true); setErr('')
+    try { const r = await aiSiteLogo(pid, { style, brief: brief.trim(), accent }); setLogos((l) => [...r.logos, ...l].slice(0, 9)) }
+    catch (e) { setErr(clean(e.message)) } finally { setBusy(false) }
+  }
+  if (!open) return <button type="button" className="btn w-full" onClick={() => setOpen(true)}><Sparkles className="w-3.5 h-3.5 text-[#ff8fa3]" />Generate a logo with AI</button>
+  return (
+    <div className="p-3 space-y-2.5" style={{ border: '1px solid #2a2a30', background: 'rgba(200,30,60,.05)' }}>
+      <div className="flex items-center justify-between"><p className="m-0 text-xs font-semibold text-white">Logo generator</p><button className="ib" onClick={() => setOpen(false)} aria-label="Close"><X className="w-3.5 h-3.5" /></button></div>
+      <div className="seg w-full" role="group" aria-label="Logo style">
+        <button className="flex-1 justify-center" aria-pressed={style === 'svg'} onClick={() => setStyle('svg')}>Vector (3 options)</button>
+        <button className="flex-1 justify-center" aria-pressed={style === 'image'} onClick={() => setStyle('image')}>Icon image</button>
+      </div>
+      <input className="in" value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="Optional: e.g. a leaf, playful, rounded letters" />
+      <button type="button" className="btn btn-p w-full" onClick={run} disabled={busy}>{busy ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Designing…</> : <><Wand2 className="w-3.5 h-3.5" />{logos.length ? 'Make more' : 'Generate'}</>}</button>
+      {err && <p className="m-0 text-[11px] text-[#ff8fa3]">{err}</p>}
+      {logos.length > 0 && (
+        <div className="grid grid-cols-1 gap-1.5">
+          <p className="m-0 text-[11px] text-zinc-500">Click one to use it.</p>
+          {logos.map((u) => (
+            <button key={u} type="button" className="tile flex items-center justify-center" style={{ background: '#fff', height: 72 }} onClick={() => onPick(u)}>
+              <img src={u} alt="Logo option" className="max-h-full max-w-full object-contain" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Page ────────────────────────────────────────────────────────────────────────────────────────
 export default function SiteBuilderPage({ pid }) {
   const [phase, setPhase] = useState('loading') // loading | auth | missing | error | ready
@@ -163,6 +290,7 @@ export default function SiteBuilderPage({ pid }) {
   const [publishing, setPublishing] = useState(false)
   const [dragId, setDragId] = useState(null)
   const [overId, setOverId] = useState(null)
+  const [writing, setWriting] = useState(false)
 
   const revRef = useRef(0)
   const latest = useRef(null)
@@ -466,10 +594,11 @@ export default function SiteBuilderPage({ pid }) {
                     ))}
                   </ul>
                   <button className="btn w-full mt-3" onClick={() => setAdding(true)}><Plus className="w-4 h-4" />Add section</button>
+                  <button className="btn w-full mt-1.5" onClick={() => setWriting(true)}><Sparkles className="w-4 h-4 text-[#ff8fa3]" />Write the whole page with AI</button>
                   <p className="m-0 mt-3 text-[11px] text-zinc-600 leading-relaxed">Click a section on the page or in this list to edit it. Drag to reorder.</p>
                 </>
               ) : (
-                <DesignPanel site={site} setSite={setSite} project={project} />
+                <DesignPanel site={site} setSite={setSite} project={project} pid={meta?.project?.id || pid} />
               )}
             </div>
             <div className="shrink-0 p-3 text-[11px] text-zinc-500 space-y-1" style={{ borderTop: '1px solid #1c1c20' }}>
@@ -500,13 +629,25 @@ export default function SiteBuilderPage({ pid }) {
               <button className="ib" aria-label="Close" onClick={() => setSel(null)}><X className="w-4 h-4" /></button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {SECTION_TYPES[selected.type].fields.map((f) => (
-                <Field key={f.key} f={f} value={selected.data?.[f.key]} onChange={(v) => updSection(selected.id, (s) => ({ ...s, data: { ...s.data, [f.key]: v } }))} />
-              ))}
+              {selected.type === 'custom' ? (
+                <CustomEditor pid={meta?.project?.id || pid} section={selected} theme={site.theme} onData={(data) => updSection(selected.id, (s) => ({ ...s, data }))} />
+              ) : (
+                <>
+                  <AiWrite pid={meta?.project?.id || pid} section={selected} onData={(data) => updSection(selected.id, (s) => ({ ...s, data: { ...s.data, ...data } }))} />
+                  {SECTION_TYPES[selected.type].fields.map((f) => (
+                    <Field key={f.key} f={f} value={selected.data?.[f.key]} onChange={(v) => updSection(selected.id, (s) => ({ ...s, data: { ...s.data, [f.key]: v } }))} />
+                  ))}
+                </>
+              )}
             </div>
           </aside>
         )}
       </div>
+
+      {writing && (
+        <PageWriter pid={meta?.project?.id || pid} sections={sections} onClose={() => setWriting(false)}
+          onDone={(map) => { setSite((p) => ({ ...p, sections: p.sections.map((s) => (map[s.id] ? { ...s, data: { ...s.data, ...map[s.id] } } : s)) })); setWriting(false); flash('Page rewritten. Undo brings back the old text.') }} />
+      )}
 
       {/* Add section picker */}
       {adding && (
@@ -532,7 +673,7 @@ export default function SiteBuilderPage({ pid }) {
   )
 }
 
-function DesignPanel({ site, setSite, project }) {
+function DesignPanel({ site, setSite, project, pid }) {
   const theme = site.theme || {}
   const setTheme = (patch) => setSite((p) => ({ ...p, theme: { ...p.theme, ...patch } }))
   const setSettings = (patch) => setSite((p) => ({ ...p, settings: { ...p.settings, ...patch } }))
@@ -583,6 +724,7 @@ function DesignPanel({ site, setSite, project }) {
       </div>
       <div className="space-y-3">
         <Field f={{ type: 'image', label: 'Logo' }} value={site.settings?.logoUrl} onChange={(v) => setSettings({ logoUrl: v })} />
+        <LogoMaker pid={pid} accent={theme.accent} onPick={(u) => setSettings({ logoUrl: u, faviconUrl: site.settings?.faviconUrl || u })} />
         <Field f={{ type: 'text', label: 'Page title (shows in the browser tab and Google)' }} value={site.settings?.title} onChange={(v) => setSettings({ title: v })} />
         <Field f={{ type: 'textarea', label: 'Description (shows on Google and when shared)' }} value={site.settings?.description} onChange={(v) => setSettings({ description: v })} />
         <Field f={{ type: 'image', label: 'Browser tab icon' }} value={site.settings?.faviconUrl} onChange={(v) => setSettings({ faviconUrl: v })} />

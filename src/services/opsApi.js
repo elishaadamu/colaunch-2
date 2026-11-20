@@ -578,3 +578,7 @@ export const publishSite = (pid, notify = false) => req('POST', `/sites/${encode
 export const unpublishSite = (pid) => req('POST', `/sites/${encodeURIComponent(pid)}/unpublish`)
 export const getPublicSite = (slug) => req('GET', `/sites/public/${encodeURIComponent(slug)}`)
 export const siteSignup = (slug, email, name) => req('POST', `/sites/public/${encodeURIComponent(slug)}/signup`, { email, name })
+export const aiSiteSection = (pid, type, data, instruction) => req('POST', `/sites/${encodeURIComponent(pid)}/ai/section`, { type, data, instruction })
+export const aiSitePage = (pid, sections, instruction) => req('POST', `/sites/${encodeURIComponent(pid)}/ai/page`, { sections, instruction })
+export const aiSiteCode = (pid, payload) => req('POST', `/sites/${encodeURIComponent(pid)}/ai/code`, payload)
+export const aiSiteLogo = (pid, payload) => req('POST', `/sites/${encodeURIComponent(pid)}/ai/logo`, payload)
