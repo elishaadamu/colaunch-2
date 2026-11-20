@@ -37,6 +37,18 @@ export function buildStudioDocument(files = [], { title = 'App' } = {}) {
 <script>
 (function(){
   var DATA = ${payload};
+  // Sandboxed previews have no storage access; give apps an in-memory localStorage/sessionStorage instead of crashing.
+  ['localStorage', 'sessionStorage'].forEach(function(k){
+    try { window[k].getItem('__probe'); } catch (e) {
+      var mem = {}; var store = {
+        getItem: function(x){ return Object.prototype.hasOwnProperty.call(mem, x) ? mem[x] : null; },
+        setItem: function(x, v){ mem[x] = String(v); }, removeItem: function(x){ delete mem[x]; },
+        clear: function(){ mem = {}; }, key: function(i){ return Object.keys(mem)[i] || null; },
+        get length(){ return Object.keys(mem).length; }
+      };
+      try { Object.defineProperty(window, k, { value: store, configurable: true }); } catch (e2) {}
+    }
+  });
   // Never let the app inside the preview scroll the page around it (focus() would scroll ancestors too)
   var _focus = HTMLElement.prototype.focus;
   HTMLElement.prototype.focus = function(opts){ return _focus.call(this, Object.assign({}, opts || {}, { preventScroll: true })); };

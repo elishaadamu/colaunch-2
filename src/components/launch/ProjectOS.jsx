@@ -1094,6 +1094,14 @@ partnerships@colaunch.com`
                       <button
                         key={p}
                         onClick={() => {
+                          const advancing = p > projectCurrentPhase
+                          if (advancing) {
+                            const gateOpen = p === 2 ? isP1Done : isP2Done
+                            const msg = gateOpen
+                              ? `Move ${project?.productName || 'this project'} to Phase ${p}?`
+                              : `The Phase ${p - 1} gate hasn't been passed. Skip it and move ${project?.productName || 'this project'} to Phase ${p} anyway? This changes the project's phase for everyone.`
+                            if (!window.confirm(msg)) return
+                          }
                           setSelectedPhaseTab(p)
                           if (p === 2 && projectCurrentPhase < 2) {
                             handleAdvancePhase(2)

@@ -84,10 +84,10 @@ const C = {
   skySoft: 'rgba(255, 255, 255,0.12)',
   skyLine: 'rgba(255, 255, 255,0.36)',
   skyText: '#e4e4e7',
-  violet: '#f59e0b',
-  violetSoft: 'rgba(245, 158, 11,0.14)',
-  violetLine: 'rgba(245, 158, 11,0.40)',
-  violetText: '#fcd34d',
+  violet: '#d4d4d8',
+  violetSoft: 'rgba(255, 255, 255,0.08)',
+  violetLine: 'rgba(255, 255, 255,0.24)',
+  violetText: '#e4e4e7',
 }
 
 const HEADING_FONT = { fontFamily: "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }
@@ -559,18 +559,15 @@ export default function Phase1Validate({
   const origin = getFrontendUrl()
   const productSlug = (project?.slug || project?.productName || 'product').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
+  // Point every product link the AI writes (any host, /preorder, /p or /launch, with or without a slug)
+  // at this product's real pre-order page, once, keeping the ?ref= tracking part.
   const normalizeUrlText = (text) => {
     if (typeof text !== 'string') return text
     const realPreorderUrl = `${origin}/preorder/${productSlug}`
-    return text
-      .replace(/https?:\/\/[a-zA-Z0-9\-_.]+\.creatorforge\.app\/preorder/gi, realPreorderUrl)
-      .replace(/https?:\/\/[a-zA-Z0-9\-_.]+\.creatorforge\.app\/launch/gi, `${origin}/p/${productSlug}`)
-      .replace(/https?:\/\/flutterflowflowai\.creatorforge\.app\/preorder/gi, realPreorderUrl)
-      .replace(/https?:\/\/localhost:\d+\/preorder\/[a-zA-Z0-9\-_]+/gi, realPreorderUrl)
-      .replace(/https?:\/\/localhost:\d+\/preorder/gi, realPreorderUrl)
-      .replace(/https?:\/\/localhost:\d+\/p\/[a-zA-Z0-9\-_]+/gi, `${origin}/p/${productSlug}`)
-      .replace(/https?:\/\/localhost:\d+\/p/gi, `${origin}/p`)
-      .replace(/https?:\/\/localhost:\d+/gi, origin)
+    return text.replace(
+      /https?:\/\/(?:[a-zA-Z0-9-]+\.)*(?:creatorforge\.app|colaunch[a-zA-Z0-9-]*\.vercel\.app|colaunch\.app|localhost:\d+)\/(?:preorder|p|launch)(?:\/[a-zA-Z0-9\-_]+)*(\?[^\s)\]"'<>]*)?/gi,
+      (m, query) => realPreorderUrl + (query || ''),
+    )
   }
 
   const showNotification = (msg) => {
@@ -2076,10 +2073,10 @@ export default function Phase1Validate({
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-max">
           {[
             { id: 'plan', num: '01', label: '1. Plan', icon: FileText, isDone: isStep1Done, status: step1Status, canAccess: canAccessStep1, color: C.crimson, activeBorder: C.crimsonLine },
-            { id: 'assets', num: '02', label: '2. Assets', icon: Layout, isDone: isStep2Done, status: step2Status, canAccess: canAccessStep2, color: C.sky, activeBorder: C.skyLine },
-            { id: 'campaign', num: '03', label: '3. Campaign', icon: Megaphone, isDone: isStep3Done, status: step3Status, canAccess: canAccessStep3, color: C.violet, activeBorder: C.violetLine },
-            { id: 'optimize', num: '04', label: '4. Optimize', icon: TrendingUp, isDone: isStep4Done, status: step4Status, canAccess: canAccessStep4, color: C.ok, activeBorder: C.okLine },
-            { id: 'gate', num: '05', label: '5. Gate', icon: Flag, isDone: isStep5Done, status: step5Status, canAccess: canAccessStep5, color: C.warn, activeBorder: C.warnLine },
+            { id: 'assets', num: '02', label: '2. Assets', icon: Layout, isDone: isStep2Done, status: step2Status, canAccess: canAccessStep2, color: C.crimson, activeBorder: C.crimsonLine },
+            { id: 'campaign', num: '03', label: '3. Campaign', icon: Megaphone, isDone: isStep3Done, status: step3Status, canAccess: canAccessStep3, color: C.crimson, activeBorder: C.crimsonLine },
+            { id: 'optimize', num: '04', label: '4. Optimize', icon: TrendingUp, isDone: isStep4Done, status: step4Status, canAccess: canAccessStep4, color: C.crimson, activeBorder: C.crimsonLine },
+            { id: 'gate', num: '05', label: '5. Gate', icon: Flag, isDone: isStep5Done, status: step5Status, canAccess: canAccessStep5, color: C.crimson, activeBorder: C.crimsonLine },
           ].map((step, idx, arr) => {
             const isActive = activeStep === step.id
             const isLocked = !step.canAccess

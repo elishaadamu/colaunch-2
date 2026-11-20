@@ -63,7 +63,7 @@ export default function App() {
   }
   // Published product sites: /<creator handle>/<product>[/<page>]
   {
-    const RESERVED = new Set(['survey', 'research', 'creator', 'site', 'builder', 'app', 'beta', 'concept', 'preorder', 'portal', 'follow-up-crm', 'crm',
+    const RESERVED = new Set(['p', 'survey', 'research', 'creator', 'site', 'builder', 'app', 'beta', 'concept', 'preorder', 'portal', 'follow-up-crm', 'crm',
       'admin-error-log', 'error-log', 'errors', 'project-os', 'projects', 'project', 'participation-manager', 'co-builders', 'cobuilder-admin',
       'participation', 'api', 'static', 'assets', 'images'])
     const m = currentPath.match(/^\/@?([a-z0-9_.-]+)\/([a-z0-9-]+)(?:\/([a-z0-9-]+))?\/?$/i)

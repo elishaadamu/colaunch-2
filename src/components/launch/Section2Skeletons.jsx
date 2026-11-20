@@ -9,21 +9,21 @@ export function ProjectOSSkeleton() {
   const C = {
     bg: '#08090c',
     sheet: '#10131a',
-    row: '#0c0e13',
-    raised: '#171b24',
+    row: '#0c0c0e',
+    raised: '#141417',
     line: 'rgba(255,255,255,0.08)',
     lineStrong: 'rgba(255,255,255,0.16)',
     crimson: '#c81e3c',
     crimsonSoft: 'rgba(200,30,60,0.14)',
     crimsonLine: 'rgba(200,30,60,0.38)',
-    okSoft: 'rgba(111,207,155,0.12)',
-    okLine: 'rgba(111,207,155,0.35)',
-    skySoft: 'rgba(56,189,248,0.12)',
-    skyLine: 'rgba(56,189,248,0.35)',
-    violetSoft: 'rgba(167,139,250,0.12)',
-    violetLine: 'rgba(167,139,250,0.35)',
-    amberSoft: 'rgba(240,180,106,0.12)',
-    amberLine: 'rgba(240,180,106,0.35)',
+    okSoft: 'rgba(255,255,255,0.05)',
+    okLine: 'rgba(255,255,255,0.12)',
+    skySoft: 'rgba(255,255,255,0.05)',
+    skyLine: 'rgba(255,255,255,0.12)',
+    violetSoft: 'rgba(255,255,255,0.05)',
+    violetLine: 'rgba(255,255,255,0.12)',
+    amberSoft: 'rgba(255,255,255,0.05)',
+    amberLine: 'rgba(255,255,255,0.12)',
   }
 
   return (
@@ -148,7 +148,7 @@ export function ProjectOSSkeleton() {
               className="relative rounded-2xl p-4 sm:p-5 lg:p-6 space-y-4 overflow-hidden"
               style={{ background: C.row, border: `1px solid ${C.crimsonLine}` }}
             >
-              <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${C.crimson}, #a78bfa, #38bdf8)` }} />
+              <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `${C.crimson}` }} />
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3" style={{ borderBottom: `1px solid ${C.line}` }}>
                 <div className="flex items-center gap-3">
@@ -245,7 +245,7 @@ export function ProjectOSSkeleton() {
                 <div className="space-y-2.5">
                   {[1, 2, 3].map(i => (
                     <div key={i} className="flex items-start gap-2 py-1">
-                      <span className="w-2 h-2 rounded-full mt-1 shrink-0 animate-pulse" style={{ background: '#a78bfa' }} />
+                      <span className="w-2 h-2 rounded-full mt-1 shrink-0 animate-pulse" style={{ background: '#3f3f46' }} />
                       <div className="space-y-1 w-full">
                         <div className="w-3/4 h-3 rounded animate-pulse" style={{ background: C.raised }} />
                         <div className="w-1/2 h-2 rounded animate-pulse" style={{ background: C.sheet }} />
@@ -561,18 +561,18 @@ export function CreatorPortalSkeleton() {
   const C = {
     bg: '#08090c',
     sheet: '#10131a',
-    row: '#0c0e13',
-    raised: '#171b24',
+    row: '#0c0c0e',
+    raised: '#141417',
     line: 'rgba(255,255,255,0.08)',
     crimson: '#c81e3c',
     crimsonSoft: 'rgba(200,30,60,0.14)',
     crimsonLine: 'rgba(200,30,60,0.38)',
-    okSoft: 'rgba(111,207,155,0.12)',
-    okLine: 'rgba(111,207,155,0.35)',
-    skySoft: 'rgba(56,189,248,0.12)',
-    skyLine: 'rgba(56,189,248,0.35)',
-    violetSoft: 'rgba(167,139,250,0.12)',
-    violetLine: 'rgba(167,139,250,0.35)',
+    okSoft: 'rgba(255,255,255,0.05)',
+    okLine: 'rgba(255,255,255,0.12)',
+    skySoft: 'rgba(255,255,255,0.05)',
+    skyLine: 'rgba(255,255,255,0.12)',
+    violetSoft: 'rgba(255,255,255,0.05)',
+    violetLine: 'rgba(255,255,255,0.12)',
   }
 
   return (
@@ -580,7 +580,7 @@ export function CreatorPortalSkeleton() {
       className="min-h-screen font-sans flex flex-col relative antialiased animate-fade-in"
       style={{ background: C.bg, color: '#f3f4f6' }}
     >
-      <div className="h-1 w-full shrink-0" style={{ background: `linear-gradient(90deg, ${C.crimson}, #a78bfa, #38bdf8)` }} />
+      <div className="h-1 w-full shrink-0" style={{ background: `${C.crimson}` }} />
       {/* Top Nav Header Skeleton */}
       <header
         className="h-16 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between px-4 sm:px-8"
@@ -797,14 +797,14 @@ export function CRMSkeleton() {
     crimson: '#c81e3c',
     crimsonSoft: 'rgba(200,30,60,0.14)',
     crimsonLine: 'rgba(200,30,60,0.38)',
-    okSoft: 'rgba(111,207,155,0.12)',
-    okLine: 'rgba(111,207,155,0.35)',
-    skySoft: 'rgba(56,189,248,0.12)',
-    skyLine: 'rgba(56,189,248,0.35)',
-    violetSoft: 'rgba(167,139,250,0.12)',
-    violetLine: 'rgba(167,139,250,0.35)',
-    amberSoft: 'rgba(240,180,106,0.12)',
-    amberLine: 'rgba(240,180,106,0.35)',
+    okSoft: 'rgba(255,255,255,0.05)',
+    okLine: 'rgba(255,255,255,0.12)',
+    skySoft: 'rgba(255,255,255,0.05)',
+    skyLine: 'rgba(255,255,255,0.12)',
+    violetSoft: 'rgba(255,255,255,0.05)',
+    violetLine: 'rgba(255,255,255,0.12)',
+    amberSoft: 'rgba(255,255,255,0.05)',
+    amberLine: 'rgba(255,255,255,0.12)',
   }
 
   return (
