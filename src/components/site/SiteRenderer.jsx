@@ -241,8 +241,9 @@ function Section({ s, site, slug, editing, base, nav }) {
               {d.subtitle && <p className="mut" style={{ marginTop: 18, fontSize: 19, maxWidth: 560 }}>{d.subtitle}</p>}
               <div className="row" style={{ display: 'flex', gap: 22, marginTop: 30, alignItems: 'center', flexWrap: 'wrap' }}>
                 <Btn l={d.cta} />
-                {d.note && <span style={{ fontSize: 17, opacity: 0.85 }}>{d.note}</span>}
+                <Btn l={d.secondary} alt />
               </div>
+              {d.note && <p style={{ fontSize: 17, opacity: 0.85, marginTop: 16 }}>{d.note}</p>}
               {d.byline && (
                 <p className="mut" style={{ marginTop: 26, display: 'flex', alignItems: 'center', gap: 12, fontSize: 15 }}>
                   <span style={{ width: 34, height: 34, borderRadius: 99, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px solid color-mix(in srgb, var(--acc) 40%, transparent)', background: 'var(--acc-soft)', color: 'var(--acc)', fontWeight: 700, fontSize: 13 }}>{(d.byline.replace(/^Made with\s*/i, '')[0] || '').toUpperCase()}</span>
