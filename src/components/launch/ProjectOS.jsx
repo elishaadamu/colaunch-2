@@ -28,6 +28,7 @@ import { getPhase1StepGuards, getPhase2StepGuards, getPhase3StepGuards, getProje
 import { startSection2Tour } from '../../utils/driverTour'
 
 import { PUBLIC_APP_URL } from '../../utils/publicUrl'
+import SiteBuilderCard from '../site/SiteBuilderCard'
 import { presaleGoalFor, conceptGoalFor } from '../../utils/projectNumbers'
 /* ── Section 2 Dark Palette (aligned with Section 1 Steps 5 & 6) ── */
 const C = {
@@ -889,6 +890,8 @@ partnerships@colaunch.com`
 
   const isP3Done = Boolean(
     project.p3Complete === true ||
+    project.phase3Complete === true ||
+    Boolean(project.phase3Decision?.decision) ||
     project.gateDecisions?.some(d => String(d.decision).startsWith('phase3_')) ||
     Boolean(project.launchReport?.score && project.decisionNotice)
   )
@@ -1341,6 +1344,7 @@ partnerships@colaunch.com`
               {/* OVERVIEW TAB CONTENT */}
               {sidebarTab === 'overview' && (
                 <div className="space-y-4 animate-fade-in">
+                  {project?.id && <SiteBuilderCard project={project} />}
                   {/* ── VENTURE FOUNDATION: everything Section 2 builds on (Section 1 creator data × approved concept) ── */}
                   {(() => {
                     const meta = project?.metadataInfo || project?.metadata_info || {}

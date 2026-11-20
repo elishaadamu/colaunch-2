@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Eye, EyeOff, Copy, Trash2, ChevronUp, ChevronDown, GripVertical, Monitor, Smartphone, Check, Loader2,
   CloudOff, Undo2, Redo2, ExternalLink, Rocket, X, LayoutTemplate, Palette, Layers, Pencil, Globe, Lock, AlertTriangle, Image as ImageIcon,
@@ -7,7 +7,7 @@ import {
 import CoLaunchLogo from '../ui/CoLaunchLogo'
 import SiteRenderer from './SiteRenderer'
 import { SECTION_TYPES, TEMPLATES, FONTS, ACCENTS, siteFromTemplate, applyTemplate, newSection, uid, safeImg, PAGE_KINDS, newPage, pageView, slugPath } from './siteSchema'
-import { getSite, saveSite, publishSite, unpublishSite, getCoLaunchProject, aiSiteSection, aiSitePage, aiSiteCode, aiSiteLogo, listSiteRevisions, getSiteRevision } from '../../services/opsApi'
+import { getSite, saveSite, publishSite, unpublishSite, getCoLaunchProject, aiSiteSection, aiSitePage, aiSiteCode, aiSiteLogo, aiSiteBuild, aiSiteImage, listSiteRevisions, getSiteRevision } from '../../services/opsApi'
 
 const LABELS = Object.fromEntries(Object.entries(SECTION_TYPES).map(([k, v]) => [k, v.label]))
 const clean = (m) => String(m || '').replace(/^\d{3}:\s*/, '')
@@ -50,10 +50,24 @@ const CSS = `
 `
 
 // ── Field editors ───────────────────────────────────────────────────────────────────────────────
+// Which project and section an image field belongs to, so "Create with AI" can describe a fitting image.
+const ImgCtx = createContext(null)
+
 function ImageField({ value, onChange, label }) {
   const [broken, setBroken] = useState(false)
+  const ctx = useContext(ImgCtx)
+  const [gen, setGen] = useState(false)
+  const [ask, setAsk] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
   const url = safeImg(value)
   useEffect(() => setBroken(false), [value])
+  const create = async () => {
+    const prompt = ask.trim() || ctx?.hint || ''
+    if (prompt.length < 4) { setErr('Describe the image.'); return }
+    setBusy(true); setErr('')
+    try { const r = await aiSiteImage(ctx.pid, { prompt, aspect: 'wide' }); onChange(r.url); setGen(false); setAsk('') } catch (e) { setErr(clean(e.message)) } finally { setBusy(false) }
+  }
   return (
     <div>
       <span className="lbl">{label}</span>
@@ -65,9 +79,19 @@ function ImageField({ value, onChange, label }) {
           <input className="in" value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder="Paste an image link (https://…)" />
           {value && !url && <p className="m-0 mt-1 text-[11px] text-[#ff8fa3]">Use a link that starts with https://</p>}
           {url && broken && <p className="m-0 mt-1 text-[11px] text-[#ff8fa3]">That link doesn't load as an image.</p>}
-          {value && <button type="button" className="mt-1 text-[11px] text-zinc-500 hover:text-white bg-transparent border-0 p-0 cursor-pointer" onClick={() => onChange('')}>Remove image</button>}
+          <div className="flex gap-3 mt-1">
+            {ctx?.pid && <button type="button" className="text-[11px] text-[#ff8fa3] hover:text-white bg-transparent border-0 p-0 cursor-pointer inline-flex items-center gap-1" onClick={() => setGen((g) => !g)}><Sparkles className="w-3 h-3" />Create with AI</button>}
+            {value && <button type="button" className="text-[11px] text-zinc-500 hover:text-white bg-transparent border-0 p-0 cursor-pointer" onClick={() => onChange('')}>Remove image</button>}
+          </div>
         </div>
       </div>
+      {gen && (
+        <div className="mt-2 p-2.5 space-y-2" style={{ border: '1px solid #26262b', background: '#0c0c0e' }}>
+          <textarea className="in" rows={2} value={ask} onChange={(e) => setAsk(e.target.value)} placeholder={ctx?.hint ? `e.g. ${ctx.hint.slice(0, 90)}` : 'Describe the image'} />
+          <button type="button" className="btn btn-p w-full" onClick={create} disabled={busy}>{busy ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Creating, about 30 seconds…</> : <><Wand2 className="w-3.5 h-3.5" />{ask.trim() ? 'Create image' : 'Create a fitting image'}</>}</button>
+          {err && <p className="m-0 text-[11px] text-[#ff8fa3]">{err}</p>}
+        </div>
+      )}
     </div>
   )
 }
@@ -273,6 +297,45 @@ function LogoMaker({ pid, accent, onPick }) {
   )
 }
 
+const AI_PAGES = [['about', 'About'], ['blog', 'Blog with 3 posts'], ['contact', 'Contact'], ['faq', 'FAQ page'], ['terms', 'Terms'], ['privacy', 'Privacy']]
+
+function AiBuilder({ pid, name, onBuilt, compact }) {
+  const [brief, setBrief] = useState('')
+  const [pages, setPages] = useState(['about', 'blog', 'contact', 'terms', 'privacy'])
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  const [secs, setSecs] = useState(0)
+  useEffect(() => { if (!busy) return; setSecs(0); const t = setInterval(() => setSecs((x) => x + 1), 1000); return () => clearInterval(t) }, [busy])
+  const go = async () => {
+    setBusy(true); setErr('')
+    try { const r = await aiSiteBuild(pid, { brief, pages }); onBuilt(r.site) } catch (e) { setErr(clean(e.message)) } finally { setBusy(false) }
+  }
+  const stage = secs < 15 ? 'Reading your product and picking colours' : secs < 40 ? 'Writing the home page' : secs < 70 ? 'Writing the pages and blog posts' : 'Checking every link and button'
+  return (
+    <div className="space-y-4">
+      <label className="block">
+        <span className="lbl">Anything the AI should know? (optional)</span>
+        <textarea className="in" rows={compact ? 3 : 4} value={brief} onChange={(e) => setBrief(e.target.value)} disabled={busy}
+          placeholder={`e.g. Calm and premium. Speak to busy managers. Show how ${name || 'it'} works in 3 steps. Mention the early-bird price.`} />
+      </label>
+      <div>
+        <span className="lbl">Pages to create besides Home</span>
+        <div className="flex flex-wrap gap-1.5">
+          {AI_PAGES.map(([k, l]) => (
+            <button key={k} type="button" className="tile text-sm py-1.5 px-3" aria-pressed={pages.includes(k)} disabled={busy}
+              onClick={() => setPages((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]))}>{l}</button>
+          ))}
+        </div>
+      </div>
+      <button type="button" className="btn btn-p w-full py-3 text-[15px]" onClick={go} disabled={busy}>
+        {busy ? <><Loader2 className="w-4 h-4 animate-spin" />{stage}… {secs}s</> : <><Wand2 className="w-4 h-4" />Build my website</>}
+      </button>
+      {err && <p className="m-0 text-sm text-[#ff8fa3]">{err}</p>}
+      <p className="m-0 text-xs text-zinc-500">Takes 1 to 3 minutes, then the images fill in. The AI picks colours and fonts for your product, writes every page, then creates the images. Afterwards you can change anything here, like a normal website editor.</p>
+    </div>
+  )
+}
+
 function HistoryDrawer({ pid, onClose, onRestore }) {
   const [list, setList] = useState(null)
   const [err, setErr] = useState('')
@@ -334,6 +397,8 @@ export default function SiteBuilderPage({ pid }) {
   const [cur, setCur] = useState('home')
   const [addingPage, setAddingPage] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const [showAi, setShowAi] = useState(false)
+  const [imgJob, setImgJob] = useState(null) // { done, total }
 
   const revRef = useRef(0)
   const latest = useRef(null)
@@ -508,6 +573,57 @@ export default function SiteBuilderPage({ pid }) {
     setSel(s.id); setAdding(false); setPanel('sections')
   }
 
+  // After the AI writes the site, create the images it described, a few at a time, filling them in as they arrive.
+  const fillImages = async (built) => {
+    const jobs = []
+    const scan = (secs, pageId) => (secs || []).forEach((sec) => {
+      const d = sec.data || {}
+      if ((sec.type === 'hero' || sec.type === 'text' || sec.type === 'article') && d.imagePrompt && !d.image) jobs.push({ pageId, sid: sec.id, prompt: d.imagePrompt })
+      if (sec.type === 'gallery') (d.images || []).forEach((im, i) => { if (im.imagePrompt && !im.url) jobs.push({ pageId, sid: sec.id, idx: i, prompt: im.imagePrompt }) })
+    })
+    scan(built.sections, null)
+    ;(built.pages || []).forEach((pg) => scan(pg.sections, pg.id))
+    if (!jobs.length) return
+    let done = 0, failed = 0
+    setImgJob({ done, total: jobs.length })
+    const apply = (j, url) => setSite((prev) => {
+      const fix = (secs) => secs.map((sec) => {
+        if (sec.id !== j.sid) return sec
+        if (j.idx == null) return { ...sec, data: { ...sec.data, image: url } }
+        const images = [...(sec.data.images || [])]; images[j.idx] = { ...images[j.idx], url }
+        return { ...sec, data: { ...sec.data, images } }
+      })
+      const pages = (prev.pages || []).map((pg) => {
+        if (pg.id !== j.pageId) return pg
+        const sections = fix(pg.sections || [])
+        const art = sections.find((x) => x.type === 'article')
+        return { ...pg, sections, image: pg.kind === 'post' ? (art?.data?.image || pg.image) : pg.image }
+      })
+      return j.pageId ? { ...prev, pages } : { ...prev, sections: fix(prev.sections || []) }
+    }, { history: false })
+    const queue = [...jobs]
+    const worker = async () => {
+      while (queue.length) {
+        const j = queue.shift()
+        try { const r = await aiSiteImage(meta?.project?.id || pid, { prompt: j.prompt, aspect: 'wide' }); apply(j, r.url) }
+        catch (e) { failed += 1; if (/OpenAI key/i.test(e.message)) { queue.length = 0; flash('Images need an OpenAI key in settings. Add images by hand or set the key and use "Create with AI".') } }
+        done += 1; setImgJob({ done, total: jobs.length })
+      }
+    }
+    await Promise.all([worker(), worker(), worker()])
+    setImgJob(null)
+    flash(failed ? `Images done, ${failed} couldn't be made. Use "Create with AI" on those sections.` : 'Your website is ready. Click any section to change it.')
+  }
+
+  const onAiBuilt = (built) => {
+    if (phase === 'ready') setSite(built)
+    else { latest.current = built; setSiteState(built); setPhase('ready') }
+    latest.current = built
+    setCur('home'); setSel(null); setShowAi(false); setMode('edit')
+    setSave({ state: 'dirty', at: null }); clearTimeout(timer.current); timer.current = setTimeout(flush, 200)
+    fillImages(built)
+  }
+
   const startFrom = (templateId) => {
     const s = siteFromTemplate(project, templateId)
     latest.current = s; setSiteState(s); setPhase('ready')
@@ -566,9 +682,14 @@ export default function SiteBuilderPage({ pid }) {
         </header>
         <main className="max-w-5xl mx-auto px-5 py-14">
           <p className="m-0 text-[11px] font-bold uppercase tracking-[.14em] text-[#ff8fa3]">Step 1</p>
-          <h1 className="serif m-0 mt-2 text-5xl text-white">Pick a starting template</h1>
-          <p className="m-0 mt-3 text-zinc-400 max-w-xl">We fill it in with your product's name, tagline and features. You can change every word, image and colour after, or switch template later.</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
+          <h1 className="serif m-0 mt-2 text-5xl text-white">Let AI build your website first</h1>
+          <p className="m-0 mt-3 text-zinc-400 max-w-xl">It designs a full site for {meta?.project?.productName || 'your product'}: colours that suit it, a complete home page, About, Contact, a blog with posts, legal pages and images. Then you edit it here.</p>
+          <div className="mt-8 p-5 max-w-2xl" style={{ border: '1px solid #c81e3c', background: '#0c0c0e' }}>
+            <AiBuilder pid={meta?.project?.id || pid} name={meta?.project?.productName} onBuilt={onAiBuilt} />
+          </div>
+          <h2 className="serif m-0 mt-14 text-3xl text-white">Or start from a template</h2>
+          <p className="m-0 mt-2 text-zinc-500 text-sm">Filled with your product's name, tagline and features.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
             {Object.entries(TEMPLATES).map(([id, t]) => (
               <button key={id} type="button" onClick={() => startFrom(id)} className="tile p-0 overflow-hidden group">
                 <div className="h-44 overflow-hidden" style={{ background: t.theme.mode === 'dark' ? '#09090b' : '#f6f6f4' }}>
@@ -619,6 +740,7 @@ export default function SiteBuilderPage({ pid }) {
             <button aria-pressed={device === 'mobile'} onClick={() => setDevice('mobile')} aria-label="Mobile"><Smartphone className="w-3.5 h-3.5" /></button>
           </div>
         </div>
+        <button className="btn" onClick={() => setShowAi(true)} title="Rebuild the whole site with AI"><Wand2 className="w-3.5 h-3.5" /><span className="hidden lg:inline">Build with AI</span></button>
         <button className="btn hidden sm:inline-flex" onClick={() => setShowHistory(true)} title="Version history"><History className="w-3.5 h-3.5" /><span className="hidden xl:inline">History</span></button>
         {isPublished && liveUrl && <a href={liveUrl} target="_blank" rel="noreferrer" className="btn no-underline hidden lg:inline-flex"><ExternalLink className="w-3.5 h-3.5" />View page</a>}
         <button className="btn btn-p" onClick={publish} disabled={publishing || !launched}
@@ -628,6 +750,7 @@ export default function SiteBuilderPage({ pid }) {
         </button>
       </header>
 
+      {imgJob && <div className="shrink-0 px-4 py-2 text-sm flex items-center gap-2" style={{ background: '#16161a', borderBottom: '1px solid #26262b' }} role="status"><Loader2 className="w-4 h-4 animate-spin text-[#ff8fa3]" />Creating images {imgJob.done} of {imgJob.total}. You can keep editing.</div>}
       {notice && <div className="shrink-0 px-4 py-2 text-sm flex items-center gap-2" style={{ background: '#16161a', borderBottom: '1px solid #26262b' }} role="status"><Check className="w-4 h-4 text-emerald-400" />{notice}</div>}
 
       <div className="flex-1 flex min-h-0">
@@ -704,7 +827,10 @@ export default function SiteBuilderPage({ pid }) {
           <div className={mode === 'edit' ? 'p-4 sm:p-6' : ''}>
             <div style={{ width: frameW, maxWidth: '100%', margin: '0 auto', boxShadow: mode === 'edit' || device === 'mobile' ? '0 0 0 1px #26262b, 0 20px 50px rgba(0,0,0,.4)' : undefined }} onClick={(e) => e.stopPropagation()}>
               <SiteRenderer site={pageView(site, cur)} slug={meta?.site?.slug || meta?.suggestedSlug} basePath={basePath} editing={mode === 'edit'} selectedId={sel} onSelect={(id) => { setSel(id); setPanel('sections') }} labels={LABELS}
-                onNavigate={(path) => { const pg = pages.find((x) => x.path === path); setCur(pg ? pg.id : 'home'); setSel(null) }} />
+                onNavigate={(path, hash) => {
+                  const pg = pages.find((x) => x.path === path); setCur(pg ? pg.id : 'home'); setSel(null)
+                  setTimeout(() => { const el = hash ? document.getElementById(hash.slice(1)) : document.querySelector('.sr'); el?.scrollIntoView({ block: 'start' }) }, 80)
+                }} />
             </div>
           </div>
         </main>
@@ -724,9 +850,11 @@ export default function SiteBuilderPage({ pid }) {
               ) : (
                 <>
                   <AiWrite pid={meta?.project?.id || pid} section={selected} onData={(data) => updSection(selected.id, (s) => ({ ...s, data: { ...s.data, ...data } }))} />
-                  {SECTION_TYPES[selected.type].fields.map((f) => (
+                  <ImgCtx.Provider value={{ pid: meta?.project?.id || pid, hint: selected.data?.imagePrompt || [meta?.project?.productName, selected.data?.title].filter(Boolean).join(': ') }}>
+                  {(SECTION_TYPES[selected.type]?.fields || []).map((f) => (
                     <Field key={f.key} f={f} value={selected.data?.[f.key]} onChange={(v) => updSection(selected.id, (s) => ({ ...s, data: { ...s.data, [f.key]: v } }))} />
                   ))}
+                  </ImgCtx.Provider>
                 </>
               )}
             </div>
@@ -737,6 +865,19 @@ export default function SiteBuilderPage({ pid }) {
       {writing && (
         <PageWriter pid={meta?.project?.id || pid} sections={sections} onClose={() => setWriting(false)}
           onDone={(map) => { scoped((p) => ({ ...p, sections: p.sections.map((s) => (map[s.id] ? { ...s, data: { ...s.data, ...map[s.id] } } : s)) })); setWriting(false); flash('Page rewritten. Undo brings back the old text.') }} />
+      )}
+
+      {showAi && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,.7)' }} onClick={() => setShowAi(false)}>
+          <div className="w-full max-w-lg p-5" style={{ background: '#0c0c0e', border: '1px solid #26262b' }} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Build with AI">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="serif m-0 text-3xl text-white">Rebuild with AI</h2>
+              <button className="ib" onClick={() => setShowAi(false)} aria-label="Close"><X className="w-4 h-4" /></button>
+            </div>
+            <p className="m-0 mb-4 text-sm text-zinc-400">This replaces the whole site, all pages included. Your current version stays in History and Undo.</p>
+            <AiBuilder compact pid={meta?.project?.id || pid} name={meta?.project?.productName} onBuilt={onAiBuilt} />
+          </div>
+        </div>
       )}
 
       {addingPage && (

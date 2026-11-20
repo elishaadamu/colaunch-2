@@ -2969,15 +2969,14 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
           {/* Product website: edited in its own tab, previewed here */}
           <SiteBuilderCard project={project} />
 
-          {/* Build Studio: describe it, watch it get built (frontend only) */}
-          <BuildStudio project={project} buildPlan={buildPlan} showToast={showToast} onUpdateProject={onUpdateProject} />
-
           <details className="group" style={{ background: '#0c0c0e', border: '1px solid #26262b' }}>
             <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-[#d4d4d8] flex items-center justify-between">
-              <span>Advanced: connect your own coding agent (Claude Code / Cursor) and track engineering tasks</span>
+              <span>Advanced: app prototype for beta testers, your own coding agent (Claude Code / Cursor) and engineering tasks</span>
               <span className="text-xs text-[#71717a] group-open:hidden">Show</span>
             </summary>
             <div className="p-4 space-y-5" style={{ borderTop: '1px solid #26262b' }}>
+          {/* App prototype for beta testers (staged at /beta/<slug>). The public website is built in the site builder above. */}
+          <BuildStudio project={project} buildPlan={buildPlan} showToast={showToast} onUpdateProject={onUpdateProject} />
           {/* Work tracker: every task, who owns it, and whether QA verified it */}
           {(() => {
             const total = engineeringTasks.length

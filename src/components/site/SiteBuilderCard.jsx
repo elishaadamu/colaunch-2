@@ -46,14 +46,14 @@ export default function SiteBuilderCard({ project }) {
           <p className="m-0 mt-1 text-sm text-[#a1a1aa]">
             {err ? err
               : !data ? 'Loading…'
-              : draft ? <>Saved {when}. {data.site.published && url ? <>Live at <a href={url} target="_blank" rel="noreferrer" className="text-white">{url.replace(/^https?:\/\//, '')}</a></> : 'Goes live when you launch in Phase 3.'}</>
-              : 'Pick a template, change the words and images, done. No code needed. It opens in a new tab and saves as you go.'}
+              : draft ? <>Saved {when}. {data.site.published && url ? <>Live at <a href={url} target="_blank" rel="noreferrer" className="text-white">{url.replace(/^https?:\/\//, '')}</a></> : 'Goes live when you go live in Phase 3.'}</>
+              : 'AI designs the full site first: colours, pages, blog and images. Then you edit anything, no code needed. Opens in a new tab and saves as you go.'}
           </p>
         </div>
         <button type="button" onClick={open} disabled={!pid}
           className="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold cursor-pointer border-0"
           style={{ background: '#c81e3c', color: '#fff' }}>
-          <PanelsTopLeft className="w-4 h-4" />{draft ? 'Open site builder' : 'Start building'}<ExternalLink className="w-3.5 h-3.5 opacity-70" />
+          <PanelsTopLeft className="w-4 h-4" />{draft ? 'Open site builder' : 'Build with AI'}<ExternalLink className="w-3.5 h-3.5 opacity-70" />
         </button>
       </div>
       {draft && (

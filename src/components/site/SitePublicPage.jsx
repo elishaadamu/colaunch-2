@@ -39,6 +39,13 @@ export default function SitePublicPage({ slug: rawSlug, handle }) {
       .catch((e) => setErr(/^410/.test(String(e.message)) ? 'This product is no longer available.' : "This page isn't published yet."))
   }, [slug, subPath, handle])
 
+  // Links like /handle/slug#faq land here before the page has rendered: scroll once it has.
+  useEffect(() => {
+    if (!data || !window.location.hash) return
+    const t = setTimeout(() => document.getElementById(window.location.hash.slice(1))?.scrollIntoView(), 60)
+    return () => clearTimeout(t)
+  }, [data])
+
   if (err) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#09090b', color: '#a1a1aa', fontFamily: 'Inter, system-ui, sans-serif' }}>

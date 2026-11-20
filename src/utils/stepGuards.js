@@ -254,7 +254,9 @@ export function getPhase3StepGuards(project = {}, { strategy, telemetry, launchM
   const hasTasks = creatorTasks.length > 0 && opsTasks.length > 0;
   const allTasksDone = hasTasks && creatorTasks.every(t => Boolean(t.done)) && opsTasks.every(t => Boolean(t.done));
 
+  const p3Closed = Boolean(project?.phase3Complete === true || project?.p3Complete === true || project?.phase3Decision?.decision);
   const isStep1Done = Boolean(
+    p3Closed ||
     strat?.strategyLocked === true ||
     strat?.approved === true ||
     project?.phase3Prepared === true ||
@@ -264,6 +266,7 @@ export function getPhase3StepGuards(project = {}, { strategy, telemetry, launchM
 
   // Step 2: Launch + Monitor - Requires Step 1
   const isStep2Done = Boolean(
+    p3Closed ||
     isStep1Done && (
       project?.phase3Monitored === true ||
       project?.phase3Step2Done === true ||
@@ -285,6 +288,7 @@ export function getPhase3StepGuards(project = {}, { strategy, telemetry, launchM
     )
   );
   const isStep3Done = Boolean(
+    p3Closed ||
     isStep1Done && isStep2Done && (
       project?.launchManagerDone === true ||
       project?.phase3Step3Done === true ||
@@ -299,6 +303,7 @@ export function getPhase3StepGuards(project = {}, { strategy, telemetry, launchM
   const dec = decisionNotice || project?.decisionNotice;
 
   const isStep4Done = Boolean(
+    p3Closed ||
     allPriorStepsDone && (
       Boolean(rep && (rep.score || 0) > 0 && dec) ||
       project?.phase3Complete === true

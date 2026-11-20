@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { FONTS, safeHref, safeImg, videoEmbed } from './siteSchema'
 import { siteSignup } from '../../services/opsApi'
+import HeroIllustration from '../launch/illustrations/HeroIllustration'
 
 // Renders a site document. Used by the public page, the builder's live view and the editor
 // (editing=true outlines sections and reports clicks). Layout responds to the container width
@@ -20,11 +21,11 @@ function themeVars(theme = {}) {
     '--acc': theme.accent || '#c81e3c',
     '--acc-ink': lightAcc ? '#0a0a0b' : '#ffffff',
     '--acc-soft': `rgba(${r},${g},${b},${dark ? 0.16 : 0.09})`,
-    '--bg': dark ? '#09090b' : '#ffffff',
-    '--bg2': dark ? '#111114' : '#f6f6f4',
-    '--fg': dark ? '#fafafa' : '#0a0a0b',
-    '--mut': dark ? '#a1a1aa' : '#52525b',
-    '--line': dark ? '#26262b' : '#e4e4e7',
+    '--bg': dark ? '#08090c' : '#ffffff',
+    '--bg2': dark ? '#10131a' : '#f6f6f4',
+    '--fg': dark ? '#f3f4f6' : '#0a0a0b',
+    '--mut': dark ? '#aeb5c2' : '#52525b',
+    '--line': dark ? 'rgba(255,255,255,.1)' : '#e4e4e7',
     '--head': f.head,
     '--body': f.body,
     '--hw': f.weight,
@@ -34,6 +35,7 @@ function themeVars(theme = {}) {
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700;800&display=swap');
 .sr{container-type:inline-size;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.55;-webkit-font-smoothing:antialiased}
+.sr.clp-root{background:var(--bg);color:var(--fg);font-family:var(--body);letter-spacing:normal}
 .sr *{box-sizing:border-box}
 .sr h1,.sr h2,.sr h3{font-family:var(--head)!important;font-weight:var(--hw)!important;letter-spacing:-.02em;margin:0;line-height:1.08}
 .sr p{margin:0}
@@ -46,7 +48,7 @@ const CSS = `
 .sr .h2{font-size:clamp(28px,4.2cqi,44px)}
 .sr .btn{display:inline-flex;align-items:center;justify-content:center;padding:14px 22px;font-weight:600;font-size:15px;text-decoration:none;background:var(--acc);color:var(--acc-ink);border:1px solid var(--acc);cursor:pointer}
 .sr .btn2{display:inline-flex;align-items:center;padding:14px 22px;font-weight:600;font-size:15px;text-decoration:none;border:1px solid var(--line);color:var(--fg);background:transparent}
-.sr .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.sr .grid3{display:grid;grid-template-columns:repeat(var(--cols,3),1fr);gap:20px}
 .sr .split{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center}
 .sr .card{border:1px solid var(--line);padding:26px;background:var(--bg)}
 .sr .img{width:100%;display:block;object-fit:cover;background:var(--bg2)}
@@ -62,12 +64,16 @@ const CSS = `
 .sr .edit[data-sel="true"]{outline:2px solid #c81e3c}
 .sr .tag{position:absolute;top:0;left:0;z-index:5;background:#c81e3c;color:#fff;font:600 11px/1 Inter,sans-serif;padding:5px 8px;display:none}
 .sr .edit:hover .tag,.sr .edit[data-sel="true"] .tag{display:block}
+.sr .navlinks{display:flex;gap:24px}
+.sr .mmenu{display:none}
 .sr .empty{border:1px dashed var(--line);padding:28px;text-align:center;color:var(--mut);font-size:14px}
 @container (max-width:760px){
   .sr .grid3{grid-template-columns:1fr}
   .sr .split{grid-template-columns:1fr;gap:32px}
   .sr .sec{padding:60px 0}
   .sr .navlinks{display:none}
+  .sr .navcta{display:none!important}
+  .sr .mmenu{display:block}
   .sr .hero-title{font-size:40px!important}
   .sr .row{flex-direction:column;align-items:stretch}
 }
@@ -77,12 +83,34 @@ const CSS = `
 function pageLinks(site, where, base) {
   return (site.pages || []).filter((pg) => pg.menu === where).map((pg) => ({ label: pg.title, href: `${base}/${pg.path}`, path: pg.path }))
 }
+// Turn a stored href into a real link: "/about" → the site's About page, "#faq" → the home section
+// (from another page it goes back to home first). Everything else goes through safeHref.
+let LINK_CTX = { site: null, base: '', onHome: true, nav: null }
+function resolveLink(href) {
+  const v = String(href || '').trim()
+  const { site, base, onHome } = LINK_CTX
+  const paths = new Set((site?.pages || []).map((p) => p.path))
+  const m = v.match(/^\/?([a-z0-9-]+)\/?$/i)
+  if (m && paths.has(m[1].toLowerCase())) return { href: `${base}/${m[1].toLowerCase()}`, path: m[1].toLowerCase() }
+  if (v.startsWith('#') && v.length > 1) return onHome ? { href: v } : { href: `${base}${v}`, path: '', hash: v }
+  return { href: safeHref(v) || '#' }
+}
+function go(e, r) {
+  const nav = LINK_CTX.nav
+  if (!nav || r.path == null) return
+  e.preventDefault(); nav(r.path, r.hash)
+}
+const A = ({ href, className, style, children }) => {
+  const r = resolveLink(href)
+  return <a href={r.href} className={className} style={style} onClick={(e) => go(e, r)}>{children}</a>
+}
 const Nav = ({ l, nav, className, style, children }) => (
-  <a href={l.path != null ? l.href : (safeHref(l.href) || '#')} className={className} style={style}
-    onClick={l.path != null && nav ? (e) => { e.preventDefault(); nav(l.path) } : undefined}>{children || l.label}</a>
+  l.path != null
+    ? <a href={l.href} className={className} style={style} onClick={nav ? (e) => { e.preventDefault(); nav(l.path) } : undefined}>{children || l.label}</a>
+    : <A href={l.href} className={className} style={style}>{children || l.label}</A>
 )
 
-const Btn = ({ l, alt }) => (l?.label ? <a className={alt ? 'btn2' : 'btn'} href={safeHref(l.href) || '#'}>{l.label}</a> : null)
+const Btn = ({ l, alt }) => (l?.label ? <A className={alt ? 'btn2' : 'btn'} href={l.href}>{l.label}</A> : null)
 const Img = ({ src, alt = '', style, className = 'img' }) => {
   const s = safeImg(src)
   return s ? <img src={s} alt={alt} className={className} style={style} loading="lazy" referrerPolicy="no-referrer" /> : null
@@ -93,6 +121,23 @@ const Head = ({ title, subtitle, center = true }) => (title || subtitle) ? (
     {subtitle && <p className="mut" style={{ marginTop: 14, fontSize: 17 }}>{subtitle}</p>}
   </div>
 ) : null
+
+function MobileMenu({ links, cta, nav }) {
+  const [open, setOpen] = useState(false)
+  if (!links.length && !cta?.label) return null
+  return (
+    <div className="mmenu">
+      <button type="button" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}
+        style={{ background: 'transparent', border: '1px solid var(--line)', color: 'var(--fg)', width: 40, height: 40, cursor: 'pointer', fontSize: 18 }}>{open ? '✕' : '☰'}</button>
+      {open && (
+        <div onClick={() => setOpen(false)} style={{ position: 'absolute', left: 0, right: 0, top: 68, zIndex: 30, background: 'var(--bg)', borderBottom: '1px solid var(--line)', padding: '8px 24px 20px', display: 'flex', flexDirection: 'column' }}>
+          {links.map((l, i) => <Nav key={i} l={l} nav={nav} style={{ padding: '14px 0', borderBottom: '1px solid var(--line)', textDecoration: 'none', fontWeight: 500 }} />)}
+          {cta?.label && <A className="btn" href={cta.href} style={{ marginTop: 16 }}>{cta.label}</A>}
+        </div>
+      )}
+    </div>
+  )
+}
 
 function Signup({ d, slug, editing }) {
   const [email, setEmail] = useState('')
@@ -151,14 +196,16 @@ function Section({ s, site, slug, editing, base, nav }) {
         <div style={{ borderBottom: '1px solid var(--line)' }}>
           <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68, gap: 16 }}>
             <a href={base || '#top'} onClick={nav ? (e) => { e.preventDefault(); nav('') } : undefined} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', fontWeight: 700, fontSize: 18 }}>
-              {logo && <img src={logo} alt="" style={{ height: 32, width: 'auto', maxWidth: 160, objectFit: 'contain' }} referrerPolicy="no-referrer" />}
+              {logo ? <img src={logo} alt="" style={{ height: 32, width: 'auto', maxWidth: 160, objectFit: 'contain' }} referrerPolicy="no-referrer" />
+                : d.brand && <span style={{ width: 34, height: 34, borderRadius: 8, background: 'var(--acc)', color: 'var(--acc-ink)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16 }}>{d.brand[0].toUpperCase()}</span>}
               <span style={{ fontFamily: 'var(--head)', fontWeight: 'var(--hw)', fontSize: 20 }}>{d.brand}</span>
             </a>
             <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-              <nav className="navlinks" style={{ display: 'flex', gap: 24 }}>
+              <nav className="navlinks">
                 {[...items('links').filter((l) => l.label), ...pageLinks(site, 'header', base)].map((l, i) => <Nav key={i} l={l} nav={nav} className="mut" style={{ textDecoration: 'none', fontSize: 14, fontWeight: 500 }} />)}
               </nav>
-              {d.cta?.label && <a className="btn" href={safeHref(d.cta.href) || '#'} style={{ padding: '10px 16px', fontSize: 14 }}>{d.cta.label}</a>}
+              {d.cta?.label && <A className="btn navcta" href={d.cta.href} style={{ padding: '10px 16px', fontSize: 14 }}>{d.cta.label}</A>}
+              <MobileMenu links={[...items('links').filter((l) => l.label), ...pageLinks(site, 'header', base)]} cta={d.cta} nav={nav} />
             </div>
           </div>
         </div>
@@ -176,6 +223,38 @@ function Section({ s, site, slug, editing, base, nav }) {
           </div>
         </div>
       )
+      // Same hero as the Phase 1 concept page: archetype pill, tagline, problem, CTA + price, "Made with", product mockup.
+      if (d.layout === 'mockup') {
+        const mk = d.mockup || {}
+        return (
+          <div className="sec" style={{ paddingTop: 72 }}><div className="wrap split" style={{ alignItems: 'center' }}>
+            <div>
+              {d.eyebrow && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 999, border: '1px solid color-mix(in srgb, var(--acc) 40%, transparent)', background: 'var(--acc-soft)', color: 'var(--acc)', fontSize: 14, fontWeight: 700 }}><span style={{ width: 8, height: 8, borderRadius: 99, background: 'var(--acc)' }} />{d.eyebrow}</span>}
+              <h1 className="hero-title" style={{ fontSize: 'clamp(40px,5.2cqi,62px)', marginTop: 22, fontFamily: 'var(--body)', fontWeight: 800 }}>{d.title}</h1>
+              {d.subtitle && <p className="mut" style={{ marginTop: 18, fontSize: 19, maxWidth: 560 }}>{d.subtitle}</p>}
+              <div className="row" style={{ display: 'flex', gap: 22, marginTop: 30, alignItems: 'center', flexWrap: 'wrap' }}>
+                <Btn l={d.cta} />
+                {d.note && <span style={{ fontSize: 17, opacity: 0.85 }}>{d.note}</span>}
+              </div>
+              {d.byline && (
+                <p className="mut" style={{ marginTop: 26, display: 'flex', alignItems: 'center', gap: 12, fontSize: 15 }}>
+                  <span style={{ width: 34, height: 34, borderRadius: 99, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px solid color-mix(in srgb, var(--acc) 40%, transparent)', background: 'var(--acc-soft)', color: 'var(--acc)', fontWeight: 700, fontSize: 13 }}>{(d.byline.replace(/^Made with\s*/i, '')[0] || '').toUpperCase()}</span>
+                  {d.byline}
+                </p>
+              )}
+            </div>
+            <figure style={{ margin: 0 }}>
+              {img ? <img src={img} alt="" className="img" style={{ height: 'auto', border: '1px solid var(--line)', borderRadius: 14 }} referrerPolicy="no-referrer" /> : (
+                <div style={{ borderRadius: 16, border: '1px solid color-mix(in srgb, var(--acc) 35%, transparent)', overflow: 'hidden', background: '#10131a' }}>
+                  <HeroIllustration concept={{ name: mk.name, tagline: mk.tagline, archetype: mk.archetype, keyFeatures: mk.keyFeatures || [] }}
+                    conceptIndex={Number.isInteger(mk.landingIndex) ? mk.landingIndex : null} brandColor={site.theme?.accent} labels={mk.keyFeatures || []} title={mk.name} />
+                </div>
+              )}
+              <figcaption className="mut" style={{ fontSize: 13, textAlign: 'center', marginTop: 12 }}>{img ? 'Product preview, final design may differ' : 'Sample data, for illustration'}</figcaption>
+            </figure>
+          </div></div>
+        )
+      }
       if (d.layout === 'cover') {
         return (
           <div style={{ position: 'relative', minHeight: 620, display: 'flex', alignItems: 'center', color: '#fff', background: '#0a0a0b' }}>
@@ -203,7 +282,7 @@ function Section({ s, site, slug, editing, base, nav }) {
       return (
         <div className="sec alt"><div className="wrap">
           <Head title={d.title} subtitle={d.subtitle} />
-          <div className="grid3">
+          <div className="grid3" style={{ '--cols': [1, 2, 4].includes(items('items').length) ? Math.max(items('items').length === 4 ? 2 : items('items').length, 1) : 3 }}>
             {items('items').map((f, i) => (
               <div key={i} className="card">
                 <span style={{ display: 'inline-flex', width: 34, height: 34, alignItems: 'center', justifyContent: 'center', background: 'var(--acc-soft)', color: 'var(--acc)', fontWeight: 700, fontSize: 14 }}>{String(i + 1).padStart(2, '0')}</span>
@@ -264,12 +343,12 @@ function Section({ s, site, slug, editing, base, nav }) {
                   <p style={{ fontWeight: 600 }}>{p.name}</p>
                   <p style={{ marginTop: 10 }}><span style={{ fontFamily: 'var(--head)', fontWeight: 'var(--hw)', fontSize: 44 }}>{p.price}</span>{p.period && <span className="mut"> / {p.period}</span>}</p>
                 </div>
-                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10, flex: 1 }}>
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10, flex: 1, alignContent: 'start' }}>
                   {String(p.features || '').split('\n').map((x) => x.trim()).filter(Boolean).map((x, j) => (
                     <li key={j} style={{ display: 'flex', gap: 10, fontSize: 15 }}><span style={{ color: 'var(--acc)', fontWeight: 700 }}>✓</span>{x}</li>
                   ))}
                 </ul>
-                {p.cta?.label && <a className={p.highlight ? 'btn' : 'btn2'} href={safeHref(p.cta.href) || '#'} style={{ justifyContent: 'center' }}>{p.cta.label}</a>}
+                {p.cta?.label && <A className={p.highlight ? 'btn' : 'btn2'} href={p.cta.href} style={{ justifyContent: 'center' }}>{p.cta.label}</A>}
               </div>
             ))}
           </div>
@@ -312,7 +391,67 @@ function Section({ s, site, slug, editing, base, nav }) {
         <div className="sec" style={{ background: 'var(--acc)', color: 'var(--acc-ink)' }}><div className="wrap" style={{ textAlign: 'center', maxWidth: 760 }}>
           <h2 className="h2">{d.title}</h2>
           {d.text && <p style={{ marginTop: 14, fontSize: 18, opacity: 0.85 }}>{d.text}</p>}
-          {d.button?.label && <a href={safeHref(d.button.href) || '#'} className="btn" style={{ marginTop: 30, background: 'var(--acc-ink)', color: 'var(--acc)', borderColor: 'var(--acc-ink)' }}>{d.button.label}</a>}
+          {d.button?.label && <A href={d.button.href} className="btn" style={{ marginTop: 30, background: 'var(--acc-ink)', color: 'var(--acc)', borderColor: 'var(--acc-ink)' }}>{d.button.label}</A>}
+        </div></div>
+      )
+    case 'steps':
+      return (
+        <div className="sec"><div className="wrap">
+          <Head title={d.title} subtitle={d.subtitle} />
+          <div className="grid3" style={{ '--cols': Math.min(Math.max(items('items').length, 1), 4) }}>
+            {items('items').map((it, i) => (
+              <div key={i} style={{ borderTop: '2px solid var(--acc)', paddingTop: 20 }}>
+                <p style={{ fontFamily: 'var(--head)', fontSize: 40, lineHeight: 1, color: 'var(--acc)' }}>{String(i + 1).padStart(2, '0')}</p>
+                <h3 style={{ fontSize: 20, marginTop: 14 }}>{it.title}</h3>
+                <p className="mut" style={{ marginTop: 8 }}>{it.text}</p>
+              </div>
+            ))}
+          </div>
+        </div></div>
+      )
+    case 'stats':
+      return (
+        <div className="sec alt"><div className="wrap">
+          {d.title && <h2 className="h2" style={{ textAlign: 'center', marginBottom: 40 }}>{d.title}</h2>}
+          <div className="grid3" style={{ '--cols': Math.min(Math.max(items('items').length, 1), 4), textAlign: 'center' }}>
+            {items('items').map((it, i) => (
+              <div key={i}><p style={{ fontFamily: 'var(--head)', fontWeight: 'var(--hw)', fontSize: 'clamp(36px,5cqi,56px)', lineHeight: 1, color: 'var(--acc)' }}>{it.value}</p><p className="mut" style={{ marginTop: 10 }}>{it.label}</p></div>
+            ))}
+          </div>
+        </div></div>
+      )
+    case 'posts': {
+      const posts = (site.allPages || site.pages || []).filter((p) => p.kind === 'post')
+      return (
+        <div className="sec"><div className="wrap">
+          <Head title={d.title || 'Blog'} subtitle={d.subtitle} />
+          {posts.length ? (
+            <div className="grid3">
+              {posts.map((p) => (
+                <Nav key={p.id} l={{ href: `${base}/${p.path}`, path: p.path }} nav={nav} className="card" style={{ textDecoration: 'none', padding: 0, display: 'block' }}>
+                  {(() => { const im = (p.sections || []).find((x) => x.type === 'article')?.data?.image || p.image; return safeImg(im) ? <Img src={im} style={{ aspectRatio: '16/10' }} /> : <div style={{ aspectRatio: '16/10', background: 'var(--acc-soft)' }} /> })()}
+                  <div style={{ padding: 22 }}>
+                    {p.date && <p className="eyebrow" style={{ fontSize: 11 }}>{new Date(p.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>}
+                    <h3 style={{ fontSize: 22, marginTop: 8 }}>{p.title}</h3>
+                    {p.excerpt && <p className="mut" style={{ marginTop: 10, fontSize: 15 }}>{p.excerpt}</p>}
+                    <p style={{ marginTop: 14, fontWeight: 600, color: 'var(--acc)', fontSize: 14 }}>Read →</p>
+                  </div>
+                </Nav>
+              ))}
+            </div>
+          ) : <div className="empty">No posts yet. Add one from the Pages panel (New page → Blog post).</div>}
+        </div></div>
+      )
+    }
+    case 'article':
+      return (
+        <div className="sec"><div className="wrap" style={{ maxWidth: 760 }}>
+          <Nav l={{ href: `${base}/blog`, path: 'blog' }} nav={nav} className="mut" style={{ fontSize: 14, textDecoration: 'none' }}>← All posts</Nav>
+          <h1 style={{ fontSize: 'clamp(34px,5cqi,54px)', marginTop: 18 }}>{d.title}</h1>
+          {safeImg(d.image) && <Img src={d.image} style={{ marginTop: 32, aspectRatio: '16/9' }} />}
+          <div style={{ marginTop: 32, fontSize: 18, lineHeight: 1.75 }}>
+            {String(d.body || '').split(/\n\s*\n/).filter(Boolean).map((para, i) => <p key={i} style={{ marginBottom: 20 }}>{para}</p>)}
+          </div>
         </div></div>
       )
     case 'custom':
@@ -337,6 +476,7 @@ export default function SiteRenderer({ site, slug, basePath, editing = false, se
   const base = basePath || (slug ? `/site/${slug}` : '')
   if (!site) return null
   const sections = (site.sections || []).filter((s) => !s.hidden)
+  LINK_CTX = { site, base, onHome: !site._page, nav: editing ? null : onNavigate }
   return (
     <div className="sr clp-root" id="top" style={themeVars(site.theme)}>
       <style>{CSS}</style>

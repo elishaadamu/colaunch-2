@@ -1,6 +1,7 @@
 // Site builder: section types, their editable fields, themes and starter templates.
 // A site is { template, theme, settings, sections: [{ id, type, hidden, data }] }.
 import { resolveProjectLanding } from '../../utils/projectLanding'
+import { CONCEPT_ARCHETYPES } from '../launch/conceptSchema'
 
 export const uid = () => Math.random().toString(36).slice(2, 10)
 
@@ -24,8 +25,10 @@ export const SECTION_TYPES = {
       { key: 'subtitle', label: 'Supporting text', type: 'textarea' },
       { key: 'cta', label: 'Main button', type: 'link' },
       { key: 'secondary', label: 'Second button', type: 'link' },
-      { key: 'image', label: 'Image', type: 'image' },
-      { key: 'layout', label: 'Layout', type: 'select', options: [['split', 'Text left, image right'], ['center', 'Centered'], ['cover', 'Image behind text']] },
+      { key: 'note', label: 'Small text next to the button (e.g. price)', type: 'text' },
+      { key: 'byline', label: 'Made with line', type: 'text' },
+      { key: 'image', label: 'Image (replaces the product mockup)', type: 'image' },
+      { key: 'layout', label: 'Layout', type: 'select', options: [['mockup', 'Product mockup from Phase 1'], ['split', 'Text left, image right'], ['center', 'Centered'], ['cover', 'Image behind text']] },
     ],
   },
   features: {
@@ -104,6 +107,36 @@ export const SECTION_TYPES = {
       { key: 'button', label: 'Button', type: 'link' },
     ],
   },
+  steps: {
+    label: 'How it works', hint: 'Numbered steps',
+    fields: [
+      { key: 'title', label: 'Title', type: 'text' },
+      { key: 'subtitle', label: 'Intro', type: 'textarea' },
+      { key: 'items', label: 'Steps', type: 'list', addLabel: 'Add step', item: [{ key: 'title', label: 'Step', type: 'text' }, { key: 'text', label: 'Description', type: 'textarea' }] },
+    ],
+  },
+  stats: {
+    label: 'Key facts', hint: 'Big numbers with labels',
+    fields: [
+      { key: 'title', label: 'Title', type: 'text' },
+      { key: 'items', label: 'Facts', type: 'list', addLabel: 'Add fact', item: [{ key: 'value', label: 'Number or short fact', type: 'text' }, { key: 'label', label: 'Label', type: 'text' }] },
+    ],
+  },
+  posts: {
+    label: 'Blog posts', hint: 'Lists your blog posts automatically',
+    fields: [
+      { key: 'title', label: 'Title', type: 'text' },
+      { key: 'subtitle', label: 'Intro', type: 'textarea' },
+    ],
+  },
+  article: {
+    label: 'Article', hint: 'A blog post body',
+    fields: [
+      { key: 'title', label: 'Headline', type: 'text' },
+      { key: 'image', label: 'Cover image', type: 'image' },
+      { key: 'body', label: 'Text (blank line between paragraphs)', type: 'textarea', rows: 14 },
+    ],
+  },
   custom: {
     label: 'Custom (AI code)', hint: 'Describe anything; the AI builds it',
     fields: [
@@ -136,7 +169,7 @@ const IMG = {
 }
 
 export const TEMPLATES = {
-  launch: { label: 'Launch', desc: 'Software, apps and tools', theme: { mode: 'dark', font: 'modern' }, img: IMG.saas },
+  launch: { label: 'Launch', desc: 'Matches your Phase 1 concept page', theme: { mode: 'dark', font: 'modern' }, img: IMG.saas },
   product: { label: 'Product', desc: 'Physical products and kits', theme: { mode: 'light', font: 'classic' }, img: IMG.product },
   creator: { label: 'Creator', desc: 'Communities and personal brands', theme: { mode: 'light', font: 'editorial' }, img: IMG.creator },
   course: { label: 'Course', desc: 'Courses, cohorts and workshops', theme: { mode: 'light', font: 'editorial' }, img: IMG.course },
@@ -149,11 +182,15 @@ const sec = (type, data, extra = {}) => ({ id: uid(), type, hidden: false, data,
 // Build a full starter site from the project's own concept, for the chosen template.
 export function siteFromTemplate(project, templateId = 'launch') {
   const t = TEMPLATES[templateId] || TEMPLATES.launch
-  const { concept, brandColor, creator } = resolveProjectLanding(project || {})
+  const { concept, conceptIndex, brandColor, creator } = resolveProjectLanding(project || {})
   const name = concept.name || project?.productName || 'Your product'
   const slug = project?.slug || project?.id || ''
   const preorder = slug ? `/preorder/${slug}` : '#signup'
-  const features = (concept.keyFeatures || []).slice(0, 6).map((f) => (typeof f === 'string' ? { title: f, text: '' } : { title: f.title || f.name || '', text: f.description || f.text || '' }))
+  const features = (concept.keyFeatures || []).slice(0, 6).map((f) => {
+    if (typeof f !== 'string') return { title: f.title || f.name || '', text: f.description || f.text || '' }
+    const [t, ...rest] = f.split(':')
+    return { title: t.trim(), text: rest.join(':').trim() }
+  })
   const price = String(concept.pricing || '').match(/\$?\d[\d,.]*/)?.[0] || ''
   const image = concept.imageUrl || concept.image_url || t.img
   const by = creator.name ? `by ${creator.name}` : ''
@@ -184,6 +221,21 @@ export function siteFromTemplate(project, templateId = 'launch') {
   const footer = sec('footer', { text: `© ${new Date().getFullYear()} ${name}${by ? ` · ${by}` : ''}`, links: [] })
 
   const signup = sec('signup', { title: 'Get early access', text: `Be first to try ${name}. One email when it opens, nothing else.`, button: 'Join the waitlist', success: "You're on the list. We'll email you when it opens." }, { anchor: 'signup' })
+  // Launch template = the Phase 1 concept page: same pill, headline, price line, "Made with" and product mockup.
+  if (templateId === 'launch') {
+    const slot = Number.isInteger(conceptIndex) ? ((conceptIndex % 3) + 3) % 3 : ({ copilot: 1, vault: 2 }[concept.archetype] || 0)
+    hero.data = {
+      ...hero.data,
+      eyebrow: CONCEPT_ARCHETYPES[slot]?.label || 'Workflow Operating System',
+      title: concept.tagline || name,
+      subtitle: concept.problem || hero.data.subtitle,
+      cta: link('Get early access', preorder), secondary: link('', ''),
+      note: concept.pricing || '', byline: creator.name ? `Made with ${creator.name}` : '',
+      image: '', layout: 'mockup',
+      mockup: { name, tagline: concept.tagline || '', archetype: concept.archetype, landingIndex: Number.isInteger(conceptIndex) ? conceptIndex : null, keyFeatures: features.map((f) => f.title) },
+    }
+    nav.data.cta = link('Get early access', preorder)
+  }
   if (templateId === 'waitlist') {
     hero.data = { ...hero.data, eyebrow: 'Coming soon', cta: link('Join the waitlist', '#signup'), secondary: link('', ''), layout: 'center' }
     nav.data.cta = link('Join the waitlist', '#signup')
@@ -238,6 +290,10 @@ export function newSection(type) {
     faq: { title: 'Questions', items: [{ q: 'Question?', a: 'Answer.' }] },
     signup: { title: 'Stay in the loop', text: 'Get updates in your inbox.', button: 'Join', success: "Thanks, you're in." },
     cta: { title: 'Ready?', text: '', button: link('Get started', '#') },
+    steps: { title: 'How it works', subtitle: '', items: [{ title: 'Sign up', text: '' }, { title: 'Set it up', text: '' }, { title: 'Get results', text: '' }] },
+    stats: { title: '', items: [{ value: '5 min', label: 'to get started' }] },
+    posts: { title: 'Blog', subtitle: '' },
+    article: { title: 'Post title', body: 'Write your post here.', image: '' },
     custom: { prompt: '', html: '', css: '', height: '480' },
     footer: { text: `© ${new Date().getFullYear()}`, links: [] },
   }[type]
@@ -283,6 +339,8 @@ export const PAGE_KINDS = {
   privacy: { label: 'Privacy', menu: 'footer', make: (name) => [
     sec('text', { title: 'Privacy policy', body: `This explains what ${name} collects and why.\n\nWhat we collect\nYour email when you sign up or order, and basic usage data.\n\nHow we use it\nTo deliver the product, send updates you asked for and improve the service.\n\nWho we share it with\nOnly the services needed to run the business (payments, email). We never sell your data.\n\nYour choices\nEmail us any time to see, change or delete your data.\n\nReplace this text with a policy that fits your business.`, image: '' }),
   ] },
+  blog: { label: 'Blog', menu: 'header', make: () => [sec('posts', { title: 'Blog', subtitle: 'Notes, guides and updates.' })] },
+  post: { label: 'Blog post', menu: 'none', make: () => [sec('article', { title: 'New post', body: 'Write your post here.\n\nUse a blank line between paragraphs.', image: '' })] },
   blank: { label: 'Blank page', menu: 'none', make: () => [sec('text', { title: 'New page', body: 'Write something here.', image: '' })] },
 }
 
@@ -293,7 +351,8 @@ export function newPage(kind, site, name) {
   const taken = new Set((site.pages || []).map((p) => p.path))
   let path = slugPath(kind === 'blank' ? 'page' : k.label); let n = 2
   while (taken.has(path)) { path = `${slugPath(k.label)}-${n}`; n += 1 }
-  return { id: uid(), title: kind === 'blank' ? 'New page' : k.label, path, menu: k.menu, sections: k.make(name || 'this product') }
+  if (kind === 'post') { path = `blog-post`; n = 2; while (taken.has(path)) { path = `blog-post-${n}`; n += 1 } }
+  return { id: uid(), title: kind === 'blank' ? 'New page' : kind === 'post' ? 'New post' : k.label, path, menu: k.menu, kind: kind === 'post' ? 'post' : kind === 'blog' ? 'blog' : undefined, date: kind === 'post' ? new Date().toISOString().slice(0, 10) : undefined, sections: k.make(name || 'this product') }
 }
 
 // What to render for a page: home as-is; extra pages get the home header and footer around their sections.
