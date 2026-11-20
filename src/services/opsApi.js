@@ -570,3 +570,11 @@ export const confirmDiyPayment = (sessionId) => req('POST', '/creator-auth/diy/c
 export const creatorSignup = (body) => req('POST', '/creator-auth/signup', body)
 export const creatorLogin = (email, password) => req('POST', '/creator-auth/login', { email, password })
 export const creatorMe = () => req('GET', '/creator-auth/me')
+
+// ── Product website (site builder) ─────────────────────────────────────────
+export const getSite = (pid) => req('GET', `/sites/${encodeURIComponent(pid)}`)
+export const saveSite = (pid, draft, baseRev) => req('PUT', `/sites/${encodeURIComponent(pid)}`, { draft, baseRev })
+export const publishSite = (pid, notify = false) => req('POST', `/sites/${encodeURIComponent(pid)}/publish`, { notify })
+export const unpublishSite = (pid) => req('POST', `/sites/${encodeURIComponent(pid)}/unpublish`)
+export const getPublicSite = (slug) => req('GET', `/sites/public/${encodeURIComponent(slug)}`)
+export const siteSignup = (slug, email, name) => req('POST', `/sites/public/${encodeURIComponent(slug)}/signup`, { email, name })

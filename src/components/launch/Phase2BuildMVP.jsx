@@ -20,6 +20,7 @@ import { computeReadiness, evaluateLaunchGate } from '../../utils/launchGate'
 import Phase2Step4Gate from './phase2/Phase2Step4Gate'
 import BuildAgentPanel from './phase2/BuildAgentPanel'
 import BuildStudio from './phase2/BuildStudio'
+import SiteBuilderCard from '../site/SiteBuilderCard'
 import Phase2PlanView from './phase2/Phase2PlanView'
 import AutomatedQASuite from './AutomatedQASuite'
 import { getPhase2StepGuards } from '../../utils/stepGuards'
@@ -2965,6 +2966,9 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
       {/* STEP 2: BUILD MVP (CLOUD CODEBASE STUDIO & IDE) */}
       {activeStep === 'build' && (
         <div className="space-y-5">
+          {/* Product website: edited in its own tab, previewed here */}
+          <SiteBuilderCard project={project} />
+
           {/* Build Studio: describe it, watch it get built (frontend only) */}
           <BuildStudio project={project} buildPlan={buildPlan} showToast={showToast} onUpdateProject={onUpdateProject} />
 

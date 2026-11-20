@@ -12,6 +12,8 @@ import CreatorParticipationManager from './components/launch/CreatorParticipatio
 import BetaTestingPortal from './components/launch/BetaTestingPortal'
 import HostedAppPage from './components/launch/HostedAppPage'
 import CreatorAccountPage from './components/launch/CreatorAccountPage'
+import SiteBuilderPage from './components/site/SiteBuilderPage'
+import SitePublicPage from './components/site/SitePublicPage'
 
 // Re-export ForgeContext & useForge for compatibility with shared components
 export const ForgeContext = createContext(null)
@@ -54,6 +56,13 @@ export default function App() {
 
   if (currentPath.startsWith('/creator/')) {
     return <CreatorAccountPage mode={currentPath.startsWith('/creator/signup') ? 'signup' : 'login'} />
+  }
+
+  if (currentPath.startsWith('/site/')) {
+    return <SitePublicPage slug={decodeURIComponent(getSlug('/site/'))} />
+  }
+  if (currentPath.startsWith('/builder/')) {
+    return <SiteBuilderPage pid={decodeURIComponent(getSlug('/builder/'))} />
   }
 
   if (currentPath.startsWith('/app/')) {
