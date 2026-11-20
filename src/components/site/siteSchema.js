@@ -137,6 +137,20 @@ export const SECTION_TYPES = {
       { key: 'body', label: 'Text (blank line between paragraphs)', type: 'textarea', rows: 14 },
     ],
   },
+  dashboard: {
+    label: 'Product dashboard', hint: 'Live, animated preview of the app',
+    fields: [
+      { key: 'title', label: 'Title', type: 'text' },
+      { key: 'subtitle', label: 'Intro', type: 'textarea' },
+      { key: 'kpis', label: 'Numbers (sample)', type: 'list', addLabel: 'Add number', item: [{ key: 'label', label: 'Label', type: 'text' }, { key: 'value', label: 'Value', type: 'text' }, { key: 'delta', label: 'Change (e.g. +12% or -4%)', type: 'text' }] },
+      { key: 'chartTitle', label: 'Chart title', type: 'text' },
+      { key: 'donutTitle', label: 'Pie chart title', type: 'text' },
+      { key: 'segments', label: 'Pie chart slices (%)', type: 'list', addLabel: 'Add slice', item: [{ key: 'label', label: 'Label', type: 'text' }, { key: 'value', label: 'Percent', type: 'text' }] },
+      { key: 'listTitle', label: 'List title', type: 'text' },
+      { key: 'items', label: 'List items', type: 'list', addLabel: 'Add item', item: [{ key: 'title', label: 'Item', type: 'text' }, { key: 'status', label: 'Status (Active / Draft)', type: 'text' }] },
+      { key: 'caption', label: 'Caption under it', type: 'text' },
+    ],
+  },
   custom: {
     label: 'Custom (AI code)', hint: 'Describe anything; the AI builds it',
     fields: [
@@ -294,6 +308,7 @@ export function newSection(type) {
     stats: { title: '', items: [{ value: '5 min', label: 'to get started' }] },
     posts: { title: 'Blog', subtitle: '' },
     article: { title: 'Post title', body: 'Write your post here.', image: '' },
+    dashboard: dashboardDefaults('Your product', []),
     custom: { prompt: '', html: '', css: '', height: '480' },
     footer: { text: `© ${new Date().getFullYear()}`, links: [] },
   }[type]
@@ -339,9 +354,25 @@ export const PAGE_KINDS = {
   privacy: { label: 'Privacy', menu: 'footer', make: (name) => [
     sec('text', { title: 'Privacy policy', body: `This explains what ${name} collects and why.\n\nWhat we collect\nYour email when you sign up or order, and basic usage data.\n\nHow we use it\nTo deliver the product, send updates you asked for and improve the service.\n\nWho we share it with\nOnly the services needed to run the business (payments, email). We never sell your data.\n\nYour choices\nEmail us any time to see, change or delete your data.\n\nReplace this text with a policy that fits your business.`, image: '' }),
   ] },
+  dashboard: { label: 'Dashboard', menu: 'header', make: (name, feats) => [sec('dashboard', dashboardDefaults(name, feats || []))] },
   blog: { label: 'Blog', menu: 'header', make: () => [sec('posts', { title: 'Blog', subtitle: 'Notes, guides and updates.' })] },
   post: { label: 'Blog post', menu: 'none', make: () => [sec('article', { title: 'New post', body: 'Write your post here.\n\nUse a blank line between paragraphs.', image: '' })] },
   blank: { label: 'Blank page', menu: 'none', make: () => [sec('text', { title: 'New page', body: 'Write something here.', image: '' })] },
+}
+
+export function dashboardDefaults(name, feats) {
+  const f = (feats || []).map((x) => (typeof x === 'string' ? x.split(':')[0].trim() : x.title)).filter(Boolean)
+  return {
+    title: `Inside ${name}`, subtitle: 'A live look at the app. Click around: it updates as you watch.',
+    nav: f.slice(0, 5),
+    kpis: [{ label: 'Active members', value: '1,284', delta: '+12%' }, { label: `${f[0] || 'Sessions'} completed`, value: '3,942', delta: '+18%' }, { label: 'Avg. engagement', value: '68%', delta: '-4%' }, { label: 'Retention', value: '91%', delta: '+3%' }],
+    chartTitle: 'Last 30 days', donutTitle: 'Distribution',
+    segments: [{ label: 'Positive', value: '56' }, { label: 'Neutral', value: '28' }, { label: 'Negative', value: '16' }],
+    assistant: { title: 'AI assistant', question: `How do I get the most out of ${name} this week?`, answer: `Start with ${f[0] || 'the first step'} each morning, keep it short, and review your weekly report on Friday to see what changed.` },
+    listTitle: f[1] || 'Saved items',
+    items: [{ title: 'Morning check-in', status: 'Active' }, { title: 'Focus reset', status: 'Active' }, { title: 'Weekly review', status: 'Draft' }],
+    caption: 'Interactive preview with sample data. Your own data appears once you sign up.',
+  }
 }
 
 export const slugPath = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'page'
@@ -352,7 +383,7 @@ export function newPage(kind, site, name) {
   let path = slugPath(kind === 'blank' ? 'page' : k.label); let n = 2
   while (taken.has(path)) { path = `${slugPath(k.label)}-${n}`; n += 1 }
   if (kind === 'post') { path = `blog-post`; n = 2; while (taken.has(path)) { path = `blog-post-${n}`; n += 1 } }
-  return { id: uid(), title: kind === 'blank' ? 'New page' : kind === 'post' ? 'New post' : k.label, path, menu: k.menu, kind: kind === 'post' ? 'post' : kind === 'blog' ? 'blog' : undefined, date: kind === 'post' ? new Date().toISOString().slice(0, 10) : undefined, sections: k.make(name || 'this product') }
+  return { id: uid(), title: kind === 'blank' ? 'New page' : kind === 'post' ? 'New post' : k.label, path, menu: k.menu, kind: kind === 'post' ? 'post' : kind === 'blog' ? 'blog' : undefined, date: kind === 'post' ? new Date().toISOString().slice(0, 10) : undefined, sections: k.make(name || 'this product', site.__features) }
 }
 
 // What to render for a page: home as-is; extra pages get the home header and footer around their sections.

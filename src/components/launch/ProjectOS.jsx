@@ -905,7 +905,7 @@ partnerships@colaunch.com`
     : checklistTasks
 
   return (
-    <div className="s2 space-y-4 sm:space-y-5 w-full max-w-full overflow-x-hidden" style={{ color: C.text }}>
+    <div className="s2 space-y-4 sm:space-y-5 w-full max-w-full overflow-x-clip" style={{ color: C.text }}>
       <style>{`
         .s2 .s2-nav-btn:hover { background: ${C.raised}; color: ${C.text}; }
         .s2 .s2-btn-quiet:hover { border-color: ${C.lineStrong} !important; color: ${C.text} !important; }
@@ -1003,7 +1003,7 @@ partnerships@colaunch.com`
       {/* EXPANDED FULL-WIDTH COMMAND CENTER */}
       <div className="w-full space-y-4">
         <div
-          className="rounded-2xl flex flex-col md:flex-row items-stretch w-full relative overflow-hidden"
+          className="rounded-2xl flex flex-col md:flex-row items-stretch w-full relative overflow-clip"
           style={{ background: C.sheet, border: `1px solid ${C.line}` }}
         >
           {/* Left Mini Sidebar (FIXED/STICKY DARK SURFACE) */}
@@ -1058,121 +1058,91 @@ partnerships@colaunch.com`
               </div>
             </div>
 
-            {/* ACTIVE PHASE PINNED TO BOTTOM ON DESKTOP, INLINE ON MOBILE */}
+            {/* ACTIVE PHASE: pinned to the bottom of the sticky sidebar on desktop, inline on mobile */}
             <div className="md:mt-auto md:pt-4 shrink-0 w-full">
-              <div
-                className="p-2.5 sm:p-3 rounded-2xl text-center flex items-center justify-between md:flex-col gap-2.5"
-                style={{ background: C.sheet, border: `1px solid ${C.line}` }}
-              >
-                <div className="hidden md:flex items-center justify-between w-full px-1">
-                  <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider" style={{ color: isLiveLaunch ? C.ok : C.muted }}>
-                    {isLiveLaunch ? (
-                      <>
-                        <Rocket className="w-3 h-3" style={{ color: C.ok }} />
-                        <span>Live Launch</span>
-                      </>
-                    ) : (
-                      'Active Phase'
-                    )}
-                  </span>
-                  {isP1Done && (
-                    <span
-                      className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full border"
-                      style={PILL_TONES.ok}
-                    >
-                      <Check className="w-2.5 h-2.5 stroke-[3]" />
-                      P1 Done
-                    </span>
-                  )}
-                </div>
-                <div id="tour-s2-phase-tabs" className="flex items-center justify-center gap-1.5">
-                  {[1, 2, 3].map(p => {
-                    const isDone = p === 1 ? isP1Done : p === 2 ? isP2Done : isP3Done
-                    const isActive = currentPhase === p
-                    const activeStyle = { background: C.crimson, color: '#ffffff', border: `1px solid ${C.crimsonLine}` }
-                    const idleStyle = isDone
-                      ? { background: C.okSoft, color: C.ok, border: `1px solid ${C.okLine}` }
-                      : { background: C.raised, color: C.muted, border: `1px solid ${C.line}` }
-                    return (
-                      <button
-                        key={p}
-                        onClick={() => {
-                          const advancing = p > projectCurrentPhase
-                          if (advancing) {
-                            const gateOpen = p === 2 ? isP1Done : isP2Done
-                            const msg = gateOpen
-                              ? `Move ${project?.productName || 'this project'} to Phase ${p}?`
-                              : `The Phase ${p - 1} gate hasn't been passed. Skip it and move ${project?.productName || 'this project'} to Phase ${p} anyway? This changes the project's phase for everyone.`
-                            if (!window.confirm(msg)) return
-                          }
-                          setSelectedPhaseTab(p)
-                          if (p === 2 && projectCurrentPhase < 2) {
-                            handleAdvancePhase(2)
-                          } else if (p === 3 && projectCurrentPhase < 3) {
-                            handleAdvancePhase(3)
-                          }
-                        }}
-                        className="relative w-8 h-8 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center hover:opacity-90"
-                        style={isActive ? activeStyle : idleStyle}
-                        title={`Switch to Phase ${p}${isDone ? ' (Completed)' : ''}`}
-                      >
-                        <span>P{p}</span>
-                        {isDone && (
-                          <span
-                            className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-white flex items-center justify-center text-[8px] font-black"
-                            style={{ background: '#10b981', border: `2px solid ${C.sheet}` }}
-                          >
-                            <Check className="w-2 h-2 stroke-[3]" />
-                          </span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-                <div className="hidden md:flex flex-col items-center justify-center gap-1.5 pt-0.5 w-full">
-                  <span className="text-[11px] font-bold flex items-center justify-center gap-1.5" style={{ color: C.text }}>
-                    {isLiveLaunch ? (
-                      <>
-                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: C.ok }} />
-                        <span style={{ color: C.ok }}>Live Launch Verified</span>
-                      </>
-                    ) : currentPhase === 1 ? (
-                      isP1Done ? 'Phase 1: Validated (Done)' : 'Phase 1: Validate'
-                    ) : currentPhase === 2 ? (
-                      'Phase 2: Build MVP'
-                    ) : (
-                      'Phase 3: Launch'
-                    )}
-                  </span>
+              {(() => {
+                const PHASES = [[1, 'Validate'], [2, 'Build'], [3, 'Launch']]
+                const doneFlags = [isP1Done, isP2Done, isP3Done]
+                const doneCount = doneFlags.filter(Boolean).length
+                const status = isLiveLaunch ? 'Live' : doneFlags[currentPhase - 1] ? 'Complete' : 'In progress'
+                const go = (p) => {
+                  const advancing = p > projectCurrentPhase
+                  if (advancing) {
+                    const gateOpen = p === 2 ? isP1Done : isP2Done
+                    const msg = gateOpen
+                      ? `Move ${project?.productName || 'this project'} to Phase ${p}?`
+                      : `The Phase ${p - 1} gate hasn't been passed. Skip it and move ${project?.productName || 'this project'} to Phase ${p} anyway? This changes the project's phase for everyone.`
+                    if (!window.confirm(msg)) return
+                  }
+                  setSelectedPhaseTab(p)
+                  if (p === 2 && projectCurrentPhase < 2) handleAdvancePhase(2)
+                  else if (p === 3 && projectCurrentPhase < 3) handleAdvancePhase(3)
+                }
+                return (
+                  <div className="p-3 flex md:flex-col items-center md:items-stretch justify-between gap-3" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
+                    <div className="hidden md:flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-[.14em]" style={{ color: C.muted }}>Phase</span>
+                      <span className="text-[10px] font-bold" style={{ color: C.muted }}>{doneCount} of 3 done</span>
+                    </div>
 
-                  {/* Direct button to mark Phase 1 done and advance to Phase 2 (operator only) */}
-                  {userRole !== 'creator' && (
-                    currentPhase === 1 ? (
-                      <button
-                        type="button"
-                        onClick={() => handleAdvancePhase(2)}
-                        className="s2-btn-crimson mt-1 w-full py-1.5 px-2 rounded-lg text-white text-[10px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer active:scale-95"
-                        style={{ backgroundColor: C.crimson }}
-                        title="Mark Phase 1 as Done and Advance to Phase 2: Build MVP"
-                      >
-                        <CheckCircle2 className="w-3 h-3 text-white" />
-                        <span>Mark P1 Done → P2</span>
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleResetPhasesToStart}
-                        className="mt-1 w-full py-1 px-2 rounded-lg border text-[10px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer hover:opacity-90"
-                        style={{ background: C.raised, borderColor: C.lineStrong, color: C.body }}
-                        title="Reset all phases back to Phase 1: Validate"
-                      >
-                        <RotateCcw className="w-3 h-3" style={{ color: C.body }} />
-                        <span>Reset to Phase 1</span>
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
+                    <div id="tour-s2-phase-tabs" className="flex md:grid md:grid-cols-3 gap-1">
+                      {PHASES.map(([p, label]) => {
+                        const isDone = doneFlags[p - 1]
+                        const isActive = currentPhase === p
+                        return (
+                          <button key={p} type="button" onClick={() => go(p)}
+                            aria-pressed={isActive} aria-label={`Phase ${p}: ${label}${isDone ? ', complete' : ''}`}
+                            title={`Phase ${p}: ${label}${isDone ? ' (complete)' : ''}`}
+                            className="relative flex flex-col items-center justify-center gap-0.5 px-2.5 md:px-0 py-1.5 md:py-2 cursor-pointer transition-colors hover:opacity-90"
+                            style={isActive
+                              ? { background: C.crimson, color: '#fff', border: `1px solid ${C.crimson}` }
+                              : isDone
+                                ? { background: C.raised, color: C.text, border: `1px solid ${C.lineStrong}` }
+                                : { background: 'transparent', color: C.faint, border: `1px solid ${C.line}` }}>
+                            <span className="flex items-center gap-1 text-xs font-black">
+                              {isDone && !isActive ? <Check className="w-3 h-3 stroke-[3]" style={{ color: C.ok }} /> : null}P{p}
+                            </span>
+                            <span className="hidden md:block text-[9px] font-semibold uppercase tracking-wider" style={{ opacity: isActive ? 0.9 : 0.75 }}>{label}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+
+                    {/* progress line */}
+                    <div className="hidden md:flex gap-1" aria-hidden="true">
+                      {doneFlags.map((d, i) => (
+                        <span key={i} className="h-0.5 flex-1" style={{ background: d ? C.ok : i === currentPhase - 1 ? C.crimson : C.line }} />
+                      ))}
+                    </div>
+
+                    <div className="hidden md:block">
+                      <p className="m-0 text-[13px] font-semibold" style={{ color: C.text }}>
+                        Phase {currentPhase}: {PHASES[currentPhase - 1]?.[1]}
+                      </p>
+                      <p className="m-0 mt-0.5 text-[11px] flex items-center gap-1.5" style={{ color: isLiveLaunch ? C.ok : status === 'Complete' ? C.ok : C.muted }}>
+                        <span className="w-1.5 h-1.5 shrink-0" style={{ background: isLiveLaunch || status === 'Complete' ? C.ok : C.warn }} />
+                        {isLiveLaunch ? 'Live, taking customers' : status}
+                      </p>
+                    </div>
+
+                    {userRole !== 'creator' && (
+                      currentPhase === 1 ? (
+                        <button type="button" onClick={() => handleAdvancePhase(2)}
+                          className="hidden md:flex w-full py-2 px-2 text-white text-[11px] font-bold items-center justify-center gap-1.5 cursor-pointer active:scale-[.98]"
+                          style={{ backgroundColor: C.crimson }} title="Mark Phase 1 as done and move to Phase 2: Build">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-white" />Mark P1 done, go to P2
+                        </button>
+                      ) : (
+                        <button type="button" onClick={handleResetPhasesToStart}
+                          className="hidden md:flex w-full py-1.5 px-2 text-[11px] font-semibold items-center justify-center gap-1.5 cursor-pointer bg-transparent hover:opacity-100"
+                          style={{ border: `1px solid ${C.line}`, color: C.muted, opacity: 0.85 }} title="Reset all phases back to Phase 1: Validate">
+                          <RotateCcw className="w-3 h-3" />Reset to Phase 1
+                        </button>
+                      )
+                    )}
+                  </div>
+                )
+              })()}
             </div>
           </div>
 

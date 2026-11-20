@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { FONTS, safeHref, safeImg, videoEmbed } from './siteSchema'
 import { siteSignup } from '../../services/opsApi'
 import HeroIllustration from '../launch/illustrations/HeroIllustration'
+import SiteDashboard from './SiteDashboard'
 
 // Renders a site document. Used by the public page, the builder's live view and the editor
 // (editing=true outlines sections and reports clicks). Layout responds to the container width
@@ -64,11 +65,17 @@ const CSS = `
 .sr .edit[data-sel="true"]{outline:2px solid #c81e3c}
 .sr .tag{position:absolute;top:0;left:0;z-index:5;background:#c81e3c;color:#fff;font:600 11px/1 Inter,sans-serif;padding:5px 8px;display:none}
 .sr .edit:hover .tag,.sr .edit[data-sel="true"] .tag{display:block}
-.sr .navlinks{display:flex;gap:24px}
+.sr .navlinks{display:flex;gap:22px;white-space:nowrap}
+.sr .navbar{display:flex;align-items:center;justify-content:space-between;height:68px;gap:20px}
+.sr .navbar>a{flex-shrink:0;white-space:nowrap}
+.sr .navright{display:flex;align-items:center;gap:22px;min-width:0}
+.sr .navcta{white-space:nowrap;flex-shrink:0}
+@container (max-width:1060px){.sr .navlinks{display:none}.sr .mmenu{display:block!important}}
+.sr .grid3.narrow{grid-template-columns:repeat(var(--cols),minmax(0,360px));justify-content:center}
 .sr .mmenu{display:none}
 .sr .empty{border:1px dashed var(--line);padding:28px;text-align:center;color:var(--mut);font-size:14px}
 @container (max-width:760px){
-  .sr .grid3{grid-template-columns:1fr}
+  .sr .grid3,.sr .grid3.narrow{grid-template-columns:1fr}
   .sr .split{grid-template-columns:1fr;gap:32px}
   .sr .sec{padding:60px 0}
   .sr .navlinks{display:none}
@@ -194,13 +201,13 @@ function Section({ s, site, slug, editing, base, nav }) {
       const logo = safeImg(site.settings?.logoUrl)
       return (
         <div style={{ borderBottom: '1px solid var(--line)' }}>
-          <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68, gap: 16 }}>
+          <div className="wrap navbar">
             <a href={base || '#top'} onClick={nav ? (e) => { e.preventDefault(); nav('') } : undefined} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', fontWeight: 700, fontSize: 18 }}>
               {logo ? <img src={logo} alt="" style={{ height: 32, width: 'auto', maxWidth: 160, objectFit: 'contain' }} referrerPolicy="no-referrer" />
                 : d.brand && <span style={{ width: 34, height: 34, borderRadius: 8, background: 'var(--acc)', color: 'var(--acc-ink)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16 }}>{d.brand[0].toUpperCase()}</span>}
               <span style={{ fontFamily: 'var(--head)', fontWeight: 'var(--hw)', fontSize: 20 }}>{d.brand}</span>
             </a>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
+            <div className="navright">
               <nav className="navlinks">
                 {[...items('links').filter((l) => l.label), ...pageLinks(site, 'header', base)].map((l, i) => <Nav key={i} l={l} nav={nav} className="mut" style={{ textDecoration: 'none', fontSize: 14, fontWeight: 500 }} />)}
               </nav>
@@ -336,7 +343,7 @@ function Section({ s, site, slug, editing, base, nav }) {
       return (
         <div className="sec" id={undefined}><div className="wrap">
           <Head title={d.title} subtitle={d.subtitle} />
-          <div className="grid3" style={plans.length < 3 ? { gridTemplateColumns: `repeat(${Math.max(plans.length, 1)}, minmax(0, 360px))`, justifyContent: 'center' } : undefined}>
+          <div className={plans.length < 3 ? 'grid3 narrow' : 'grid3'} style={{ '--cols': Math.min(Math.max(plans.length, 1), 3) }}>
             {plans.map((p, i) => (
               <div key={i} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 18, borderColor: p.highlight ? 'var(--acc)' : undefined, boxShadow: p.highlight ? '0 0 0 1px var(--acc)' : undefined }}>
                 <div>
@@ -454,6 +461,8 @@ function Section({ s, site, slug, editing, base, nav }) {
           </div>
         </div></div>
       )
+    case 'dashboard':
+      return <SiteDashboard d={d} site={site} editing={editing} />
     case 'custom':
       return <CustomBlock d={d} theme={site.theme} editing={editing} />
     case 'footer':

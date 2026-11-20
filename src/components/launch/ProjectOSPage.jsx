@@ -807,7 +807,7 @@ export default function ProjectOSPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col w-full max-w-full overflow-x-hidden">
+      <main className="flex-1 flex flex-col w-full max-w-full overflow-x-clip">
         {loading ? (
           <div className="px-2.5 sm:px-5 lg:px-6 py-3 sm:py-4 max-w-full 2xl:max-w-[1720px] mx-auto w-full">
             <ProjectOSSkeleton />

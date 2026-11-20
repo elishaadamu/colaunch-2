@@ -297,11 +297,11 @@ function LogoMaker({ pid, accent, onPick }) {
   )
 }
 
-const AI_PAGES = [['about', 'About'], ['blog', 'Blog with 3 posts'], ['contact', 'Contact'], ['faq', 'FAQ page'], ['terms', 'Terms'], ['privacy', 'Privacy']]
+const AI_PAGES = [['dashboard', 'Live dashboard'], ['about', 'About'], ['blog', 'Blog with 3 posts'], ['contact', 'Contact'], ['faq', 'FAQ page'], ['terms', 'Terms'], ['privacy', 'Privacy']]
 
 function AiBuilder({ pid, name, onBuilt, compact }) {
   const [brief, setBrief] = useState('')
-  const [pages, setPages] = useState(['about', 'blog', 'contact', 'terms', 'privacy'])
+  const [pages, setPages] = useState(['dashboard', 'about', 'blog', 'contact', 'terms', 'privacy'])
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const [secs, setSecs] = useState(0)
@@ -528,7 +528,8 @@ export default function SiteBuilderPage({ pid }) {
   })
   const updPage = (patch) => setSite((p) => ({ ...p, pages: (p.pages || []).map((x) => (x.id === cur ? { ...x, ...patch } : x)) }))
   const addPage = (kind) => {
-    const pg = newPage(kind, site, meta?.project?.productName)
+    const feats = (site.sections || []).find((x) => x.type === 'hero')?.data?.mockup?.keyFeatures || (site.sections || []).find((x) => x.type === 'features')?.data?.items || []
+    const pg = newPage(kind, { ...site, __features: feats }, meta?.project?.productName)
     setSite((p) => ({ ...p, pages: [...(p.pages || []), pg] }))
     setCur(pg.id); setSel(null); setAddingPage(false); setPanel('sections')
   }
