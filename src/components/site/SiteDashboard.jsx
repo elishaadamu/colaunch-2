@@ -63,8 +63,8 @@ function Kpi({ k, i }) {
   )
 }
 
-function AreaChart({ title }) {
-  const [series, setSeries] = useState(() => makeSeries(30, 11))
+function AreaChart({ title, seed = 11 }) {
+  const [series, setSeries] = useState(() => makeSeries(30, seed))
   const [hover, setHover] = useState(null)
   const [drawn, setDrawn] = useState(reduced())
   const r = useRef(seeded(99))
@@ -157,113 +157,166 @@ function Donut({ title, segments }) {
 }
 
 const CSS = `
-.db{--panel:#0f1218;--panel2:#141821;--ln:rgba(255,255,255,.08);color:#e9edf3;font-family:var(--body)}
+.db{--panel:#0f1218;--panel2:#141821;--ln:rgba(255,255,255,.08);color:#e9edf3;font-family:var(--body);background:var(--bg)}
 .db *{box-sizing:border-box}.db p{margin:0}
-.db-frame{border:1px solid color-mix(in srgb,var(--acc) 35%,transparent);border-radius:18px;background:#0b0d12;padding:10px;box-shadow:0 30px 80px -30px color-mix(in srgb,var(--acc) 40%,transparent)}
-.db-app{display:grid;grid-template-columns:200px 1fr;border-radius:12px;overflow:hidden;background:#0b0d12;border:1px solid var(--ln)}
-.db-side{background:#0d1016;border-right:1px solid var(--ln);padding:14px 10px;display:flex;flex-direction:column;gap:4px}
-.db-nav{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;font-size:13px;color:#aeb5c2;background:transparent;border:0;cursor:pointer;text-align:left;width:100%}
-.db-nav[aria-current="true"]{background:var(--acc);color:var(--acc-ink);font-weight:600}
+.db-app{display:grid;grid-template-columns:248px 1fr;min-height:calc(100vh - 69px)}
+.db-side{border-right:1px solid var(--ln);padding:22px 14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;align-self:start;min-height:calc(100vh - 69px)}
+.db-lab{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#7d8594;padding:14px 10px 6px}
+.db-nav{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:14px;color:#aeb5c2;background:transparent;border:0;cursor:pointer;text-align:left;width:100%;line-height:1.3}
+.db-nav[aria-current="true"]{background:var(--acc-soft);color:#fff;font-weight:600;box-shadow:inset 3px 0 0 var(--acc)}
 .db-nav:hover:not([aria-current="true"]){background:rgba(255,255,255,.04);color:#fff}
-.db-main{padding:14px;display:grid;gap:12px;min-width:0}
-.db-top{display:flex;align-items:center;gap:12px}
-.db-search{flex:1;background:var(--panel);border:1px solid var(--ln);border-radius:8px;padding:8px 12px;font-size:12px;color:#7d8594}
-.db-av{width:30px;height:30px;border-radius:99px;background:var(--acc);color:var(--acc-ink);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
-.db-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.db-grid2{display:grid;grid-template-columns:1.7fr 1fr;gap:12px}
-.db-card{background:var(--panel);border:1px solid var(--ln);border-radius:10px;padding:14px;min-width:0}
+.db-ic{width:8px;height:8px;border-radius:2px;background:currentColor;opacity:.55;flex-shrink:0}
+.db-nav[aria-current="true"] .db-ic{background:var(--acc);opacity:1}
+.db-plan{margin-top:auto;border:1px solid color-mix(in srgb,var(--acc) 30%,transparent);background:var(--acc-soft);border-radius:10px;padding:14px}
+.db-main{padding:26px 32px 48px;display:grid;gap:16px;min-width:0;align-content:start}
+.db-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.db-title{font-family:var(--head);font-weight:var(--hw);font-size:clamp(24px,3cqi,32px);letter-spacing:-.02em;line-height:1.1}
+.db-prompt{display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid color-mix(in srgb,var(--acc) 30%,transparent);border-radius:10px;padding:8px}
+.db-prompt input{flex:1;background:transparent;border:0;outline:0;color:#e9edf3;font-size:14px;padding:6px 8px;min-width:0}
+.db-kpis{display:grid;grid-template-columns:repeat(var(--n,4),1fr);gap:12px}
+.db-grid2{display:grid;grid-template-columns:1.7fr 1fr;gap:16px}
+.db-card{background:var(--panel);border:1px solid var(--ln);border-radius:10px;padding:16px;min-width:0}
 .db-row{display:flex;align-items:center;gap:8px}
-.db-h{font-weight:700;font-size:14px}.db-sm{font-size:12px}.db-mut{color:#8b93a1}
-.db-big{font-size:24px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.db-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;border:1px solid color-mix(in srgb,var(--acc) 40%,transparent);color:var(--acc)}
+.db-h{font-weight:700;font-size:15px}.db-sm{font-size:12px}.db-mut{color:#8b93a1}
+.db-big{white-space:nowrap;font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.db-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;border:1px solid color-mix(in srgb,var(--acc) 40%,transparent);color:var(--acc);white-space:nowrap}
 .db-dot{width:6px;height:6px;border-radius:99px;background:var(--acc);animation:dbp 1.6s ease-in-out infinite}
 @keyframes dbp{50%{opacity:.25}}
 .db-tip{position:absolute;top:44px;background:#151a24;border:1px solid var(--ln);border-radius:8px;padding:6px 10px;pointer-events:none;transition:left .25s ease;white-space:nowrap}
-.db-bubble{background:var(--panel2);border:1px solid var(--ln);border-radius:10px;padding:9px 12px;font-size:13px}
-.db-li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 4px;border-bottom:1px solid var(--ln);font-size:13px}
+.db-bubble{background:var(--panel2);border:1px solid var(--ln);border-radius:10px;padding:10px 12px;font-size:14px}
+.db-li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 2px;border-bottom:1px solid var(--ln);font-size:14px}
 .db-li:last-child{border-bottom:0}
-.db-st{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid}
-.db-ask{display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--ln);border-radius:10px;padding:8px}
-.db-ask input{flex:1;background:transparent;border:0;outline:0;color:#e9edf3;font-size:13px;padding:6px}
-.db-gen{background:var(--acc);color:var(--acc-ink);border:0;border-radius:8px;padding:8px 14px;font-weight:600;font-size:12px;cursor:pointer}
-@container (max-width:900px){.db-app{grid-template-columns:1fr}.db-side{display:none}.db-kpis{grid-template-columns:repeat(2,1fr)}.db-grid2{grid-template-columns:1fr}}
+.db-st{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid;white-space:nowrap}
+.db-av{width:30px;height:30px;border-radius:99px;background:var(--acc);color:var(--acc-ink);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.db-gen{background:var(--acc);color:var(--acc-ink);border:0;border-radius:8px;padding:9px 16px;font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap}
+.db-fade{animation:dbf .35s ease}
+@keyframes dbf{from{opacity:0;transform:translateY(6px)}}
+.db-tabs{display:none}
+@container (max-width:900px){
+ .db-app{grid-template-columns:1fr}.db-side{display:none}.db-main{padding:18px 16px 40px}
+ .db-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+ .db-tabs .db-nav{width:auto;white-space:nowrap;border:1px solid var(--ln)}
+ .db-kpis{grid-template-columns:repeat(2,1fr)!important}.db-grid2{grid-template-columns:1fr}
+}
 `
 
-export default function SiteDashboard({ d, site, editing }) {
-  const nav = (d.nav && d.nav.length ? d.nav : ['Dashboard']).slice(0, 7)
-  const [cur, setCur] = useState(0)
-  const [typed, setTyped] = useState('')
+function plansFrom(d) {
+  if (Array.isArray(d.plans) && d.plans.length) return d.plans
+  return String(d.pricing || '').split(/[·|,]/).map((x) => x.trim()).filter(Boolean)
+}
+
+function Assistant({ a, brand, editing }) {
+  const answer = String(a?.answer || '')
   const [shown, setShown] = useState(reduced() ? 999 : 0)
-  const answer = String(d.assistant?.answer || '')
   useEffect(() => {
     if (reduced() || editing) { setShown(999); return }
     setShown(0)
     const t = setInterval(() => setShown((n) => (n >= answer.length ? n : n + 3)), 18)
     return () => clearInterval(t)
   }, [answer, editing])
-  const kpis = (d.kpis || []).slice(0, 4)
-  const brand = site?.sections?.find((s) => s.type === 'nav')?.data?.brand || d.title || ''
+  if (!a?.question && !answer) return null
   return (
-    <div className="sec db"><style>{CSS}</style>
-      <div className="wrap">
-        {(d.title || d.subtitle) && (
-          <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 36px' }}>
-            {d.title && <h2 className="h2">{d.title}</h2>}
-            {d.subtitle && <p className="mut" style={{ marginTop: 14, fontSize: 17 }}>{d.subtitle}</p>}
+    <div className="db-card" style={{ display: 'grid', gap: 10, alignContent: 'start' }}>
+      <p className="db-h">{a.title || `${brand} assistant`}</p>
+      {a.question && <div className="db-row" style={{ alignItems: 'flex-start' }}><span className="db-av" style={{ width: 26, height: 26, fontSize: 10 }}>You</span><p className="db-bubble">{a.question}</p></div>}
+      {answer && <p className="db-bubble" style={{ lineHeight: 1.6, borderColor: 'color-mix(in srgb,var(--acc) 30%,transparent)' }}>{answer.slice(0, shown)}{shown < answer.length && <span style={{ opacity: 0.6 }}>▍</span>}</p>}
+    </div>
+  )
+}
+
+function List({ title, items }) {
+  if (!items?.length) return null
+  return (
+    <div className="db-card">
+      <p className="db-h">{title || 'Saved'}</p>
+      <div style={{ marginTop: 6 }}>
+        {items.slice(0, 6).map((it, i) => {
+          const active = /active|done|on|ready/i.test(it.status || '')
+          return (
+            <div key={i} className="db-li">
+              <span>{it.title}</span>
+              {it.status && <span className="db-st" style={active ? { color: 'var(--acc)', borderColor: 'color-mix(in srgb,var(--acc) 45%,transparent)' } : { color: '#f5c451', borderColor: 'rgba(245,196,81,.4)' }}>{it.status}</span>}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// The product's app, as a full page: Overview plus one view per Phase 1 feature.
+export default function SiteDashboard({ d, site, editing }) {
+  const brand = site?.sections?.find((s) => s.type === 'nav')?.data?.brand || ''
+  const features = (Array.isArray(d.features) && d.features.length ? d.features : (d.nav || []).map((t) => ({ title: t, text: '' }))).slice(0, 6)
+  const views = d.views || {}
+  const [cur, setCur] = useState(-1) // -1 = overview, else feature index
+  const [typed, setTyped] = useState('')
+  const plans = plansFrom(d)
+  const f = cur >= 0 ? features[cur] : null
+  const v = f ? (views[f.title] || {}) : null
+
+  const tabs = [{ t: 'Overview', i: -1 }, ...features.map((x, i) => ({ t: x.title, i }))]
+  const navBtn = (x) => (
+    <button key={x.i} type="button" className="db-nav" aria-current={cur === x.i} onClick={() => setCur(x.i)}>
+      <span className="db-ic" />{x.t}
+    </button>
+  )
+
+  return (
+    <div className="db"><style>{CSS}</style>
+      <div className="db-app">
+        <aside className="db-side" aria-label={`${brand} navigation`}>
+          {navBtn(tabs[0])}
+          {features.length > 0 && <p className="db-lab">Features</p>}
+          {tabs.slice(1).map(navBtn)}
+          <div className="db-plan" style={{ marginTop: 24 }}>
+            <p className="db-sm db-mut">Your plan</p>
+            <p style={{ fontWeight: 700, marginTop: 4 }}>{plans[0] || 'Starter'}</p>
+            {plans[1] && <p className="db-sm" style={{ marginTop: 6, color: 'var(--acc)', fontWeight: 600 }}>Upgrade: {plans[1]}</p>}
+            {d.creator && <p className="db-sm db-mut" style={{ marginTop: 10 }}>Made with {d.creator}</p>}
           </div>
-        )}
-        <div className="db-frame">
-          <div className="db-app">
-            <aside className="db-side">
-              <div className="db-row" style={{ padding: '4px 8px 14px', fontWeight: 700, fontSize: 14 }}>
-                <span style={{ width: 20, height: 20, borderRadius: 5, background: 'var(--acc)', display: 'inline-block' }} />{brand}
-              </div>
-              {['Dashboard', ...nav.filter((n) => n !== 'Dashboard')].slice(0, 7).map((n, i) => (
-                <button key={n} type="button" className="db-nav" aria-current={cur === i} onClick={() => setCur(i)}>
-                  <span style={{ width: 14, height: 14, border: '1.5px solid currentColor', borderRadius: 3, opacity: 0.8 }} />{n}
-                </button>
-              ))}
-            </aside>
-            <div className="db-main">
-              <div className="db-top">
-                <div className="db-search">Search…</div>
-                <span className="db-pill"><span className="db-dot" />Sample data</span>
-                <span className="db-av">JD</span>
-              </div>
-              <div className="db-kpis">{kpis.map((k, i) => <Kpi key={i} k={k} i={i} />)}</div>
+        </aside>
+
+        <main className="db-main">
+          <div className="db-tabs" role="tablist">{tabs.map(navBtn)}</div>
+
+          <div className="db-head">
+            <div>
+              <p className="db-sm db-mut">{f ? 'Feature' : (d.greeting || 'Overview')}</p>
+              <h1 className="db-title" style={{ marginTop: 4 }}>{f ? f.title : (d.title || `Welcome back`)}</h1>
+              {(f ? f.text : d.customer) && <p className="db-mut" style={{ marginTop: 6, maxWidth: 640 }}>{f ? f.text : `Built for ${String(d.customer).charAt(0).toLowerCase()}${String(d.customer).slice(1)}.`}</p>}
+            </div>
+            <span className="db-pill"><span className="db-dot" />Sample data</span>
+          </div>
+
+          <form className="db-prompt" onSubmit={(e) => { e.preventDefault(); setTyped('') }}>
+            <input value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={d.prompt || `Ask ${brand || 'the assistant'} anything…`} aria-label="Ask the assistant (preview)" />
+            <button className="db-gen" type="submit">Generate</button>
+          </form>
+
+          {!f ? (
+            <div key="ov" className="db-fade" style={{ display: 'grid', gap: 16 }}>
+              <div className="db-kpis">{(d.kpis || []).slice(0, 4).map((k, i) => <Kpi key={i} k={k} i={i} />)}</div>
               <div className="db-grid2">
                 <AreaChart title={d.chartTitle} />
                 <Donut title={d.donutTitle} segments={d.segments} />
               </div>
               <div className="db-grid2">
-                <div className="db-card" style={{ display: 'grid', gap: 10 }}>
-                  <p className="db-h">{d.assistant?.title || 'AI assistant'}</p>
-                  {d.assistant?.question && <div className="db-row" style={{ alignItems: 'flex-start' }}><span className="db-av" style={{ width: 24, height: 24, fontSize: 9 }}>JD</span><p className="db-bubble">{d.assistant.question}</p></div>}
-                  {answer && <p className="db-bubble" style={{ lineHeight: 1.6, borderColor: 'color-mix(in srgb,var(--acc) 30%,transparent)' }}>{answer.slice(0, shown)}{shown < answer.length && <span style={{ opacity: 0.6 }}>▍</span>}</p>}
-                  <form className="db-ask" onSubmit={(e) => { e.preventDefault(); setTyped('') }}>
-                    <input value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={`Ask ${brand || 'the assistant'} anything…`} aria-label="Ask the assistant (demo)" />
-                    <button className="db-gen" type="submit">Generate</button>
-                  </form>
-                </div>
-                <div className="db-card">
-                  <p className="db-h">{d.listTitle || 'Saved'}</p>
-                  <div style={{ marginTop: 6 }}>
-                    {(d.items || []).slice(0, 6).map((it, i) => {
-                      const active = /active|done|on/i.test(it.status || '')
-                      return (
-                        <div key={i} className="db-li">
-                          <span>{it.title}</span>
-                          {it.status && <span className="db-st" style={active ? { color: 'var(--acc)', borderColor: 'color-mix(in srgb,var(--acc) 45%,transparent)' } : { color: '#f5c451', borderColor: 'rgba(245,196,81,.4)' }}>{it.status}</span>}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
+                <Assistant a={d.assistant} brand={brand} editing={editing} />
+                <List title={d.listTitle} items={d.items} />
               </div>
             </div>
-          </div>
-        </div>
-        <p className="mut" style={{ textAlign: 'center', fontSize: 13, marginTop: 14 }}>{d.caption || 'Interactive preview with sample data. Your own data appears once you sign up.'}</p>
+          ) : (
+            <div key={cur} className="db-fade" style={{ display: 'grid', gap: 16 }}>
+              <div className="db-kpis" style={{ '--n': Math.max(1, Math.min(4, (v.kpis || []).length)) }}>{(v.kpis || []).slice(0, 4).map((k, i) => <Kpi key={`${cur}-${i}`} k={k} i={i + cur + 1} />)}</div>
+              <div className="db-grid2">
+                <AreaChart key={`c${cur}`} seed={23 + cur * 7} title={v.chartTitle || `${f.title}, last 30 days`} />
+                <List title={v.listTitle || 'Recent'} items={v.items} />
+              </div>
+              <Assistant a={v.assistant} brand={brand} editing={editing} />
+            </div>
+          )}
+        </main>
       </div>
     </div>
   )

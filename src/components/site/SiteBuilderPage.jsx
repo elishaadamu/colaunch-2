@@ -529,7 +529,11 @@ export default function SiteBuilderPage({ pid }) {
   const updPage = (patch) => setSite((p) => ({ ...p, pages: (p.pages || []).map((x) => (x.id === cur ? { ...x, ...patch } : x)) }))
   const addPage = (kind) => {
     const feats = (site.sections || []).find((x) => x.type === 'hero')?.data?.mockup?.keyFeatures || (site.sections || []).find((x) => x.type === 'features')?.data?.items || []
-    const pg = newPage(kind, { ...site, __features: feats }, meta?.project?.productName)
+    const hero = (site.sections || []).find((x) => x.type === 'hero')?.data || {}
+    const c = project?.selectedConcept || project?.selected_concept || {}
+    const fullFeats = (c.keyFeatures && c.keyFeatures.length ? c.keyFeatures : feats)
+    const extra = { customer: c.customer || '', pricing: c.pricing || hero.note || '', creator: project?.creatorName || '', prompt: c.tagline || hero.title || '' }
+    const pg = newPage(kind, { ...site, __features: fullFeats, __extra: extra }, meta?.project?.productName)
     setSite((p) => ({ ...p, pages: [...(p.pages || []), pg] }))
     setCur(pg.id); setSel(null); setAddingPage(false); setPanel('sections')
   }

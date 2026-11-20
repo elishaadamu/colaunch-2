@@ -65,7 +65,12 @@ const CSS = `
 .sr .edit[data-sel="true"]{outline:2px solid #c81e3c}
 .sr .tag{position:absolute;top:0;left:0;z-index:5;background:#c81e3c;color:#fff;font:600 11px/1 Inter,sans-serif;padding:5px 8px;display:none}
 .sr .edit:hover .tag,.sr .edit[data-sel="true"] .tag{display:block}
-.sr .navlinks{display:flex;gap:22px;white-space:nowrap}
+.sr .navlinks{display:flex;gap:22px;white-space:nowrap;align-self:stretch;align-items:center}
+.sr .navlink{color:var(--mut);position:relative;height:100%;display:inline-flex;align-items:center;transition:color .15s}
+.sr .navlink:hover{color:var(--fg)}
+.sr .navlink.on{color:var(--fg)}
+.sr .navlink.on::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--acc)}
+.sr .navright{align-self:stretch}
 .sr .navbar{display:flex;align-items:center;justify-content:space-between;height:68px;gap:20px}
 .sr .navbar>a{flex-shrink:0;white-space:nowrap}
 .sr .navright{display:flex;align-items:center;gap:22px;min-width:0}
@@ -129,7 +134,41 @@ const Head = ({ title, subtitle, center = true }) => (title || subtitle) ? (
   </div>
 ) : null
 
-function MobileMenu({ links, cta, nav }) {
+// Which menu link is "you are here": the current page, or on Home the section in view (scroll spy).
+function useActive(links, site) {
+  const page = site?._page?.path
+  const [hash, setHash] = useState('')
+  const anchors = links.map((l) => (l.path == null && String(l.href || '').startsWith('#') ? l.href.slice(1) : null)).filter(Boolean)
+  const key = anchors.join('|')
+  useEffect(() => {
+    if (page || !anchors.length || typeof IntersectionObserver === 'undefined') { setHash(''); return }
+    const els = anchors.map((a) => document.getElementById(a)).filter(Boolean)
+    const seen = new Map()
+    const io = new IntersectionObserver((ents) => {
+      ents.forEach((e) => seen.set(e.target.id, e.isIntersecting ? e.intersectionRatio : 0))
+      const best = [...seen.entries()].sort((a, b) => b[1] - a[1])[0]
+      setHash(best && best[1] > 0 ? best[0] : '')
+    }, { rootMargin: '-30% 0px -50% 0px', threshold: [0, 0.01, 0.25, 0.5] })
+    els.forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [page, key])
+  return (l) => (l.path != null ? Boolean(page) && l.path === page : Boolean(hash) && l.href === `#${hash}`)
+}
+
+function NavLinks({ links, site, nav }) {
+  const isActive = useActive(links, site)
+  return (
+    <nav className="navlinks">
+      {links.map((l, i) => {
+        const on = isActive(l)
+        return <Nav key={i} l={l} nav={nav} className={on ? 'navlink on' : 'navlink'} style={{ textDecoration: 'none', fontSize: 14, fontWeight: on ? 600 : 500 }} />
+      })}
+    </nav>
+  )
+}
+
+function MobileMenu({ links, cta, nav, site }) {
+  const isActive = useActive(links, site)
   const [open, setOpen] = useState(false)
   if (!links.length && !cta?.label) return null
   return (
@@ -138,7 +177,7 @@ function MobileMenu({ links, cta, nav }) {
         style={{ background: 'transparent', border: '1px solid var(--line)', color: 'var(--fg)', width: 40, height: 40, cursor: 'pointer', fontSize: 18 }}>{open ? '✕' : '☰'}</button>
       {open && (
         <div onClick={() => setOpen(false)} style={{ position: 'absolute', left: 0, right: 0, top: 68, zIndex: 30, background: 'var(--bg)', borderBottom: '1px solid var(--line)', padding: '8px 24px 20px', display: 'flex', flexDirection: 'column' }}>
-          {links.map((l, i) => <Nav key={i} l={l} nav={nav} style={{ padding: '14px 0', borderBottom: '1px solid var(--line)', textDecoration: 'none', fontWeight: 500 }} />)}
+          {links.map((l, i) => { const on = isActive(l); return <Nav key={i} l={l} nav={nav} style={{ padding: '14px 0 14px 12px', borderBottom: '1px solid var(--line)', textDecoration: 'none', fontWeight: on ? 700 : 500, color: on ? 'var(--acc)' : undefined, boxShadow: on ? 'inset 3px 0 0 var(--acc)' : undefined }} /> })}
           {cta?.label && <A className="btn" href={cta.href} style={{ marginTop: 16 }}>{cta.label}</A>}
         </div>
       )}
@@ -208,11 +247,9 @@ function Section({ s, site, slug, editing, base, nav }) {
               <span style={{ fontFamily: 'var(--head)', fontWeight: 'var(--hw)', fontSize: 20 }}>{d.brand}</span>
             </a>
             <div className="navright">
-              <nav className="navlinks">
-                {[...items('links').filter((l) => l.label), ...pageLinks(site, 'header', base)].map((l, i) => <Nav key={i} l={l} nav={nav} className="mut" style={{ textDecoration: 'none', fontSize: 14, fontWeight: 500 }} />)}
-              </nav>
+              <NavLinks links={[...items('links').filter((l) => l.label), ...pageLinks(site, 'header', base)]} site={site} nav={nav} />
               {d.cta?.label && <A className="btn navcta" href={d.cta.href} style={{ padding: '10px 16px', fontSize: 14 }}>{d.cta.label}</A>}
-              <MobileMenu links={[...items('links').filter((l) => l.label), ...pageLinks(site, 'header', base)]} cta={d.cta} nav={nav} />
+              <MobileMenu links={[...items('links').filter((l) => l.label), ...pageLinks(site, 'header', base)]} cta={d.cta} nav={nav} site={site} />
             </div>
           </div>
         </div>
