@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import SiteRenderer from './SiteRenderer'
-import { siteFromTemplate, safeImg } from './siteSchema'
+import { siteFromTemplate, safeImg, pageView } from './siteSchema'
 import { getPublicSite } from '../../services/opsApi'
 
 function setMeta(name, content, attr = 'name') {
@@ -10,7 +10,8 @@ function setMeta(name, content, attr = 'name') {
   el.setAttribute('content', content || '')
 }
 
-export default function SitePublicPage({ slug }) {
+export default function SitePublicPage({ slug: rawSlug }) {
+  const [slug, subPath = ''] = String(rawSlug || '').split('/')
   const [data, setData] = useState(null)
   const [err, setErr] = useState('')
 
@@ -18,9 +19,11 @@ export default function SitePublicPage({ slug }) {
     getPublicSite(slug)
       .then((r) => {
         const site = r.site?.sections ? r.site : siteFromTemplate(r.project, 'launch')
-        setData({ ...r, site })
+        const page = subPath ? (site.pages || []).find((pg) => pg.path === subPath) : null
+        if (subPath && !page) { setErr("This page doesn't exist."); return }
+        setData({ ...r, site, view: page ? pageView(site, page.id) : site })
         const s = site.settings || {}
-        document.title = s.title || r.project?.productName || 'CoLaunch'
+        document.title = page ? `${page.title} · ${site.sections?.find((x) => x.type === 'nav')?.data?.brand || r.project?.productName || ''}` : (s.title || r.project?.productName || 'CoLaunch')
         setMeta('description', s.description)
         setMeta('og:title', s.title, 'property')
         setMeta('og:description', s.description, 'property')
@@ -34,7 +37,7 @@ export default function SitePublicPage({ slug }) {
         }
       })
       .catch((e) => setErr(/^410/.test(String(e.message)) ? 'This product is no longer available.' : "This page isn't published yet."))
-  }, [slug])
+  }, [slug, subPath])
 
   if (err) {
     return (
@@ -47,5 +50,5 @@ export default function SitePublicPage({ slug }) {
     )
   }
   if (!data) return <div className="min-h-screen flex items-center justify-center" style={{ background: '#09090b' }}><Loader2 className="w-6 h-6 animate-spin text-zinc-600" /></div>
-  return <SiteRenderer site={data.site} slug={data.slug} />
+  return <SiteRenderer site={data.view} slug={data.slug} />
 }

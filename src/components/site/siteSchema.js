@@ -262,3 +262,44 @@ export function videoEmbed(url) {
   if (m) return `https://www.loom.com/embed/${m[1]}`
   return ''
 }
+
+// ── Extra pages (About, Terms, …) ──────────────────────────────────────────────────────────────────
+// site.pages = [{ id, title, path, menu: 'header'|'footer'|'none', sections }]. Extra pages share the
+// home page's header and footer, like a WordPress theme.
+export const PAGE_KINDS = {
+  about: { label: 'About', menu: 'header', make: (name) => [
+    sec('text', { title: `About ${name}`, body: `Tell the story behind ${name}: who it's for, why you made it and what you care about.`, image: '' }),
+    sec('features', { title: 'What we believe', subtitle: '', items: [{ title: 'Value 1', text: '' }, { title: 'Value 2', text: '' }, { title: 'Value 3', text: '' }] }),
+  ] },
+  contact: { label: 'Contact', menu: 'header', make: (name) => [
+    sec('text', { title: 'Get in touch', body: `Questions about ${name}? Email us at hello@example.com and we'll reply within one working day.`, image: '' }),
+    sec('signup', { title: 'Stay in the loop', text: 'News and offers, now and then.', button: 'Join', success: "Thanks, you're in." }),
+  ] },
+  terms: { label: 'Terms', menu: 'footer', make: (name) => [
+    sec('text', { title: 'Terms of service', body: `These terms apply when you buy or use ${name}.\n\n1. What you get\nDescribe the product and how it's delivered.\n\n2. Payments and refunds\nState prices, billing and your refund window.\n\n3. Acceptable use\nWhat customers may and may not do.\n\n4. Liability\nLimits of your responsibility.\n\n5. Contact\nHow to reach you about these terms.\n\nReplace this text with terms that fit your business. If unsure, ask a lawyer.`, image: '' }),
+  ] },
+  privacy: { label: 'Privacy', menu: 'footer', make: (name) => [
+    sec('text', { title: 'Privacy policy', body: `This explains what ${name} collects and why.\n\nWhat we collect\nYour email when you sign up or order, and basic usage data.\n\nHow we use it\nTo deliver the product, send updates you asked for and improve the service.\n\nWho we share it with\nOnly the services needed to run the business (payments, email). We never sell your data.\n\nYour choices\nEmail us any time to see, change or delete your data.\n\nReplace this text with a policy that fits your business.`, image: '' }),
+  ] },
+  blank: { label: 'Blank page', menu: 'none', make: () => [sec('text', { title: 'New page', body: 'Write something here.', image: '' })] },
+}
+
+export const slugPath = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'page'
+
+export function newPage(kind, site, name) {
+  const k = PAGE_KINDS[kind] || PAGE_KINDS.blank
+  const taken = new Set((site.pages || []).map((p) => p.path))
+  let path = slugPath(kind === 'blank' ? 'page' : k.label); let n = 2
+  while (taken.has(path)) { path = `${slugPath(k.label)}-${n}`; n += 1 }
+  return { id: uid(), title: kind === 'blank' ? 'New page' : k.label, path, menu: k.menu, sections: k.make(name || 'this product') }
+}
+
+// What to render for a page: home as-is; extra pages get the home header and footer around their sections.
+export function pageView(site, pageId) {
+  if (!site) return site
+  const page = pageId && pageId !== 'home' ? (site.pages || []).find((p) => p.id === pageId) : null
+  if (!page) return site
+  const nav = (site.sections || []).find((s) => s.type === 'nav' && !s.hidden)
+  const foot = (site.sections || []).find((s) => s.type === 'footer' && !s.hidden)
+  return { ...site, sections: [...(nav ? [{ ...nav, _shared: true }] : []), ...(page.sections || []), ...(foot ? [{ ...foot, _shared: true }] : [])], _page: page }
+}

@@ -73,6 +73,15 @@ const CSS = `
 }
 `
 
+// Links to the site's own pages (/site/<slug>/<path>) go through onNavigate when the builder previews them.
+function pageLinks(site, where, base) {
+  return (site.pages || []).filter((pg) => pg.menu === where).map((pg) => ({ label: pg.title, href: `${base}/${pg.path}`, path: pg.path }))
+}
+const Nav = ({ l, nav, className, style, children }) => (
+  <a href={l.path != null ? l.href : (safeHref(l.href) || '#')} className={className} style={style}
+    onClick={l.path != null && nav ? (e) => { e.preventDefault(); nav(l.path) } : undefined}>{children || l.label}</a>
+)
+
 const Btn = ({ l, alt }) => (l?.label ? <a className={alt ? 'btn2' : 'btn'} href={safeHref(l.href) || '#'}>{l.label}</a> : null)
 const Img = ({ src, alt = '', style, className = 'img' }) => {
   const s = safeImg(src)
@@ -132,7 +141,7 @@ function CustomBlock({ d, theme, editing }) {
   return <iframe ref={ref} title="Custom section" srcDoc={doc} sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" style={{ width: '100%', height: h, border: 0, display: 'block', pointerEvents: editing ? 'none' : 'auto' }} />
 }
 
-function Section({ s, site, slug, editing }) {
+function Section({ s, site, slug, editing, base, nav }) {
   const d = s.data || {}
   const items = (k) => (Array.isArray(d[k]) ? d[k] : [])
   switch (s.type) {
@@ -141,13 +150,13 @@ function Section({ s, site, slug, editing }) {
       return (
         <div style={{ borderBottom: '1px solid var(--line)' }}>
           <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68, gap: 16 }}>
-            <a href="#top" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', fontWeight: 700, fontSize: 18 }}>
+            <a href={base || '#top'} onClick={nav ? (e) => { e.preventDefault(); nav('') } : undefined} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', fontWeight: 700, fontSize: 18 }}>
               {logo && <img src={logo} alt="" style={{ height: 30, width: 'auto' }} referrerPolicy="no-referrer" />}
               <span style={{ fontFamily: 'var(--head)', fontWeight: 'var(--hw)', fontSize: 20 }}>{d.brand}</span>
             </a>
             <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
               <nav className="navlinks" style={{ display: 'flex', gap: 24 }}>
-                {items('links').filter((l) => l.label).map((l, i) => <a key={i} href={safeHref(l.href) || '#'} className="mut" style={{ textDecoration: 'none', fontSize: 14, fontWeight: 500 }}>{l.label}</a>)}
+                {[...items('links').filter((l) => l.label), ...pageLinks(site, 'header', base)].map((l, i) => <Nav key={i} l={l} nav={nav} className="mut" style={{ textDecoration: 'none', fontSize: 14, fontWeight: 500 }} />)}
               </nav>
               {d.cta?.label && <a className="btn" href={safeHref(d.cta.href) || '#'} style={{ padding: '10px 16px', fontSize: 14 }}>{d.cta.label}</a>}
             </div>
@@ -314,7 +323,7 @@ function Section({ s, site, slug, editing }) {
           <div className="wrap row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <p className="mut" style={{ fontSize: 14 }}>{d.text}</p>
             <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-              {items('links').filter((l) => l.label).map((l, i) => <a key={i} href={safeHref(l.href) || '#'} className="mut" style={{ fontSize: 14, textDecoration: 'none' }}>{l.label}</a>)}
+              {[...items('links').filter((l) => l.label), ...pageLinks(site, 'footer', base)].map((l, i) => <Nav key={i} l={l} nav={nav} className="mut" style={{ fontSize: 14, textDecoration: 'none' }} />)}
             </div>
           </div>
         </div>
@@ -324,7 +333,8 @@ function Section({ s, site, slug, editing }) {
   }
 }
 
-export default function SiteRenderer({ site, slug, editing = false, selectedId, onSelect, labels = {} }) {
+export default function SiteRenderer({ site, slug, editing = false, selectedId, onSelect, labels = {}, onNavigate }) {
+  const base = slug ? `/site/${slug}` : ''
   if (!site) return null
   const sections = (site.sections || []).filter((s) => !s.hidden)
   return (
@@ -332,10 +342,10 @@ export default function SiteRenderer({ site, slug, editing = false, selectedId, 
       <style>{CSS}</style>
       {sections.map((s) => (
         <section key={s.id} id={s.anchor || s.type} className={editing ? 'edit' : undefined} data-sel={editing && selectedId === s.id ? 'true' : undefined}
-          style={{ position: 'relative' }}
-          onClickCapture={editing ? (e) => { e.preventDefault(); onSelect?.(s.id) } : undefined}>
-          {editing && <span className="tag">{labels[s.type] || s.type}</span>}
-          <Section s={s} site={site} slug={slug} editing={editing} />
+          style={{ position: 'relative', opacity: editing && s._shared ? 0.75 : undefined }}
+          onClickCapture={editing ? (e) => { e.preventDefault(); e.stopPropagation(); if (!s._shared) onSelect?.(s.id) } : undefined}>
+          {editing && <span className="tag">{s._shared ? `${labels[s.type] || s.type} · edit on Home` : labels[s.type] || s.type}</span>}
+          <Section s={s} site={site} slug={slug} editing={editing} base={base} nav={editing ? null : onNavigate} />
         </section>
       ))}
       {!sections.length && <div className="wrap sec"><div className="empty">This page has no visible sections yet.</div></div>}

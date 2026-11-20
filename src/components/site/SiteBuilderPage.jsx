@@ -2,12 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Eye, EyeOff, Copy, Trash2, ChevronUp, ChevronDown, GripVertical, Monitor, Smartphone, Check, Loader2,
   CloudOff, Undo2, Redo2, ExternalLink, Rocket, X, LayoutTemplate, Palette, Layers, Pencil, Globe, Lock, AlertTriangle, Image as ImageIcon,
-  Sparkles, Wand2, Code2,
+  Sparkles, Wand2, Code2, History, FileText, RotateCcw,
 } from 'lucide-react'
 import CoLaunchLogo from '../ui/CoLaunchLogo'
 import SiteRenderer from './SiteRenderer'
-import { SECTION_TYPES, TEMPLATES, FONTS, ACCENTS, siteFromTemplate, applyTemplate, newSection, uid, safeImg } from './siteSchema'
-import { getSite, saveSite, publishSite, unpublishSite, getCoLaunchProject, aiSiteSection, aiSitePage, aiSiteCode, aiSiteLogo } from '../../services/opsApi'
+import { SECTION_TYPES, TEMPLATES, FONTS, ACCENTS, siteFromTemplate, applyTemplate, newSection, uid, safeImg, PAGE_KINDS, newPage, pageView, slugPath } from './siteSchema'
+import { getSite, saveSite, publishSite, unpublishSite, getCoLaunchProject, aiSiteSection, aiSitePage, aiSiteCode, aiSiteLogo, listSiteRevisions, getSiteRevision } from '../../services/opsApi'
 
 const LABELS = Object.fromEntries(Object.entries(SECTION_TYPES).map(([k, v]) => [k, v.label]))
 const clean = (m) => String(m || '').replace(/^\d{3}:\s*/, '')
@@ -273,6 +273,46 @@ function LogoMaker({ pid, accent, onPick }) {
   )
 }
 
+function HistoryDrawer({ pid, onClose, onRestore }) {
+  const [list, setList] = useState(null)
+  const [err, setErr] = useState('')
+  const [busy, setBusy] = useState(null)
+  useEffect(() => { listSiteRevisions(pid).then((r) => setList(r.revisions || [])).catch((e) => setErr(clean(e.message))) }, [pid])
+  const restore = async (r) => {
+    if (!window.confirm('Restore this version? Your current page is replaced, and Undo brings it back.')) return
+    setBusy(r.id)
+    try { const x = await getSiteRevision(pid, r.id); onRestore(x.draft) } catch (e) { setErr(clean(e.message)); setBusy(null) }
+  }
+  const fmt = (iso) => { try { return new Date(iso).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) } catch { return iso } }
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end" style={{ background: 'rgba(0,0,0,.55)' }} onClick={onClose}>
+      <aside className="w-full max-w-sm h-full flex flex-col" style={{ background: '#0c0c0e', borderLeft: '1px solid #26262b' }} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Version history">
+        <div className="h-14 shrink-0 px-4 flex items-center justify-between" style={{ borderBottom: '1px solid #1c1c20' }}>
+          <h2 className="serif m-0 text-2xl text-white">Version history</h2>
+          <button className="ib" onClick={onClose} aria-label="Close"><X className="w-4 h-4" /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {err && <p className="m-4 text-sm text-[#ff8fa3]">{err}</p>}
+          {!list && !err && <div className="p-6 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-zinc-500" /></div>}
+          {list && !list.length && <p className="m-0 p-5 text-sm text-zinc-500">No saved versions yet. A version is kept every 10 minutes while you edit, and every time you publish.</p>}
+          <ul className="list-none m-0 p-0">
+            {(list || []).map((r) => (
+              <li key={r.id} className="px-4 py-3 flex items-center gap-3" style={{ borderBottom: '1px solid #1c1c20' }}>
+                <div className="flex-1 min-w-0">
+                  <p className="m-0 text-sm text-white flex items-center gap-2">{fmt(r.at)}
+                    {r.kind === 'publish' && <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5" style={{ color: '#34d399', border: '1px solid rgba(52,211,153,.4)' }}>Published</span>}</p>
+                  <p className="m-0 text-[11px] text-zinc-500">{r.sections} sections{r.pages ? ` · ${r.pages + 1} pages` : ''}{r.by ? ` · by ${r.by}` : ''}</p>
+                </div>
+                <button className="btn" onClick={() => restore(r)} disabled={busy === r.id}>{busy === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCcw className="w-3.5 h-3.5" />}Restore</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+    </div>
+  )
+}
+
 // ── Page ────────────────────────────────────────────────────────────────────────────────────────
 export default function SiteBuilderPage({ pid }) {
   const [phase, setPhase] = useState('loading') // loading | auth | missing | error | ready
@@ -291,6 +331,9 @@ export default function SiteBuilderPage({ pid }) {
   const [dragId, setDragId] = useState(null)
   const [overId, setOverId] = useState(null)
   const [writing, setWriting] = useState(false)
+  const [cur, setCur] = useState('home')
+  const [addingPage, setAddingPage] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
 
   const revRef = useRef(0)
   const latest = useRef(null)
@@ -408,23 +451,42 @@ export default function SiteBuilderPage({ pid }) {
   })
 
   // ── Section operations ──
-  const sections = site?.sections || []
+  const pages = site?.pages || []
+  const curPage = cur === 'home' ? null : pages.find((p) => p.id === cur)
+  const sections = (curPage ? curPage.sections : site?.sections) || []
+  // Apply a section edit to whichever page is open
+  const scoped = (fn) => setSite((p) => {
+    if (cur === 'home' || !(p.pages || []).some((pg) => pg.id === cur)) return fn(p)
+    const pg = p.pages.find((x) => x.id === cur)
+    const out = fn({ ...p, sections: pg.sections || [] })
+    return { ...p, pages: p.pages.map((x) => (x.id === cur ? { ...x, sections: out.sections } : x)) }
+  })
+  const updPage = (patch) => setSite((p) => ({ ...p, pages: (p.pages || []).map((x) => (x.id === cur ? { ...x, ...patch } : x)) }))
+  const addPage = (kind) => {
+    const pg = newPage(kind, site, meta?.project?.productName)
+    setSite((p) => ({ ...p, pages: [...(p.pages || []), pg] }))
+    setCur(pg.id); setSel(null); setAddingPage(false); setPanel('sections')
+  }
+  const deletePage = () => {
+    if (!curPage || !window.confirm(`Delete the "${curPage.title}" page? You can undo this.`)) return
+    setSite((p) => ({ ...p, pages: (p.pages || []).filter((x) => x.id !== cur) })); setCur('home'); setSel(null)
+  }
   const selected = sections.find((s) => s.id === sel)
-  const updSection = (id, fn) => setSite((p) => ({ ...p, sections: p.sections.map((s) => (s.id === id ? fn(s) : s)) }))
-  const moveSection = (id, d) => setSite((p) => {
+  const updSection = (id, fn) => scoped((p) => ({ ...p, sections: p.sections.map((s) => (s.id === id ? fn(s) : s)) }))
+  const moveSection = (id, d) => scoped((p) => {
     const a = [...p.sections]; const i = a.findIndex((s) => s.id === id); const j = i + d
     if (i < 0 || j < 0 || j >= a.length) return p
     ;[a[i], a[j]] = [a[j], a[i]]; return { ...p, sections: a }
   })
   const dropOn = (targetId) => {
     if (!dragId || dragId === targetId) return
-    setSite((p) => {
+    scoped((p) => {
       const a = [...p.sections]; const from = a.findIndex((s) => s.id === dragId)
       const [x] = a.splice(from, 1); const to = a.findIndex((s) => s.id === targetId)
       a.splice(to, 0, x); return { ...p, sections: a }
     })
   }
-  const duplicate = (id) => setSite((p) => {
+  const duplicate = (id) => scoped((p) => {
     const i = p.sections.findIndex((s) => s.id === id)
     const copy = { ...JSON.parse(JSON.stringify(p.sections[i])), id: uid() }
     const a = [...p.sections]; a.splice(i + 1, 0, copy); setSel(copy.id); return { ...p, sections: a }
@@ -432,12 +494,12 @@ export default function SiteBuilderPage({ pid }) {
   const remove = (id) => {
     const s = sections.find((x) => x.id === id)
     if (!window.confirm(`Delete the ${LABELS[s?.type] || ''} section? You can undo this.`)) return
-    setSite((p) => ({ ...p, sections: p.sections.filter((x) => x.id !== id) }))
+    scoped((p) => ({ ...p, sections: p.sections.filter((x) => x.id !== id) }))
     if (sel === id) setSel(null)
   }
   const add = (type) => {
     const s = newSection(type)
-    setSite((p) => {
+    scoped((p) => {
       const a = [...p.sections]
       const at = sel ? a.findIndex((x) => x.id === sel) + 1 : Math.max(a.findIndex((x) => x.type === 'footer'), 0) || a.length
       a.splice(at > 0 ? at : a.length, 0, s)
@@ -556,6 +618,7 @@ export default function SiteBuilderPage({ pid }) {
             <button aria-pressed={device === 'mobile'} onClick={() => setDevice('mobile')} aria-label="Mobile"><Smartphone className="w-3.5 h-3.5" /></button>
           </div>
         </div>
+        <button className="btn hidden sm:inline-flex" onClick={() => setShowHistory(true)} title="Version history"><History className="w-3.5 h-3.5" /><span className="hidden xl:inline">History</span></button>
         {isPublished && liveUrl && <a href={liveUrl} target="_blank" rel="noreferrer" className="btn no-underline hidden lg:inline-flex"><ExternalLink className="w-3.5 h-3.5" />View page</a>}
         <button className="btn btn-p" onClick={publish} disabled={publishing || !launched}
           title={launched ? '' : 'Your page goes live automatically when you launch in Phase 3.'}>
@@ -570,6 +633,17 @@ export default function SiteBuilderPage({ pid }) {
         {/* Left panel */}
         {mode === 'edit' && (
           <aside className="w-[270px] shrink-0 flex flex-col min-h-0" style={{ borderRight: '1px solid #1c1c20', background: '#08080a' }}>
+            <div className="shrink-0 p-3 flex gap-1.5" style={{ borderBottom: '1px solid #1c1c20' }}>
+              <label className="flex-1 min-w-0 relative">
+                <span className="sr-only">Page</span>
+                <FileText className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+                <select className="in pl-8 cursor-pointer" value={cur} onChange={(e) => { setCur(e.target.value); setSel(null) }}>
+                  <option value="home">Home</option>
+                  {pages.map((pg) => <option key={pg.id} value={pg.id}>{pg.title} (/{pg.path})</option>)}
+                </select>
+              </label>
+              <button className="btn px-2.5" onClick={() => setAddingPage(true)} title="Add a page" aria-label="Add a page"><Plus className="w-4 h-4" /></button>
+            </div>
             <div className="flex shrink-0" role="tablist" style={{ borderBottom: '1px solid #1c1c20' }}>
               <button role="tab" className="ptab" aria-selected={panel === 'sections'} onClick={() => setPanel('sections')}><Layers className="w-3.5 h-3.5" />Sections</button>
               <button role="tab" className="ptab" aria-selected={panel === 'design'} onClick={() => setPanel('design')}><Palette className="w-3.5 h-3.5" />Design</button>
@@ -595,7 +669,21 @@ export default function SiteBuilderPage({ pid }) {
                   </ul>
                   <button className="btn w-full mt-3" onClick={() => setAdding(true)}><Plus className="w-4 h-4" />Add section</button>
                   <button className="btn w-full mt-1.5" onClick={() => setWriting(true)}><Sparkles className="w-4 h-4 text-[#ff8fa3]" />Write the whole page with AI</button>
-                  <p className="m-0 mt-3 text-[11px] text-zinc-600 leading-relaxed">Click a section on the page or in this list to edit it. Drag to reorder.</p>
+                  <p className="m-0 mt-3 text-[11px] text-zinc-600 leading-relaxed">Click a section on the page or in this list to edit it. Drag to reorder.{curPage ? ' The header and footer are shared; edit them on Home.' : ''}</p>
+                  {curPage && (
+                    <div className="mt-5 pt-4 space-y-3" style={{ borderTop: '1px solid #1c1c20' }}>
+                      <p className="m-0 text-xs font-semibold text-white">Page settings</p>
+                      <Field f={{ type: 'text', label: 'Page name' }} value={curPage.title} onChange={(v) => updPage({ title: v })} />
+                      <label className="block"><span className="lbl">Address</span>
+                        <div className="flex items-center"><span className="text-xs text-zinc-500 pr-1.5 font-mono">/{meta?.site?.slug || meta?.suggestedSlug}/</span>
+                          <input className="in font-mono" value={curPage.path} onChange={(e) => {
+                            const v = slugPath(e.target.value)
+                            if (!pages.some((x) => x.id !== cur && x.path === v)) updPage({ path: v })
+                          }} /></div></label>
+                      <Field f={{ type: 'select', label: 'Show a link to it in', options: [['header', 'The header menu'], ['footer', 'The footer'], ['none', 'Nowhere (link it yourself)']] }} value={curPage.menu} onChange={(v) => updPage({ menu: v })} />
+                      <button className="btn w-full" onClick={deletePage}><Trash2 className="w-3.5 h-3.5" />Delete this page</button>
+                    </div>
+                  )}
                 </>
               ) : (
                 <DesignPanel site={site} setSite={setSite} project={project} pid={meta?.project?.id || pid} />
@@ -614,7 +702,8 @@ export default function SiteBuilderPage({ pid }) {
         <main className="flex-1 min-w-0 overflow-y-auto" style={{ background: mode === 'edit' ? '#121215' : '#050506' }} onClick={() => mode === 'edit' && setSel(null)}>
           <div className={mode === 'edit' ? 'p-4 sm:p-6' : ''}>
             <div style={{ width: frameW, maxWidth: '100%', margin: '0 auto', boxShadow: mode === 'edit' || device === 'mobile' ? '0 0 0 1px #26262b, 0 20px 50px rgba(0,0,0,.4)' : undefined }} onClick={(e) => e.stopPropagation()}>
-              <SiteRenderer site={site} slug={meta?.site?.slug} editing={mode === 'edit'} selectedId={sel} onSelect={(id) => { setSel(id); setPanel('sections') }} labels={LABELS} />
+              <SiteRenderer site={pageView(site, cur)} slug={meta?.site?.slug || meta?.suggestedSlug} editing={mode === 'edit'} selectedId={sel} onSelect={(id) => { setSel(id); setPanel('sections') }} labels={LABELS}
+                onNavigate={(path) => { const pg = pages.find((x) => x.path === path); setCur(pg ? pg.id : 'home'); setSel(null) }} />
             </div>
           </div>
         </main>
@@ -646,8 +735,31 @@ export default function SiteBuilderPage({ pid }) {
 
       {writing && (
         <PageWriter pid={meta?.project?.id || pid} sections={sections} onClose={() => setWriting(false)}
-          onDone={(map) => { setSite((p) => ({ ...p, sections: p.sections.map((s) => (map[s.id] ? { ...s, data: { ...s.data, ...map[s.id] } } : s)) })); setWriting(false); flash('Page rewritten. Undo brings back the old text.') }} />
+          onDone={(map) => { scoped((p) => ({ ...p, sections: p.sections.map((s) => (map[s.id] ? { ...s, data: { ...s.data, ...map[s.id] } } : s)) })); setWriting(false); flash('Page rewritten. Undo brings back the old text.') }} />
       )}
+
+      {addingPage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,.7)' }} onClick={() => setAddingPage(false)}>
+          <div className="w-full max-w-lg p-5" style={{ background: '#0c0c0e', border: '1px solid #26262b' }} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Add a page">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="serif m-0 text-3xl text-white">Add a page</h2>
+              <button className="ib" onClick={() => setAddingPage(false)} aria-label="Close"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {Object.entries(PAGE_KINDS).map(([k, pk]) => (
+                <button key={k} type="button" className="tile" onClick={() => addPage(k)}>
+                  <span className="block text-sm font-semibold text-white">{pk.label}</span>
+                  <span className="block text-xs text-zinc-500 mt-0.5">{pk.menu === 'header' ? 'Linked in the header' : pk.menu === 'footer' ? 'Linked in the footer' : 'Start from scratch'}</span>
+                </button>
+              ))}
+            </div>
+            <p className="m-0 mt-3 text-xs text-zinc-500">It comes with starter text. Use "Write this section with AI" to make it yours.</p>
+          </div>
+        </div>
+      )}
+
+      {showHistory && <HistoryDrawer pid={meta?.project?.id || pid} onClose={() => setShowHistory(false)}
+        onRestore={(draft) => { setSite(draft); setCur('home'); setSel(null); setShowHistory(false); flash('Version restored. Undo brings back what you had.') }} />}
 
       {/* Add section picker */}
       {adding && (

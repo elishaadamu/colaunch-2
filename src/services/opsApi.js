@@ -582,3 +582,5 @@ export const aiSiteSection = (pid, type, data, instruction) => req('POST', `/sit
 export const aiSitePage = (pid, sections, instruction) => req('POST', `/sites/${encodeURIComponent(pid)}/ai/page`, { sections, instruction })
 export const aiSiteCode = (pid, payload) => req('POST', `/sites/${encodeURIComponent(pid)}/ai/code`, payload)
 export const aiSiteLogo = (pid, payload) => req('POST', `/sites/${encodeURIComponent(pid)}/ai/logo`, payload)
+export const listSiteRevisions = (pid) => req('GET', `/sites/${encodeURIComponent(pid)}/revisions`)
+export const getSiteRevision = (pid, rid) => req('GET', `/sites/${encodeURIComponent(pid)}/revisions/${encodeURIComponent(rid)}`)
