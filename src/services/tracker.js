@@ -76,8 +76,13 @@ export function getOrCreateClientId() {
  * Track a page/dashboard visit
  * Returns { isNewVisitor: boolean, totalUniqueVisitors: number, visitorsList: Array, deviceBreakdown: Object }
  */
+const _sentThisLoad = new Set()
+
 export function trackVisit(pagePath = '/dashboard', onProjectUpdate = null) {
   if (typeof window === 'undefined') return null
+  // One visit per page per page-load (React may run effects twice)
+  if (_sentThisLoad.has(pagePath)) return null
+  _sentThisLoad.add(pagePath)
 
   // 1. Exclude internal admin workspaces and dashboards from customer traffic
   if (!pagePath || pagePath.includes('/dashboard') || pagePath.includes('/admin')) {

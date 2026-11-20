@@ -3,9 +3,9 @@
 export const CHANNELS = {
   instagram: { label: 'Instagram Stories', emoji: '📸', draftKey: 'storySequence', match: /insta|\big\b|story/i, ref: 'instagram_story' },
   video: { label: 'Shorts / Reels / TikTok', emoji: '🎬', draftKey: 'videoScript', match: /tiktok|short|reel|youtube|\byt\b/i, ref: 'tiktok_video' },
-  x: { label: 'X', emoji: '𝕏', draftKey: 'announcementPost', match: /twitter|x \(|x_post|tweet|^x$/i, ref: 'x_post' },
+  x: { label: 'X', emoji: '𝕏', draftKey: 'announcementPost', match: /twitter|x \(|x_post|x post|tweet|^x$/i, ref: 'x_post' },
   newsletter: { label: 'Newsletter', emoji: '💌', draftKey: 'newsletterDraft', match: /newsletter|email|mail/i, ref: 'newsletter' },
-  dm: { label: 'DMs', emoji: '💬', draftKey: 'directMessageScript', match: /\bdm\b|direct|outreach/i, ref: 'dm_outreach' },
+  dm: { label: 'DMs', emoji: '💬', draftKey: 'directMessageScript', match: /\bdm\b|direct message|outreach/i, ref: 'dm_outreach' },
 }
 
 export function channelKeyOf(text = '') {

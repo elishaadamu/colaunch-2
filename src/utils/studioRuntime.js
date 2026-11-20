@@ -63,8 +63,15 @@ export function buildStudioDocument(files = [], { title = 'App' } = {}) {
     var name = spec[0] === '@' ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
     var sub = spec.slice(name.length);
     var pinned = DATA.pins[name] || name;
-    return 'https://esm.sh/' + pinned + sub + '?external=react,react-dom';
+    var url = 'https://esm.sh/' + pinned + sub + '?external=react,react-dom';
+    // The preview runs at about:srcdoc, where URL-based routers crash: route in memory instead.
+    if ((name === 'react-router-dom' || name === 'react-router') && !sub) {
+      if (!routerShims[name]) routerShims[name] = blob("export * from '" + url + "'; export { MemoryRouter as BrowserRouter, MemoryRouter as HashRouter, createMemoryRouter as createBrowserRouter, createMemoryRouter as createHashRouter } from '" + url + "';");
+      return routerShims[name];
+    }
+    return url;
   }
+  var routerShims = {};
   function blob(code){ return URL.createObjectURL(new Blob([code], { type: 'text/javascript' })); }
   function compile(path){
     if (urls.has(path)) return urls.get(path);

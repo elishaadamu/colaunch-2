@@ -356,7 +356,7 @@ export default function PreorderLandingPage({ slug }) {
       } else if (refQuery.includes('tiktok') || refQuery.includes('reels') || refQuery.includes('shorts') || refQuery.includes('youtube') || refQuery.includes('yt')) {
         attributedChannel = 'TikTok / Shorts'
       } else if (refQuery.includes('twitter') || refQuery.includes('x_post') || refQuery.includes('tweet') || refQuery.includes('x')) {
-        attributedChannel = 'X Post'
+        attributedChannel = 'X (Social Post)'
       } else if (refQuery.includes('newsletter') || refQuery.includes('email') || refQuery.includes('broadcast') || refQuery.includes('mail')) {
         attributedChannel = 'Email Newsletter'
       } else if (refQuery.includes('dm') || refQuery.includes('outreach')) {
@@ -627,7 +627,9 @@ export default function PreorderLandingPage({ slug }) {
                           : pending
                             ? 'Stripe is confirming the payment. This usually takes a few seconds.'
                             : successReceipt.email
-                              ? <>A confirmation is on its way to <strong className="text-white">{successReceipt.email}</strong>.</>
+                              ? (project?.publicMode === 'live'
+                                ? <>Your access link is on its way to <strong className="text-white">{successReceipt.email}</strong>.</>
+                                : <>You're a founding member. We'll email <strong className="text-white">{successReceipt.email}</strong> when it opens.</>)
                               : 'Your order is recorded.'}
                       </p>
                     </div>
