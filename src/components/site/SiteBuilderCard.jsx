@@ -31,7 +31,7 @@ export default function SiteBuilderCard({ project }) {
   }, [data])
 
   const draft = data?.site?.draft?.sections ? data.site.draft : null
-  const url = data?.site?.slug ? `${window.location.origin}/site/${data.site.slug}` : null
+  const url = data?.site?.path ? `${window.location.origin}${data.site.path}` : null
   const open = () => window.open(`/builder/${encodeURIComponent(pid)}`, '_blank', 'noopener')
   const when = data?.site?.updatedAt ? new Date(data.site.updatedAt).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : ''
 
@@ -46,7 +46,7 @@ export default function SiteBuilderCard({ project }) {
           <p className="m-0 mt-1 text-sm text-[#a1a1aa]">
             {err ? err
               : !data ? 'Loading…'
-              : draft ? <>Saved {when}. {data.site.published ? <>Live at <a href={url} target="_blank" rel="noreferrer" className="text-white">{url.replace(/^https?:\/\//, '')}</a></> : 'Goes live when you launch in Phase 3.'}</>
+              : draft ? <>Saved {when}. {data.site.published && url ? <>Live at <a href={url} target="_blank" rel="noreferrer" className="text-white">{url.replace(/^https?:\/\//, '')}</a></> : 'Goes live when you launch in Phase 3.'}</>
               : 'Pick a template, change the words and images, done. No code needed. It opens in a new tab and saves as you go.'}
           </p>
         </div>

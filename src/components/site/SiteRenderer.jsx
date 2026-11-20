@@ -73,7 +73,7 @@ const CSS = `
 }
 `
 
-// Links to the site's own pages (/site/<slug>/<path>) go through onNavigate when the builder previews them.
+// Links to the site's own pages (/<handle>/<slug>/<path>) go through onNavigate when the builder previews them.
 function pageLinks(site, where, base) {
   return (site.pages || []).filter((pg) => pg.menu === where).map((pg) => ({ label: pg.title, href: `${base}/${pg.path}`, path: pg.path }))
 }
@@ -333,8 +333,8 @@ function Section({ s, site, slug, editing, base, nav }) {
   }
 }
 
-export default function SiteRenderer({ site, slug, editing = false, selectedId, onSelect, labels = {}, onNavigate }) {
-  const base = slug ? `/site/${slug}` : ''
+export default function SiteRenderer({ site, slug, basePath, editing = false, selectedId, onSelect, labels = {}, onNavigate }) {
+  const base = basePath || (slug ? `/site/${slug}` : '')
   if (!site) return null
   const sections = (site.sections || []).filter((s) => !s.hidden)
   return (

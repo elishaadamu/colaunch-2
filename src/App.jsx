@@ -61,6 +61,16 @@ export default function App() {
   if (currentPath.startsWith('/site/')) {
     return <SitePublicPage slug={decodeURIComponent(getSlug('/site/'))} />
   }
+  // Published product sites: /<creator handle>/<product>[/<page>]
+  {
+    const RESERVED = new Set(['survey', 'research', 'creator', 'site', 'builder', 'app', 'beta', 'concept', 'preorder', 'portal', 'follow-up-crm', 'crm',
+      'admin-error-log', 'error-log', 'errors', 'project-os', 'projects', 'project', 'participation-manager', 'co-builders', 'cobuilder-admin',
+      'participation', 'api', 'static', 'assets', 'images'])
+    const m = currentPath.match(/^\/@?([a-z0-9_.-]+)\/([a-z0-9-]+)(?:\/([a-z0-9-]+))?\/?$/i)
+    if (m && !RESERVED.has(m[1].toLowerCase())) {
+      return <SitePublicPage handle={m[1]} slug={m[3] ? `${m[2]}/${m[3]}` : m[2]} />
+    }
+  }
   if (currentPath.startsWith('/builder/')) {
     return <SiteBuilderPage pid={decodeURIComponent(getSlug('/builder/'))} />
   }

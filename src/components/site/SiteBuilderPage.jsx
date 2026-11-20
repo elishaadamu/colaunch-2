@@ -517,7 +517,8 @@ export default function SiteBuilderPage({ pid }) {
   // ── Publish ──
   const launched = isOperator || Number(project?.currentPhase || meta?.project?.currentPhase) >= 3 && LAUNCHED.includes(String(project?.status || meta?.project?.status || '').toLowerCase())
   const isPublished = Boolean(meta?.site?.published)
-  const liveUrl = meta?.site?.slug ? `${window.location.origin}/site/${meta.site.slug}` : null
+  const basePath = meta?.site?.path || meta?.basePath || ''
+  const liveUrl = basePath ? `${window.location.origin}${basePath}` : null
   const publish = async () => {
     setPublishing(true)
     try {
@@ -675,7 +676,7 @@ export default function SiteBuilderPage({ pid }) {
                       <p className="m-0 text-xs font-semibold text-white">Page settings</p>
                       <Field f={{ type: 'text', label: 'Page name' }} value={curPage.title} onChange={(v) => updPage({ title: v })} />
                       <label className="block"><span className="lbl">Address</span>
-                        <div className="flex items-center"><span className="text-xs text-zinc-500 pr-1.5 font-mono">/{meta?.site?.slug || meta?.suggestedSlug}/</span>
+                        <div className="flex items-center"><span className="text-xs text-zinc-500 pr-1.5 font-mono truncate max-w-[120px]" title={basePath}>{basePath}/</span>
                           <input className="in font-mono" value={curPage.path} onChange={(e) => {
                             const v = slugPath(e.target.value)
                             if (!pages.some((x) => x.id !== cur && x.path === v)) updPage({ path: v })
@@ -691,7 +692,7 @@ export default function SiteBuilderPage({ pid }) {
             </div>
             <div className="shrink-0 p-3 text-[11px] text-zinc-500 space-y-1" style={{ borderTop: '1px solid #1c1c20' }}>
               <p className="m-0 flex items-center gap-1.5"><Globe className="w-3 h-3" />{isPublished ? 'Live at' : 'Will be live at'}</p>
-              <p className="m-0 font-mono text-zinc-300 break-all">{window.location.host}/site/{meta?.site?.slug || meta?.suggestedSlug}</p>
+              <p className="m-0 font-mono text-zinc-300 break-all">{window.location.host}{basePath}</p>
               {isPublished && <button className="bg-transparent border-0 p-0 text-zinc-500 hover:text-white cursor-pointer" onClick={unpublish}>Take offline</button>}
               {meta?.signups > 0 && <p className="m-0">{meta.signups} email signup{meta.signups === 1 ? '' : 's'}</p>}
             </div>
@@ -702,7 +703,7 @@ export default function SiteBuilderPage({ pid }) {
         <main className="flex-1 min-w-0 overflow-y-auto" style={{ background: mode === 'edit' ? '#121215' : '#050506' }} onClick={() => mode === 'edit' && setSel(null)}>
           <div className={mode === 'edit' ? 'p-4 sm:p-6' : ''}>
             <div style={{ width: frameW, maxWidth: '100%', margin: '0 auto', boxShadow: mode === 'edit' || device === 'mobile' ? '0 0 0 1px #26262b, 0 20px 50px rgba(0,0,0,.4)' : undefined }} onClick={(e) => e.stopPropagation()}>
-              <SiteRenderer site={pageView(site, cur)} slug={meta?.site?.slug || meta?.suggestedSlug} editing={mode === 'edit'} selectedId={sel} onSelect={(id) => { setSel(id); setPanel('sections') }} labels={LABELS}
+              <SiteRenderer site={pageView(site, cur)} slug={meta?.site?.slug || meta?.suggestedSlug} basePath={basePath} editing={mode === 'edit'} selectedId={sel} onSelect={(id) => { setSel(id); setPanel('sections') }} labels={LABELS}
                 onNavigate={(path) => { const pg = pages.find((x) => x.path === path); setCur(pg ? pg.id : 'home'); setSel(null) }} />
             </div>
           </div>

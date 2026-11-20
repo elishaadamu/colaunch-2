@@ -10,13 +10,13 @@ function setMeta(name, content, attr = 'name') {
   el.setAttribute('content', content || '')
 }
 
-export default function SitePublicPage({ slug: rawSlug }) {
+export default function SitePublicPage({ slug: rawSlug, handle }) {
   const [slug, subPath = ''] = String(rawSlug || '').split('/')
   const [data, setData] = useState(null)
   const [err, setErr] = useState('')
 
   useEffect(() => {
-    getPublicSite(slug)
+    getPublicSite(slug, handle)
       .then((r) => {
         const site = r.site?.sections ? r.site : siteFromTemplate(r.project, 'launch')
         const page = subPath ? (site.pages || []).find((pg) => pg.path === subPath) : null
@@ -37,7 +37,7 @@ export default function SitePublicPage({ slug: rawSlug }) {
         }
       })
       .catch((e) => setErr(/^410/.test(String(e.message)) ? 'This product is no longer available.' : "This page isn't published yet."))
-  }, [slug, subPath])
+  }, [slug, subPath, handle])
 
   if (err) {
     return (
@@ -50,5 +50,5 @@ export default function SitePublicPage({ slug: rawSlug }) {
     )
   }
   if (!data) return <div className="min-h-screen flex items-center justify-center" style={{ background: '#09090b' }}><Loader2 className="w-6 h-6 animate-spin text-zinc-600" /></div>
-  return <SiteRenderer site={data.view} slug={data.slug} />
+  return <SiteRenderer site={data.view} slug={data.slug} basePath={data.path} />
 }
