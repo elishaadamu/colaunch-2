@@ -3,7 +3,7 @@ import {
   Rocket, Activity, Bot, FileBarChart, Sparkles, Loader2, Check, X, AlertTriangle, CheckCircle2, XCircle, ExternalLink,
   Copy, Send, Calendar, Megaphone, ListChecks, Server, CreditCard, Mail, BarChart3, Link2, Bug, LifeBuoy, Users, DollarSign,
   Percent, MousePointerClick, UserCheck, ShoppingBag, RefreshCw, Pause, Wrench, Instagram, Youtube, MessageSquare, TrendingUp,
-  TrendingDown, Minus, Archive, Scale, ShieldAlert, ClipboardList, ArrowRight, Radio, Code2,
+  TrendingDown, Minus, Archive, Scale, ShieldAlert, ClipboardList, ArrowRight, ArrowLeft, CalendarClock, Radio, Code2,
 } from 'lucide-react'
 import {
   updateCoLaunchProject, updateValidationCampaign, toggleAutonomousCampaignDelivery, sendCampaignPostEmail,
@@ -188,6 +188,21 @@ export default function Phase3Launch({ project, onUpdateProject, activeStepId, o
       {step === 'monitor' && <MonitorStep {...{ project, pid, state, metrics, refresh, refreshedAt, isLive, slug, save, say, go }} />}
       {step === 'manager' && <ManagerStep {...{ project, pid, state, metrics, isLive, kit, actions, save, say, slug }} />}
       {step === 'report' && <ReportStep {...{ project, pid, metrics, plan, actions, save, say, go }} />}
+
+      {(() => {
+        const i = STEPS.findIndex((x) => x.id === step)
+        const prev = STEPS[i - 1], next = STEPS[i + 1]
+        return (
+          <nav aria-label="Phase 3 steps" className="flex items-center justify-between gap-3 pt-4" style={{ borderTop: `1px solid ${C.line}` }}>
+            {prev ? <button type="button" className="btn btn-quiet" onClick={() => go(prev.id)}><ArrowLeft className="w-3.5 h-3.5" />{prev.label}</button> : <span />}
+            {next ? (
+              <button type="button" className="btn btn-primary" onClick={async () => { if (step === 'prep' && !project?.phase3Prepared) await save({ phase3Prepared: true }); go(next.id) }}>
+                Next: {next.label.replace(/^\d\.\s*/, '')}<ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            ) : <span className="text-xs" style={{ color: C.faint }}>Last step of Phase 3</span>}
+          </nav>
+        )
+      })()}
     </div>
   )
 }
@@ -382,7 +397,7 @@ function PrepareStep({ project, pid, state, refresh, plan, kit, save, say, slug,
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <label className="block"><span className="lbl">Launch price ($)</span><input className="in" type="number" min={1} value={draft.price} onChange={(e) => setDraft({ ...draft, price: e.target.value })} placeholder="e.g. 29" /></label>
               <label className="block"><span className="lbl">Price label</span><input className="in" value={draft.priceLabel} onChange={(e) => setDraft({ ...draft, priceLabel: e.target.value })} placeholder="per month" /></label>
-              <label className="block"><span className="lbl">Launch date</span><input className="in" type="date" value={draft.launchDate || ''} onChange={(e) => setDraft({ ...draft, launchDate: e.target.value })} /></label>
+              <label className="block"><span className="lbl">Launch date (goes live that day)</span><input className="in" type="date" value={draft.launchDate || ''} onChange={(e) => setDraft({ ...draft, launchDate: e.target.value })} /></label>
               <label className="block"><span className="lbl">Support email</span><input className="in" type="email" value={draft.supportEmail} onChange={(e) => setDraft({ ...draft, supportEmail: e.target.value })} placeholder="help@product.com" /></label>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -442,13 +457,18 @@ function MonitorStep({ project, pid, state, metrics, refresh, refreshedAt, isLiv
   }
   const pause = async () => { setBusy(true); try { await pauseLaunch(pid); await save({ launchStatus: 'PAUSED', publicMode: 'preorder' }); await refresh(); say('Launch paused. The public page is back to pre-order mode.') } finally { setBusy(false) } }
 
+  // Phase 3 starts from what Phase 1 already brought in (pre-order visitors, backers, revenue), then adds launch numbers.
+  const p1 = metrics?.phase1 || {}
+  const allVisitors = (p1.visitors || 0) + (t.visitors || 0)
+  const allBuyers = (p1.backers || 0) + (t.customers || 0)
+  const allConv = allVisitors ? Math.round((allBuyers / allVisitors) * 1000) / 10 : null
   const kpis = [
-    ['Visitors', MousePointerClick, (t.visitors ?? 0).toLocaleString(), 'unique, since launch'],
-    ['Sign-ups', UserCheck, (t.signups ?? 0).toLocaleString(), 'from your product'],
-    ['Activation', Activity, t.activationRate != null ? `${t.activationRate}%` : '—', `${t.activated ?? 0} of ${t.withAccess ?? 0} customers used it`],
-    ['Customers', Users, (t.customers ?? 0).toLocaleString(), 'paid since launch'],
-    ['Revenue', DollarSign, money(t.revenue), 'confirmed by Stripe', C.ok],
-    ['Conversion', Percent, t.conversion != null ? `${t.conversion}%` : '—', 'visitor → paid'],
+    ['Visitors', MousePointerClick, allVisitors.toLocaleString(), `${(p1.visitors || 0).toLocaleString()} in Phase 1 · ${(t.visitors || 0).toLocaleString()} since launch`],
+    ['Sign-ups', UserCheck, (t.signups ?? 0).toLocaleString(), 'in the product, since launch'],
+    ['Activation', Activity, t.activationRate != null ? `${t.activationRate}%` : '—', `${t.activated ?? 0} of ${t.withAccess ?? 0} backers and customers used it`],
+    ['Customers', Users, allBuyers.toLocaleString(), `${p1.backers || 0} Phase 1 backers · ${t.customers || 0} since launch`],
+    ['Revenue', DollarSign, money((p1.revenue || 0) + (t.revenue || 0)), `${money(p1.revenue)} pre-orders · ${money(t.revenue)} since launch`, C.ok],
+    ['Conversion', Percent, allConv != null ? `${allConv}%` : '—', `Phase 1 ${p1.conversion != null ? `${p1.conversion}%` : '—'} · launch ${t.conversion != null ? `${t.conversion}%` : '—'}`],
   ]
   const maxRev = Math.max(1, ...(metrics?.daily || []).map((d) => d.revenue))
   const maxVis = Math.max(1, ...(metrics?.daily || []).map((d) => d.visitors))
@@ -481,6 +501,21 @@ function MonitorStep({ project, pid, state, metrics, refresh, refreshedAt, isLiv
             </div>
           </div>
         )}
+        {!isLive && (() => {
+          const date = state?.config?.launchDate
+          const sched = project?.scheduledLaunch
+          const when = date ? new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : ''
+          if (sched?.status === 'blocked' && sched.date === date) {
+            return <p className="m-0 text-sm flex items-start gap-2" style={{ color: C.warn }}><CalendarClock className="w-4 h-4 shrink-0 mt-0.5" />The automatic launch on {when} was held back. {sched.reason}. Fix it in Prepare, then click Go live.</p>
+          }
+          if (date && !project?.phase3Prepared) {
+            return <p className="m-0 text-sm flex items-start gap-2" style={{ color: C.muted }}><CalendarClock className="w-4 h-4 shrink-0 mt-0.5" />Launch date set for {when}. Finish step 1 (click "Ready to launch") so it can go live automatically that day.</p>
+          }
+          if (date) {
+            return <p className="m-0 text-sm flex items-start gap-2" style={{ color: C.text }}><CalendarClock className="w-4 h-4 shrink-0 mt-0.5" style={{ color: C.ok }} />Goes live automatically on {when} if every critical check passes. Or go live now.</p>
+          }
+          return <p className="m-0 text-sm flex items-start gap-2" style={{ color: C.muted }}><CalendarClock className="w-4 h-4 shrink-0 mt-0.5" />No launch date set, so it goes live only when you click Go live. Set a date in Prepare to launch automatically.</p>
+        })()}
         {(t.testOrders || 0) > 0 && <p className="m-0 text-xs" style={{ color: C.faint }}>{t.testOrders} test-mode orders excluded from revenue. Add a live Stripe key on the server to take real payments.</p>}
       </section>
 
