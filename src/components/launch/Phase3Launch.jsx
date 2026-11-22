@@ -172,7 +172,16 @@ export default function Phase3Launch({ project, onUpdateProject, activeStepId, o
         </div>
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold" style={isLive ? { background: C.okSoft, border: `1px solid ${C.okLine}`, color: C.ok } : { background: C.sheet, border: `1px solid ${C.line}`, color: C.muted }}>
-            <Radio className={`w-3 h-3 ${isLive ? 'live' : ''}`} />{isLive ? 'Live' : (state?.launchStatus === 'PAUSED' ? 'Paused' : state?.launchStatus === 'CLOSED' ? 'Closed' : 'Not launched')}
+            <Radio className={`w-3 h-3 ${isLive ? 'live' : ''}`} />{(() => {
+              if (isLive) return 'Live'
+              if (state?.launchStatus === 'PAUSED') return 'Paused'
+              if (state?.launchStatus === 'CLOSED') return 'Closed'
+              const date = state?.config?.launchDate
+              const today = new Date().toISOString().slice(0, 10)
+              if (date && date >= today && project?.phase3Prepared) return `Not live · goes live ${new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}`
+              if (project?.phase3Prepared) return 'Not live · ready to go live'
+              return 'Not live yet'
+            })()}
           </span>
           <button type="button" className="btn btn-quiet" onClick={refresh} disabled={refreshing} aria-label="Refresh"><RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} /></button>
         </div>
@@ -423,7 +432,7 @@ function PrepareStep({ project, pid, state, refresh, plan, kit, save, say, slug,
               <p className="m-0 text-xs" style={{ color: criticalFails ? C.warn : C.ok }}>{criticalFails ? `${criticalFails} critical ${criticalFails === 1 ? 'check fails' : 'checks fail'}` : 'All critical checks pass'}</p>
               <div className="flex gap-2">
                 <button type="button" className="btn btn-quiet" onClick={saveCfg} disabled={savingCfg}>{savingCfg ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}Save settings</button>
-                <button type="button" className="btn btn-primary" onClick={async () => { await saveCfg(); await save({ phase3Prepared: true }); go('monitor') }}>Ready to launch <ArrowRight className="w-3.5 h-3.5" /></button>
+                <button type="button" className="btn btn-primary" onClick={async () => { await saveCfg(); await save({ phase3Prepared: true }); go('monitor') }}>Save and continue <ArrowRight className="w-3.5 h-3.5" /></button>
               </div>
             </div>
           </div>
@@ -511,7 +520,7 @@ function MonitorStep({ project, pid, state, metrics, refresh, refreshedAt, isLiv
             return <p className="m-0 text-sm flex items-start gap-2" style={{ color: C.warn }}><CalendarClock className="w-4 h-4 shrink-0 mt-0.5" />The automatic launch on {when} was held back. {sched.reason}. Fix it in Prepare, then click Go live.</p>
           }
           if (date && !project?.phase3Prepared) {
-            return <p className="m-0 text-sm flex items-start gap-2" style={{ color: C.muted }}><CalendarClock className="w-4 h-4 shrink-0 mt-0.5" />Launch date set for {when}. Finish step 1 (click "Ready to launch") so it can go live automatically that day.</p>
+            return <p className="m-0 text-sm flex items-start gap-2" style={{ color: C.muted }}><CalendarClock className="w-4 h-4 shrink-0 mt-0.5" />Launch date set for {when}. Finish step 1 (click "Save and continue") so it can go live automatically that day.</p>
           }
           if (date) {
             return <p className="m-0 text-sm flex items-start gap-2" style={{ color: C.text }}><CalendarClock className="w-4 h-4 shrink-0 mt-0.5" style={{ color: C.ok }} />Goes live automatically on {when} if every critical check passes. Or go live now.</p>
@@ -868,6 +877,15 @@ function ReportStep({ project, pid, metrics, plan, actions, save, say, go }) {
 
       <section className="card p-4 sm:p-5 space-y-4">
         <p className="eyebrow m-0">Your decision</p>
+        {project?.launchStatus !== 'LIVE' && (
+          <div className="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ background: C.sheet, border: `1px solid ${C.warn}` }}>
+            <p className="m-0 text-sm flex items-start gap-2" style={{ color: C.text }}>
+              <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" style={{ color: C.warn }} />
+              {project?.productName || 'The product'} isn't live yet. A decision here is only recorded: nothing goes on sale until you click Go live in step 2{project?.phase3Decision?.decision ? ` (you chose ${project.phase3Decision.decision}).` : '.'}
+            </p>
+            <button type="button" className="btn btn-primary shrink-0" onClick={() => go('monitor')}><Rocket className="w-3.5 h-3.5" />Go to Launch + monitor</button>
+          </div>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
           {options.map(([id, title, desc, I, col]) => {
             const rec = id === decision.verdict
