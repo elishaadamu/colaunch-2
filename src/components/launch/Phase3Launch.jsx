@@ -459,16 +459,18 @@ function MonitorStep({ project, pid, state, metrics, refresh, refreshedAt, isLiv
 
   // Phase 3 starts from what Phase 1 already brought in (pre-order visitors, backers, revenue), then adds launch numbers.
   const p1 = metrics?.phase1 || {}
-  const allVisitors = (p1.visitors || 0) + (t.visitors || 0)
-  const allBuyers = (p1.backers || 0) + (t.customers || 0)
+  // Before go-live there is no "since launch" yet: the backend's pre-launch window would re-count Phase 1 pre-orders.
+  const L = isLive ? t : { visitors: 0, customers: 0, revenue: 0, conversion: null }
+  const allVisitors = (p1.visitors || 0) + (L.visitors || 0)
+  const allBuyers = (p1.backers || 0) + (L.customers || 0)
   const allConv = allVisitors ? Math.round((allBuyers / allVisitors) * 1000) / 10 : null
   const kpis = [
-    ['Visitors', MousePointerClick, allVisitors.toLocaleString(), `${(p1.visitors || 0).toLocaleString()} in Phase 1 · ${(t.visitors || 0).toLocaleString()} since launch`],
+    ['Visitors', MousePointerClick, allVisitors.toLocaleString(), `${(p1.visitors || 0).toLocaleString()} in Phase 1 · ${isLive ? `${(L.visitors || 0).toLocaleString()} since launch` : 'not live yet'}`],
     ['Sign-ups', UserCheck, (t.signups ?? 0).toLocaleString(), 'in the product, since launch'],
     ['Activation', Activity, t.activationRate != null ? `${t.activationRate}%` : '—', `${t.activated ?? 0} of ${t.withAccess ?? 0} backers and customers used it`],
-    ['Customers', Users, allBuyers.toLocaleString(), `${p1.backers || 0} Phase 1 backers · ${t.customers || 0} since launch`],
-    ['Revenue', DollarSign, money((p1.revenue || 0) + (t.revenue || 0)), `${money(p1.revenue)} pre-orders · ${money(t.revenue)} since launch`, C.ok],
-    ['Conversion', Percent, allConv != null ? `${allConv}%` : '—', `Phase 1 ${p1.conversion != null ? `${p1.conversion}%` : '—'} · launch ${t.conversion != null ? `${t.conversion}%` : '—'}`],
+    ['Customers', Users, allBuyers.toLocaleString(), `${p1.backers || 0} Phase 1 backers · ${isLive ? `${L.customers || 0} since launch` : 'not live yet'}`],
+    ['Revenue', DollarSign, money((p1.revenue || 0) + (L.revenue || 0)), `${money(p1.revenue)} pre-orders · ${isLive ? `${money(L.revenue)} since launch` : 'not live yet'}`, C.ok],
+    ['Conversion', Percent, allConv != null ? `${allConv}%` : '—', `Phase 1 ${p1.conversion != null ? `${p1.conversion}%` : '—'} · launch ${L.conversion != null ? `${L.conversion}%` : '—'}`],
   ]
   const maxRev = Math.max(1, ...(metrics?.daily || []).map((d) => d.revenue))
   const maxVis = Math.max(1, ...(metrics?.daily || []).map((d) => d.visitors))
