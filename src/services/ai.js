@@ -1683,6 +1683,12 @@ RULES:
 - If visitors < 100, say traffic is the bottleneck and keep conversion claims modest.
 - primaryBottleneck must name the weakest funnel stage from the data (traffic, interest, or payment).
 ` : ""}
+VARIANT RULES (each variant is applied as-is, so it must be ready to use):
+- messaging: "variant" is the COMPLETE new announcement post, ready to publish (60-160 words, ends with the pre-order link placeholder [link]), at most one emoji.
+- pricing: test ONE new founding pre-order price. "variant" is like "$29 founding price" and add "newFoundingPrice": <number>. Stay within half to double the current founding price. No annual plans, subscriptions or tiers.
+- landing_page: "variant" is only the new headline, at most 12 words.
+- creator_content: "variant" is the COMPLETE story sequence the creator can post, as 3 to 5 frames written "Frame 1: ...", "Frame 2: ..." (each frame 1-2 sentences, last frame asks people to pre-order), no emojis.
+- expectedUplift is an estimate; keep it modest (single or low double digits).
 Return JSON with exact structure:
 {
   "performanceAudit": {

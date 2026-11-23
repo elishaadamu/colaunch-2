@@ -10,6 +10,7 @@ import {
   getLaunchState, saveLaunchConfig, goLive, pauseLaunch, getLaunchMetrics, postLaunchDecision, listLaunchDecisions,
 } from '../../services/opsApi'
 import { streamSSE } from '../../services/opsApi'
+import ValidationQuest, { withDone } from './phase1/ValidationQuest'
 import { XLogo } from './PostVisualMockup'
 import { C, P1_SHARED_CSS } from './phase1/phase1Constants'
 import { PUBLIC_APP_URL } from '../../utils/publicUrl'
@@ -529,6 +530,24 @@ function MonitorStep({ project, pid, state, metrics, refresh, refreshedAt, isLiv
         })()}
         {(t.testOrders || 0) > 0 && <p className="m-0 text-xs" style={{ color: C.faint }}>{t.testOrders} test-mode orders excluded from revenue. Add a live Stripe key on the server to take real payments.</p>}
       </section>
+
+      {(() => {
+        const days = isLive && (metrics?.liveAt || project?.liveAt) ? Math.floor((Date.now() - Date.parse(metrics?.liveAt || project?.liveAt)) / 86400000) : 0
+        const ms = withDone([
+          { id: 'date', label: 'Launch date set', pts: 10, have: state?.config?.launchDate ? 1 : 0, need: 1, hint: 'Pick a date in Prepare', go: 'prep' },
+          { id: 'ready', label: 'Prepare finished', pts: 20, have: project?.phase3Prepared ? 1 : 0, need: 1, hint: 'Save and continue in step 1', go: 'prep' },
+          { id: 'live', label: 'Live', pts: 60, have: isLive ? 1 : 0, need: 1, hint: 'Click Go live above', go: null },
+          { id: 'sale1', label: 'First sale after launch', pts: 50, have: L.customers || 0, need: 1, hint: 'Send the launch announcement', go: 'manager' },
+          { id: 'active1', label: 'First customer used it', pts: 40, have: t.activated || 0, need: 1, hint: 'Check the welcome email reaches people', go: 'prep' },
+          { id: 'buyers10', label: '10 paying customers', pts: 70, have: allBuyers, need: 10, hint: 'Ask the AI launch manager for the next move', go: 'manager' },
+          { id: 'beatp1', label: 'Launch revenue beats pre-orders', pts: 80, have: (p1.revenue || 0) > 0 && (L.revenue || 0) >= p1.revenue ? 1 : 0, need: 1, hint: 'Run a second creator push', go: 'manager' },
+          { id: 'week', label: '7 days live', pts: 40, have: days, need: 7, hint: 'Keep the campaign running', go: null },
+          { id: 'decided', label: 'Report and decision', pts: 50, have: project?.phase3Decision?.decision && isLive ? 1 : 0, need: 1, hint: 'Review the report in step 4', go: 'report' },
+        ])
+        const levels = [{ at: 0, name: 'Pre-launch' }, { at: 90, name: 'Live' }, { at: 180, name: 'First sales' }, { at: 290, name: 'Growing' }, { at: 390, name: 'Scaling' }]
+        return <ValidationQuest title="Launch quest" storeKey="p3quest" projectId={pid} milestones={ms} levels={levels}
+          streak={isLive && days > 0 ? `${days} day${days === 1 ? '' : 's'} live` : ''} onGo={(where) => { if (where) go(where) }} />
+      })()}
 
       <div className="flex items-center justify-between">
         <p className="eyebrow m-0">Live dashboard</p>

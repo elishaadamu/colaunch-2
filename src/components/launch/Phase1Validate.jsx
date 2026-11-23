@@ -1662,232 +1662,107 @@ export default function Phase1Validate({
     })
   }
 
-  const handleApplyExperiment = (exp) => {
-    if (!exp) return
-    let updatedCampaign = { ...campaignKit }
-    let appliedMessage = `Experiment "${exp.title}" applied!`
-    let updatedPlanPricing = null
+  // ── AI experiments ("missions"): apply saves exactly what it changes, revert restores it ─────────
+  const expKind = (exp) => (exp.category === 'pricing' || exp.targetField === 'pricingTier' ? 'pricing'
+    : exp.category === 'landing_page' || exp.targetField === 'landingPageHero' ? 'landing_page'
+      : exp.category === 'creator_content' || exp.targetField === 'storySequence' ? 'creator_content' : 'messaging')
+  // Older experiments wrote internal labels into the posting schedule; never leave them in creator-facing copy.
+  const stripExpLabels = (sched) => (Array.isArray(sched) ? sched.map((t) => (typeof t?.description === 'string' && t.description.includes('[AI Experiment Variant Active')
+    ? { ...t, description: t.description.replace(/\[AI Experiment Variant Active:.*?\]\s*/g, '') } : t)) : sched)
 
-    // 1. Messaging Variant -> Step 2 Campaign Kit & Step 3 Social Post Draft
-    if (exp.category === 'messaging' || exp.targetField === 'announcementPost') {
-      updatedCampaign.announcementPost = exp.variant
-      updatedCampaign.activeMessagingExperiment = { id: exp.id, title: exp.title, variant: exp.variant, expectedUplift: exp.expectedUplift }
-      if (Array.isArray(updatedCampaign.postingSchedule)) {
-        updatedCampaign.postingSchedule = updatedCampaign.postingSchedule.map(t => {
-          if (t.day === 1 || t.title?.toLowerCase().includes('announcement')) {
-            return { ...t, description: `[AI Experiment Variant Active: ${exp.title}] ${exp.variant}` }
-          }
-          return t
-        })
-      }
-      appliedMessage = `Messaging variant applied to Step 2 Campaign Kit & Step 3 Social Announcement!`
-    }
-    // 2. Creator Content Variant -> Step 3 Creator Story Sprints & Tasks
-    else if (exp.category === 'creator_content' || exp.targetField === 'storySequence') {
-      updatedCampaign.storySequence = exp.variant
-      updatedCampaign.activeStoryExperiment = { id: exp.id, title: exp.title, variant: exp.variant, expectedUplift: exp.expectedUplift }
-      if (Array.isArray(updatedCampaign.postingSchedule)) {
-        updatedCampaign.postingSchedule = updatedCampaign.postingSchedule.map(t => {
-          if (t.day === 2 || t.day === 3 || t.title?.toLowerCase().includes('story')) {
-            return { ...t, description: `[AI Experiment Variant Active: ${exp.title}] ${exp.variant}` }
-          }
-          return t
-        })
-      }
-      appliedMessage = `Creator story sequence & sprint tasks updated with AI variant in Step 3!`
-    }
-    // 3. Landing Page Variant -> Step 2 Live Landing Page Hero & Headline
-    else if (exp.category === 'landing_page' || exp.targetField === 'landingPageHero') {
-      const existingLP = updatedCampaign.landingPageCopy || {}
-      const isMockupVariant = exp.variant?.toLowerCase().includes('mockup') || exp.variant?.toLowerCase().includes('frame') || exp.title?.toLowerCase().includes('mockup')
-      updatedCampaign.landingPageCopy = {
-        ...existingLP,
-        headline: !isMockupVariant ? exp.variant : existingLP.headline || `The ${project?.productName || 'Product'} Workspace Built with ${project?.creatorName || 'Co-Founder'}`,
-        heroStyle: isMockupVariant ? 'mockup_first' : 'standard',
-        activeExperimentTitle: exp.title,
-        activeExperimentVariant: exp.variant
-      }
-      appliedMessage = `Landing page hero variant applied to Step 2 Funnel & Public Pre-Order Page!`
-    }
-    // 4. Pricing Variant -> Step 1 Validation Plan & Step 2 Pre-Order Checkout
-    else if (exp.category === 'pricing' || exp.targetField === 'pricingTier') {
-      const priceMatches = exp.variant.match(/\$(\d+)/g)
-      let parsedDeposit = null
-      let parsedFounding = null
-      if (priceMatches && priceMatches.length > 0) {
-        const nums = priceMatches.map(m => Number(m.replace('$', ''))).filter(n => !isNaN(n) && n > 0)
-        if (nums.length === 1) {
-          if (nums[0] < activeFoundingPrice) {
-            parsedDeposit = nums[0]
-          } else {
-            parsedFounding = nums[0]
-          }
-        } else if (nums.length >= 2) {
-          nums.sort((a, b) => a - b)
-          parsedDeposit = nums[0]
-          parsedFounding = nums[nums.length - 1]
-        }
-      }
-
-      const nextFounding = parsedFounding || activeFoundingPrice
-      const nextDeposit = parsedDeposit || (Math.round(nextFounding * 0.2) || activeDepositPrice)
-
-      updatedCampaign.pricingConfig = {
-        ...(updatedCampaign.pricingConfig || {}),
-        foundingPrice: nextFounding,
-        depositPrice: nextDeposit,
-        activeExperimentVariant: exp.variant,
-        activeExperimentTitle: exp.title
-      }
-
-      updatedPlanPricing = `${exp.variant} (Pricing adjusted via AI Experiment: ${exp.title})`
-      setPlan(prev => ({ ...prev, pricing: updatedPlanPricing }))
-      appliedMessage = `Pricing adjusted: Founding Pass $${nextFounding}, Deposit Pass $${nextDeposit}! Updated in Step 1 Plan & Step 2 Checkout.`
-    }
-
+  const persistExperiment = (updatedCampaign, mapExp, message, action, details) => {
     setCampaignKit(updatedCampaign)
-
     let nextExpData = experimentsData
     if (experimentsData?.experiments) {
-      const updatedExps = experimentsData.experiments.map(e => e.id === exp.id ? {
-        ...e,
-        status: 'applied',
-        appliedAt: new Date().toISOString()
-      } : e)
+      const updatedExps = experimentsData.experiments.map(mapExp)
       nextExpData = { ...experimentsData, experiments: updatedExps }
       setExperimentsData(nextExpData)
       setExperiments(updatedExps)
     }
-
-    const updatedProject = {
-      ...(project || {}),
-      campaignKit: updatedCampaign,
-      experimentsData: nextExpData,
-      experiments: nextExpData?.experiments || [],
-      ...(updatedPlanPricing ? { pricing: updatedPlanPricing } : {})
-    }
-    if (onUpdateProject) onUpdateProject(prev => ({ ...(prev || {}), ...updatedProject }))
-
+    const patch = { campaignKit: updatedCampaign, experimentsData: nextExpData, experiments: nextExpData?.experiments || [] }
+    if (onUpdateProject) onUpdateProject((prev) => ({ ...(prev || {}), ...patch }))
     if (project?.id) {
-      updateCoLaunchProject(project.id, {
-        campaignKit: updatedCampaign,
-        experimentsData: nextExpData,
-        experiments: nextExpData?.experiments || [],
-        ...(updatedPlanPricing ? { pricing: updatedPlanPricing } : {}),
-        metadataInfo: {
-          ...(project.metadataInfo || {}),
-          campaign_kit: updatedCampaign,
-          experimentsData: nextExpData
-        }
-      }).catch(e => console.warn(e))
+      updateCoLaunchProject(project.id, { ...patch, metadataInfo: { ...(project.metadataInfo || {}), campaign_kit: updatedCampaign, experimentsData: nextExpData } }).catch((e) => console.warn(e))
+      updateValidationCampaign(project.id, { campaign_kit: updatedCampaign, campaignKit: updatedCampaign }).catch((e) => console.warn(e))
+      logProjectActivity(project.id, { action, details, step: 'optimize', phase: 1 }).catch(() => {})
+    }
+    showNotification(message)
+  }
 
-      updateValidationCampaign(project.id, {
-        campaign_kit: updatedCampaign,
-        campaignKit: updatedCampaign
-      }).catch(e => console.warn(e))
+  const handleApplyExperiment = (exp) => {
+    if (!exp?.variant) return
+    const kind = expKind(exp)
+    const variant = String(exp.variant).trim()
+    const kit = { ...campaignKit, postingSchedule: stripExpLabels(campaignKit?.postingSchedule) }
+    const before = {}
+    let message = ''
 
-      if (updatedPlanPricing) {
-        savePlanFull({ pricing: updatedPlanPricing }).catch(e => console.warn(e))
+    if (kind === 'messaging') {
+      before.announcementPost = campaignKit?.announcementPost ?? null
+      if (variant.length < 60) {
+        // A short hook, not a full post: swap only the opening paragraph so the rest of the post (and its link) stays.
+        const paras = String(kit.announcementPost || '').split(/\n\s*\n/)
+        kit.announcementPost = [variant, ...paras.slice(1)].join('\n\n').trim()
+        message = 'New opening line applied to the Step 3 announcement post.'
+      } else {
+        kit.announcementPost = variant
+        message = 'Announcement post replaced in Step 3.'
       }
-
-      logProjectActivity(project.id, {
-        action: `AI Experiment Implemented: ${exp.title}`,
-        details: `Variant activated: "${exp.variant.slice(0, 100)}"`,
-        step: 'optimize',
-        phase: 1
-      }).catch(() => {})
+      kit.activeMessagingExperiment = { id: exp.id, title: exp.title, variant, expectedUplift: exp.expectedUplift }
+    } else if (kind === 'creator_content') {
+      if (!/frame\s*1/i.test(variant) && variant.length < 140) {
+        showNotification('This mission describes an idea, not a story sequence the creator can post. Click Re-analyse to get a ready-to-post version.', 'warning')
+        return
+      }
+      before.storySequence = campaignKit?.storySequence ?? null
+      kit.storySequence = variant
+      kit.activeStoryExperiment = { id: exp.id, title: exp.title, variant, expectedUplift: exp.expectedUplift }
+      message = 'Story sequence replaced in Step 3.'
+    } else if (kind === 'landing_page') {
+      before.landingPageCopy = campaignKit?.landingPageCopy || null
+      kit.landingPageCopy = { ...(kit.landingPageCopy || {}), headline: variant.slice(0, 140), heroStyle: 'standard', activeExperimentTitle: exp.title, activeExperimentVariant: variant }
+      message = 'Pre-order page headline updated.'
+    } else {
+      const cur = Number(activeFoundingPrice) || 0
+      const nums = (variant.match(/\$\s?(\d+(?:\.\d+)?)/g) || []).map((m) => Number(m.replace(/[^0-9.]/g, ''))).filter((n) => n > 0)
+      const next = Number(exp.newFoundingPrice) || (nums.length === 1 ? nums[0] : NaN)
+      const offModel = /annual|per year|\/yr|subscription|tier/i.test(variant) && !exp.newFoundingPrice
+      if (!next || offModel || (cur && (next > cur * 2 || next < cur / 2))) {
+        showNotification(`Not applied: "${variant}" isn't a founding pre-order price between $${Math.ceil(cur / 2)} and $${Math.floor(cur * 2)} (today $${cur}). Click Re-analyse for a usable price test.`, 'warning')
+        return
+      }
+      before.pricingConfig = campaignKit?.pricingConfig ? { ...campaignKit.pricingConfig } : null
+      const ratio = cur ? (Number(activeDepositPrice) || 0) / cur : 0.2
+      kit.pricingConfig = { ...(kit.pricingConfig || {}), foundingPrice: next, depositPrice: Math.max(1, Math.round(next * (ratio || 0.2))), activeExperimentTitle: exp.title, activeExperimentVariant: variant }
+      message = `Founding price set to $${next} on the pre-order page and checkout.`
     }
 
-    showNotification(appliedMessage)
+    persistExperiment(kit, (e) => (e.id === exp.id ? { ...e, status: 'applied', appliedAt: new Date().toISOString(), before } : e),
+      message, `AI Experiment Implemented: ${exp.title}`, `Variant activated: "${variant.slice(0, 100)}"`)
   }
 
   const handleRevertExperiment = (exp) => {
     if (!exp) return
-    let updatedCampaign = { ...campaignKit }
-
-    if (exp.category === 'messaging' || exp.targetField === 'announcementPost') {
-      updatedCampaign.announcementPost = exp.control || ''
-      updatedCampaign.activeMessagingExperiment = null
-      if (Array.isArray(updatedCampaign.postingSchedule)) {
-        updatedCampaign.postingSchedule = updatedCampaign.postingSchedule.map(t => {
-          if (t.day === 1 || t.title?.toLowerCase().includes('announcement')) {
-            return { ...t, description: exp.control || t.description?.replace(/\[AI Experiment Variant Active:.*?\]\s*/, '') }
-          }
-          return t
-        })
-      }
-    } else if (exp.category === 'creator_content' || exp.targetField === 'storySequence') {
-      updatedCampaign.storySequence = exp.control || ''
-      updatedCampaign.activeStoryExperiment = null
-      if (Array.isArray(updatedCampaign.postingSchedule)) {
-        updatedCampaign.postingSchedule = updatedCampaign.postingSchedule.map(t => {
-          if (t.day === 2 || t.day === 3 || t.title?.toLowerCase().includes('story')) {
-            return { ...t, description: exp.control || t.description?.replace(/\[AI Experiment Variant Active:.*?\]\s*/, '') }
-          }
-          return t
-        })
-      }
-    } else if (exp.category === 'landing_page' || exp.targetField === 'landingPageHero') {
-      const existingLP = updatedCampaign.landingPageCopy || {}
-      updatedCampaign.landingPageCopy = {
-        ...existingLP,
-        headline: exp.control || `The ${project?.productName || 'Product'} System`,
-        heroStyle: 'standard',
-        activeExperimentTitle: null,
-        activeExperimentVariant: null
-      }
-    } else if (exp.category === 'pricing' || exp.targetField === 'pricingTier') {
-      const origFounding = parseMainPricingAmount(project?.pricing)
-      const origDeposit = parseDepositPricingAmount(project?.pricing, origFounding)
-      updatedCampaign.pricingConfig = {
-        ...(updatedCampaign.pricingConfig || {}),
-        foundingPrice: origFounding,
-        depositPrice: origDeposit,
-        activeExperimentVariant: null,
-        activeExperimentTitle: null
-      }
-      setPlan(prev => ({ ...prev, pricing: project?.pricing || `$${origFounding} founding member pass` }))
-      if (project?.id) {
-        savePlanFull({ pricing: project?.pricing || `$${origFounding}` }).catch(() => {})
-      }
+    const kind = expKind(exp)
+    const b = exp.before || null
+    const kit = { ...campaignKit, postingSchedule: stripExpLabels(campaignKit?.postingSchedule) }
+    if (kind === 'messaging') {
+      if (b && 'announcementPost' in b) kit.announcementPost = b.announcementPost
+      else if (String(exp.control || '').length > 60) kit.announcementPost = exp.control
+      kit.activeMessagingExperiment = null
+    } else if (kind === 'creator_content') {
+      if (b && 'storySequence' in b) kit.storySequence = b.storySequence
+      kit.activeStoryExperiment = null // without a snapshot, keep the current stories rather than a placeholder
+    } else if (kind === 'landing_page') {
+      if (b && 'landingPageCopy' in b) kit.landingPageCopy = b.landingPageCopy
+      else kit.landingPageCopy = { ...(kit.landingPageCopy || {}), headline: exp.control || kit.landingPageCopy?.headline, activeExperimentTitle: null, activeExperimentVariant: null }
+    } else if (b && 'pricingConfig' in b) {
+      kit.pricingConfig = b.pricingConfig
+    } else if (kit.pricingConfig) {
+      kit.pricingConfig = { ...kit.pricingConfig, activeExperimentTitle: null, activeExperimentVariant: null }
     }
-
-    setCampaignKit(updatedCampaign)
-
-    let nextExpData = experimentsData
-    if (experimentsData?.experiments) {
-      const updatedExps = experimentsData.experiments.map(e => e.id === exp.id ? {
-        ...e,
-        status: 'ready',
-        appliedAt: null
-      } : e)
-      nextExpData = { ...experimentsData, experiments: updatedExps }
-      setExperimentsData(nextExpData)
-      setExperiments(updatedExps)
-    }
-
-    const updatedProject = {
-      ...(project || {}),
-      campaignKit: updatedCampaign,
-      experimentsData: nextExpData,
-      experiments: nextExpData?.experiments || []
-    }
-    if (onUpdateProject) onUpdateProject(prev => ({ ...(prev || {}), ...updatedProject }))
-
-    if (project?.id) {
-      updateCoLaunchProject(project.id, {
-        campaignKit: updatedCampaign,
-        experimentsData: nextExpData,
-        experiments: nextExpData?.experiments || []
-      }).catch(e => console.warn(e))
-
-      updateValidationCampaign(project.id, {
-        campaign_kit: updatedCampaign,
-        campaignKit: updatedCampaign
-      }).catch(e => console.warn(e))
-    }
-
-    showNotification(`Reverted experiment "${exp.title}" back to control.`)
+    persistExperiment(kit, (e) => (e.id === exp.id ? { ...e, status: 'ready', appliedAt: null, before: null } : e),
+      `Reverted "${exp.title}". The previous version is back.`, `AI Experiment Reverted: ${exp.title}`, '')
   }
 
   const handleClearAllReservations = () => {

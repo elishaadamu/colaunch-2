@@ -8,6 +8,7 @@ import { updateCoLaunchProject } from '../../../services/opsApi'
 import { XLogo } from '../PostVisualMockup'
 import { C, P1_SHARED_CSS } from './phase1Constants'
 import StepRail from './StepRail'
+import ValidationQuest from './ValidationQuest'
 import { channelStats, channelKeyOf } from '../../../utils/launchMoves'
 
 const S4_CSS = `
@@ -83,7 +84,8 @@ export default function Phase1Step4Optimize(props) {
   const goal = Number(presaleTarget) || 0
   const supporters = surveyResponses.filter((r) => r?.support?.decision === 'yes').length
   const actions = signups + supporters + backers
-  const ctr = project?.telemetry?.ctr != null ? Number(project.telemetry.ctr) / 100 : (visitors ? actions / visitors : 0)
+  const teleCtr = project?.telemetry?.ctr != null ? Number(project.telemetry.ctr) / 100 : null
+  const ctr = Math.min(1, teleCtr && teleCtr > 0 ? teleCtr : (visitors ? actions / visitors : 0))
   const conv = visitors ? backers / visitors : 0
   const channels = useMemo(() => {
     const stats = channelStats(project || {}, reservations)
@@ -94,19 +96,23 @@ export default function Phase1Step4Optimize(props) {
   }, [project, reservations])
   const untracked = Math.max(0, visitors - channels.reduce((s, c) => s + c.visits, 0))
 
+  const presaleCount = Math.ceil(goal / Math.max(1, activeFoundingPrice))
+  // Each stat has a real target; the ring shows progress toward it.
   const kpis = [
-    { label: 'Traffic', Icon: Users, value: visitors.toLocaleString(), note: 'unique visitors' },
-    { label: 'CTR', Icon: MousePointerClick, value: visitors ? `${(ctr * 100).toFixed(1)}%` : '—', note: 'visitors who took an action' },
-    { label: 'Sign-ups', Icon: UserPlus, value: (signups + supporters).toLocaleString(), note: `${signups} waitlist · ${supporters} survey pledges` },
-    { label: 'Pre-sales', Icon: ShoppingBag, value: backers.toLocaleString(), note: `goal ≈ ${Math.ceil(goal / Math.max(1, activeFoundingPrice))}` },
-    { label: 'Revenue', Icon: DollarSign, value: money(revenue), note: goal ? `${Math.round((revenue / goal) * 100)}% of ${money(goal)}` : 'collected', tone: C.ok, ratio: goal ? revenue / goal : 0 },
-    { label: 'Conversion', Icon: Percent, value: visitors ? `${(conv * 100).toFixed(1)}%` : '—', note: 'visitor → pre-order (2% is healthy)', tone: visitors ? (conv >= 0.02 ? C.ok : C.warn) : undefined },
+    { label: 'Traffic', Icon: Users, value: visitors.toLocaleString(), note: 'unique visitors', target: 50, have: visitors, tlabel: '50 visitors' },
+    { label: 'CTR', Icon: MousePointerClick, value: visitors ? `${(ctr * 100).toFixed(1)}%` : '—', note: visitors < 20 ? 'needs 20+ visitors to be reliable' : 'visitors who took an action', target: 0.1, have: visitors >= 20 ? ctr : 0, tlabel: '10% act' },
+    { label: 'Sign-ups', Icon: UserPlus, value: (signups + supporters).toLocaleString(), note: `${signups} waitlist · ${supporters} survey pledges`, target: 10, have: signups + supporters, tlabel: '10 sign-ups' },
+    { label: 'Pre-sales', Icon: ShoppingBag, value: backers.toLocaleString(), note: `goal ${presaleCount.toLocaleString()} pre-orders`, target: presaleCount, have: backers, tlabel: `${presaleCount.toLocaleString()} pre-orders` },
+    { label: 'Revenue', Icon: DollarSign, value: money(revenue), note: goal ? `${Math.round((revenue / goal) * 100)}% of ${money(goal)}` : 'collected', target: goal, have: revenue, tlabel: money(goal) },
+    { label: 'Conversion', Icon: Percent, value: visitors ? `${(conv * 100).toFixed(1)}%` : '—', note: visitors < 20 ? 'needs 20+ visitors to be reliable' : 'visitor → pre-order', target: 0.02, have: visitors >= 20 ? conv : 0, tlabel: '2% healthy' },
   ]
 
+  // Survey pledges can come from people the page tracker didn't count, so cap each stage at the one before it.
+  const tookAction = visitors ? Math.min(actions, visitors) : actions
   const funnel = [
     { label: 'Visited the page', n: visitors },
-    { label: 'Took an action', n: actions },
-    { label: 'Pre-ordered', n: backers },
+    { label: 'Took an action', n: tookAction },
+    { label: 'Pre-ordered', n: Math.min(backers, Math.max(tookAction, backers && !visitors ? backers : tookAction)) },
   ]
 
   // ── Audience feedback ─────────────────────────────────────────────────────────────────
@@ -117,6 +123,20 @@ export default function Phase1Step4Optimize(props) {
   const priceCounts = surveyResponses.reduce((acc, r) => { const p = r?.support?.pricePoint; if (p) acc[p] = (acc[p] || 0) + 1; return acc }, {})
   const topPrice = Object.entries(priceCounts).sort((a, b) => b[1] - a[1])[0]
   const quotes = surveyResponses.flatMap((r) => Object.values(r.answers || {}).filter((a) => String(a || '').trim().length > 20).slice(0, 1).map((a) => ({ name: r.name, text: String(a) }))).slice(0, 3)
+
+  // ── Quest (gamified progress from the same real numbers) ──────────────────────────────
+  const weekAgo = Date.now() - 7 * 86400000
+  const questMetrics = {
+    visitors, signups: signups + supporters, backers, revenue, goal, conv,
+    surveys: surveyResponses.length,
+    activeChannels: channels.filter((c) => c.visits > 0 || c.backers > 0).length,
+    applied: (experimentsData?.experiments || project?.experiments || []).filter((e) => e.status === 'applied').length,
+    recent7: reservations.filter((r) => { const t = Date.parse(r.date || r.createdAt || r.paidAt || ''); return t && t >= weekAgo }).length,
+  }
+  const goTo = (where) => {
+    if (where === 'experiments') { document.getElementById('s4-experiments')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return }
+    setActiveStep?.(where); onSelectStep?.(where)
+  }
 
   // ── AI analysis ───────────────────────────────────────────────────────────────────────
   const audit = experimentsData?.performanceAudit || project?.metadataInfo?.performanceAudit || null
@@ -147,21 +167,34 @@ export default function Phase1Step4Optimize(props) {
         </div>
       </div>
 
+      <ValidationQuest projectId={project?.id} metrics={questMetrics} channels={channels} onGo={goTo} />
+
       {/* KPIs */}
       <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2.5">
-        {kpis.map(({ label, Icon, value, note, tone, ratio }) => (
-          <div key={label} className="card p-4 space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs" style={{ color: C.muted }}>{label}</span>
-              <Icon className="w-3.5 h-3.5" style={{ color: C.faint }} />
+        {kpis.map(({ label, Icon, value, note, target, have, tlabel }) => {
+          const r = target > 0 ? Math.min(1, (Number(have) || 0) / target) : 0
+          const hit = r >= 1
+          const R = 17, Cc = 2 * Math.PI * R
+          return (
+            <div key={label} className="card p-4 flex flex-col gap-2" style={hit ? { borderColor: 'rgba(245,196,81,.45)', background: `linear-gradient(160deg, rgba(245,196,81,.07), transparent 60%), ${C.row}` } : undefined}>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <span className="text-xs" style={{ color: C.muted }}>{label}</span>
+                  <p className="serif m-0 mt-1 text-[1.75rem] leading-none whitespace-nowrap" style={{ color: hit ? '#f5c451' : C.text }}>{value}</p>
+                </div>
+                <div className="relative shrink-0" style={{ width: 42, height: 42 }} title={`${Math.round(r * 100)}% of ${tlabel}`}>
+                  <svg width="42" height="42" viewBox="0 0 42 42" aria-hidden="true">
+                    <circle cx="21" cy="21" r={R} fill="none" stroke={C.raised} strokeWidth="4" />
+                    <circle cx="21" cy="21" r={R} fill="none" stroke={hit ? '#f5c451' : C.crimson} strokeWidth="4" strokeDasharray={`${Math.max(r ? 0.03 : 0, r) * Cc} ${Cc}`} transform="rotate(-90 21 21)" style={{ transition: 'stroke-dasharray 1s ease' }} />
+                  </svg>
+                  <Icon className="w-3.5 h-3.5 absolute" style={{ left: 14, top: 14, color: hit ? '#f5c451' : C.faint }} />
+                </div>
+              </div>
+              <p className="m-0 text-[11px]" style={{ color: C.faint }}>{note}</p>
+              <p className="m-0 mt-auto text-[10px] font-bold uppercase tracking-wider" style={{ color: hit ? '#f5c451' : C.muted }}>{hit ? 'Target hit' : `${Math.round(r * 100)}% to ${tlabel}`}</p>
             </div>
-            <p className="serif m-0 text-3xl leading-none" style={{ color: tone || C.text }}>{value}</p>
-            {ratio !== undefined && (
-              <div className="h-1" style={{ background: C.sheet }}><div className="h-full" style={{ width: `${Math.min(1, ratio) * 100}%`, background: C.ok }} /></div>
-            )}
-            <p className="m-0 text-[11px]" style={{ color: C.faint }}>{note}</p>
-          </div>
-        ))}
+          )
+        })}
       </section>
 
       {/* Funnel + attribution */}
@@ -178,7 +211,7 @@ export default function Phase1Step4Optimize(props) {
                     <span className="font-semibold" style={{ color: C.text }}>{f.n.toLocaleString()}{prev !== null && <span className="ml-1.5 text-xs font-normal" style={{ color: C.faint }}>{pctOf(f.n, prev)}</span>}</span>
                   </div>
                   <div className="h-2 mt-1" style={{ background: C.sheet }}>
-                    <div className="h-full" style={{ width: `${visitors ? Math.max(f.n ? 2 : 0, (f.n / visitors) * 100) : 0}%`, background: i === 2 ? C.ok : C.crimson }} />
+                    <div className="h-full" style={{ width: `${visitors ? Math.min(100, Math.max(f.n ? 2 : 0, (f.n / visitors) * 100)) : 0}%`, background: i === 2 ? C.ok : C.crimson }} />
                   </div>
                 </li>
               )
@@ -266,12 +299,12 @@ export default function Phase1Step4Optimize(props) {
       </section>
 
       {/* AI analysis + experiments */}
-      <section className="card p-4 sm:p-5 space-y-4">
+      <section id="s4-experiments" className="card p-4 sm:p-5 space-y-4" style={{ scrollMarginTop: 80 }}>
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div className="flex items-start gap-3 min-w-0">
             <span className="w-10 h-10 flex items-center justify-center shrink-0" style={{ background: C.crimsonSoft, border: `1px solid ${C.crimsonLine}`, color: C.crimsonText }}><Sparkles className="w-4 h-4" /></span>
             <div className="min-w-0">
-              <p className="eyebrow m-0">AI performance analysis</p>
+              <p className="eyebrow m-0">AI coach · missions</p>
               <h4 className="serif m-0 mt-0.5 text-2xl leading-tight" style={{ color: C.text }}>{audit?.primaryBottleneck || (experiments.length ? 'Experiments ready' : 'Not analysed yet')}</h4>
               {audit?.summary && <p className="m-0 mt-1 text-sm max-w-3xl" style={{ color: C.body }}>{audit.summary}</p>}
               {analysedAt && <p className="m-0 mt-1 text-[11px]" style={{ color: C.faint }}>Analysed {new Date(analysedAt).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</p>}
@@ -292,8 +325,15 @@ export default function Phase1Step4Optimize(props) {
               const kind = EXPERIMENT_KINDS[kindOf(exp)]
               const applied = exp.status === 'applied'
               const up = !String(exp.expectedUplift || '').trim().startsWith('-')
+              const firstReward = !experiments.some((e) => e.status === 'applied')
               return (
-                <article key={exp.id || idx} className="well p-4 space-y-3" style={applied ? { borderColor: C.okLine } : undefined}>
+                <article key={exp.id || idx} className="well p-4 space-y-3 relative" style={applied ? { borderColor: 'rgba(245,196,81,.45)', background: `linear-gradient(160deg, rgba(245,196,81,.06), transparent 55%), ${C.sheet}` } : undefined}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-[.16em]" style={{ color: C.faint }}>Mission {idx + 1}</span>
+                    {applied
+                      ? <span className="text-[10px] font-bold px-1.5 py-0.5 flex items-center gap-1" style={{ background: '#f5c451', color: '#1a1205' }}><Check className="w-3 h-3 clp-icon-svg" stroke="#000" strokeWidth={3} style={{ color: "#000", stroke: "#000" }} />Complete</span>
+                      : firstReward && <span className="text-[10px] font-bold px-1.5 py-0.5" style={{ color: '#f5c451', border: '1px solid rgba(245,196,81,.4)' }}>First one applied: +40 XP</span>}
+                  </div>
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="m-0 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: C.crimsonText }}><kind.Icon className="w-3.5 h-3.5" />{kind.label}</p>
@@ -323,7 +363,7 @@ export default function Phase1Step4Optimize(props) {
                       <button type="button" className="btn btn-quiet" onClick={() => handleRevertExperiment?.(exp)}><Undo2 className="w-3.5 h-3.5" />Revert</button>
                     </div>
                   ) : (
-                    <button type="button" className="btn btn-primary w-full" onClick={() => handleApplyExperimentVariant?.(exp)}>Apply experiment <ArrowRight className="w-3.5 h-3.5" /></button>
+                    <button type="button" className="btn btn-primary w-full" onClick={() => handleApplyExperimentVariant?.(exp)}>Start mission: apply experiment <ArrowRight className="w-3.5 h-3.5" /></button>
                   )}
                 </article>
               )

@@ -6,6 +6,8 @@ import {
 import { recordGateDecision, updateCoLaunchProject } from '../../../services/opsApi'
 import { C, P1_SHARED_CSS } from './phase1Constants'
 import StepRail from './StepRail'
+import ValidationQuest from './ValidationQuest'
+import { channelStats } from '../../../utils/launchMoves'
 import { evaluateGate } from '../../../utils/gateDecision'
 
 const S5_CSS = `
@@ -145,6 +147,20 @@ export default function Phase1Step5Gate(props) {
     <div className="s5 p1-themed p1-rise p-5 sm:p-6 space-y-6" style={{ background: C.sheet, border: `1px solid ${C.line}` }}>
       <style>{P1_SHARED_CSS + S5_CSS}</style>
       <StepRail current="gate" />
+      {(() => {
+        const visitors = Number(totalTraffic) || 0
+        const backers = reservations.length
+        const ch = channelStats(project || {}, reservations)
+        const supporters = surveyResponses.filter((r) => r?.support?.decision === 'yes').length
+        return (
+          <ValidationQuest compact projectId={project?.id} metrics={{
+            visitors, backers, revenue: Number(presalesRevenue) || 0, goal: Number(presaleTarget) || 0, conv: visitors ? backers / visitors : 0,
+            signups: Number(project?.telemetry?.signups || (project?.waitlist || []).length || 0) + supporters, surveys: surveyResponses.length,
+            activeChannels: ch.filter((c) => c.visits > 0 || c.backers > 0).length,
+            applied: (project?.experiments || []).filter((e) => e.status === 'applied').length, recent7: 0,
+          }} />
+        )
+      })()}
 
       {!allPriorStepsDone && (
         <div className="p-4 space-y-3" style={{ background: C.sheet, border: `1px solid ${C.crimsonLine}` }}>

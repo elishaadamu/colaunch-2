@@ -21,6 +21,7 @@ import Phase2Step4Gate from './phase2/Phase2Step4Gate'
 import BuildAgentPanel from './phase2/BuildAgentPanel'
 import BuildStudio from './phase2/BuildStudio'
 import SiteBuilderCard from '../site/SiteBuilderCard'
+import ValidationQuest, { withDone } from './phase1/ValidationQuest'
 import Phase2PlanView from './phase2/Phase2PlanView'
 import AutomatedQASuite from './AutomatedQASuite'
 import { getPhase2StepGuards } from '../../utils/stepGuards'
@@ -3097,6 +3098,30 @@ ${(feedbackClusters || []).map(c => `- **${c.count} users:** ${c.title} (${c.cat
       {/* STEP 3: BETA TEST (CUSTOMER COHORT & AI FEEDBACK CLUSTERING) */}
       {activeStep === 'beta' && (
         <div className="space-y-5">
+          {/* Beta quest: progress earned from real beta activity */}
+          {(() => {
+            const usage = project?.betaUsage || {}
+            const invited = betaCohort.filter((b) => b.inviteStatus === 'Sent' || b.lastInviteSentAt).length
+            const done = (engineeringTasks || []).filter((t) => t.status === 'Completed' || t.status === 'done').length
+            const praise = rawFeedback.filter((f) => (f.category || f.type) === 'Praise').length
+            const ms = withDone([
+              { id: 'staging', label: 'App on staging', pts: 30, have: project?.staging ? 1 : 0, need: 1, hint: 'Deploy the build to staging', go: 'build' },
+              { id: 'invite', label: 'First tester invited', pts: 20, have: invited, need: 1, hint: 'Send invites to your backers', go: 'cohort' },
+              { id: 'active1', label: 'First tester active', pts: 30, have: usage.testersActive || 0, need: 1, hint: 'Nudge invited testers to open the app', go: 'cohort' },
+              { id: 'report1', label: 'First feedback report', pts: 30, have: rawFeedback.length, need: 1, hint: 'Ask testers what confused them', go: 'feedback' },
+              { id: 'active5', label: '5 active testers', pts: 50, have: usage.testersActive || 0, need: 5, hint: 'Invite more of the cohort', go: 'cohort' },
+              { id: 'grouped', label: 'Feedback grouped by AI', pts: 30, have: (feedbackClusters || []).length, need: 1, hint: 'Run AI cluster on the reports', go: 'clusters' },
+              { id: 'report10', label: '10 feedback reports', pts: 50, have: rawFeedback.length, need: 10, hint: 'Send a short follow-up question', go: 'feedback' },
+              { id: 'praise', label: 'A tester says it helps', pts: 40, have: praise, need: 1, hint: 'Ask what they would miss without it', go: 'feedback' },
+              { id: 'fixes3', label: '3 fixes shipped', pts: 70, have: done, need: 3, hint: 'Turn the top issue into a task and ship it', go: 'clusters' },
+            ])
+            const levels = [{ at: 0, name: 'Prototype' }, { at: 50, name: "In testers' hands" }, { at: 140, name: 'Learning' }, { at: 230, name: 'Polishing' }, { at: 330, name: 'Launch-ready' }]
+            return (
+              <ValidationQuest title="Beta quest" storeKey="p2quest" projectId={project?.id} milestones={ms} levels={levels}
+                streak={usage.opens ? `${usage.opens} tester session${usage.opens === 1 ? '' : 's'}` : ''}
+                onGo={(where) => { if (where === 'build') { setActiveStepState('build'); onSelectStep?.('build') } else setBetaSubtab(where) }} />
+            )
+          })()}
           {/* Beta usage: who was invited, who is using it, what they report */}
           {(() => {
             const usage = project?.betaUsage || {}
