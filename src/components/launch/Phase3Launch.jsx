@@ -48,7 +48,7 @@ const STEPS = [
 ]
 const CH_ICON = { instagram: Instagram, video: Youtube, x: XLogo, newsletter: Mail, dm: MessageSquare, direct: Link2 }
 const money = (n) => `$${Math.round(Number(n) || 0).toLocaleString()}`
-const BACKEND = (import.meta.env.VITE_BACKEND_URL || 'https://creator-forge-backend-jj1y.onrender.com').replace(/\/$/, '')
+const BACKEND = (import.meta.env.VITE_BACKEND_URL || 'https://colaunch-backend.onrender.com').replace(/\/$/, '')
 const STATUS_ICON = { pass: [CheckCircle2, C.ok], warn: [AlertTriangle, C.warn], fail: [XCircle, C.crimsonText] }
 
 const WORK_LABEL = {

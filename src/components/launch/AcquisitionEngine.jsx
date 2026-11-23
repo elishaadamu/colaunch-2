@@ -3269,7 +3269,7 @@ export default function AcquisitionEngine({
       ? creator.productConcepts
       : ensureCreatorConcepts(creator);
     const frontendBase = PUBLIC_APP_URL;
-    const backendBase = (import.meta?.env?.VITE_BACKEND_URL || 'https://creator-forge-backend-jj1y.onrender.com').replace(/\/$/, '');
+    const backendBase = (import.meta?.env?.VITE_BACKEND_URL || 'https://colaunch-backend.onrender.com').replace(/\/$/, '');
     const creatorSlug = (creator.handle || creator.name || 'creator').replace(/^@/, '').toLowerCase().replace(/[^a-z0-9\-]/g, '');
 
     const primaryHex =
@@ -3723,7 +3723,7 @@ export default function AcquisitionEngine({
           : ensureCreatorConcepts(creator));
 
     const frontendBase = PUBLIC_APP_URL;
-    const backendBase = (import.meta?.env?.VITE_BACKEND_URL || 'https://creator-forge-backend-jj1y.onrender.com').replace(/\/$/, '');
+    const backendBase = (import.meta?.env?.VITE_BACKEND_URL || 'https://colaunch-backend.onrender.com').replace(/\/$/, '');
     const creatorSlug = (creator.handle || creator.name || 'creator').replace(/^@/, '').toLowerCase().replace(/[^a-z0-9\-]/g, '');
 
     const primaryHex =

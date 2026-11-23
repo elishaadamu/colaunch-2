@@ -7,7 +7,7 @@ import {
   getBuildStatus, connectBuildGithub, disconnectBuildGithub, createBuildAgentKey, revokeBuildAgentKey, syncBuildCi,
 } from '../../../services/opsApi'
 
-const BACKEND = (import.meta.env.VITE_BACKEND_URL || 'https://creator-forge-backend-jj1y.onrender.com').replace(/\/$/, '')
+const BACKEND = (import.meta.env.VITE_BACKEND_URL || 'https://colaunch-backend.onrender.com').replace(/\/$/, '')
 const MCP_URL = `${BACKEND}/mcp`
 
 const WORKFLOWS = {

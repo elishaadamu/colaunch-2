@@ -4,7 +4,7 @@ import { loadKeys } from './scraper'
 
 const BACKEND_BASE = (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 // When running locally in dev, route through Vite proxy ('/api') which forwards server-to-server
-// to VITE_BACKEND_URL (https://creator-forge-backend-jj1y.onrender.com) avoiding browser CORS/preflight issues.
+// to VITE_BACKEND_URL (https://colaunch-backend.onrender.com) avoiding browser CORS/preflight issues.
 const BASE = (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
   ? '/api'
   : (BACKEND_BASE ? `${BACKEND_BASE}/api` : '/api')

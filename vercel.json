@@ -22,11 +22,11 @@
     },
     {
       "source": "/api/:path*",
-      "destination": "https://creator-forge-backend-jj1y.onrender.com/api/:path*"
+      "destination": "https://colaunch-backend.onrender.com/api/:path*"
     },
     {
       "source": "/static/:path*",
-      "destination": "https://creator-forge-backend-jj1y.onrender.com/static/:path*"
+      "destination": "https://colaunch-backend.onrender.com/static/:path*"
     },
     {
       "source": "/((?!api/|static/).*)",
